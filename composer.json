@@ -1,0 +1,24 @@
+{
+  "name": "thewunder/corma",
+  "description": "Convention-based Alternative ORM",
+  "minimum-stability": "stable",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Michael O'Connell",
+      "email": "wundbread@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": { "Corma\\" : "src/" }
+  },
+  "autoload-dev": {
+    "psr-4": { "Corma\\Test\\": "test/"}
+  },
+  "require": {
+    "php": ">=5.4",
+    "doctrine/dbal": "~2.0",
+    "symfony/event-dispatcher": ">=2.0 <4.0.0"
+  }
+}
