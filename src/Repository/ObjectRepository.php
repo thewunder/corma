@@ -48,7 +48,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         if($useCache && isset($this->objectByIdCache[$id])) {
             return $this->objectByIdCache[$id];
         }
-        $qb = $this->queryHelper->buildSelectQuery('main.*', ['main.id'=>$id]);
+        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.id'=>$id]);
         $instance = $this->fetchOne($qb);
         if($instance) {
             $this->dispatchEvents('afterLoad', $instance);
@@ -59,26 +59,20 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     public function findAll()
     {
-        // TODO: Implement findAll() method.
+        $dbColumns = $this->queryHelper->getDbColumns($this->getTableName());
+        if(isset($dbColumns['isDeleted'])) {
+            $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['isDeleted'=>0]);
+        } else {
+            $qb = $this->queryHelper->buildSelectQuery($this->getTableName());
+        }
+        $all = $this->fetchAll($qb);
+        array_walk($all, function(DataObjectInterface $object){
+            $this->objectByIdCache[$object->getId()] = $object;
+        });
+        return $all;
     }
 
-    /**
-     * Finds objects by a set of criteria.
-     *
-     * Optionally sorting and limiting details can be passed. An implementation may throw
-     * an UnexpectedValueException if certain values of the sorting or limiting details are
-     * not supported.
-     *
-     * @param array $criteria
-     * @param array|null $orderBy
-     * @param int|null $limit
-     * @param int|null $offset
-     *
-     * @return array The objects.
-     *
-     * @throws \UnexpectedValueException
-     */
-    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+    public function findBy(array $criteria, array $orderBy = [], $limit = null, $offset = null)
     {
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria, $orderBy);
         return $this->fetchAll($qb);
