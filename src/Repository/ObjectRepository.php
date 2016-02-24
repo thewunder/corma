@@ -141,7 +141,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $this->dispatchEvents('beforeDelete', $object);
 
-        $columns = $this->queryHelper->getDbColumns($object);
+        $columns = $this->queryHelper->getDbColumns($object->getTableName());
 
         if(isset($columns['isDeleted'])) {
             $this->db->update($object->getTableName(), ['isDeleted'=>1], ['id'=>$object->getId()]);
