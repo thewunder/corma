@@ -3,6 +3,8 @@ namespace Corma\Repository;
 
 use Corma\DataObject\DataObject;
 use Corma\DataObject\Event;
+use Corma\Exception\ClassNotFoundException;
+use Corma\Exception\InvalidClassException;
 use Corma\Util\QueryHelper;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Persistence\ObjectRepository as ObjectRepositoryInterface;
@@ -116,9 +118,9 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $class = $this->getClassName();
         if(!class_exists($class)) {
-            throw new \LogicException("$class not found");
+            throw new ClassNotFoundException("$class not found");
         } else if(!is_subclass_of($class, DataObject::class)) {
-            throw new \LogicException("$class does not extend DataObject");
+            throw new InvalidClassException("$class must extend DataObject");
         }
         return $class::getTableName();
     }

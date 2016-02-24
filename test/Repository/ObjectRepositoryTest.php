@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Test\Repository;
 
+use Corma\Exception\ClassNotFoundException;
 use Corma\Test\ExtendedDataObject;
 use Corma\Util\QueryHelper;
 use Doctrine\DBAL\Connection;
@@ -38,6 +39,26 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $repository = $this->getRepository();
         $this->assertEquals(ExtendedDataObject::getTableName(), $repository->getTableName());
+    }
+
+    /**
+     * @expectedException \Corma\Exception\ClassNotFoundException
+     */
+    public function testClassNotFound()
+    {
+        /** @noinspection PhpParamsInspection */
+        $repository = new NoClassObjectRepository($this->connection, new EventDispatcher(), $this->queryHelper);
+        $repository->getTableName();
+    }
+
+    /**
+     * @expectedException \Corma\Exception\InvalidClassException
+     */
+    public function testInvalidClass()
+    {
+        /** @noinspection PhpParamsInspection */
+        $repository = new InvalidClassObjectRepository($this->connection, new EventDispatcher(), $this->queryHelper);
+        $repository->getTableName();
     }
 
     public function testSave()
