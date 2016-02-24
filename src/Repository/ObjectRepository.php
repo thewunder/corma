@@ -7,7 +7,6 @@ use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidClassException;
 use Corma\Util\QueryHelper;
 use Doctrine\Common\Cache\Cache;
-use Doctrine\Common\Persistence\ObjectRepository as ObjectRepositoryInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
