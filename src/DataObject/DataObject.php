@@ -10,6 +10,10 @@ abstract class DataObject implements \JsonSerializable, DataObjectInterface
 {
     protected $id, $isDeleted;
 
+    public function __construct()
+    {
+    }
+
     /**
      * Get the table this data object is persisted in
      *

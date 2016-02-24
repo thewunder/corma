@@ -32,6 +32,11 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected $objectByIdCache;
 
     /**
+     * @var array Array of dependencies passed as constructor parameters to the data objects
+     */
+    protected $objectDependencies = [];
+
+    /**
      * @var QueryHelper
      */
     private $queryHelper;
@@ -229,7 +234,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         /** @var Statement $statement */
         $statement = $qb->execute();
-        return $statement->fetchAll(\PDO::FETCH_CLASS, $this->getClassName());
+        return $statement->fetchAll(\PDO::FETCH_CLASS, $this->getClassName(), $this->objectDependencies);
     }
 
     /**
@@ -238,10 +243,9 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected function fetchOne(QueryBuilder $qb)
     {
-        /** @var Statement $statement */
         $statement = $qb->setMaxResults(1)->execute();
-        $results = $statement->fetchAll(\PDO::FETCH_CLASS, $this->getClassName());
-        return reset($results);
+        $statement->setFetchMode(\PDO::FETCH_CLASS, $this->getClassName(), $this->objectDependencies);
+        return $results = $statement->fetch();
     }
 
     /**
