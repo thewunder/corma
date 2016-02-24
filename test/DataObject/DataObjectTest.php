@@ -33,4 +33,13 @@ class DataObjectTest extends \PHPUnit_Framework_TestCase
         $objects[] = $object->setId(7);
         $this->assertEquals([4, 7], ExtendedDataObject::getIds($objects));
     }
+
+    public function testJsonSerialize()
+    {
+        $object = new ExtendedDataObject();
+        $object->setId(4)->setMyColumn('My Column');
+        $data = $object->jsonSerialize();
+        $this->assertEquals(4, $data->id);
+        $this->assertEquals('My Column', $data->myColumn);
+    }
 }
