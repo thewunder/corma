@@ -62,6 +62,12 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $instance;
     }
 
+    /**
+     * Find one or more data objects by id
+     *
+     * @param array $ids
+     * @return array
+     */
     public function findByIds(array $ids)
     {
         $instances = [];
@@ -103,19 +109,19 @@ class ObjectRepository implements ObjectRepositoryInterface
     public function findBy(array $criteria, array $orderBy = [], $limit = null, $offset = null)
     {
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria, $orderBy);
+        if($limit) {
+            $qb->setMaxResults($limit);
+            if($offset) {
+                $qb->setFirstResult($offset);
+            }
+        }
         return $this->fetchAll($qb);
     }
 
-    /**
-     * Finds a single object by a set of criteria.
-     *
-     * @param array $criteria The criteria.
-     *
-     * @return object The object.
-     */
     public function findOneBy(array $criteria)
     {
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria);
+        $qb->setMaxResults(1);
         return $this->fetchOne($qb);
     }
 

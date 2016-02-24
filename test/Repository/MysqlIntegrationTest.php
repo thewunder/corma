@@ -103,6 +103,8 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $object->setMyColumn('ASDF 3');
         $this->repository->save($object);
 
+        $this->repository->find($object->getId());
+
         $ids = ExtendedDataObject::getIds($objects);
         $ids[] = $object->getId();
 
@@ -124,6 +126,11 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $fromDb);
         $this->assertEquals('XYZ', $fromDb[0]->getMyColumn());
         $this->assertEquals('ASDF 4', $fromDb[1]->getMyColumn());
+
+        /** @var ExtendedDataObject[] $limited */
+        $limited = $this->repository->findBy(['myColumn'=>['ASDF 4', 'XYZ']], ['myColumn'=>'DESC'], 1, 1);
+        $this->assertCount(1, $limited);
+        $this->assertEquals('ASDF 4', $limited[0]->getMyColumn());
     }
 
     public static function setUpBeforeClass()
