@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Test;
+namespace Corma\Test\Fixtures;
 
 /**
  * A Fixture

@@ -2,7 +2,7 @@
 namespace Corma\Test\DataObject;
 
 
-use Corma\Test\ExtendedDataObject;
+use Corma\Test\Fixtures\ExtendedDataObject;
 
 class DataObjectTest extends \PHPUnit_Framework_TestCase
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Test\Repository;
+namespace Corma\Test\Fixtures\Repository;
 
 use Corma\Repository\ObjectRepository;
 
