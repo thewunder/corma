@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Test\Repository;
 
-use Corma\Exception\ClassNotFoundException;
 use Corma\Test\ExtendedDataObject;
 use Corma\Util\QueryHelper;
 use Doctrine\DBAL\Connection;
@@ -114,4 +113,3 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         return $repository;
     }
 }
-
