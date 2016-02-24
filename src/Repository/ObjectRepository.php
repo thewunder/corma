@@ -47,6 +47,10 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->queryHelper = $queryHelper;
     }
 
+    public function setUpDependencies()
+    {
+    }
+
     public function find($id, $useCache = true)
     {
         if($useCache && isset($this->objectByIdCache[$id])) {
