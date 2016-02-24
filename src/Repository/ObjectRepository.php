@@ -62,6 +62,29 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $instance;
     }
 
+    public function findByIds(array $ids)
+    {
+        $instances = [];
+        foreach($ids as $i => $id) {
+            if(isset($this->objectByIdCache[$id])) {
+                $instances[] = $this->objectByIdCache[$id];
+                unset($ids[$i]);
+            }
+        }
+
+        if(!empty($ids)) {
+            $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.id'=>$ids]);
+            $newInstances = $this->fetchAll($qb);
+            /** @var $instance DataObjectInterface */
+            foreach($newInstances as $instance) {
+                $this->objectByIdCache[$instance->getId()] = $instance;
+            }
+            $instances = array_merge($instances, $newInstances);
+        }
+
+        return $instances;
+    }
+
     public function findAll()
     {
         $dbColumns = $this->queryHelper->getDbColumns($this->getTableName());
@@ -113,6 +136,11 @@ class ObjectRepository implements ObjectRepositoryInterface
         return implode('\\', $objectClass);
     }
 
+    /**
+     * Return the database table this repository manages
+     *
+     * @return string
+     */
     public function getTableName()
     {
         $class = $this->getClassName();
@@ -124,6 +152,11 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $class::getTableName();
     }
 
+    /**
+     * Persists the object to the database
+     *
+     * @param DataObjectInterface $object
+     */
     public function save(DataObjectInterface $object)
     {
         $this->dispatchEvents('beforeSave', $object);
@@ -137,6 +170,12 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->dispatchEvents('afterSave', $object);
     }
 
+    /**
+     * Removes the object from the database
+     *
+     * @param DataObjectInterface $object
+     * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
+     */
     public function delete(DataObjectInterface $object)
     {
         $this->dispatchEvents('beforeDelete', $object);
@@ -155,7 +194,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
-     * Persist this DataObject in the database
+     * Inserts this DataObject into the database
      *
      * @param DataObjectInterface $object
      * @return DataObjectInterface The newly persisted object with id set
@@ -175,7 +214,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
-     *  Update this DataObject's persistence
+     *  Update this DataObject's table row
      *
      * @param DataObjectInterface $object
      */

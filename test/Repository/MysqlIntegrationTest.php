@@ -30,7 +30,7 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $queryHelper);
     }
 
-    public function testSave()
+    public function testSaveAndFind()
     {
         $object = new ExtendedDataObject($this->dispatcher);
         $object->setMyColumn('My Value')->setMyNullableColumn(15);
@@ -45,7 +45,7 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @depends testSave
+     * @depends testSaveAndFind
      * @param ExtendedDataObject $object
      * @return ExtendedDataObject
      */
@@ -74,6 +74,10 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($fromDb->getIsDeleted());
     }
 
+    /**
+     * @depends testDelete
+     * @return \Corma\DataObject\DataObjectInterface[]
+     */
     public function testFindAll()
     {
         $object = new ExtendedDataObject();
@@ -85,6 +89,25 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $objects = $this->repository->findAll();
         $this->assertCount(2, $objects);
+
+        return $objects;
+    }
+
+    /**
+     * @depends testFindAll
+     * @param array $objects
+     */
+    public function testFindByIds(array $objects)
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('ASDF 3');
+        $this->repository->save($object);
+
+        $ids = ExtendedDataObject::getIds($objects);
+        $ids[] = $object->getId();
+
+        $fromDb = $this->repository->findByIds($ids);
+        $this->assertCount(3, $fromDb);
     }
 
     public static function setUpBeforeClass()
