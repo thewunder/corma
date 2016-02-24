@@ -2,6 +2,7 @@
 namespace Corma\Repository;
 
 use Corma\DataObject\DataObject;
+use Corma\DataObject\DataObjectInterface;
 use Corma\DataObject\Event;
 use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidClassException;
@@ -119,13 +120,13 @@ class ObjectRepository implements ObjectRepositoryInterface
         $class = $this->getClassName();
         if(!class_exists($class)) {
             throw new ClassNotFoundException("$class not found");
-        } else if(!is_subclass_of($class, DataObject::class)) {
-            throw new InvalidClassException("$class must extend DataObject");
+        } else if(!class_implements($class, DataObjectInterface::class)) {
+            throw new InvalidClassException("$class must implement DataObjectInterface");
         }
         return $class::getTableName();
     }
 
-    public function save(DataObject $object)
+    public function save(DataObjectInterface $object)
     {
         $this->dispatchEvents('beforeSave', $object);
 
@@ -138,7 +139,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->dispatchEvents('afterSave', $object);
     }
 
-    public function delete(DataObject $object)
+    public function delete(DataObjectInterface $object)
     {
         $this->dispatchEvents('beforeDelete', $object);
 
@@ -158,10 +159,10 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * Persist this DataObject in the database
      *
-     * @param DataObject $object
-     * @return DataObject The newly persisted object with id set
+     * @param DataObjectInterface $object
+     * @return DataObjectInterface The newly persisted object with id set
      */
-    protected function insert(DataObject $object)
+    protected function insert(DataObjectInterface $object)
     {
         $this->dispatchEvents('beforeInsert', $object);
 
@@ -178,9 +179,9 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      *  Update this DataObject's persistence
      *
-     * @param DataObject $object
+     * @param DataObjectInterface $object
      */
-    protected function update(DataObject $object)
+    protected function update(DataObjectInterface $object)
     {
         $this->dispatchEvents('beforeUpdate', $object);
 
@@ -193,10 +194,10 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     /**
      * Build parameters for insert or update
-     * @param DataObject $object
+     * @param DataObjectInterface $object
      * @return array
      */
-    protected function buildQueryParams(DataObject $object)
+    protected function buildQueryParams(DataObjectInterface $object)
     {
         $queryParams = [];
         $dbColumns = $this->queryHelper->getDbColumns($object->getTableName());
@@ -215,7 +216,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $queryParams;
     }
 
-    private function getValue(DataObject $object, $column)
+    private function getValue(DataObjectInterface $object, $column)
     {
         $getter = ucfirst($column);
         $getter = "get{$getter}";
@@ -229,7 +230,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     /**
      * @param QueryBuilder $qb
-     * @return DataObject[]
+     * @return DataObjectInterface[]
      */
     protected function fetchAll(QueryBuilder $qb)
     {
@@ -240,7 +241,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     /**
      * @param QueryBuilder $qb
-     * @return DataObject
+     * @return DataObjectInterface
      */
     protected function fetchOne(QueryBuilder $qb)
     {
@@ -271,9 +272,9 @@ class ObjectRepository implements ObjectRepositoryInterface
      * Dispatches two events one generic DataObject one and a class specific event
      *
      * @param string $eventName
-     * @param DataObject $object
+     * @param DataObjectInterface $object
      */
-    protected function dispatchEvents($eventName, DataObject $object)
+    protected function dispatchEvents($eventName, DataObjectInterface $object)
     {
         $this->dispatcher->dispatch('DataObject.'.$eventName, new Event($object));
         $class = $object->getClassName();

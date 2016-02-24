@@ -2,6 +2,7 @@
 namespace Corma\Util;
 
 use Corma\DataObject\DataObject;
+use Corma\DataObject\DataObjectInterface;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 /**
@@ -73,7 +74,7 @@ class PagedQuery implements \JsonSerializable
     /**
      * @param int $page Starts at 1
      * @param bool $allResults
-     * @return DataObject[]
+     * @return DataObjectInterface[]
      */
     public function getResults($page, $allResults = false)
     {

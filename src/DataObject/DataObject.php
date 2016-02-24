@@ -6,7 +6,7 @@ use Doctrine\Common\Inflector\Inflector;
 /**
  * An object that can be persisted and retrieved by a Corma ObjectRepository
  */
-abstract class DataObject implements \JsonSerializable
+abstract class DataObject implements \JsonSerializable, DataObjectInterface
 {
     protected $id, $isDeleted;
 
