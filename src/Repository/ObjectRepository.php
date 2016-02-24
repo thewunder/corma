@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Repository;
 
-use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
 use Corma\DataObject\Event;
 use Corma\Exception\ClassNotFoundException;
@@ -30,7 +29,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected $cache;
 
-    protected static $objectByIdCache;
+    protected $objectByIdCache;
 
     /**
      * @var QueryHelper
@@ -46,14 +45,14 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     public function find($id, $useCache = true)
     {
-        if($useCache && isset(self::$objectByIdCache[$this->getTableName()][$id])) {
-            return self::$objectByIdCache[$this->getTableName()][$id];
+        if($useCache && isset($this->objectByIdCache[$id])) {
+            return $this->objectByIdCache[$id];
         }
         $qb = $this->queryHelper->buildSelectQuery('main.*', ['main.id'=>$id]);
-        $instance = static::fetchOne($qb);
+        $instance = $this->fetchOne($qb);
         if($instance) {
             $this->dispatchEvents('afterLoad', $instance);
-            self::$objectByIdCache[$this->getTableName()][$id] = $instance;
+            $this->objectByIdCache[$id] = $instance;
         }
         return $instance;
     }
