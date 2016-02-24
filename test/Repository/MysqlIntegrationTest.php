@@ -133,6 +133,17 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('ASDF 4', $limited[0]->getMyColumn());
     }
 
+    public function testFindOneBy()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('XYZ 2');
+        $this->repository->save($object);
+
+        /** @var ExtendedDataObject $fromDb */
+        $fromDb = $this->repository->findOneBy(['myColumn'=>'XYZ 2']);
+        $this->assertEquals('XYZ 2', $fromDb->getMyColumn());
+    }
+
     public static function setUpBeforeClass()
     {
         $dotenv = new Dotenv(__DIR__.'/../../');
