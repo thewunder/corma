@@ -3,11 +3,16 @@ namespace Corma\DataObject;
 
 use Doctrine\Common\Inflector\Inflector;
 
+/**
+ * An object that can be persisted and retrieved by a Corma ObjectRepository
+ */
 abstract class DataObject implements \JsonSerializable
 {
     protected $id, $isDeleted;
 
     /**
+     * Get the table this data object is persisted in
+     *
      * @return string
      */
     public static function getTableName()
