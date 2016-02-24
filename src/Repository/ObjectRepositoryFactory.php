@@ -19,18 +19,6 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     private $repositories = [];
 
     /**
-     * @var Connection
-     */
-    private $connection;
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
-    /**
-     * @var QueryHelper
-     */
-    private $queryHelper;
-    /**
      * @var array
      */
     private $namespaces;
@@ -39,11 +27,8 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
      */
     private $dependencies;
 
-    public function __construct(Connection $connection, EventDispatcherInterface $dispatcher, QueryHelper $queryHelper, array $namespaces, array $dependencies = [])
+    public function __construct(array $namespaces, array $dependencies)
     {
-        $this->connection = $connection;
-        $this->dispatcher = $dispatcher;
-        $this->queryHelper = $queryHelper;
         if(empty($namespaces)) {
             throw new InvalidArgumentException('At least one data object repository namespace must be specified');
         }
@@ -64,9 +49,9 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
                     throw new InvalidClassException("$className does not implement ObjectRepositoryInterface");
                 }
 
+                $reflection = new \ReflectionClass($className);
                 /** @var ObjectRepositoryInterface $repository */
-                $repository = new $className($this->connection, $this->dispatcher, $this->queryHelper);
-                call_user_func_array([$repository, 'setUpDependencies'], $this->dependencies);
+                $repository = $reflection->newInstanceArgs($this->dependencies);
                 return $repository;
             }
         }
