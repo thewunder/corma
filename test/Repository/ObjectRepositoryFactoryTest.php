@@ -38,6 +38,14 @@ class ObjectRepositoryFactoryTest extends \PHPUnit_Framework_TestCase
         $this->repositoryFactory->getRepository('Invalid');
     }
 
+    /**
+     * @expectedException \Corma\Exception\InvalidArgumentException
+     */
+    public function testNoNamespaces()
+    {
+        $this->repositoryFactory = new ObjectRepositoryFactory([], []);
+    }
+
     public function setUp()
     {
         /** @var Connection $connection */
