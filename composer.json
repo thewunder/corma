@@ -20,5 +20,8 @@
     "php": ">=5.4",
     "doctrine/dbal": "~2.0",
     "symfony/event-dispatcher": ">=2.0 <4.0.0"
+  },
+  "require-dev": {
+    "vlucas/phpdotenv": "~2.0"
   }
 }
