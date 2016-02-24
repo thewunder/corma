@@ -110,6 +110,22 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(3, $fromDb);
     }
 
+    public function testFindBy()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('ASDF 4');
+        $this->repository->save($object);
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('XYZ');
+        $this->repository->save($object);
+
+        /** @var ExtendedDataObject[] $fromDb */
+        $fromDb = $this->repository->findBy(['myColumn'=>['ASDF 4', 'XYZ']], ['myColumn'=>'DESC']);
+        $this->assertCount(2, $fromDb);
+        $this->assertEquals('XYZ', $fromDb[0]->getMyColumn());
+        $this->assertEquals('ASDF 4', $fromDb[1]->getMyColumn());
+    }
+
     public static function setUpBeforeClass()
     {
         $dotenv = new Dotenv(__DIR__.'/../../');
