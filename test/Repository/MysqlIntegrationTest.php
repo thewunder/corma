@@ -40,6 +40,38 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $fromDb = $this->repository->find($object->getId(), false);
         $this->assertEquals($object->getMyColumn(), $fromDb->getMyColumn());
         $this->assertEquals($object->getMyNullableColumn(), $fromDb->getMyNullableColumn());
+
+        return $object;
+    }
+
+    /**
+     * @depends testSave
+     * @param ExtendedDataObject $object
+     * @return ExtendedDataObject
+     */
+    public function testUpdate(ExtendedDataObject $object)
+    {
+        $object->setMyColumn('New Value');
+        $this->repository->save($object);
+
+        /** @var ExtendedDataObject $fromDb */
+        $fromDb = $this->repository->find($object->getId(), false);
+        $this->assertEquals($object->getMyColumn(), $fromDb->getMyColumn());
+        return $object;
+    }
+
+    /**
+     * @depends testUpdate
+     * @param ExtendedDataObject $object
+     */
+    public function testDelete(ExtendedDataObject $object)
+    {
+        $this->repository->delete($object);
+        $this->assertTrue($object->getIsDeleted());
+
+        /** @var ExtendedDataObject $fromDb */
+        $fromDb = $this->repository->find($object->getId(), false);
+        $this->assertTrue($fromDb->getIsDeleted());
     }
 
     public static function setUpBeforeClass()
