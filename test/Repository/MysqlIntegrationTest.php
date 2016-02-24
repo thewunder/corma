@@ -74,6 +74,19 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($fromDb->getIsDeleted());
     }
 
+    public function testFindAll()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('ASDF');
+        $this->repository->save($object);
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('ASDF 2');
+        $this->repository->save($object);
+
+        $objects = $this->repository->findAll();
+        $this->assertCount(2, $objects);
+    }
+
     public static function setUpBeforeClass()
     {
         $dotenv = new Dotenv(__DIR__.'/../../');
