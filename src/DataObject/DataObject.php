@@ -69,7 +69,7 @@ abstract class DataObject implements \JsonSerializable
      * @param array $data
      * @return $this
      */
-    public function fromArray(array $data)
+    public function setData(array $data)
     {
         if($this->id) {
             unset($data['id']);
