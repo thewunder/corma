@@ -22,6 +22,12 @@ interface DataObjectInterface
     public static function getClassName();
 
     /**
+     * @param DataObjectInterface[] $objects
+     * @return array
+     */
+    public static function getIds(array $objects);
+
+    /**
      * @return string
      */
     public function getId();

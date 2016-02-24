@@ -37,6 +37,17 @@ abstract class DataObject implements \JsonSerializable, DataObjectInterface
     }
 
     /**
+     * @param DataObjectInterface[] $objects
+     * @return array
+     */
+    public static function getIds(array $objects)
+    {
+        return array_map(function(DataObjectInterface $object) {
+            return $object->getId();
+        }, $objects);
+    }
+
+    /**
      * @return string
      */
     public function getId()
