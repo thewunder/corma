@@ -1,8 +1,6 @@
 <?php
 namespace Corma\Test\DataObject;
 
-
-use Corma\DataObject\DataObject;
 use Corma\Test\Fixtures\ExtendedDataObject;
 
 class DataObjectTest extends \PHPUnit_Framework_TestCase
@@ -37,9 +35,15 @@ class DataObjectTest extends \PHPUnit_Framework_TestCase
     public function testJsonSerialize()
     {
         $object = new ExtendedDataObject();
-        $object->setId(4)->setMyColumn('My Column');
+        $objectProperty = new ExtendedDataObject();
+        $objectProperty->setId(6);
+        $object->setId(4)->setMyColumn('My Column')
+            ->setObjectProperty($objectProperty)
+            ->setArrayProperty([$objectProperty]);
         $data = $object->jsonSerialize();
         $this->assertEquals(4, $data->id);
         $this->assertEquals('My Column', $data->myColumn);
+        $this->assertEquals(6, $data->objectProperty->id);
+        $this->assertEquals(6, $data->arrayProperty[0]->id);
     }
 }

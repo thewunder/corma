@@ -2,6 +2,7 @@
 namespace Corma\Test\Fixtures;
 
 use Corma\DataObject\DataObject;
+use Corma\DataObject\DataObjectInterface;
 
 /**
  * A Fixture
@@ -9,6 +10,12 @@ use Corma\DataObject\DataObject;
 class ExtendedDataObject extends DataObject
 {
     protected $myColumn, $myNullableColumn;
+
+    /** @var array */
+    protected $arrayProperty;
+
+    /** @var DataObjectInterface */
+    protected $objectProperty;
 
     /**
      * @return mixed
@@ -43,6 +50,42 @@ class ExtendedDataObject extends DataObject
     public function setMyNullableColumn($myNullableColumn)
     {
         $this->myNullableColumn = $myNullableColumn;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getArrayProperty()
+    {
+        return $this->arrayProperty;
+    }
+
+    /**
+     * @param array $arrayProperty
+     * @return ExtendedDataObject
+     */
+    public function setArrayProperty($arrayProperty)
+    {
+        $this->arrayProperty = $arrayProperty;
+        return $this;
+    }
+
+    /**
+     * @return DataObjectInterface
+     */
+    public function getObjectProperty()
+    {
+        return $this->objectProperty;
+    }
+
+    /**
+     * @param DataObjectInterface $objectProperty
+     * @return ExtendedDataObject
+     */
+    public function setObjectProperty($objectProperty)
+    {
+        $this->objectProperty = $objectProperty;
         return $this;
     }
 }
