@@ -6,6 +6,7 @@ namespace Corma\Test\Repository;
 
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
+use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Util\QueryHelper;
 use Doctrine\DBAL\Connection;
@@ -20,6 +21,19 @@ class ObjectRepositoryFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $repository = $this->repositoryFactory->getRepository('ExtendedDataObject');
         $this->assertInstanceOf(ExtendedDataObjectRepository::class, $repository);
+    }
+
+    public function testGetRepositoryFullClass()
+    {
+        $repository = $this->repositoryFactory->getRepository(ExtendedDataObject::class);
+        $this->assertInstanceOf(ExtendedDataObjectRepository::class, $repository);
+    }
+
+    public function testGetRepositoryCaching()
+    {
+        $repository = $this->repositoryFactory->getRepository('ExtendedDataObject');
+        $repository2 = $this->repositoryFactory->getRepository('ExtendedDataObject');
+        $this->assertTrue($repository === $repository2);
     }
 
     /**

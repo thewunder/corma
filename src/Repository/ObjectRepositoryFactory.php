@@ -36,31 +36,67 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
         $this->dependencies = $dependencies;
     }
 
-    public function getRepository($objectClass)
+    public function getRepository($objectName)
     {
-        if(isset($this->repositories[$objectClass])) {
-            return $this->repositories[$objectClass];
+        $objectName = $this->getObjectName($objectName);
+        if(isset($this->repositories[$objectName])) {
+            return $this->repositories[$objectName];
         }
 
         foreach($this->namespaces as $namespace) {
-            $className = $this->getRepositoryClass($objectClass, $namespace);
-            if(class_exists($className)) {
-                if(!class_implements($className, ObjectRepositoryInterface::class)) {
-                    throw new InvalidClassException("$className does not implement ObjectRepositoryInterface");
-                }
-
-                $reflection = new \ReflectionClass($className);
-                /** @var ObjectRepositoryInterface $repository */
-                $repository = $reflection->newInstanceArgs($this->dependencies);
+            $className = $this->getRepositoryClass($objectName, $namespace);
+            $repository = $this->createRepository($className);
+            if($repository) {
+                $this->repositories[$objectName] = $repository;
                 return $repository;
             }
         }
 
-        throw new ClassNotFoundException("Could not find repository class for $objectClass");
+        throw new ClassNotFoundException("Could not find repository class for $objectName");
     }
 
-    protected function getRepositoryClass($objectClass, $namespace)
+    /**
+     * Strip namespace from fully qualified class names
+     *
+     * @param $objectClass
+     * @return string
+     */
+    protected function getObjectName($objectClass)
     {
-        return "$namespace\\Repository\\{$objectClass}Repository";
+        $lastSlash = strrpos($objectClass, '\\');
+        if($lastSlash !== false) {
+            return substr($objectClass, $lastSlash+1);
+        } else {
+            return $objectClass;
+        }
+    }
+
+
+    protected function getRepositoryClass($objectName, $namespace)
+    {
+        return "$namespace\\Repository\\{$objectName}Repository";
+    }
+
+    /**
+     * Construct the repository and return
+     *
+     * @param $className
+     * @return ObjectRepositoryInterface|null
+     */
+    protected function createRepository($className)
+    {
+        if(class_exists($className)) {
+            if(!class_implements($className, ObjectRepositoryInterface::class)) {
+                throw new InvalidClassException("$className does not implement ObjectRepositoryInterface");
+            }
+
+            $reflection = new \ReflectionClass($className);
+            /** @var ObjectRepositoryInterface $repository */
+            $repository = $reflection->newInstanceArgs($this->dependencies);
+
+            $this->repositories[$className] = $repository;
+            return $repository;
+        }
+        return null;
     }
 }
