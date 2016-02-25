@@ -112,14 +112,14 @@ abstract class DataObject implements \JsonSerializable, DataObjectInterface
         foreach($vars as $name => &$value)
         {
             if(is_object($value)) {
-                if(!$value instanceof DataObject || $value === $this) {
+                if(!$value instanceof \JsonSerializable || $value === $this) {
                     unset($vars[$name]);
                 } else {
                     $vars[$name] = $value->jsonSerialize();
                 }
             } else if(is_array($value)) {
                 foreach($value as $k => $v) {
-                    if($v instanceof DataObject) {
+                    if($v instanceof \JsonSerializable) {
                         $value[$k] = $v->jsonSerialize();
                     }
                 }
