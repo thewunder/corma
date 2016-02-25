@@ -38,6 +38,17 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(ExtendedDataObjectRepository::class, $repository);
     }
 
+    public function testCreateObject()
+    {
+        $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockRepo->expects($this->once())->method('create');
+
+        $this->getCorma($mockRepo)->createObject('ExtendedDataObject');
+    }
+
     public function testFind()
     {
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)

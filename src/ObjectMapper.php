@@ -63,6 +63,17 @@ class ObjectMapper
     }
 
     /**
+     * Creates a new instance of the requested object
+     *
+     * @param string $objectName Object class with or without namespace
+     * @return DataObjectInterface
+     */
+    public function createObject($objectName)
+    {
+        return $this->repositoryFactory->getRepository($objectName)->create();
+    }
+
+    /**
      * Find an object by id
      *
      * @param string $objectName Object class with or without namespace
