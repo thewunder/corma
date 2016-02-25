@@ -43,6 +43,13 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(ExtendedDataObject::getTableName(), $repository->getTableName());
     }
 
+    public function testCreate()
+    {
+        $repository = $this->getRepository();
+        $object = $repository->create();
+        $this->assertInstanceOf(ExtendedDataObject::class, $object);
+    }
+
     /**
      * @expectedException \Corma\Exception\ClassNotFoundException
      */

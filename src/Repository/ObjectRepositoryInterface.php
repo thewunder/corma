@@ -7,6 +7,13 @@ use Doctrine\Common\Persistence\ObjectRepository as DoctrineObjectRepository;
 interface ObjectRepositoryInterface extends DoctrineObjectRepository
 {
     /**
+     * Creates a new instance of the object
+     *
+     * @return DataObjectInterface
+     */
+    public function create();
+
+    /**
      * Find one or more data objects by id
      *
      * @param array $ids
