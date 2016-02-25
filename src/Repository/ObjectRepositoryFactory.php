@@ -4,9 +4,6 @@ namespace Corma\Repository;
 use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\InvalidClassException;
-use Corma\Util\QueryHelper;
-use Doctrine\DBAL\Connection;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Default object repository factory, loads repositories from one or more namespaces
