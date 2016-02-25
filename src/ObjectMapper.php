@@ -12,7 +12,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Main entry point for the ORM
  */
-class Corma
+class ObjectMapper
 {
     /**
     /**
@@ -26,7 +26,7 @@ class Corma
     private $queryHelper;
 
     /**
-     * Creates a Corma instance using the default ObjectRepositoryFactory
+     * Creates a ObjectMapper instance using the default ObjectRepositoryFactory
      *
      * @param Connection $db Database connection
      * @param EventDispatcherInterface $dispatcher
@@ -43,7 +43,7 @@ class Corma
     }
 
     /**
-     * Corma constructor.
+     * ObjectMapper constructor.
      * @param QueryHelper $queryHelper
      * @param ObjectRepositoryFactoryInterface $repositoryFactory
      */

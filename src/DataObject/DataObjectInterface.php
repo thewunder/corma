@@ -3,7 +3,7 @@ namespace Corma\DataObject;
 
 
 /**
- * An object that can be persisted and retrieved by a Corma ObjectRepository
+ * An object that can be persisted and retrieved by a ObjectMapper ObjectRepository
  */
 interface DataObjectInterface
 {

@@ -1,7 +1,7 @@
 <?php
 namespace Corma\Test;
 
-use Corma\Corma;
+use Corma\ObjectMapper;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
@@ -11,7 +11,7 @@ use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class CormaTest extends \PHPUnit_Framework_TestCase
+class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 {
     public function testCreate()
     {
@@ -23,16 +23,16 @@ class CormaTest extends \PHPUnit_Framework_TestCase
         $dispatcher = new EventDispatcher();
         $cache = new ArrayCache();
 
-        $corma = Corma::create($connection, $dispatcher, $cache, ['Corma\\Test\\Fixtures']);
-        $this->assertInstanceOf(Corma::class, $corma);
+        $corma = ObjectMapper::create($connection, $dispatcher, $cache, ['Corma\\Test\\Fixtures']);
+        $this->assertInstanceOf(ObjectMapper::class, $corma);
         return $corma;
     }
 
     /**
      * @depends testCreate
-     * @param Corma $corma
+     * @param ObjectMapper $corma
      */
-    public function testGetRepository(Corma $corma)
+    public function testGetRepository(ObjectMapper $corma)
     {
         $repository = $corma->getRepository('ExtendedDataObject');
         $this->assertInstanceOf(ExtendedDataObjectRepository::class, $repository);
@@ -108,16 +108,16 @@ class CormaTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testCreate
-     * @param Corma $corma
+     * @param ObjectMapper $corma
      */
-    public function testGetQueryHelper(Corma $corma)
+    public function testGetQueryHelper(ObjectMapper $corma)
     {
         $this->assertInstanceOf(QueryHelper::class, $corma->getQueryHelper());
     }
 
     /**
      * @param $mockRepository
-     * @return Corma
+     * @return ObjectMapper
      */
     protected function getCorma(\PHPUnit_Framework_MockObject_MockObject $mockRepository)
     {
@@ -134,6 +134,6 @@ class CormaTest extends \PHPUnit_Framework_TestCase
         $mockFactory->expects($this->once())->method('getRepository')->with('ExtendedDataObject')->willReturn($mockRepository);
 
         /** @var ObjectRepositoryFactoryInterface $mockFactory */
-        return new Corma(new QueryHelper($connection, new ArrayCache()), $mockFactory);
+        return new ObjectMapper(new QueryHelper($connection, new ArrayCache()), $mockFactory);
     }
 }
