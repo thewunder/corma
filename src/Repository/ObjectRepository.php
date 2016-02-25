@@ -161,6 +161,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * Persists the object to the database
      *
      * @param DataObjectInterface $object
+     * @return DataObjectInterface
      */
     public function save(DataObjectInterface $object)
     {
@@ -173,6 +174,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
 
         $this->dispatchEvents('afterSave', $object);
+        return $object;
     }
 
     /**

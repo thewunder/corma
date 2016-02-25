@@ -25,6 +25,7 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * Persists the object to the database
      *
      * @param DataObjectInterface $object
+     * @return DataObjectInterface
      */
     public function save(DataObjectInterface $object);
 
