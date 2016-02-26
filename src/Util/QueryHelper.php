@@ -70,6 +70,58 @@ class QueryHelper
     }
 
     /**
+     * @param string $table
+     * @param array $update
+     * @param array $where
+     * @return int The number of affected rows.
+     */
+    public function massUpdate($table, array $update, array $where)
+    {
+        $qb = $this->buildUpdateQuery($table, $update, $where);
+        return $qb->execute();
+    }
+
+    /**
+     * @param string $table
+     * @param array $rows array of column => value
+     * @return int The number of inserted rows
+     */
+    public function massInsert($table, array $rows)
+    {
+        if(empty($rows)) {
+            return 0;
+        }
+
+        $tableName = $this->db->quoteIdentifier($table);
+        $columns = array_keys($rows[0]);
+        array_walk($columns, function(&$column) {
+            $column = $this->db->quoteIdentifier($column);
+        });
+        $columnStr = implode(', ', $columns);
+        $query = "INSERT INTO $tableName ($columnStr) VALUES ";
+
+        $values = array_fill(0, count($rows), '(?)');
+        $query .= implode(', ', $values);
+
+        $params = array_map(function($row){
+            return array_values($row);
+        }, $rows);
+
+        return $this->db->executeUpdate($query, $params, array_fill(0, count($rows), Connection::PARAM_STR_ARRAY));
+    }
+
+    /**
+     * @param string $table
+     * @param array $where
+     * @return int
+     * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
+     */
+    public function massDelete($table, array $where)
+    {
+        return $this->db->delete($this->db->quoteIdentifier($table), $where);
+    }
+
+    /**
      * Counts the number of results that would be returned
      *
      * @param QueryBuilder $qb
