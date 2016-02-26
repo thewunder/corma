@@ -56,4 +56,11 @@ interface DataObjectInterface
      * @return $this
      */
     public function setData(array $data);
+
+    /**
+     * Returns all scalar data (i.e. no objects / arrays)
+     *
+     * @return array
+     */
+    public function getData();
 }

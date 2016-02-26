@@ -94,16 +94,35 @@ abstract class DataObject implements \JsonSerializable, DataObjectInterface
         if($this->id) {
             unset($data['id']);
         }
-        foreach($data as $column => $value) {
-            $setter = ucfirst($column);
+
+        foreach($data as $name => $value) {
+            $setter = ucfirst($name);
             $setter = "set{$setter}";
             if(method_exists($this, $setter)) {
                 $this->$setter($value);
-            } else if(property_exists($this, $column) && !is_array($value)) {
-                $this->{$column} = $value;
+            } else if(property_exists($this, $name) && !is_array($value)) {
+                $this->{$name} = $value;
             }
         }
         return $this;
+    }
+
+    /**
+     * Returns all scalar data (i.e. no objects / arrays)
+     *
+     * @return array
+     */
+    public function getData()
+    {
+        $data = [];
+        foreach($this as $property => $value) {
+            if(!is_scalar($value)) {
+                continue;
+            }
+
+            $data[$property] = $value;
+        }
+        return $data;
     }
 
     function jsonSerialize()
