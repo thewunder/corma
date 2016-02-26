@@ -25,9 +25,10 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $queryHelper = new QueryHelper(self::$connection, new ArrayCache());
+        $cache = new ArrayCache();
+        $queryHelper = new QueryHelper(self::$connection, $cache);
         $this->dispatcher = new EventDispatcher();
-        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $queryHelper);
+        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $queryHelper, $cache);
     }
 
     public function testSaveAndFind()

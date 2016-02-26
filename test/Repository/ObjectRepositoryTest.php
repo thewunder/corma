@@ -6,6 +6,7 @@ use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Test\Fixtures\Repository\InvalidClassObjectRepository;
 use Corma\Test\Fixtures\Repository\NoClassObjectRepository;
 use Corma\Util\QueryHelper;
+use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -56,7 +57,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     public function testClassNotFound()
     {
         /** @noinspection PhpParamsInspection */
-        $repository = new NoClassObjectRepository($this->connection, new EventDispatcher(), $this->queryHelper);
+        $repository = new NoClassObjectRepository($this->connection, new EventDispatcher(), $this->queryHelper, new ArrayCache());
         $repository->getTableName();
     }
 
@@ -66,7 +67,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     public function testInvalidClass()
     {
         /** @noinspection PhpParamsInspection */
-        $repository = new InvalidClassObjectRepository($this->connection, new EventDispatcher(), $this->queryHelper);
+        $repository = new InvalidClassObjectRepository($this->connection, new EventDispatcher(), $this->queryHelper, new ArrayCache());
         $repository->getTableName();
     }
 
@@ -119,7 +120,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     protected function getRepository()
     {
-        $repository = new ExtendedDataObjectRepository($this->connection, new EventDispatcher(), $this->queryHelper);
+        $repository = new ExtendedDataObjectRepository($this->connection, new EventDispatcher(), $this->queryHelper, new ArrayCache());
         return $repository;
     }
 }

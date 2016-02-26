@@ -38,7 +38,7 @@ class ObjectMapper
     public static function create(Connection $db, EventDispatcherInterface $dispatcher, Cache $cache, array $namespaces, array $additionalDependencies = [])
     {
         $queryHelper = new QueryHelper($db, $cache);
-        $dependencies = array_merge([$db, $dispatcher, $queryHelper], $additionalDependencies);
+        $dependencies = array_merge([$db, $dispatcher, $queryHelper, $cache], $additionalDependencies);
         return new static($queryHelper, new ObjectRepositoryFactory($namespaces, $dependencies));
     }
 

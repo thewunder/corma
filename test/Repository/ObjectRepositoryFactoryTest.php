@@ -9,6 +9,7 @@ use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Util\QueryHelper;
+use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -74,6 +75,6 @@ class ObjectRepositoryFactoryTest extends \PHPUnit_Framework_TestCase
 
         $dispatcher = new EventDispatcher();
 
-        $this->repositoryFactory = new ObjectRepositoryFactory(['Corma\\Test\\Fixtures'], [$connection, $dispatcher, $queryHelper]);
+        $this->repositoryFactory = new ObjectRepositoryFactory(['Corma\\Test\\Fixtures'], [$connection, $dispatcher, $queryHelper, new ArrayCache()]);
     }
 }

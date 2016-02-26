@@ -24,6 +24,11 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected $dispatcher;
 
     /**
+     * @var QueryHelper
+     */
+    private $queryHelper;
+
+    /**
      * @var Cache
      */
     protected $cache;
@@ -35,16 +40,12 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected $objectDependencies = [];
 
-    /**
-     * @var QueryHelper
-     */
-    private $queryHelper;
-
-    public function __construct(Connection $db, EventDispatcherInterface $dispatcher, QueryHelper $queryHelper)
+    public function __construct(Connection $db, EventDispatcherInterface $dispatcher, QueryHelper $queryHelper, Cache $cache)
     {
         $this->db = $db;
         $this->dispatcher = $dispatcher;
         $this->queryHelper = $queryHelper;
+        $this->cache = $cache;
     }
 
     public function create()
