@@ -26,7 +26,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * @var QueryHelper
      */
-    private $queryHelper;
+    protected $queryHelper;
 
     /**
      * @var Cache
