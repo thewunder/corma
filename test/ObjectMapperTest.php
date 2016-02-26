@@ -60,6 +60,17 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
         $this->getCorma($mockRepo)->find('ExtendedDataObject', 5);
     }
 
+    public function testFindByIds()
+    {
+        $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockRepo->expects($this->once())->method('findByIds')->with([5, 15]);
+
+        $this->getCorma($mockRepo)->findByIds('ExtendedDataObject', [5, 15]);
+    }
+
     public function testFindAll()
     {
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)

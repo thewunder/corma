@@ -86,6 +86,18 @@ class ObjectMapper
     }
 
     /**
+     * Find objects by ids
+     *
+     * @param string $objectName Object class with or without namespace
+     * @param array $ids
+     * @return DataObjectInterface[]
+     */
+    public function findByIds($objectName, array $ids)
+    {
+        return $this->getRepository($objectName)->findByIds($ids);
+    }
+
+    /**
      * Find all of the specified object type
      *
      * @param string $objectName Object class with or without namespace
