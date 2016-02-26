@@ -8,7 +8,7 @@ use Corma\Exception\BadMethodCallException;
  * Repository that aggressively caches its results and does not permit saving or deleting.
  * find, findByIds, and findAll operate exclusively from cache
  *
- * Not meant for large tables.
+ * Not meant for large tables as the entire table is loaded into memory and cache
  */
 abstract class ReadOnlyObjectRepository extends ObjectRepository
 {
