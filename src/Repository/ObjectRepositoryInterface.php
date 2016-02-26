@@ -17,9 +17,10 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * Find one or more data objects by id
      *
      * @param array $ids
-     * @return DataObjectInterface[]
+     * @param bool $useCache
+     * @return \Corma\DataObject\DataObjectInterface[]
      */
-    public function findByIds(array $ids);
+    public function findByIds(array $ids, $useCache = true);
 
     /**
      * Return the database table this repository manages

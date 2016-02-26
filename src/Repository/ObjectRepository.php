@@ -77,15 +77,18 @@ class ObjectRepository implements ObjectRepositoryInterface
      * Find one or more data objects by id
      *
      * @param array $ids
+     * @param bool $useCache
      * @return array
      */
-    public function findByIds(array $ids)
+    public function findByIds(array $ids, $useCache = true)
     {
         $instances = [];
-        foreach($ids as $i => $id) {
-            if(isset($this->objectByIdCache[$id])) {
-                $instances[] = $this->objectByIdCache[$id];
-                unset($ids[$i]);
+        if($useCache) {
+            foreach($ids as $i => $id) {
+                if(isset($this->objectByIdCache[$id])) {
+                    $instances[] = $this->objectByIdCache[$id];
+                    unset($ids[$i]);
+                }
             }
         }
 
