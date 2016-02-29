@@ -3,6 +3,7 @@
   "description": "Convention-based Alternative ORM",
   "minimum-stability": "stable",
   "type": "library",
+  "keywords": ["Object Relational Mapper", "Data Mapper"],
   "license": "MIT",
   "authors": [
     {
