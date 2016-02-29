@@ -127,7 +127,7 @@ class QueryHelper
      * @param QueryBuilder $qb
      * @return int
      */
-    public static function getCount(QueryBuilder $qb)
+    public function getCount(QueryBuilder $qb)
     {
         if($qb->getType() != QueryBuilder::SELECT) {
             throw new \InvalidArgumentException('Query builder must be a select query');
