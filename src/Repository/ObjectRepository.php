@@ -2,7 +2,7 @@
 namespace Corma\Repository;
 
 use Corma\DataObject\DataObjectInterface;
-use Corma\DataObject\Event;
+use Corma\DataObject\DataObjectEvent;
 use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidClassException;
 use Corma\Util\QueryHelper;
@@ -334,8 +334,8 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected function dispatchEvents($eventName, DataObjectInterface $object)
     {
-        $this->dispatcher->dispatch('DataObject.'.$eventName, new Event($object));
+        $this->dispatcher->dispatch('DataObject.'.$eventName, new DataObjectEvent($object));
         $class = $object->getClassName();
-        $this->dispatcher->dispatch('DataObject.'.$class.'.'.$eventName, new Event($object));
+        $this->dispatcher->dispatch('DataObject.'.$class.'.'.$eventName, new DataObjectEvent($object));
     }
 }

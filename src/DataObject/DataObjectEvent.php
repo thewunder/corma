@@ -3,7 +3,7 @@ namespace Corma\DataObject;
 
 use Symfony\Component\EventDispatcher\Event as BaseEvent;
 
-class Event extends BaseEvent
+class DataObjectEvent extends BaseEvent implements DataObjectEventInterface
 {
     /** @var DataObjectInterface */
     protected $object;
