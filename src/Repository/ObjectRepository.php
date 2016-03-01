@@ -260,12 +260,11 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $queryParams = [];
         $dbColumns = $this->queryHelper->getDbColumns($object->getTableName());
-        foreach ($dbColumns as $column => $acceptNull) {
-            $value = $this->getValue($object, $column);
+        foreach ($object->getData() as $column => $value) {
             if (isset($dbColumns[$column])) {
                 if ($column == 'id') {
                     continue;
-                } else if($value === null && $acceptNull === false) {
+                } else if($value === null && $dbColumns[$column] === false) {
                     continue;
                 } else {
                     $queryParams[$this->db->quoteIdentifier($column)] = $value;
@@ -273,18 +272,6 @@ class ObjectRepository implements ObjectRepositoryInterface
             }
         }
         return $queryParams;
-    }
-
-    private function getValue(DataObjectInterface $object, $column)
-    {
-        $getter = ucfirst($column);
-        $getter = "get{$getter}";
-        if(method_exists($object, $getter)) {
-            return $object->$getter();
-        } else if(property_exists($object, $column)){
-            return $object->{$column};
-        }
-        return null;
     }
 
     /**

@@ -76,7 +76,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $object = new ExtendedDataObject();
         $object->setMyColumn('testValue');
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
-        $this->connection->expects($this->once())->method('insert')->with($object->getTableName(), ['`isDeleted`'=>0,'`myColumn`'=>'testValue']);
+        $this->connection->expects($this->once())->method('insert')->with($object->getTableName(), ['`myColumn`'=>'testValue']);
         $this->connection->expects($this->any())->method('lastInsertId')->willReturn('123');
         $repo = $this->getRepository();
         $repo->save($object);
@@ -88,7 +88,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $object = new ExtendedDataObject();
         $object->setId('123')->setMyColumn('testValue');
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
-        $this->connection->expects($this->once())->method('update')->with($object->getTableName(), ['`isDeleted`'=>0,'`myColumn`'=>'testValue'], ['id'=>'123']);
+        $this->connection->expects($this->once())->method('update')->with($object->getTableName(), ['`myColumn`'=>'testValue'], ['id'=>'123']);
         $repo = $this->getRepository();
         $repo->save($object);
     }
