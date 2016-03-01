@@ -10,9 +10,7 @@ install:
 services:
   - mysql
 env:
-  - MYSQL_HOST=localhost
-  - MYSQL_USER=root
-  - MYSQL_PASS=
+  - MYSQL_HOST=localhost MYSQL_USER=root MYSQL_PASS=
 script:
  - mkdir -p build/logs
  - phpunit --coverage-clover build/logs/clover.xml
