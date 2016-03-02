@@ -3,6 +3,7 @@ namespace Corma\Util;
 
 use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
+use Corma\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 /**
@@ -60,7 +61,7 @@ class PagedQuery implements \JsonSerializable
     public function __construct(QueryBuilder $qb, QueryHelper $queryHelper, $class, $pageSize = self::DEFAULT_PAGESIZE)
     {
         if($pageSize < 1) {
-            throw new \InvalidArgumentException('Page size must be greater than 0');
+            throw new InvalidArgumentException('Page size must be greater than 0');
         }
 
         $this->qb = $qb;
@@ -79,7 +80,7 @@ class PagedQuery implements \JsonSerializable
     public function getResults($page, $allResults = false)
     {
         if($page < 1 || $page > $this->getPages()) {
-            throw new \InvalidArgumentException("Page must be between 1 and {$this->getPages()}");
+            throw new InvalidArgumentException("Page must be between 1 and {$this->getPages()}");
         }
 
         if(!$allResults) {
