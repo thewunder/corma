@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Util;
 
-use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
 use Corma\Exception\InvalidArgumentException;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -22,30 +21,6 @@ class PagedQuery implements \JsonSerializable
      * @var QueryHelper
      */
     private $queryHelper;
-
-    /**
-     * @return int
-     */
-    public function getPage()
-    {
-        return $this->page;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPrev()
-    {
-        return $this->prev;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNext()
-    {
-        return $this->next;
-    }
 
     /**
      * @var QueryBuilder
@@ -104,6 +79,38 @@ class PagedQuery implements \JsonSerializable
     public function getPages()
     {
         return $this->pages;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPage()
+    {
+        return $this->page;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPrev()
+    {
+        return $this->prev;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNext()
+    {
+        return $this->next;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPageSize()
+    {
+        return $this->pageSize;
     }
 
     function jsonSerialize()
