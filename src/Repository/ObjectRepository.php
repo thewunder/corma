@@ -325,4 +325,16 @@ class ObjectRepository implements ObjectRepositoryInterface
         $class = $object->getClassName();
         $this->dispatcher->dispatch('DataObject.'.$class.'.'.$eventName, new DataObjectEvent($object));
     }
+
+    /**
+     * @param array $data
+     * @return DataObjectInterface
+     */
+    protected function restoreFromCache(array $data)
+    {
+        $object = $this->create();
+        $object->setData($data);
+        $this->objectByIdCache[$object->getId()] = $object;
+        return $object;
+    }
 }
