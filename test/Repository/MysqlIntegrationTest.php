@@ -147,18 +147,18 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        if(empty($_ENV['MYSQL_HOST']) && file_exists(__DIR__.'/../../.env')) {
+        if(empty(getenv('MYSQL_HOST')) && file_exists(__DIR__.'/../../.env')) {
             $dotenv = new Dotenv(__DIR__.'/../../');
             $dotenv->load();
         }
 
-        if(empty($_ENV['MYSQL_HOST']) || empty($_ENV['MYSQL_USER'])) {
+        if(empty(getenv('MYSQL_HOST')) || empty(getenv('MYSQL_USER'))) {
             throw new \RuntimeException('Create a .env file with MYSQL_HOST, MYSQL_USER, and MYSQL_PASS to run this test.');
         }
 
-        $pass = isset($_ENV['MYSQL_PASS']) ? $_ENV['MYSQL_PASS'] : '';
+        $pass = getenv('MYSQL_PASS') ? getenv('MYSQL_PASS') : '';
 
-        $pdo = new \PDO('mysql:host='.$_ENV['MYSQL_HOST'], $_ENV['MYSQL_USER'], $pass);
+        $pdo = new \PDO('mysql:host='.getenv('MYSQL_HOST'), getenv('MYSQL_USER'), $pass);
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
         self::$connection = DriverManager::getConnection(['driver'=>'pdo_mysql','pdo'=>$pdo]);
