@@ -152,7 +152,7 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
             $dotenv->load();
         }
 
-        if(empty($_ENV['MYSQL_HOST']) || empty($_ENV['MYSQL_USER']) || empty($_ENV['MYSQL_PASS'])) {
+        if(empty($_ENV['MYSQL_HOST']) || empty($_ENV['MYSQL_USER']) || !isset($_ENV['MYSQL_PASS'])) {
             throw new \RuntimeException('Create a .env file with MYSQL_HOST, MYSQL_USER, and MYSQL_PASS to run this test.');
         }
         $pdo = new \PDO('mysql:host='.$_ENV['MYSQL_HOST'], $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASS']);
