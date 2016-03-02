@@ -134,6 +134,17 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('ASDF 4', $limited[0]->getMyColumn());
     }
 
+    public function testFindByNull()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('ASDF 4');
+        $this->repository->save($object);
+
+        /** @var ExtendedDataObject[] $limited */
+        $nullObjects = $this->repository->findBy(['myNullableColumn'=>null]);
+        $this->assertGreaterThan(0, $nullObjects);
+    }
+
     public function testFindOneBy()
     {
         $object = new ExtendedDataObject();

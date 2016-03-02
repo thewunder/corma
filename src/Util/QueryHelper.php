@@ -153,7 +153,7 @@ class QueryHelper
             if (is_array($value)) {
                 $clause = $db->quoteIdentifier($column) . " IN(:$paramName)";
                 $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
-            } else if($value === null && $this->acceptsNull($qb->getQueryPart('from')['table'], $column)) {
+            } else if($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
                 $clause = $db->quoteIdentifier($column) . ' IS NULL';
             } else {
                 $clause = $db->quoteIdentifier($column) . ' = :' . $paramName;
@@ -170,17 +170,21 @@ class QueryHelper
     }
 
     /**
-     * @param string $table
+     * @param array $from The from part of the query builder
      * @param string $column
      * @return bool
      */
-    private function acceptsNull($table, $column)
+    private function acceptsNull(array $from, $column)
     {
-        $columns = $this->getDbColumns($table);
-        if(!isset($columns[$column])) {
-            return false;
+        foreach($from as $tableInfo) {
+            $table = str_replace('`', '', $tableInfo['table']);
+            $columns = $this->getDbColumns($table);
+            if(!isset($columns[$column])) {
+                continue;
+            }
+            return $columns[$column];
         }
-        return $columns[$column];
+        return false;
     }
 
     /**
