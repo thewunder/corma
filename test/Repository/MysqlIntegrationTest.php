@@ -147,8 +147,11 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        $dotenv = new Dotenv(__DIR__.'/../../');
-        $dotenv->load();
+        if(empty($_ENV['MYSQL_HOST']) && file_exists(__DIR__.'/../../.env')) {
+            $dotenv = new Dotenv(__DIR__.'/../../');
+            $dotenv->load();
+        }
+
         if(empty($_ENV['MYSQL_HOST']) || empty($_ENV['MYSQL_USER']) || empty($_ENV['MYSQL_PASS'])) {
             throw new \RuntimeException('Create a .env file with MYSQL_HOST, MYSQL_USER, and MYSQL_PASS to run this test.');
         }
