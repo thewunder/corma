@@ -32,13 +32,14 @@ abstract class ReadOnlyObjectRepository extends ObjectRepository
 
     public function findAll()
     {
-        if($this->cache->contains($this->getCacheKey())) {
-            return $this->restoreAllFromCache();
+        $key = $this->getCacheKey();
+        if($this->cache->contains($key)) {
+            return $this->restoreAllFromCache($key);
         }
 
         $objects = parent::findAll();
 
-        $this->storeAllInCache($objects);
+        $this->storeAllInCache($objects, $key);
 
         return $objects;
     }
@@ -59,31 +60,5 @@ abstract class ReadOnlyObjectRepository extends ObjectRepository
     protected function getCacheKey()
     {
         return "all_{$this->getTableName()}";
-    }
-
-    /**
-     * @return DataObjectInterface[]
-     */
-    protected function restoreAllFromCache()
-    {
-        $cachedData = $this->cache->fetch($this->getCacheKey());
-        $objectsFromCache = [];
-        foreach ($cachedData as $data) {
-            $objectsFromCache[] = $this->restoreFromCache($data);
-        }
-        return $objectsFromCache;
-    }
-
-    /**
-     * @param DataObjectInterface[] $objects
-     */
-    protected function storeAllInCache($objects)
-    {
-        $dataToCache = [];
-        foreach ($objects as $object) {
-            $dataToCache[] = $object->getData();
-            $this->objectByIdCache[$object->getId()] = $object;
-        }
-        $this->cache->save($this->getCacheKey(), $dataToCache);
     }
 }

@@ -339,4 +339,37 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->objectByIdCache[$object->getId()] = $object;
         return $object;
     }
+
+    /**
+     * Restores DataObjects from the cache at the key specified
+     *
+     * @param string $key Cache key
+     * @return DataObjectInterface[]
+     */
+    protected function restoreAllFromCache($key)
+    {
+        $cachedData = $this->cache->fetch($key);
+        $objectsFromCache = [];
+        foreach ($cachedData as $data) {
+            $objectsFromCache[] = $this->restoreFromCache($data);
+        }
+        return $objectsFromCache;
+    }
+
+    /**
+     * Stores DataObjects in cache at the key specified
+     *
+     * @param DataObjectInterface[] $objects
+     * @param string $key
+     * @param int $lifeTime
+     */
+    protected function storeAllInCache(array $objects, $key, $lifeTime = 0)
+    {
+        $dataToCache = [];
+        foreach ($objects as $object) {
+            $dataToCache[] = $object->getData();
+            $this->objectByIdCache[$object->getId()] = $object;
+        }
+        $this->cache->save($key, $dataToCache, $lifeTime);
+    }
 }
