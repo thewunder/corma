@@ -69,8 +69,7 @@ abstract class ReadOnlyObjectRepository extends ObjectRepository
         $cachedData = $this->cache->fetch($this->getCacheKey());
         $objectsFromCache = [];
         foreach ($cachedData as $data) {
-            $object = $this->restoreFromCache($data);
-            $objectsFromCache[] = $object;
+            $objectsFromCache[] = $this->restoreFromCache($data);
         }
         return $objectsFromCache;
     }
