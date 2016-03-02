@@ -327,6 +327,8 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
+     * Restores a single DataObject from cached data
+     *
      * @param array $data
      * @return DataObjectInterface
      */
