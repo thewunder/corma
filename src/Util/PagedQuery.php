@@ -82,6 +82,8 @@ class PagedQuery implements \JsonSerializable
     }
 
     /**
+     * Get the current page number
+     *
      * @return int
      */
     public function getPage()
@@ -90,6 +92,8 @@ class PagedQuery implements \JsonSerializable
     }
 
     /**
+     * Get the previous page number
+     *
      * @return int
      */
     public function getPrev()
@@ -98,6 +102,8 @@ class PagedQuery implements \JsonSerializable
     }
 
     /**
+     * Get the next page number
+     *
      * @return int
      */
     public function getNext()
