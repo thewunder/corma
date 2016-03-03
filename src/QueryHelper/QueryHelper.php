@@ -10,11 +10,12 @@ class QueryHelper implements QueryHelperInterface
     /**
      * @var Connection
      */
-    private $db;
+    protected $db;
+
     /**
      * @var Cache
      */
-    private $cache;
+    protected $cache;
 
     public function __construct(Connection $db, Cache $cache)
     {
@@ -137,19 +138,20 @@ class QueryHelper implements QueryHelperInterface
         $this->db->beginTransaction();
 
         try {
-            $insertCount = $this->massInsert($table, $rowsToInsert);
+            $effected = $this->massInsert($table, $rowsToInsert);
 
             foreach($rowsToUpdate as $row) {
                 $id = $row['id'];
                 unset($row['id']);
-                $this->db->update($this->db->quoteIdentifier($table), $this->quoteIdentifiers($row), ['id'=>$id]);
+                $effected += $this->db->update($this->db->quoteIdentifier($table), $this->quoteIdentifiers($row), ['id'=>$id]);
             }
+            $this->db->commit();
         } catch(\Exception $e) {
             $this->db->rollBack();
             throw $e;
         }
 
-        return $insertCount;
+        return $effected;
     }
 
     /**
