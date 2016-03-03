@@ -50,7 +50,7 @@ interface QueryHelperInterface
      *
      * @param string $table
      * @param array $rows array of column => value
-     * @return int The number of inserted rows
+     * @return int The number of affected rows
      */
     public function massUpsert($table, array $rows);
 
@@ -59,7 +59,7 @@ interface QueryHelperInterface
      *
      * @param string $table
      * @param array $where column => value pairs, value may be an array for an IN() clause
-     * @return int
+     * @return int Number of affected rows
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
      */
     public function massDelete($table, array $where);

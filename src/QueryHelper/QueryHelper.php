@@ -114,7 +114,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @param string $table
      * @param array $rows array of column => value
-     * @return int The number of inserted rows
+     * @return int The number of affected rows
      *
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws \Exception
@@ -159,8 +159,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @param string $table
      * @param array $where column => value pairs, value may be an array for an IN() clause
-     * @return int
-     * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
+     * @return int Number of affected rows
      */
     public function massDelete($table, array $where)
     {
