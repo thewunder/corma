@@ -126,7 +126,10 @@ class QueryHelper implements QueryHelperInterface
      */
     public function massDelete($table, array $where)
     {
-        return $this->db->delete($this->db->quoteIdentifier($table), $where);
+        $columns = array_map(function($column) {
+            return $this->db->quoteIdentifier($column);
+        }, array_keys($where));
+        return $this->db->delete($this->db->quoteIdentifier($table), array_combine($columns, array_values($where)));
     }
 
     /**

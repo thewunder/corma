@@ -99,7 +99,7 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
     public function testMassDelete()
     {
         $this->connection->expects($this->once())->method('delete')
-            ->with('`test_table`', ['column'=>'value'])->willReturn(29);
+            ->with('`test_table`', ['`column`'=>'value'])->willReturn(29);
         $rows = $this->queryHelper->massDelete('test_table', ['column'=>'value']);
         $this->assertEquals(29, $rows);
     }
