@@ -5,7 +5,7 @@ use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Test\Fixtures\Repository\InvalidClassObjectRepository;
 use Corma\Test\Fixtures\Repository\NoClassObjectRepository;
-use Corma\Util\QueryHelper;
+use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventDispatcher;

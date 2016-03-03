@@ -3,7 +3,7 @@ namespace Corma\Test\Repository;
 
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\ReadOnlyRepository;
-use Corma\Util\QueryHelper;
+use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;

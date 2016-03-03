@@ -4,7 +4,7 @@ namespace Corma\Test\Util;
 
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Util\PagedQuery;
-use Corma\Util\QueryHelper;
+use Corma\QueryHelper\QueryHelper;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
 

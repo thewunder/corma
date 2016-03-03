@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Util;
+namespace Corma\QueryHelper;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Connection;

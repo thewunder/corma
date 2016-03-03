@@ -1,8 +1,8 @@
 <?php
 namespace Corma\Test\Util;
 
-use Corma\Util\QueryHelper;
-use Corma\Util\QueryHelperInterface;
+use Corma\QueryHelper\QueryHelper;
+use Corma\QueryHelper\QueryHelperInterface;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;

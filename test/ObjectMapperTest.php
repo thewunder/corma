@@ -6,7 +6,7 @@ use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
-use Corma\Util\QueryHelper;
+use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventDispatcher;

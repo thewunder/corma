@@ -5,7 +5,7 @@ use Corma\DataObject\DataObjectInterface;
 use Corma\DataObject\DataObjectEvent;
 use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidClassException;
-use Corma\Util\QueryHelperInterface;
+use Corma\QueryHelper\QueryHelperInterface;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;

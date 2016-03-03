@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Util;
+namespace Corma\QueryHelper;
 
 use Doctrine\DBAL\Query\QueryBuilder;
 

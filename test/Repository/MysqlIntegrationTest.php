@@ -4,7 +4,7 @@ namespace Corma\Test\Repository;
 
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
-use Corma\Util\QueryHelper;
+use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
