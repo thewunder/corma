@@ -164,7 +164,7 @@ class QueryHelper implements QueryHelperInterface
                 $clause = $db->quoteIdentifier($column) . " IN(:$paramName)";
                 $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
             } else if($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
-                $clause = $db->quoteIdentifier($column) . ' IS NULL';
+                $clause = $db->getDatabasePlatform()->getIsNullExpression($db->quoteIdentifier($column));
             } else {
                 $clause = $db->quoteIdentifier($column) . ' = :' . $paramName;
                 $qb->setParameter($paramName, $value);
@@ -187,7 +187,7 @@ class QueryHelper implements QueryHelperInterface
     protected function acceptsNull(array $from, $column)
     {
         foreach($from as $tableInfo) {
-            $table = str_replace('`', '', $tableInfo['table']);
+            $table = str_replace($this->db->getDatabasePlatform()->getIdentifierQuoteCharacter(), '', $tableInfo['table']);
             $columns = $this->getDbColumns($table);
             if(!isset($columns[$column])) {
                 continue;
