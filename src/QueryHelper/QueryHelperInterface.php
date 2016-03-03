@@ -46,6 +46,15 @@ interface QueryHelperInterface
     public function massInsert($table, array $rows);
 
     /**
+     * Insert multiple rows, if a row with a duplicate key is found will update the row, may assume that id is the primary key
+     *
+     * @param string $table
+     * @param array $rows array of column => value
+     * @return int The number of inserted rows
+     */
+    public function massUpsert($table, array $rows);
+
+    /**
      * Delete multiple rows
      *
      * @param string $table

@@ -98,22 +98,58 @@ class QueryHelper implements QueryHelperInterface
             return 0;
         }
 
-        $tableName = $this->db->quoteIdentifier($table);
-        $columns = array_keys($rows[0]);
-        array_walk($columns, function(&$column) {
-            $column = $this->db->quoteIdentifier($column);
-        });
-        $columnStr = implode(', ', $columns);
-        $query = "INSERT INTO $tableName ($columnStr) VALUES ";
+        $query = $this->getInsertSql($table, $rows);
 
-        $values = array_fill(0, count($rows), '(?)');
-        $query .= implode(', ', $values);
-
-        $params = array_map(function($row){
+        $params = array_map(function($row) {
             return array_values($row);
         }, $rows);
 
         return $this->db->executeUpdate($query, $params, array_fill(0, count($rows), Connection::PARAM_STR_ARRAY));
+    }
+
+    /**
+     * Insert multiple rows, if a row with a duplicate key is found will update the row
+     * This function assumes that 'id' is the primary key, and is used as a fallback for databases that don't support real upserts
+     *
+     * @param string $table
+     * @param array $rows array of column => value
+     * @return int The number of inserted rows
+     *
+     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws \Exception
+     */
+    public function massUpsert($table, array $rows)
+    {
+        if(empty($rows)) {
+            return 0;
+        }
+
+        $rowsToInsert = [];
+        $rowsToUpdate = [];
+        foreach($rows as $row) {
+            if(!empty($row['id'])) {
+                $rowsToUpdate[] = $row;
+            } else {
+                $rowsToInsert[] = $row;
+            }
+        }
+
+        $this->db->beginTransaction();
+
+        try {
+            $insertCount = $this->massInsert($table, $rowsToInsert);
+
+            foreach($rowsToUpdate as $row) {
+                $id = $row['id'];
+                unset($row['id']);
+                $this->db->update($this->db->quoteIdentifier($table), $this->quoteIdentifiers($row), ['id'=>$id]);
+            }
+        } catch(\Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+
+        return $insertCount;
     }
 
     /**
@@ -126,10 +162,8 @@ class QueryHelper implements QueryHelperInterface
      */
     public function massDelete($table, array $where)
     {
-        $columns = array_map(function($column) {
-            return $this->db->quoteIdentifier($column);
-        }, array_keys($where));
-        return $this->db->delete($this->db->quoteIdentifier($table), array_combine($columns, array_values($where)));
+        $identifier = $this->quoteIdentifiers($where);
+        return $this->db->delete($this->db->quoteIdentifier($table), $identifier);
     }
 
     /**
@@ -236,5 +270,38 @@ class QueryHelper implements QueryHelperInterface
         //named parameters with the table alias are not handled properly, chop off table alias
         $paramName = preg_replace('/^([\w]+\\.)(.*)/', '$2', $columnName);
         return $paramName;
+    }
+
+    /**
+     * @param $table
+     * @param array $rows
+     * @return string INSERT SQL Query
+     */
+    protected function getInsertSql($table, array $rows)
+    {
+        $tableName = $this->db->quoteIdentifier($table);
+        $columns = array_keys($rows[0]);
+        array_walk($columns, function (&$column) {
+            $column = $this->db->quoteIdentifier($column);
+        });
+        $columnStr = implode(', ', $columns);
+        $query = "INSERT INTO $tableName ($columnStr) VALUES ";
+
+        $values = array_fill(0, count($rows), '(?)');
+        $query .= implode(', ', $values);
+        return $query;
+    }
+
+    /**
+     * @param array $where column => value pairs
+     * @return array `column` => value pairs
+     */
+    protected function quoteIdentifiers(array $where)
+    {
+        $columns = array_map(function ($column) {
+            return $this->db->quoteIdentifier($column);
+        }, array_keys($where));
+        $identifier = array_combine($columns, array_values($where));
+        return $identifier;
     }
 }
