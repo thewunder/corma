@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Test\Util;
+namespace Corma\Test\QueryHelper;
 
 use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
