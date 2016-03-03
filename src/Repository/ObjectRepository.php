@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Repository;
 
+use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
 use Corma\DataObject\DataObjectEvent;
 use Corma\Exception\ClassNotFoundException;
@@ -213,6 +214,38 @@ class ObjectRepository implements ObjectRepositoryInterface
         $object->setIsDeleted(true);
 
         $this->dispatchEvents('afterDelete', $object);
+    }
+
+    /**
+     * Deletes all objects by id
+     *
+     * @param DataObjectInterface[] $objects
+     * @return int Number of db rows effected
+     */
+    public function deleteAll(array $objects)
+    {
+        if(empty($objects)) {
+            return 0;
+        }
+
+        foreach($objects as $object) {
+            $this->dispatchEvents('beforeDelete', $object);
+        }
+
+        $columns = $this->queryHelper->getDbColumns($objects[0]->getTableName());
+        $ids = DataObject::getIds($objects);
+        if(isset($columns['isDeleted'])) {
+            $rows = $this->queryHelper->massUpdate($this->getTableName(), ['isDeleted'=>1], ['id'=>$ids]);
+        } else {
+            $rows = $this->queryHelper->massDelete($this->getTableName(), ['id'=>$ids]);
+        }
+
+        foreach($objects as $object) {
+            $object->setIsDeleted(true);
+            $this->dispatchEvents('afterDelete', $object);
+        }
+
+        return $rows;
     }
 
     /**

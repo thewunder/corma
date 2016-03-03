@@ -115,6 +115,38 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($object->getIsDeleted());
     }
 
+    public function testDeleteAll()
+    {
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setId('123');
+
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setId('234');
+
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
+        $this->queryHelper->expects($this->once())->method('massDelete')->with($object->getTableName(), ['id'=>['123', '234']]);
+        $repo = $this->getRepository();
+        $repo->deleteAll($objects);
+        $this->assertTrue($object->getIsDeleted());
+    }
+
+    public function testDeleteAllSoft()
+    {
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setId('123');
+
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setId('234');
+
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['isDeleted'=>false]);
+        $this->queryHelper->expects($this->once())->method('massUpdate')->with($object->getTableName(), ['isDeleted'=>1], ['id'=>['123', '234']]);
+        $repo = $this->getRepository();
+        $repo->deleteAll($objects);
+        $this->assertTrue($object->getIsDeleted());
+    }
+
     /**
      * @return ExtendedDataObjectRepository
      */

@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Repository;
 
+use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
 use Doctrine\Common\Persistence\ObjectRepository as DoctrineObjectRepository;
 
@@ -44,4 +45,11 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
      */
     public function delete(DataObjectInterface $object);
+
+    /**
+     * Deletes all objects by id
+     *
+     * @param DataObjectInterface[] $objects
+     */
+    public function deleteAll(array $objects);
 }

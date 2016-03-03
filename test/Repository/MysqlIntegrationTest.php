@@ -2,6 +2,8 @@
 namespace Corma\Test\Repository;
 
 
+use Corma\DataObject\DataObject;
+use Corma\DataObject\DataObjectInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\QueryHelper\QueryHelper;
@@ -154,6 +156,28 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         /** @var ExtendedDataObject $fromDb */
         $fromDb = $this->repository->findOneBy(['myColumn'=>'XYZ 2']);
         $this->assertEquals('XYZ 2', $fromDb->getMyColumn());
+    }
+
+    public function testDeleteAll()
+    {
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] =$object->setMyColumn('deleteAll 1');
+        $this->repository->save($object);
+
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('deleteAll 2');
+        $this->repository->save($object);
+
+        $rows = $this->repository->deleteAll($objects);
+        $this->assertEquals(2, $rows);
+
+        $allFromDb = $this->repository->findByIds(DataObject::getIds($objects), false);
+        $this->assertCount(2, $allFromDb);
+        /** @var DataObjectInterface $objectFromDb */
+        foreach($allFromDb as $objectFromDb) {
+            $this->assertTrue($objectFromDb->getIsDeleted());
+        }
     }
 
     public static function setUpBeforeClass()
