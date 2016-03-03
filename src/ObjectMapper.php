@@ -5,6 +5,7 @@ use Corma\DataObject\DataObjectInterface;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\Util\QueryHelper;
+use Corma\Util\QueryHelperInterface;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -21,7 +22,7 @@ class ObjectMapper
     private $repositoryFactory;
 
     /**
-     * @var QueryHelper
+     * @var QueryHelperInterface
      */
     private $queryHelper;
 
@@ -44,10 +45,10 @@ class ObjectMapper
 
     /**
      * ObjectMapper constructor.
-     * @param QueryHelper $queryHelper
+     * @param QueryHelperInterface $queryHelper
      * @param ObjectRepositoryFactoryInterface $repositoryFactory
      */
-    public function __construct(QueryHelper $queryHelper, ObjectRepositoryFactoryInterface $repositoryFactory)
+    public function __construct(QueryHelperInterface $queryHelper, ObjectRepositoryFactoryInterface $repositoryFactory)
     {
         $this->queryHelper = $queryHelper;
         $this->repositoryFactory = $repositoryFactory;
@@ -150,7 +151,7 @@ class ObjectMapper
     }
 
     /**
-     * @return QueryHelper
+     * @return QueryHelperInterface
      */
     public function getQueryHelper()
     {

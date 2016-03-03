@@ -5,7 +5,7 @@ use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 
-class QueryHelper
+class QueryHelper implements QueryHelperInterface
 {
     /**
      * @var Connection

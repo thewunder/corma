@@ -2,6 +2,7 @@
 namespace Corma\Test\Util;
 
 use Corma\Util\QueryHelper;
+use Corma\Util\QueryHelperInterface;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
@@ -10,7 +11,7 @@ use Doctrine\DBAL\Statement;
 
 class QueryHelperTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var  QueryHelper */
+    /** @var  QueryHelperInterface */
     private $queryHelper;
 
     /** @var \PHPUnit_Framework_MockObject_MockObject */

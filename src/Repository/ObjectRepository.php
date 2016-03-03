@@ -5,7 +5,7 @@ use Corma\DataObject\DataObjectInterface;
 use Corma\DataObject\DataObjectEvent;
 use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidClassException;
-use Corma\Util\QueryHelper;
+use Corma\Util\QueryHelperInterface;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -24,7 +24,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected $dispatcher;
 
     /**
-     * @var QueryHelper
+     * @var QueryHelperInterface
      */
     protected $queryHelper;
 
@@ -40,7 +40,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected $objectDependencies = [];
 
-    public function __construct(Connection $db, EventDispatcherInterface $dispatcher, QueryHelper $queryHelper, Cache $cache)
+    public function __construct(Connection $db, EventDispatcherInterface $dispatcher, QueryHelperInterface $queryHelper, Cache $cache)
     {
         $this->db = $db;
         $this->dispatcher = $dispatcher;

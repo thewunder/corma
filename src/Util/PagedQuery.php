@@ -18,7 +18,7 @@ class PagedQuery implements \JsonSerializable
     /** @var string */
     private $class;
     /**
-     * @var QueryHelper
+     * @var QueryHelperInterface
      */
     private $queryHelper;
 
@@ -29,11 +29,11 @@ class PagedQuery implements \JsonSerializable
 
     /**
      * @param QueryBuilder $qb
-     * @param QueryHelper $queryHelper
+     * @param QueryHelperInterface $queryHelper
      * @param string $class Full class name
      * @param int $pageSize
      */
-    public function __construct(QueryBuilder $qb, QueryHelper $queryHelper, $class, $pageSize = self::DEFAULT_PAGESIZE)
+    public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, $class, $pageSize = self::DEFAULT_PAGESIZE)
     {
         if($pageSize < 1) {
             throw new InvalidArgumentException('Page size must be greater than 0');
