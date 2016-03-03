@@ -23,9 +23,8 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
         $connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
 
         $dispatcher = new EventDispatcher();
-        $cache = new ArrayCache();
 
-        $corma = ObjectMapper::create($connection, $dispatcher, ['Corma\\Test\\Fixtures'], $cache);
+        $corma = ObjectMapper::create($connection, $dispatcher, ['Corma\\Test\\Fixtures']);
         $this->assertInstanceOf(ObjectMapper::class, $corma);
         return $corma;
     }
