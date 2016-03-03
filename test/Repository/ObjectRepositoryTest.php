@@ -2,6 +2,7 @@
 namespace Corma\Test\Repository;
 
 use Corma\Test\Fixtures\ExtendedDataObject;
+use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Test\Fixtures\Repository\InvalidClassObjectRepository;
 use Corma\Test\Fixtures\Repository\NoClassObjectRepository;
@@ -93,6 +94,15 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo->save($object);
     }
 
+    /**
+     * @expectedException \Corma\Exception\InvalidArgumentException
+     */
+    public function testSaveIncorrectClass()
+    {
+        $object = new OtherDataObject();
+        $this->getRepository()->save($object);
+    }
+
     public function testSaveAll()
     {
         $objects = [];
@@ -106,6 +116,15 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo = $this->getRepository();
         $inserts = $repo->saveAll($objects);
         $this->assertEquals(count($objects), $inserts);
+    }
+
+    /**
+     * @expectedException \Corma\Exception\InvalidArgumentException
+     */
+    public function testSaveAllIncorrectClass()
+    {
+        $object = new OtherDataObject();
+        $this->getRepository()->saveAll([$object]);
     }
 
     public function testDelete()
@@ -128,6 +147,15 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo = $this->getRepository();
         $repo->delete($object);
         $this->assertTrue($object->getIsDeleted());
+    }
+
+    /**
+     * @expectedException \Corma\Exception\InvalidArgumentException
+     */
+    public function testDeleteIncorrectClass()
+    {
+        $object = new OtherDataObject();
+        $this->getRepository()->delete($object);
     }
 
     public function testDeleteAll()
@@ -160,6 +188,15 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo = $this->getRepository();
         $repo->deleteAll($objects);
         $this->assertTrue($object->getIsDeleted());
+    }
+
+    /**
+     * @expectedException \Corma\Exception\InvalidArgumentException
+     */
+    public function testDeleteAllIncorrectClass()
+    {
+        $object = new OtherDataObject();
+        $this->getRepository()->deleteAll([$object]);
     }
 
     /**

@@ -5,6 +5,7 @@ use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
 use Corma\DataObject\DataObjectEvent;
 use Corma\Exception\ClassNotFoundException;
+use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\InvalidClassException;
 use Corma\QueryHelper\QueryHelperInterface;
 use Doctrine\Common\Cache\Cache;
@@ -181,6 +182,8 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function save(DataObjectInterface $object)
     {
+        $this->checkArgument($object);
+
         $this->dispatchEvents('beforeSave', $object);
 
         if($object->getId()) {
@@ -206,6 +209,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
 
         foreach($objects as $object) {
+            $this->checkArgument($object);
             $this->dispatchEvents('beforeSave', $object);
             if($object->getId()) {
                 $this->dispatchEvents('beforeUpdate', $object);
@@ -253,6 +257,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function delete(DataObjectInterface $object)
     {
+        $this->checkArgument($object);
         $this->dispatchEvents('beforeDelete', $object);
 
         $columns = $this->queryHelper->getDbColumns($object->getTableName());
@@ -281,6 +286,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
 
         foreach($objects as $object) {
+            $this->checkArgument($object);
             $this->dispatchEvents('beforeDelete', $object);
         }
 
@@ -456,5 +462,16 @@ class ObjectRepository implements ObjectRepositoryInterface
             $this->objectByIdCache[$object->getId()] = $object;
         }
         $this->cache->save($key, $dataToCache, $lifeTime);
+    }
+
+    /**
+     * @param DataObjectInterface $object
+     */
+    protected function checkArgument(DataObjectInterface $object)
+    {
+        $className = $this->getClassName();
+        if (!($object instanceof $className)) {
+            throw new InvalidArgumentException("Object must be instance of $className");
+        }
     }
 }
