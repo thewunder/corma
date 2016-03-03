@@ -23,7 +23,7 @@ class QueryHelper
     }
 
     /**
-     * Shortcut to build a simple query on this DataObject's table
+     * Build a simple select query for table
      *
      * @param string $table
      * @param array|string $columns
@@ -45,6 +45,8 @@ class QueryHelper
     }
 
     /**
+     * Build an update query for the provided table
+     *
      * @param string $table
      * @param array $update column => value pairs to update in SET clause
      * @param array $where column => value pairs, value may be an array for an IN() clause
@@ -70,9 +72,11 @@ class QueryHelper
     }
 
     /**
+     * Update multiple rows
+     *
      * @param string $table
-     * @param array $update
-     * @param array $where
+     * @param array $update column => value pairs to update in SET clause
+     * @param array $where column => value pairs, value may be an array for an IN() clause
      * @return int The number of affected rows.
      */
     public function massUpdate($table, array $update, array $where)
@@ -82,6 +86,8 @@ class QueryHelper
     }
 
     /**
+     * Insert multiple rows
+     *
      * @param string $table
      * @param array $rows array of column => value
      * @return int The number of inserted rows
@@ -111,8 +117,10 @@ class QueryHelper
     }
 
     /**
+     * Delete multiple rows
+     *
      * @param string $table
-     * @param array $where
+     * @param array $where column => value pairs, value may be an array for an IN() clause
      * @return int
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
      */
@@ -122,7 +130,7 @@ class QueryHelper
     }
 
     /**
-     * Counts the number of results that would be returned
+     * Counts the number of results that would be returned by the select query provided
      *
      * @param QueryBuilder $qb
      * @return int
@@ -141,8 +149,10 @@ class QueryHelper
     }
 
     /**
+     * Sets the where query part on the provided query
+     *
      * @param QueryBuilder $qb
-     * @param array $where
+     * @param array $where column => value pairs, value may be an array for an IN() clause
      */
     public function processWhereQuery(QueryBuilder $qb, array $where)
     {
@@ -174,7 +184,7 @@ class QueryHelper
      * @param string $column
      * @return bool
      */
-    private function acceptsNull(array $from, $column)
+    protected function acceptsNull(array $from, $column)
     {
         foreach($from as $tableInfo) {
             $table = str_replace('`', '', $tableInfo['table']);
@@ -188,6 +198,8 @@ class QueryHelper
     }
 
     /**
+     * Returns table metadata for the provided table
+     *
      * @param string $table
      * @return array column => accepts null (bool)
      */
@@ -211,10 +223,12 @@ class QueryHelper
     }
 
     /**
+     * Prepare the parameter name
+     *
      * @param $columnName
      * @return string
      */
-    private function getParameterName($columnName)
+    protected function getParameterName($columnName)
     {
         //named parameters with the table alias are not handled properly, chop off table alias
         $paramName = preg_replace('/^([\w]+\\.)(.*)/', '$2', $columnName);
