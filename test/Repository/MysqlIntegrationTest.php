@@ -183,6 +183,10 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         /** @var ExtendedDataObject $fromDb */
         $fromDb = $this->repository->find($object->getId(), false);
         $this->assertEquals('Save All Updated', $fromDb->getMyColumn());
+
+        /** @var ExtendedDataObject $fromDb */
+        $fromDb = $this->repository->find($object2->getId(), false);
+        $this->assertEquals('Save All 2', $fromDb->getMyColumn());
     }
 
     /**
@@ -212,6 +216,10 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         /** @var ExtendedDataObject $fromDb */
         $fromDb = $this->repository->find($object->getId(), false);
         $this->assertEquals('Save All Updated', $fromDb->getMyColumn());
+
+        /** @var ExtendedDataObject $fromDb */
+        $fromDb = $this->repository->find($object2->getId(), false);
+        $this->assertEquals('Save All 2', $fromDb->getMyColumn());
     }
 
     public function testDeleteAll()
