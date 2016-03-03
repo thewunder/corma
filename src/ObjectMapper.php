@@ -38,9 +38,26 @@ class ObjectMapper
      */
     public static function create(Connection $db, EventDispatcherInterface $dispatcher, Cache $cache, array $namespaces, array $additionalDependencies = [])
     {
-        $queryHelper = new QueryHelper($db, $cache);
+        $queryHelper = self::createQueryHelper($db, $cache);
         $dependencies = array_merge([$db, $dispatcher, $queryHelper, $cache], $additionalDependencies);
         return new static($queryHelper, new ObjectRepositoryFactory($namespaces, $dependencies));
+    }
+
+    /**
+     * @param Connection $db
+     * @param Cache $cache
+     * @return QueryHelper
+     */
+    protected static function createQueryHelper(Connection $db, Cache $cache)
+    {
+        $database = $db->getDatabasePlatform()->getReservedKeywordsList()->getName();
+        $database = preg_replace('/[^A-Za-z]/', '', $database); //strip version
+        $className = "Corma\\QueryHelper\\{$database}QueryHelper";
+        if(class_exists($className)) {
+            new $className($db, $cache);
+        }
+
+        return new $className($db, $cache);
     }
 
     /**

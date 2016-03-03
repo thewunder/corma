@@ -9,16 +9,18 @@ use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 {
     public function testCreate()
     {
-        /** @var Connection $connection */
         $connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
+
+        $connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
 
         $dispatcher = new EventDispatcher();
         $cache = new ArrayCache();
