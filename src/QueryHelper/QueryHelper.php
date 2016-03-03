@@ -114,12 +114,13 @@ class QueryHelper implements QueryHelperInterface
      *
      * @param string $table
      * @param array $rows array of column => value
+     * @param null $lastInsertId Optional reference to populate with the last auto increment id
      * @return int The number of affected rows
      *
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws \Exception
      */
-    public function massUpsert($table, array $rows)
+    public function massUpsert($table, array $rows, &$lastInsertId = null)
     {
         if(empty($rows)) {
             return 0;
@@ -139,6 +140,7 @@ class QueryHelper implements QueryHelperInterface
 
         try {
             $effected = $this->massInsert($table, $rowsToInsert);
+            $lastInsertId = $this->db->lastInsertId();
 
             foreach($rowsToUpdate as $row) {
                 $id = $row['id'];

@@ -50,9 +50,10 @@ interface QueryHelperInterface
      *
      * @param string $table
      * @param array $rows array of column => value
+     * @param null $lastInsertId Optional reference to populate with the last auto increment id
      * @return int The number of affected rows
      */
-    public function massUpsert($table, array $rows);
+    public function massUpsert($table, array $rows, &$lastInsertId = null);
 
     /**
      * Delete multiple rows

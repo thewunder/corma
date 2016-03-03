@@ -207,7 +207,7 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $inserts = $this->repository->saveAll($objects);
 
-        $this->assertEquals(4, $inserts);
+        $this->assertEquals(3, $inserts);
 
         /** @var ExtendedDataObject $fromDb */
         $fromDb = $this->repository->find($object->getId(), false);

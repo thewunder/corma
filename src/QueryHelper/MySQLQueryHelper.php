@@ -10,10 +10,11 @@ class MySQLQueryHelper extends QueryHelper
      *
      * @param string $table
      * @param array $rows
-     * @return int Rows affected (Note that each updated row counts as 2)
+     * @param null $lastInsertId Optional reference to populate with the last auto increment id
+     * @return int Rows affected
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function massUpsert($table, array $rows)
+    public function massUpsert($table, array $rows, &$lastInsertId = null)
     {
         if(empty($rows)) {
             return 0;
@@ -23,8 +24,12 @@ class MySQLQueryHelper extends QueryHelper
 
         //Ensure uniform rows
         $normalizedRows = [];
+        $updates = 0;
         foreach($rows as $row) {
             $normalizedRow = [];
+            if(!empty($row['id'])) {
+                $updates++;
+            }
             foreach($dbColumns as $column => $acceptNull) {
                 $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : null;
             }
@@ -49,6 +54,9 @@ class MySQLQueryHelper extends QueryHelper
             return array_values($row);
         }, $normalizedRows);
 
-        return $this->db->executeUpdate($query, $params, array_fill(0, count($rows), Connection::PARAM_STR_ARRAY));
+        $effected = $this->db->executeUpdate($query, $params, array_fill(0, count($rows), Connection::PARAM_STR_ARRAY));
+        $lastInsertId = $this->db->lastInsertId();
+
+        return $effected - $updates; //compensate for mysql returning 2 for each row updated
     }
 }

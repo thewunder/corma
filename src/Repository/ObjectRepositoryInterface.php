@@ -39,6 +39,14 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
     public function save(DataObjectInterface $object);
 
     /**
+     * Persists all supplied objects into the database
+     **
+     * @param DataObjectInterface[] $objects
+     * @return int The number of effected rows
+     */
+    public function saveAll(array $objects);
+
+    /**
      * Removes the object from the database
      *
      * @param DataObjectInterface $object

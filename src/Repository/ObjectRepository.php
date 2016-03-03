@@ -226,8 +226,8 @@ class ObjectRepository implements ObjectRepositoryInterface
             $rows[] = $data;
         }
 
-        $rows = $this->queryHelper->massUpsert($this->getTableName(), $rows);
-        $lastId = $this->db->lastInsertId();
+        $lastId = null;
+        $rows = $this->queryHelper->massUpsert($this->getTableName(), $rows, $lastId);
 
         foreach($objects as $object) {
             if($object->getId()) {
