@@ -118,6 +118,21 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
         $this->getCorma($mockRepo)->save($object);
     }
 
+    public function testSaveAll()
+    {
+        $objects = [];
+        $objects[] = new ExtendedDataObject();
+        $objects[] = new ExtendedDataObject();
+
+        $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockRepo->expects($this->once())->method('saveAll')->with($objects);
+
+        $this->getCorma($mockRepo)->saveAll($objects);
+    }
+
     public function testDelete()
     {
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
@@ -128,6 +143,21 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
         $mockRepo->expects($this->once())->method('delete')->with($object);
 
         $this->getCorma($mockRepo)->delete($object);
+    }
+
+    public function testDeleteAll()
+    {
+        $objects = [];
+        $objects[] = new ExtendedDataObject();
+        $objects[] = new ExtendedDataObject();
+
+        $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockRepo->expects($this->once())->method('deleteAll')->with($objects);
+
+        $this->getCorma($mockRepo)->deleteAll($objects);
     }
 
     /**

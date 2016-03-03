@@ -140,6 +140,8 @@ class ObjectMapper
     }
 
     /**
+     * Finds a single object by any criteria
+     *
      * @param string $objectName Object class with or without namespace
      * @param array $criteria column => value pairs
      * @return DataObjectInterface
@@ -150,6 +152,8 @@ class ObjectMapper
     }
 
     /**
+     * Persists a single object to the database
+     *
      * @param DataObjectInterface $object
      * @return DataObjectInterface
      */
@@ -159,12 +163,46 @@ class ObjectMapper
     }
 
     /**
+     * Persists all objects to the database
+     *
+     * @param DataObjectInterface[] $objects
+     */
+    public function saveAll(array $objects)
+    {
+        $objectsByClass = [];
+        foreach($objects as $object) {
+            $objectsByClass[$object->getClassName()][] = $object;
+        }
+
+        foreach($objectsByClass as $class => $classObjects) {
+            $this->getRepository($class)->saveAll($classObjects);
+        }
+    }
+
+    /**
      * @param DataObjectInterface $object
      * @return void
      */
     public function delete(DataObjectInterface $object)
     {
         $this->getRepository($object->getClassName())->delete($object);
+    }
+
+    /**
+     * Delete all objects from the database by their ids
+     *
+     * @param DataObjectInterface[] $objects
+     */
+    public function deleteAll(array $objects)
+    {
+        $objectsByClass = [];
+        foreach($objects as $object) {
+            $objectsByClass[$object->getClassName()][] = $object;
+        }
+
+        foreach($objectsByClass as $class => $classObjects) {
+            $this->getRepository($class)->deleteAll($classObjects);
+        }
     }
 
     /**
