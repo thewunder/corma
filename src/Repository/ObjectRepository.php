@@ -233,6 +233,10 @@ class ObjectRepository implements ObjectRepositoryInterface
             if($object->getId()) {
                 $this->dispatchEvents('afterUpdate', $object);
             } else {
+                if($lastId) {
+                    $object->setId($lastId);
+                    $lastId++;
+                }
                 $this->dispatchEvents('afterInsert', $object);
             }
             $this->dispatchEvents('afterSave', $object);
