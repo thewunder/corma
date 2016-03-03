@@ -6,6 +6,7 @@ use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
+use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -27,17 +28,21 @@ class ObjectMapper
     private $queryHelper;
 
     /**
-     * Creates a ObjectMapper instance using the default ObjectRepositoryFactory
+     * Creates a ObjectMapper instance using the default QueryHelper and ObjectRepositoryFactory
      *
      * @param Connection $db Database connection
      * @param EventDispatcherInterface $dispatcher
-     * @param Cache $cache Cache for table metadata
      * @param array $namespaces Object Namespaces to search for Repositories.  Repositories
+     * @param Cache $cache Cache for table metadata and repositories
      * @param array $additionalDependencies Additional dependencies to inject into Repository constructors
      * @return static
      */
-    public static function create(Connection $db, EventDispatcherInterface $dispatcher, Cache $cache, array $namespaces, array $additionalDependencies = [])
+    public static function create(Connection $db, EventDispatcherInterface $dispatcher, array $namespaces, Cache $cache = null, array $additionalDependencies = [])
     {
+        if($cache === null) {
+            $cache = new ArrayCache();
+        }
+
         $queryHelper = self::createQueryHelper($db, $cache);
         $dependencies = array_merge([$db, $dispatcher, $queryHelper, $cache], $additionalDependencies);
         return new static($queryHelper, new ObjectRepositoryFactory($namespaces, $dependencies));

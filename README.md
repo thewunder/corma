@@ -59,7 +59,7 @@ And a Repository
 Create the orm and use it
 
     $db = DriverManager::getConnection(...); //see Doctrine DBAL docs
-    $orm = ObjectMapper::create($db, new EventDispatcher(), new ArrayCache(), ['YourNamespace\\Dataobjects']);
+    $orm = ObjectMapper::create($db, new EventDispatcher(), ['YourNamespace\\Dataobjects']);
 
     $object = $orm->createObject(YourDataObject::class);
     //Call setters...
