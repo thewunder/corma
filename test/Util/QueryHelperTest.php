@@ -5,7 +5,6 @@ use Corma\Util\QueryHelper;
 use Corma\Util\QueryHelperInterface;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
 
