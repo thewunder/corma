@@ -158,6 +158,29 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('XYZ 2', $fromDb->getMyColumn());
     }
 
+    public function testSaveAll()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('Save All');
+        $this->repository->save($object);
+        $object->setMyColumn('Save All Updated');
+
+        $objects = [$object];
+        $object2 = new ExtendedDataObject();
+        $objects[] = $object2->setMyColumn('Save All 2');
+
+        $object3 = new ExtendedDataObject();
+        $objects[] = $object3->setMyColumn('Save All 3');
+
+        $inserts = $this->repository->saveAll($objects);
+
+        $this->assertEquals(2, $inserts);
+
+        /** @var ExtendedDataObject $fromDb */
+        $fromDb = $this->repository->find($object->getId(), false);
+        $this->assertEquals('Save All Updated', $fromDb->getMyColumn());
+    }
+
     public function testDeleteAll()
     {
         $objects = [];

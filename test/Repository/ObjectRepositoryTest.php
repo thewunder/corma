@@ -93,6 +93,21 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo->save($object);
     }
 
+    public function testSaveAll()
+    {
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('testValue');
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('testValue 2');
+
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
+        $this->queryHelper->expects($this->once())->method('massUpsert')->with('extended_data_objects', [['myColumn'=>'testValue'], ['myColumn'=>'testValue 2']])->willReturn(count($objects));
+        $repo = $this->getRepository();
+        $inserts = $repo->saveAll($objects);
+        $this->assertEquals(count($objects), $inserts);
+    }
+
     public function testDelete()
     {
         $object = new ExtendedDataObject();

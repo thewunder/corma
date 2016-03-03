@@ -194,6 +194,54 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
+     * Persists all supplied objects into the database
+     *
+     * @param DataObjectInterface[] $objects
+     * @return int
+     */
+    public function saveAll(array $objects)
+    {
+        if(empty($objects)) {
+            return 0;
+        }
+
+        foreach($objects as $object) {
+            $this->dispatchEvents('beforeSave', $object);
+            if($object->getId()) {
+                $this->dispatchEvents('beforeUpdate', $object);
+            } else {
+                $this->dispatchEvents('beforeInsert', $object);
+            }
+        }
+
+        $columns = $this->queryHelper->getDbColumns($objects[0]->getTableName());
+        $rows = [];
+        foreach($objects as $object) {
+            $data = $object->getData();
+            foreach($data as $prop => $value) {
+                if(!isset($columns[$prop])) {
+                    unset($data[$prop]);
+                }
+            }
+            $rows[] = $data;
+        }
+
+        $rows = $this->queryHelper->massUpsert($this->getTableName(), $rows);
+        $lastId = $this->db->lastInsertId();
+
+        foreach($objects as $object) {
+            if($object->getId()) {
+                $this->dispatchEvents('afterUpdate', $object);
+            } else {
+                $this->dispatchEvents('afterInsert', $object);
+            }
+            $this->dispatchEvents('afterSave', $object);
+        }
+
+        return $rows;
+    }
+
+    /**
      * Removes the object from the database
      *
      * @param DataObjectInterface $object
