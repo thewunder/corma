@@ -69,7 +69,7 @@ abstract class DataObject implements \JsonSerializable, DataObjectInterface
      * @param bool $isDeleted
      * @return $this
      */
-    public function setIsDeleted($isDeleted)
+    public function setDeleted($isDeleted)
     {
         $this->isDeleted = (bool) $isDeleted;
         return $this;
@@ -78,7 +78,7 @@ abstract class DataObject implements \JsonSerializable, DataObjectInterface
     /**
      * @return bool
      */
-    public function getIsDeleted()
+    public function isDeleted()
     {
         return (bool) $this->isDeleted;
     }

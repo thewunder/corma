@@ -42,12 +42,12 @@ interface DataObjectInterface
      * @param bool $isDeleted
      * @return $this
      */
-    public function setIsDeleted($isDeleted);
+    public function setDeleted($isDeleted);
 
     /**
      * @return bool
      */
-    public function getIsDeleted();
+    public function isDeleted();
 
     /**
      * Sets the data provided to the properties of the object

@@ -291,7 +291,7 @@ class ObjectRepository implements ObjectRepositoryInterface
             $this->db->delete($object->getTableName(), ['id'=>$object->getId()]);
         }
 
-        $object->setIsDeleted(true);
+        $object->setDeleted(true);
 
         $this->dispatchEvents('afterDelete', $object);
     }
@@ -322,7 +322,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
 
         foreach($objects as $object) {
-            $object->setIsDeleted(true);
+            $object->setDeleted(true);
             $this->dispatchEvents('afterDelete', $object);
         }
 
