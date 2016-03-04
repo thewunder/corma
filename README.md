@@ -1,5 +1,6 @@
 [![Build Status](https://api.travis-ci.org/thewunder/corma.svg?branch=master)](https://travis-ci.org/thewunder/corma)
 [![Coverage Status](https://coveralls.io/repos/github/thewunder/corma/badge.svg?branch=master)](https://coveralls.io/github/thewunder/corma?branch=master)
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/3ab739ee-d54a-457d-9eec-43261102dfe4/mini.png)](https://insight.sensiolabs.com/projects/3ab739ee-d54a-457d-9eec-43261102dfe4)
 
 Corma
 =====
