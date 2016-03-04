@@ -71,11 +71,11 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
     public function testDelete(ExtendedDataObject $object)
     {
         $this->repository->delete($object);
-        $this->assertTrue($object->getIsDeleted());
+        $this->assertTrue($object->isDeleted());
 
         /** @var ExtendedDataObject $fromDb */
         $fromDb = $this->repository->find($object->getId(), false);
-        $this->assertTrue($fromDb->getIsDeleted());
+        $this->assertTrue($fromDb->isDeleted());
     }
 
     /**
@@ -240,7 +240,7 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $allFromDb);
         /** @var DataObjectInterface $objectFromDb */
         foreach($allFromDb as $objectFromDb) {
-            $this->assertTrue($objectFromDb->getIsDeleted());
+            $this->assertTrue($objectFromDb->isDeleted());
         }
     }
 

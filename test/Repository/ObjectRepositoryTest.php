@@ -135,7 +135,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->connection->expects($this->once())->method('delete')->with($object->getTableName(), ['id'=>'123']);
         $repo = $this->getRepository();
         $repo->delete($object);
-        $this->assertTrue($object->getIsDeleted());
+        $this->assertTrue($object->isDeleted());
     }
 
     public function testSoftDelete()
@@ -146,7 +146,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->connection->expects($this->once())->method('update')->with($object->getTableName(), ['isDeleted'=>1], ['id'=>'123']);
         $repo = $this->getRepository();
         $repo->delete($object);
-        $this->assertTrue($object->getIsDeleted());
+        $this->assertTrue($object->isDeleted());
     }
 
     /**
@@ -171,7 +171,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->queryHelper->expects($this->once())->method('massDelete')->with($object->getTableName(), ['id'=>['123', '234']]);
         $repo = $this->getRepository();
         $repo->deleteAll($objects);
-        $this->assertTrue($object->getIsDeleted());
+        $this->assertTrue($object->isDeleted());
     }
 
     public function testDeleteAllSoft()
@@ -187,7 +187,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->queryHelper->expects($this->once())->method('massUpdate')->with($object->getTableName(), ['isDeleted'=>1], ['id'=>['123', '234']]);
         $repo = $this->getRepository();
         $repo->deleteAll($objects);
-        $this->assertTrue($object->getIsDeleted());
+        $this->assertTrue($object->isDeleted());
     }
 
     /**
