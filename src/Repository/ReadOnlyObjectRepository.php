@@ -49,7 +49,17 @@ abstract class ReadOnlyObjectRepository extends ObjectRepository
         throw new BadMethodCallException('Cannot save in a read only repository');
     }
 
+    public function saveAll(array $objects)
+    {
+        throw new BadMethodCallException('Cannot save in a read only repository');
+    }
+
     public function delete(DataObjectInterface $object)
+    {
+        throw new BadMethodCallException('Cannot delete in a read only repository');
+    }
+
+    public function deleteAll(array $objects)
     {
         throw new BadMethodCallException('Cannot delete in a read only repository');
     }

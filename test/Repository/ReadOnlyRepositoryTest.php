@@ -79,11 +79,31 @@ class ReadOnlyRepositoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \Corma\Exception\BadMethodCallException
      */
+    public function testSaveAll()
+    {
+        $object = new ExtendedDataObject();
+        $repo = $this->getRepository();
+        $repo->saveAll([$object]);
+    }
+
+    /**
+     * @expectedException \Corma\Exception\BadMethodCallException
+     */
     public function testDelete()
     {
         $object = new ExtendedDataObject();
         $repo = $this->getRepository();
         $repo->delete($object);
+    }
+
+    /**
+     * @expectedException \Corma\Exception\BadMethodCallException
+     */
+    public function testDeleteAll()
+    {
+        $object = new ExtendedDataObject();
+        $repo = $this->getRepository();
+        $repo->deleteAll([$object]);
     }
 
     /**
