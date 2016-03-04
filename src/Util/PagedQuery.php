@@ -118,7 +118,7 @@ class PagedQuery implements \JsonSerializable
     function jsonSerialize()
     {
         $vars = get_object_vars($this);
-        unset($vars['qb'], $vars['class'], $vars['queryHelper']);
+        unset($vars['qb'], $vars['class']);
         return (object) $vars;
     }
 }
