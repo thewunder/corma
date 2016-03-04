@@ -18,10 +18,6 @@ class PagedQuery implements \JsonSerializable
 
     /** @var string */
     private $class;
-    /**
-     * @var QueryHelperInterface
-     */
-    private $queryHelper;
 
     /**
      * @var QueryBuilder
@@ -43,7 +39,6 @@ class PagedQuery implements \JsonSerializable
         $this->qb = $qb;
         $this->class = $class;
         $this->pageSize = $pageSize;
-        $this->queryHelper = $queryHelper;
         $this->resultCount = $queryHelper->getCount($qb);
         $this->pages = floor( $this->resultCount / $this->pageSize) + 1;
     }
