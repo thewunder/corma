@@ -10,6 +10,7 @@ use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use Dotenv\Dotenv;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -242,6 +243,24 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         foreach($allFromDb as $objectFromDb) {
             $this->assertTrue($objectFromDb->isDeleted());
         }
+    }
+
+    public function testIsDuplicateException()
+    {
+        $cache = new ArrayCache();
+        $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
+        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $mySQLQueryHelper, $cache);
+
+        $this->assertFalse($mySQLQueryHelper->isDuplicateException(new DBALException()));
+
+        try {
+            $this->repository->causeUniqueConstraintViolation();
+        } catch (DBALException $e) {
+            $this->assertTrue($mySQLQueryHelper->isDuplicateException($e));
+            return;
+        }
+
+        $this->markTestIncomplete('Expected Exception was not thrown');
     }
 
     public static function setUpBeforeClass()

@@ -411,23 +411,6 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
-     * Is this exception caused by a duplicate record (i.e. unique index constraint violation)
-     * Probably only works with mysql
-     *
-     * @param \Exception $error
-     * @return bool
-     */
-    public static function isDuplicateException(\Exception $error)
-    {
-        /** @var \PDOException $previous */
-        $previous = $error->getPrevious();
-        if(!$previous || $previous->getCode() != 23000) {
-            return false;
-        }
-        return isset($previous->errorInfo[1]) && $previous->errorInfo[1] == 1062;
-    }
-
-    /**
      * Dispatches two events one generic DataObject one and a class specific event
      *
      * @param string $eventName

@@ -2,6 +2,7 @@
 namespace Corma\QueryHelper;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 
 class MySQLQueryHelper extends QueryHelper
 {
@@ -58,5 +59,21 @@ class MySQLQueryHelper extends QueryHelper
         $lastInsertId = $this->db->lastInsertId();
 
         return $effected - $updates; //compensate for mysql returning 2 for each row updated
+    }
+
+    /**
+     * Only tested with PDO
+     *
+     * @param DBALException $error
+     * @return bool
+     */
+    public function isDuplicateException(DBALException $error)
+    {
+        /** @var \PDOException $previous */
+        $previous = $error->getPrevious();
+        if(!$previous || $previous->getCode() != 23000) {
+            return false;
+        }
+        return isset($previous->errorInfo[1]) && $previous->errorInfo[1] == 1062;
     }
 }

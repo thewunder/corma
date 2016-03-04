@@ -3,6 +3,7 @@ namespace Corma\QueryHelper;
 
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 class QueryHelper implements QueryHelperInterface
@@ -260,6 +261,19 @@ class QueryHelper implements QueryHelperInterface
             $this->cache->save($key, $dbColumns);
             return $dbColumns;
         }
+    }
+
+    /**
+     * Is this exception caused by a duplicate record (i.e. unique index constraint violation)
+     *
+     * This will need to be overridden in db specific query helpers
+     *
+     * @param DBALException $error
+     * @return bool
+     */
+    public function isDuplicateException(DBALException $error)
+    {
+        return false;
     }
 
     /**
