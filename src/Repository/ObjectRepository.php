@@ -407,7 +407,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $statement = $qb->setMaxResults(1)->execute();
         $statement->setFetchMode(\PDO::FETCH_CLASS, $this->getClassName(), $this->objectDependencies);
-        return $results = $statement->fetch();
+        return $statement->fetch();
     }
 
     /**
