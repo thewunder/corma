@@ -83,3 +83,26 @@ Create the orm and use it
 
     //delete those
     $orm->deleteAll($existingObjects);
+
+Events
+------
+
+Symfony events are dispatched for every stage of the object lifecycle. ObjectName here is the class without namespace.
+
+1. DataObject.beforeSave
+1. DataObject.{ObjectName}.beforeSave
+1. DataObject.beforeInsert
+1. DataObject.{ObjectName}.beforeInsert
+1. DataObject.beforeUpdate
+1. DataObject.{ObjectName}.beforeUpdate
+1. DataObject.afterSave
+1. DataObject.{ObjectName}.afterSave
+1. DataObject.afterInsert
+1. DataObject.{ObjectName}.afterInsert
+1. DataObject.afterUpdate
+1. DataObject.{ObjectName}.afterUpdate
+1. DataObject.beforeDelete
+1. DataObject.{ObjectName}.beforeDelete
+1. DataObject.afterDelete
+1. DataObject.{ObjectName}.afterDelete
+
