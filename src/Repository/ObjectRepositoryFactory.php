@@ -83,7 +83,7 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     protected function createRepository($className)
     {
         if(class_exists($className)) {
-            if(!class_implements($className, ObjectRepositoryInterface::class)) {
+            if(!is_subclass_of($className, ObjectRepositoryInterface::class)) {
                 throw new InvalidClassException("$className does not implement ObjectRepositoryInterface");
             }
 

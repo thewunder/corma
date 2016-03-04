@@ -1,7 +1,11 @@
 <?php
 namespace Corma\Test\Fixtures\Repository;
 
-class InvalidRepository
-{
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+class InvalidRepository implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents()
+    {
+    }
 }
