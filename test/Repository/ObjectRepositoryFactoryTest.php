@@ -4,9 +4,11 @@
 namespace Corma\Test\Repository;
 
 
+use Corma\Repository\ObjectRepository;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
+use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
@@ -36,6 +38,14 @@ class ObjectRepositoryFactoryTest extends \PHPUnit_Framework_TestCase
         $repository = $this->repositoryFactory->getRepository('ExtendedDataObject');
         $repository2 = $this->repositoryFactory->getRepository('ExtendedDataObject');
         $this->assertTrue($repository === $repository2);
+    }
+
+    public function testGetDefaultRepository()
+    {
+        $repository = $this->repositoryFactory->getRepository(OtherDataObject::class);
+
+        $this->assertEquals(ObjectRepository::class, get_class($repository));
+        $this->assertEquals(OtherDataObject::class, $repository->getClassName());
     }
 
     /**

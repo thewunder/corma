@@ -48,12 +48,12 @@ Create a DataObject
         //Getters and setters..
     }
 
-And a Repository
+And a Repository (optional)
 
     namespace YourNamespace\Dataobjects\Repository;
 
     class YourDataObjectRepository extends DataObjectRepository {
-        //...
+        //Override default behavior and add custom methods...
     }
 
 Create the orm and use it

@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Repository;
 
+use Corma\DataObject\DataObjectInterface;
 use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\InvalidClassException;
@@ -46,6 +47,14 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
             if($repository) {
                 $this->repositories[$objectName] = $repository;
                 return $repository;
+            } else {
+                $objectClass = "$namespace\\$objectName";
+                if(class_exists($objectClass) && is_subclass_of($objectClass, DataObjectInterface::class)) {
+                    /** @var ObjectRepository $default */
+                    $default = $this->createRepository(ObjectRepository::class);
+                    $default->setClassName($objectClass);
+                    return $this->repositories[$objectName] = $default;
+                }
             }
         }
 

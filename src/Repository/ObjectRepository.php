@@ -31,6 +31,11 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected $queryHelper;
 
     /**
+     * @var string
+     */
+    protected $className;
+
+    /**
      * @var Cache
      */
     protected $cache;
@@ -148,6 +153,10 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function getClassName()
     {
+        if($this->className) {
+            return $this->className;
+        }
+
         $class = explode('\\', get_called_class());
         $objectClass = [];
         foreach($class as $classPart) {
@@ -155,7 +164,21 @@ class ObjectRepository implements ObjectRepositoryInterface
                 $objectClass[] = str_replace('Repository', '', $classPart);
             }
         }
-        return implode('\\', $objectClass);
+        return $this->className = implode('\\', $objectClass);
+    }
+
+    /**
+     * Set the class name, this allows the base class to be used for data objects without a repository
+     *
+     * This method is deliberately excluded from the interface.
+     *
+     * @param string $className
+     * @return $this
+     */
+    public function setClassName($className)
+    {
+        $this->className = $className;
+        return $this;
     }
 
     /**
