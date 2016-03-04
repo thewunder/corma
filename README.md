@@ -79,8 +79,8 @@ Create the orm and use it
     //find existing object by id
     $existingObject = $orm->find(YourDataObject::class, 5);
 
-    //find existing objects
-    $existingObjects = $orm->findBy(YourDataObject::class, ['myColumn'=>42], ['sortColumn'=>'ASC']);
+    //find existing objects with myColumn >= 42 AND otherColumn = 1
+    $existingObjects = $orm->findBy(YourDataObject::class, ['myColumn >='=>42, 'otherColumn'=>1], ['sortColumn'=>'ASC']);
 
     //delete those
     $orm->deleteAll($existingObjects);

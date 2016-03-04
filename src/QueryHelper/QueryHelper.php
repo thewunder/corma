@@ -9,6 +9,16 @@ use Doctrine\DBAL\Query\QueryBuilder;
 class QueryHelper implements QueryHelperInterface
 {
     /**
+     * Splits a column like the following
+     * 2. table alias
+     * 3. column
+     * 4. optional operator
+     */
+    const WHERE_COLUMN_REGEX = '/^(([\w]+\\.)|)([\w]+)(([^\w]*))/';
+
+    protected $COMPARISON_OPERATORS = ['=', '<', '>', '<=', '>=', '<>'];
+
+    /**
      * @var Connection
      */
     protected $db;
@@ -59,11 +69,11 @@ class QueryHelper implements QueryHelperInterface
         $qb = $this->db->createQueryBuilder()->update($this->db->quoteIdentifier($table), 'main');
 
         foreach($update as $column => $value) {
-            $paramName = self::getParameterName($column);
+            $paramName = $this->getParameterName($column);
             if($value === null) {
                 $qb->set($this->db->quoteIdentifier($column), 'NULL');
             } else  {
-                $qb->set($this->db->quoteIdentifier($column), ":$paramName")
+                $qb->set($this->db->quoteIdentifier($column), "$paramName")
                     ->setParameter($paramName, $value);
             }
         }
@@ -199,15 +209,17 @@ class QueryHelper implements QueryHelperInterface
     {
         $firstWhere = true;
         $db = $qb->getConnection();
-        foreach ($where as $column => $value) {
-            $paramName = $this->getParameterName($column);
+        foreach ($where as $wherePart => $value) {
+            $paramName = $this->getParameterName($wherePart);
+            $columnName = $this->db->quoteIdentifier($this->getColumnName($wherePart));
             if (is_array($value)) {
-                $clause = $db->quoteIdentifier($column) . " IN(:$paramName)";
+                $clause = "$columnName IN($paramName)";
                 $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
-            } else if($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
-                $clause = $db->getDatabasePlatform()->getIsNullExpression($db->quoteIdentifier($column));
+            } else if($value === null && $this->acceptsNull($qb->getQueryPart('from'), $wherePart)) {
+                $clause = $db->getDatabasePlatform()->getIsNullExpression($columnName);
             } else {
-                $clause = $db->quoteIdentifier($column) . ' = :' . $paramName;
+                $operator = $this->getOperator($wherePart);
+                $clause = "$columnName $operator $paramName";
                 $qb->setParameter($paramName, $value);
             }
 
@@ -277,16 +289,42 @@ class QueryHelper implements QueryHelperInterface
     }
 
     /**
-     * Prepare the parameter name
+     * Get the parameter name for a where condition part
      *
-     * @param $columnName
+     * @param string $whereCondition
      * @return string
      */
-    protected function getParameterName($columnName)
+    protected function getParameterName($whereCondition)
     {
-        //named parameters with the table alias are not handled properly, chop off table alias
-        $paramName = preg_replace('/^([\w]+\\.)(.*)/', '$2', $columnName);
-        return $paramName;
+        // chop off table alias and operator
+        return ':' . preg_replace(self::WHERE_COLUMN_REGEX, '$3', $whereCondition);
+    }
+
+    /**
+     * Return table alias (if specified) and column
+     *
+     * @param $whereCondition
+     * @return mixed
+     */
+    protected function getColumnName($whereCondition)
+    {
+        return preg_replace(self::WHERE_COLUMN_REGEX, '$2$3', $whereCondition);
+    }
+
+    /**
+     * Extract the operator from a where condition part, defaults to = if no operator present
+     *
+     * @param string $columnName
+     * @return string
+     */
+    protected function getOperator($columnName)
+    {
+        $operator = trim(preg_replace(self::WHERE_COLUMN_REGEX, '$4', $columnName));
+        if($operator && in_array($operator, $this->COMPARISON_OPERATORS)) {
+            return $operator;
+        } else {
+            return '=';
+        }
     }
 
     /**

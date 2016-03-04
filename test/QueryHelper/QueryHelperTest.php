@@ -34,7 +34,7 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
 
-        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['column'=>'value', 'inColumn'=>[1,2,3]], ['column'=>'ASC']);
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['main.column'=>'value', 'inColumn'=>[1,2,3], 'notEqualColumn <>'=>5], ['column'=>'ASC']);
 
         $this->assertEquals(QueryBuilder::SELECT, $qb->getType());
 
@@ -42,7 +42,7 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([['table'=>'`test_table`', 'alias'=>'main']], $from);
 
         $where = (string) $qb->getQueryPart('where');
-        $this->assertEquals('(`column` = :column) AND (`inColumn` IN(:inColumn))', $where);
+        $this->assertEquals('(`main.column` = :column) AND (`inColumn` IN(:inColumn)) AND (`notEqualColumn` <> :notEqualColumn)', $where);
 
         $orderBy = $qb->getQueryPart('orderBy');
         $this->assertEquals(['`column` ASC'], $orderBy);

@@ -122,9 +122,9 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $object = new ExtendedDataObject();
         $object->setMyColumn('ASDF 4');
         $this->repository->save($object);
-        $object = new ExtendedDataObject();
-        $object->setMyColumn('XYZ');
-        $this->repository->save($object);
+        $object2 = new ExtendedDataObject();
+        $object2->setMyColumn('XYZ');
+        $this->repository->save($object2);
 
         /** @var ExtendedDataObject[] $fromDb */
         $fromDb = $this->repository->findBy(['myColumn'=>['ASDF 4', 'XYZ']], ['myColumn'=>'DESC']);
@@ -136,6 +136,11 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $limited = $this->repository->findBy(['myColumn'=>['ASDF 4', 'XYZ']], ['myColumn'=>'DESC'], 1, 1);
         $this->assertCount(1, $limited);
         $this->assertEquals('ASDF 4', $limited[0]->getMyColumn());
+
+        /** @var ExtendedDataObject[] $withIdsGt */
+        $withIdsGt = $this->repository->findBy(['id >'=>$object->getId()]);
+        $this->assertCount(1, $withIdsGt);
+        $this->assertEquals('XYZ', $withIdsGt[0]->getMyColumn());
     }
 
     public function testFindByNull()
