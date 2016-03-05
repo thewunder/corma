@@ -51,7 +51,7 @@ class ObjectMapper
     /**
      * @param Connection $db
      * @param Cache $cache
-     * @return QueryHelper
+     * @return QueryHelperInterface
      */
     protected static function createQueryHelper(Connection $db, Cache $cache)
     {
@@ -62,7 +62,7 @@ class ObjectMapper
             new $className($db, $cache);
         }
 
-        return new $className($db, $cache);
+        return new QueryHelper($db, $cache);
     }
 
     /**
