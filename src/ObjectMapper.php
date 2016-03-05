@@ -17,7 +17,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ObjectMapper
 {
     /**
-    /**
      * @var ObjectRepositoryFactoryInterface
      */
     private $repositoryFactory;
