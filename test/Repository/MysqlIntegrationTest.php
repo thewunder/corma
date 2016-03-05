@@ -4,6 +4,7 @@ namespace Corma\Test\Repository;
 
 use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
+use Corma\ObjectMapper;
 use Corma\QueryHelper\MySQLQueryHelper;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
@@ -24,6 +25,9 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
     /** @var EventDispatcherInterface */
     private $dispatcher;
 
+    /** @var ObjectMapper */
+    private $objectMapper;
+
     /** @var Connection */
     private static $connection;
 
@@ -32,7 +36,14 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $cache = new ArrayCache();
         $queryHelper = new QueryHelper(self::$connection, $cache);
         $this->dispatcher = new EventDispatcher();
-        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $queryHelper, $cache);
+
+        $this->objectMapper = $this->getMockBuilder(ObjectMapper::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($queryHelper);
+
+        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $this->objectMapper, $cache);
     }
 
     public function testSaveAndFind()
@@ -213,7 +224,11 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $objects[] = $object3->setMyColumn('Save All 3');
 
         $cache = new ArrayCache();
-        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, new MySQLQueryHelper(self::$connection, $cache), $cache);
+        $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
+
+        $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($mySQLQueryHelper);
+
+        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $this->objectMapper, $cache);
 
         $inserts = $this->repository->saveAll($objects);
 
@@ -254,7 +269,8 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
     {
         $cache = new ArrayCache();
         $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
-        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $mySQLQueryHelper, $cache);
+        $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($mySQLQueryHelper);
+        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $this->objectMapper, $cache);
 
         $this->assertFalse($mySQLQueryHelper->isDuplicateException(new DBALException()));
 

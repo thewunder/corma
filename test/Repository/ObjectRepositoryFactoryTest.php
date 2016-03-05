@@ -4,6 +4,7 @@
 namespace Corma\Test\Repository;
 
 
+use Corma\ObjectMapper;
 use Corma\Repository\ObjectRepository;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
@@ -84,8 +85,14 @@ class ObjectRepositoryFactoryTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $objectMapper = $this->getMockBuilder(ObjectMapper::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+
+
         $dispatcher = new EventDispatcher();
 
-        $this->repositoryFactory = new ObjectRepositoryFactory(['Corma\\Test\\Fixtures'], [$connection, $dispatcher, $queryHelper, new ArrayCache()]);
+        $this->repositoryFactory = new ObjectRepositoryFactory(['Corma\\Test\\Fixtures'], [$connection, $dispatcher, $objectMapper, new ArrayCache()]);
     }
 }

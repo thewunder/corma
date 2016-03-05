@@ -43,8 +43,11 @@ class ObjectMapper
         }
 
         $queryHelper = self::createQueryHelper($db, $cache);
-        $dependencies = array_merge([$db, $dispatcher, $queryHelper, $cache], $additionalDependencies);
-        return new static($queryHelper, new ObjectRepositoryFactory($namespaces, $dependencies));
+        $repositoryFactory = new ObjectRepositoryFactory($namespaces);
+        $instance = new static($queryHelper, $repositoryFactory);
+        $dependencies = array_merge([$db, $dispatcher, $instance, $cache], $additionalDependencies);
+        $repositoryFactory->setDependencies($dependencies);
+        return $instance;
     }
 
     /**

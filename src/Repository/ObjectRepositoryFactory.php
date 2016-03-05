@@ -30,7 +30,7 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
      * @param array $namespaces Namespaces to search for data objects and repositories
      * @param array $dependencies Repository constructor dependencies
      */
-    public function __construct(array $namespaces, array $dependencies)
+    public function __construct(array $namespaces, array $dependencies = [])
     {
         if(empty($namespaces)) {
             throw new InvalidArgumentException('At least one data object repository namespace must be specified');
@@ -109,5 +109,13 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
             return $repository;
         }
         return null;
+    }
+
+    /**
+     * @param array $dependencies
+     */
+    public function setDependencies($dependencies)
+    {
+        $this->dependencies = $dependencies;
     }
 }

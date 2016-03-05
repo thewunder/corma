@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Test\Repository;
 
+use Corma\ObjectMapper;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
@@ -13,6 +14,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 {
+    private $objectMapper;
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     private $connection;
 
@@ -31,6 +33,12 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
             ->disableOriginalConstructor()
             ->getMock();
+
+        $this->objectMapper = $this->getMockBuilder(ObjectMapper::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($this->queryHelper);
     }
 
     public function testGetClassName()
@@ -58,7 +66,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     public function testClassNotFound()
     {
         /** @noinspection PhpParamsInspection */
-        $repository = new NoClassObjectRepository($this->connection, new EventDispatcher(), $this->queryHelper, new ArrayCache());
+        $repository = new NoClassObjectRepository($this->connection, new EventDispatcher(), $this->objectMapper, new ArrayCache());
         $repository->getTableName();
     }
 
@@ -68,7 +76,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     public function testInvalidClass()
     {
         /** @noinspection PhpParamsInspection */
-        $repository = new InvalidClassObjectRepository($this->connection, new EventDispatcher(), $this->queryHelper, new ArrayCache());
+        $repository = new InvalidClassObjectRepository($this->connection, new EventDispatcher(), $this->objectMapper, new ArrayCache());
         $repository->getTableName();
     }
 
@@ -204,7 +212,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     protected function getRepository()
     {
-        $repository = new ExtendedDataObjectRepository($this->connection, new EventDispatcher(), $this->queryHelper, new ArrayCache());
+        $repository = new ExtendedDataObjectRepository($this->connection, new EventDispatcher(), $this->objectMapper, new ArrayCache());
         return $repository;
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Test\Repository;
 
+use Corma\ObjectMapper;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\ReadOnlyRepository;
 use Corma\QueryHelper\QueryHelper;
@@ -11,6 +12,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ReadOnlyRepositoryTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    protected $objectMapper;
+
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     private $connection;
 
@@ -33,6 +37,12 @@ class ReadOnlyRepositoryTest extends \PHPUnit_Framework_TestCase
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()->getMock();
 
         $this->queryHelper->expects($this->any())->method('buildSelectQuery')->willReturn($queryBuilder);
+
+        $this->objectMapper = $this->getMockBuilder(ObjectMapper::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($this->queryHelper);
 
         $this->cache = $this->getMockBuilder(ArrayCache::class)
             ->disableOriginalConstructor()
@@ -112,7 +122,7 @@ class ReadOnlyRepositoryTest extends \PHPUnit_Framework_TestCase
     protected function getRepository()
     {
         $repository = $this->getMockBuilder(ReadOnlyRepository::class)
-            ->setConstructorArgs([$this->connection, new EventDispatcher(), $this->queryHelper, $this->cache])
+            ->setConstructorArgs([$this->connection, new EventDispatcher(), $this->objectMapper, $this->cache])
             ->setMethods(['fetchAll'])->getMock();
 
         return $repository;
