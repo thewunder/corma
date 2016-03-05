@@ -20,11 +20,16 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
      * @var array
      */
     private $namespaces;
+
     /**
      * @var array
      */
     private $dependencies;
 
+    /**
+     * @param array $namespaces Namespaces to search for data objects and repositories
+     * @param array $dependencies Repository constructor dependencies
+     */
     public function __construct(array $namespaces, array $dependencies)
     {
         if(empty($namespaces)) {

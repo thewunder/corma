@@ -31,7 +31,7 @@ class ObjectMapper
      *
      * @param Connection $db Database connection
      * @param EventDispatcherInterface $dispatcher
-     * @param array $namespaces Object Namespaces to search for Repositories.  Repositories
+     * @param array $namespaces Namespaces to search for data objects and repositories
      * @param Cache $cache Cache for table metadata and repositories
      * @param array $additionalDependencies Additional dependencies to inject into Repository constructors
      * @return static
