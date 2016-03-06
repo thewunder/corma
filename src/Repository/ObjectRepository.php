@@ -236,8 +236,8 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
     {
-        $idColumn = $idColumn ? $idColumn : substr($this->getClassName(), strrpos($this->getClassName(), '\\') + 1);
-        $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : substr($className, strrpos($className, '\\') + 1);
+        $idColumn = $idColumn ? $idColumn : lcfirst(substr($this->getClassName(), strrpos($this->getClassName(), '\\') + 1)) . 'Id';
+        $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : lcfirst(substr($className, strrpos($className, '\\') + 1)). 'Id';
 
         $ids = DataObject::getIds($objects);
         $qb = $this->queryHelper->buildSelectQuery($linkTable, [$idColumn.' AS id', $foreignIdColumn.' AS foreignId'], [$idColumn=>$ids]);
@@ -250,7 +250,7 @@ class ObjectRepository implements ObjectRepositoryInterface
             $foreignIds[$linkRow->foreignId] = true;
         }
 
-        $foreignObjects = $this->objectMapper->findByIds($className, array_flip($foreignIds));
+        $foreignObjects = $this->objectMapper->findByIds($className, array_keys($foreignIds));
         unset($foreignIds);
 
         $foreignObjectsById = [];

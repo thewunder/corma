@@ -334,7 +334,33 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $loadedOtherObjects = $object->getOtherDataObjects();
         $this->assertCount(2, $loadedOtherObjects);
         $this->assertEquals($otherObject->getId(), $loadedOtherObjects[1]->getId());
-        $this->assertEquals('Other object many-to-one 2', $loadedOtherObjects[1]->getName());
+        $this->assertEquals($otherObject->getName(), $loadedOtherObjects[1]->getName());
+    }
+
+    public function testLoadManyToMany()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('many-to-many');;
+        $this->repository->save($object);
+
+        $otherObjects = [];
+        $otherObject = new OtherDataObject();
+        $otherObjects[] = $otherObject->setName('Other object many-to-many 1')->setExtendedDataObjectId($object->getId());
+        $otherObject2 = new OtherDataObject();
+        $otherObjects[] = $otherObject2->setName('Other object many-to-many 2')->setExtendedDataObjectId($object->getId());
+        $this->objectMapper->saveAll($otherObjects);
+
+       $this->objectMapper->getQueryHelper()->massInsert('extended_other_rel', [
+            ['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=>$otherObject->getId()],
+            ['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=>$otherObject2->getId()]
+        ]);
+
+        $this->repository->loadManyToMany([$object], OtherDataObject::class, 'extended_other_rel');
+
+        $loadedOtherObjects = $object->getOtherDataObjects();
+        $this->assertCount(2, $loadedOtherObjects);
+        $this->assertEquals($otherObject2->getId(), $loadedOtherObjects[1]->getId());
+        $this->assertEquals($otherObject2->getName(), $loadedOtherObjects[1]->getName());
     }
 
     public static function setUpBeforeClass()
@@ -373,10 +399,10 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1');
 
         self::$connection->query('CREATE TABLE extended_other_rel (
-          extendedId INT(11) UNSIGNED NOT NULL,
-          otherId INT(11) UNSIGNED NOT NULL,
-          FOREIGN KEY `extendedId` (`extendedId`) REFERENCES `extended_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-          FOREIGN KEY `otherId` (`otherId`) REFERENCES `other_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
+          extendedDataObjectId INT(11) UNSIGNED NOT NULL,
+          otherDataObjectId INT(11) UNSIGNED NOT NULL,
+          FOREIGN KEY `extendedId` (`extendedDataObjectId`) REFERENCES `extended_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+          FOREIGN KEY `otherId` (`otherDataObjectId`) REFERENCES `other_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci');
     }
 
