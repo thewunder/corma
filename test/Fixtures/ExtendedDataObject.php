@@ -9,13 +9,19 @@ use Corma\DataObject\DataObjectInterface;
  */
 class ExtendedDataObject extends DataObject
 {
-    protected $myColumn, $myNullableColumn;
+    protected $myColumn, $myNullableColumn, $otherDataObjectId;
 
     /** @var array */
     protected $arrayProperty;
 
     /** @var DataObjectInterface */
     protected $objectProperty;
+
+    /** @var OtherDataObject */
+    protected $otherDataObject;
+
+    /** @var OtherDataObject[] */
+    protected $otherDataObjects;
 
     /**
      * @return mixed
@@ -87,5 +93,51 @@ class ExtendedDataObject extends DataObject
     {
         $this->objectProperty = $objectProperty;
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOtherDataObjectId()
+    {
+        return $this->otherDataObjectId;
+    }
+
+    /**
+     * @param mixed $otherDataObjectId
+     * @return ExtendedDataObject
+     */
+    public function setOtherDataObjectId($otherDataObjectId)
+    {
+        $this->otherDataObjectId = $otherDataObjectId;
+        return $this;
+    }
+
+    /**
+     * @param OtherDataObject $otherDataObject
+     * @return $this
+     */
+    public function setOtherDataObject(OtherDataObject $otherDataObject)
+    {
+        $this->otherDataObject = $otherDataObject;
+        return $this;
+    }
+
+    /**
+     * @param OtherDataObject[] $otherDataObjects
+     * @return ExtendedDataObject
+     */
+    public function setOtherDataObjects($otherDataObjects)
+    {
+        $this->otherDataObjects = $otherDataObjects;
+        return $this;
+    }
+
+    /**
+     * @return OtherDataObject[]
+     */
+    public function getOtherDataObjects()
+    {
+        return $this->otherDataObjects;
     }
 }

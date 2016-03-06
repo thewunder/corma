@@ -307,8 +307,25 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
           id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
           isDeleted TINYINT(1) UNSIGNED NOT NULL,
           myColumn VARCHAR(255) NOT NULL,
-          myNullableColumn INT(11) UNSIGNED NULL DEFAULT NULL
+          myNullableColumn INT(11) UNSIGNED NULL DEFAULT NULL,
+          otherDataObjectId INT (11) UNSIGNED NULL,
+          FOREIGN KEY `otherDataObjectId` (`otherDataObjectId`) REFERENCES `other_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1');
+
+        self::$connection->query('CREATE TABLE other_data_objects (
+          id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+          isDeleted TINYINT(1) UNSIGNED NOT NULL,
+          `name` VARCHAR(255) NOT NULL,
+          `extendedDataObjectId` INT (11) UNSIGNED NULL,
+          FOREIGN KEY `extendedDataObjectId` (`extendedDataObjectId`) REFERENCES `extended_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1');
+
+        self::$connection->query('CREATE TABLE extended_other_rel (
+          extendedId INT(11) UNSIGNED NOT NULL,
+          otherId TINYINT(1) UNSIGNED NOT NULL,
+          FOREIGN KEY `extendedId` (`extendedId`) REFERENCES `extended_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+          FOREIGN KEY `otherId` (`otherId`) REFERENCES `other_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci');
     }
 
     public static function tearDownAfterClass()
