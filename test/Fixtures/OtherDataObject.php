@@ -5,7 +5,7 @@ use Corma\DataObject\DataObject;
 
 class OtherDataObject extends DataObject
 {
-    protected $name;
+    protected $name, $extendedDataObjectId;
 
     /**
      * @return mixed
@@ -22,6 +22,24 @@ class OtherDataObject extends DataObject
     public function setName($name)
     {
         $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExtendedDataObjectId()
+    {
+        return $this->extendedDataObjectId;
+    }
+
+    /**
+     * @param mixed $extendedDataObjectId
+     * @return OtherDataObject
+     */
+    public function setExtendedDataObjectId($extendedDataObjectId)
+    {
+        $this->extendedDataObjectId = $extendedDataObjectId;
         return $this;
     }
 }

@@ -316,6 +316,27 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
     }
 
+    public function testLoadManyToOne()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('many-to-one');;
+        $this->repository->save($object);
+
+        $otherObjects = [];
+        $otherObject = new OtherDataObject();
+        $otherObjects[] = $otherObject->setName('Other object many-to-one 1')->setExtendedDataObjectId($object->getId());
+        $otherObject = new OtherDataObject();
+        $otherObjects[] = $otherObject->setName('Other object many-to-one 2')->setExtendedDataObjectId($object->getId());
+        $this->objectMapper->saveAll($otherObjects);
+
+        $this->repository->loadManyToOne([$object], OtherDataObject::class, 'extendedDataObjectId');
+
+        $loadedOtherObjects = $object->getOtherDataObjects();
+        $this->assertCount(2, $loadedOtherObjects);
+        $this->assertEquals($otherObject->getId(), $loadedOtherObjects[1]->getId());
+        $this->assertEquals('Other object many-to-one 2', $loadedOtherObjects[1]->getName());
+    }
+
     public static function setUpBeforeClass()
     {
         if(empty(getenv('MYSQL_HOST')) && file_exists(__DIR__.'/../../.env')) {

@@ -195,7 +195,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
-     * @param string $foreignColumn Property on this object that relates to the foreign tables id
+     * @param string $foreignColumn Property on foreign object that relates to this object id
      */
     public function loadManyToOne(array $objects, $className, $foreignColumn)
     {
@@ -217,7 +217,7 @@ class ObjectRepository implements ObjectRepositoryInterface
             }
         }
 
-        $setter = 'set' . ucfirst(str_replace(['Id', '_id'], '', $foreignColumn)) . 's';
+        $setter = 'set' . substr($className, strrpos($className, '\\') + 1) . 's';
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
                 $object->$setter($foreignObjectsById[$object->getId()]);
