@@ -180,7 +180,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
         unset($foreignObjects);
 
-        $setter = 'set' . $property;
+        $setter = 'set' . str_replace(['Id', '_id'], '', $property);
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
                 $object->$setter($foreignObjectsById[$idToForeignId[$object->getId()]]);

@@ -6,7 +6,9 @@ use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\MySQLQueryHelper;
+use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Test\Fixtures\ExtendedDataObject;
+use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
@@ -37,11 +39,9 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $queryHelper = new QueryHelper(self::$connection, $cache);
         $this->dispatcher = new EventDispatcher();
 
-        $this->objectMapper = $this->getMockBuilder(ObjectMapper::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($queryHelper);
+        $repositoryFactory = new ObjectRepositoryFactory(['Corma\\Test\\Fixtures']);
+        $this->objectMapper = new ObjectMapper($queryHelper, $repositoryFactory);
+        $repositoryFactory->setDependencies([self::$connection, $this->dispatcher, $this->objectMapper, $cache]);
 
         $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $this->objectMapper, $cache);
     }
@@ -193,6 +193,15 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $object3 = new ExtendedDataObject();
         $objects[] = $object3->setMyColumn('Save All 3');
 
+        $objectMapper = $this->getMockBuilder(ObjectMapper::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $cache = new ArrayCache();
+        $objectMapper->expects($this->any())->method('getQueryHelper')->willReturn(new QueryHelper(self::$connection, $cache));
+
+        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $objectMapper, $cache);
+
         $effected = $this->repository->saveAll($objects);
 
         $this->assertEquals(3, $effected);
@@ -226,9 +235,13 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $cache = new ArrayCache();
         $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
 
-        $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($mySQLQueryHelper);
+        $objectMapper = $this->getMockBuilder(ObjectMapper::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
-        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $this->objectMapper, $cache);
+        $objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($mySQLQueryHelper);
+
+        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $objectMapper, $cache);
 
         $inserts = $this->repository->saveAll($objects);
 
@@ -269,8 +282,11 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
     {
         $cache = new ArrayCache();
         $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
-        $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($mySQLQueryHelper);
-        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $this->objectMapper, $cache);
+        $objectMapper = $this->getMockBuilder(ObjectMapper::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($mySQLQueryHelper);
+        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $objectMapper, $cache);
 
         $this->assertFalse($mySQLQueryHelper->isDuplicateException(new DBALException()));
 
@@ -282,6 +298,22 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->markTestIncomplete('Expected Exception was not thrown');
+    }
+
+    public function testLoadOneToMany()
+    {
+        $otherObject = new OtherDataObject();
+        $otherObject->setName('Other object one-to-many');
+        $this->objectMapper->save($otherObject);
+
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('one-to-many')->setOtherDataObjectId($otherObject->getId());
+        $this->repository->save($object);
+
+        $this->repository->loadOneToMany([$object], OtherDataObject::class, 'otherDataObjectId');
+
+        $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
+        $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
     }
 
     public static function setUpBeforeClass()
@@ -308,8 +340,7 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
           isDeleted TINYINT(1) UNSIGNED NOT NULL,
           myColumn VARCHAR(255) NOT NULL,
           myNullableColumn INT(11) UNSIGNED NULL DEFAULT NULL,
-          otherDataObjectId INT (11) UNSIGNED NULL,
-          FOREIGN KEY `otherDataObjectId` (`otherDataObjectId`) REFERENCES `other_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
+          otherDataObjectId INT (11) UNSIGNED NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1');
 
         self::$connection->query('CREATE TABLE other_data_objects (
@@ -322,7 +353,7 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
 
         self::$connection->query('CREATE TABLE extended_other_rel (
           extendedId INT(11) UNSIGNED NOT NULL,
-          otherId TINYINT(1) UNSIGNED NOT NULL,
+          otherId INT(11) UNSIGNED NOT NULL,
           FOREIGN KEY `extendedId` (`extendedId`) REFERENCES `extended_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
           FOREIGN KEY `otherId` (`otherId`) REFERENCES `other_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci');

@@ -114,6 +114,14 @@ class ExtendedDataObject extends DataObject
     }
 
     /**
+     * @return OtherDataObject
+     */
+    public function getOtherDataObject()
+    {
+        return $this->otherDataObject;
+    }
+
+    /**
      * @param OtherDataObject $otherDataObject
      * @return $this
      */
