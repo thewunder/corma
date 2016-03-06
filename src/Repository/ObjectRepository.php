@@ -158,13 +158,13 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign object to load
-     * @param string $property Property on this object that relates to the foreign tables id
+     * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      */
-    public function loadOneToMany(array $objects, $className, $property)
+    public function loadOneToMany(array $objects, $className, $foreignIdColumn)
     {
         $idToForeignId = [];
-        $property = ucfirst($property);
-        $getter = 'get' . $property;
+        $foreignIdColumn = ucfirst($foreignIdColumn);
+        $getter = 'get' . $foreignIdColumn;
         foreach($objects as $object) {
             if(method_exists($object, $getter)) {
                 $idToForeignId[$object->getId()] = $object->$getter();
@@ -180,7 +180,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
         unset($foreignObjects);
 
-        $setter = 'set' . str_replace(['Id', '_id'], '', $property);
+        $setter = 'set' . str_replace(['Id', '_id'], '', $foreignIdColumn);
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
                 $object->$setter($foreignObjectsById[$idToForeignId[$object->getId()]]);

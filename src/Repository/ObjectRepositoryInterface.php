@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Repository;
 
-use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
 use Doctrine\Common\Persistence\ObjectRepository as DoctrineObjectRepository;
 
@@ -60,4 +59,31 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @param DataObjectInterface[] $objects
      */
     public function deleteAll(array $objects);
+
+    /**
+     * Loads a foreign relationship where a property on the supplied objects references an id for another object
+     *
+     * @param DataObjectInterface[] $objects
+     * @param string $className Class name of foreign object to load
+     * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id
+     */
+    public function loadOneToMany(array $objects, $className, $foreignIdColumn);
+
+    /**
+     * Loads a foreign relationship where a column on another object references the id for the supplied object
+     *
+     * @param DataObjectInterface[] $objects
+     * @param string $className Class name of foreign objects to load
+     * @param string $foreignColumn Property on foreign object that relates to this object id
+     */
+    public function loadManyToOne(array $objects, $className, $foreignColumn);
+
+    /**
+     * @param DataObjectInterface[] $objects
+     * @param string $className Class name of foreign objects to load
+     * @param string $linkTable Table that links two objects together
+     * @param string $idColumn Column on link table = the id on this object
+     * @param string $foreignIdColumn Column on link table = the id on the foreign object table
+     */
+    public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null);
 }
