@@ -165,6 +165,63 @@ class ObjectMapper
     }
 
     /**
+     * Loads a foreign relationship where a property on the supplied objects references an id for another object
+     *
+     * This works on objects of mixed type, although they must have exactly the same $foreignIdColumn
+     *
+     * @param DataObjectInterface[] $objects
+     * @param string $className Class name of foreign object to load
+     * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id
+     */
+    public function loadOneToMany(array $objects, $className, $foreignIdColumn)
+    {
+        $objectsByClass = $this->groupByClass($objects);
+
+        foreach($objectsByClass as $class => $classObjects) {
+            $this->getRepository($class)->loadOneToMany($classObjects, $className, $foreignIdColumn);
+        }
+    }
+
+    /**
+     * Loads a foreign relationship where a column on another object references the id for the supplied object
+     *
+     * This works on objects of mixed type, although they must have exactly the same $foreignColumn
+     *
+     * @param DataObjectInterface[] $objects
+     * @param string $className Class name of foreign objects to load
+     * @param string $foreignColumn Property on foreign object that relates to this object id
+     */
+    public function loadManyToOne(array $objects, $className, $foreignColumn)
+    {
+        $objectsByClass = $this->groupByClass($objects);
+
+        foreach($objectsByClass as $class => $classObjects) {
+            $this->getRepository($class)->loadManyToOne($classObjects, $className, $foreignColumn);
+        }
+    }
+
+    /**
+     * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects
+     *
+     * This works theoretically on objects of mixed type, although they must have the same link table, which makes this in reality only usable
+     * by for objects of the same class.
+     *
+     * @param DataObjectInterface[] $objects
+     * @param string $className Class name of foreign objects to load
+     * @param string $linkTable Table that links two objects together
+     * @param string $idColumn Column on link table = the id on this object
+     * @param string $foreignIdColumn Column on link table = the id on the foreign object table
+     */
+    public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
+    {
+        $objectsByClass = $this->groupByClass($objects);
+
+        foreach($objectsByClass as $class => $classObjects) {
+            $this->getRepository($class)->loadManyToMany($classObjects, $className, $linkTable, $idColumn, $foreignIdColumn);
+        }
+    }
+
+    /**
      * Persists a single object to the database
      *
      * @param DataObjectInterface $object
@@ -176,7 +233,9 @@ class ObjectMapper
     }
 
     /**
-     * Persists all objects to the database
+     * Persists all objects to the database.
+     *
+     * This method works on objects of mixed type.
      *
      * @param DataObjectInterface[] $objects
      */
@@ -199,7 +258,9 @@ class ObjectMapper
     }
 
     /**
-     * Delete all objects from the database by their ids
+     * Delete all objects from the database by their ids.
+     *
+     * This method works on objects of mixed type.
      *
      * @param DataObjectInterface[] $objects
      */

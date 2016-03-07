@@ -5,6 +5,7 @@ use Corma\ObjectMapper;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
+use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
@@ -103,6 +104,60 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
         $mockRepo->expects($this->once())->method('findOneBy')->with(['asdf'=>'value']);
 
         $this->getCorma($mockRepo)->findOneBy('ExtendedDataObject', ['asdf'=>'value']);
+    }
+
+    public function testLoadOneToMany()
+    {
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setId(123);
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setId(456);
+
+
+        $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockRepo->expects($this->once())->method('loadOneToMany')->with($objects, OtherDataObject::class, 'otherDataObjectId');
+
+        $this->getCorma($mockRepo)->loadOneToMany($objects, OtherDataObject::class, 'otherDataObjectId');
+    }
+
+    public function testLoadManyToOne()
+    {
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setId(123);
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setId(456);
+
+
+        $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockRepo->expects($this->once())->method('loadManyToOne')->with($objects, OtherDataObject::class, 'extendedDataObjectId');
+
+        $this->getCorma($mockRepo)->loadManyToOne($objects, OtherDataObject::class, 'extendedDataObjectId');
+    }
+
+    public function testLoadManyToMany()
+    {
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setId(123);
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setId(456);
+
+
+        $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockRepo->expects($this->once())->method('loadManyToMany')->with($objects, OtherDataObject::class, 'link_table');
+
+        $this->getCorma($mockRepo)->loadManyToMany($objects, OtherDataObject::class, 'link_table');
     }
 
     public function testSave()

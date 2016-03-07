@@ -15,12 +15,14 @@ Croute is great because:
 * Supports soft deletes
 * Can save multiple objects in a single query (using an upsert)
 * Makes it easy to cache and avoid database queries
+* Loads one-to-many and many-to-many relationships with a method call
 
 Corma doesn't:
 
 * Autoload or lazy load anything
 * Have any knowledge of relationships between objects
 * Have any Unit of Work concept, everything is executed right away
+* Do migrations or code generation
 
 Don't use this in production, things will change.
 
@@ -81,6 +83,10 @@ Create the orm and use it
 
     //find existing objects with myColumn >= 42 AND otherColumn = 1
     $existingObjects = $orm->findBy(YourDataObject::class, ['myColumn >='=>42, 'otherColumn'=>1], ['sortColumn'=>'ASC']);
+
+    //load relationships
+    $orm->loadOneToMany($existingObjects, OtherObject::class, 'otherObjectId');
+    $orm->loadManyToMany($existingObjects, DifferentObject::class, 'link_table');
 
     //delete those
     $orm->deleteAll($existingObjects);
