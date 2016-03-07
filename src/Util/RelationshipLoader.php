@@ -50,7 +50,7 @@ class RelationshipLoader
         }
         unset($foreignObjects);
 
-        $setter = 'set' . str_replace(['Id', '_id'], '', $foreignIdColumn);
+        $setter = 'set' . $this->methodNameFromColumn($foreignIdColumn);
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
                 $object->$setter($foreignObjectsById[$idToForeignId[$object->getId()]]);
@@ -91,7 +91,7 @@ class RelationshipLoader
             }
         }
 
-        $setter = 'set' . Inflector::pluralize(substr($className, strrpos($className, '\\') + 1));
+        $setter = 'set' . $this->methodNameFromClass($className, true);
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
                 $object->$setter($foreignObjectsById[$object->getId()]);
@@ -137,7 +137,7 @@ class RelationshipLoader
         }
         unset($foreignObjects);
 
-        $setter = 'set' . Inflector::pluralize(ucfirst(str_replace(['Id', '_id'], '', $foreignIdColumn)));
+        $setter =  'set' . $this->methodNameFromColumn($foreignIdColumn, true);
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
                 $foreignIds = $foreignIdsById[$object->getId()];
@@ -149,6 +149,36 @@ class RelationshipLoader
             } else {
                 throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load many-to-many relationship with $className");
             }
+        }
+    }
+
+    /**
+     * @param string $columnName
+     * @param bool $plural
+     * @return string Partial method name to get / set object(s)
+     */
+    protected function methodNameFromColumn($columnName, $plural = false)
+    {
+        $method = ucfirst(str_replace(['Id', '_id'], '', $columnName));
+        if($plural) {
+            return Inflector::pluralize($method);
+        } else {
+            return $method;
+        }
+    }
+
+    /**
+     * @param string $className
+     * @param bool $plural
+     * @return string Partial method name to get / set object(s)
+     */
+    protected function methodNameFromClass($className, $plural = false)
+    {
+        $method = substr($className, strrpos($className, '\\') + 1);
+        if($plural) {
+            return Inflector::pluralize($method);
+        } else {
+            return $method;
         }
     }
 }

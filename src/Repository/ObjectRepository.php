@@ -164,7 +164,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function loadOneToMany(array $objects, $className, $foreignIdColumn = null)
     {
-        $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : lcfirst(substr($className, strrpos($className, '\\') + 1)) . 'Id';
+        $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);
 
         $this->objectMapper->getRelationshipLoader()->loadOneToMany($objects, $className, $foreignIdColumn);
     }
@@ -180,7 +180,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function loadManyToOne(array $objects, $className, $foreignColumn = null)
     {
-        $foreignColumn = $foreignColumn ? $foreignColumn : lcfirst(substr($this->getClassName(), strrpos($this->getClassName(), '\\') + 1)) . 'Id';
+        $foreignColumn = $foreignColumn ? $foreignColumn : $this->idColumnFromClass($this->getClassName());
 
         $this->objectMapper->getRelationshipLoader()->loadManyToOne($objects, $className, $foreignColumn);
     }
@@ -196,8 +196,8 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
     {
-        $idColumn = $idColumn ? $idColumn : lcfirst(substr($this->getClassName(), strrpos($this->getClassName(), '\\') + 1)) . 'Id';
-        $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : lcfirst(substr($className, strrpos($className, '\\') + 1)). 'Id';
+        $idColumn = $idColumn ? $idColumn : $this->idColumnFromClass($this->getClassName());
+        $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);
 
         $this->objectMapper->getRelationshipLoader()->loadManyToMany($objects, $className, $linkTable, $idColumn, $foreignIdColumn);
     }
@@ -535,5 +535,15 @@ class ObjectRepository implements ObjectRepositoryInterface
         if (!($object instanceof $className)) {
             throw new InvalidArgumentException("Object must be instance of $className");
         }
+    }
+
+    /**
+     * @param string $className
+     * @param string $suffix
+     * @return string
+     */
+    protected function idColumnFromClass($className, $suffix = 'Id')
+    {
+        return lcfirst(substr($className, strrpos($className, '\\') + 1)) . $suffix;
     }
 }
