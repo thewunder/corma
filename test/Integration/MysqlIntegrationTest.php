@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Test\Repository;
+namespace Corma\Test\Integration;
 
 
 use Corma\DataObject\DataObject;
