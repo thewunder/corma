@@ -182,10 +182,7 @@ class ObjectMapper
      */
     public function saveAll(array $objects)
     {
-        $objectsByClass = [];
-        foreach($objects as $object) {
-            $objectsByClass[$object->getClassName()][] = $object;
-        }
+        $objectsByClass = $this->groupByClass($objects);
 
         foreach($objectsByClass as $class => $classObjects) {
             $this->getRepository($class)->saveAll($classObjects);
@@ -208,10 +205,7 @@ class ObjectMapper
      */
     public function deleteAll(array $objects)
     {
-        $objectsByClass = [];
-        foreach($objects as $object) {
-            $objectsByClass[$object->getClassName()][] = $object;
-        }
+        $objectsByClass = $this->groupByClass($objects);
 
         foreach($objectsByClass as $class => $classObjects) {
             $this->getRepository($class)->deleteAll($classObjects);
@@ -235,5 +229,18 @@ class ObjectMapper
             return $this->relationshipLoader;
         }
         return $this->relationshipLoader = new RelationshipLoader($this);
+    }
+
+    /**
+     * @param DataObjectInterface[] $objects
+     * @return array
+     */
+    protected function groupByClass(array $objects)
+    {
+        $objectsByClass = [];
+        foreach ($objects as $object) {
+            $objectsByClass[$object->getClassName()][] = $object;
+        }
+        return $objectsByClass;
     }
 }
