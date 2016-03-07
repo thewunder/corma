@@ -79,6 +79,8 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
     public function loadManyToOne(array $objects, $className, $foreignColumn);
 
     /**
+     * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects
+     *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
