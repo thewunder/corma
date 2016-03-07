@@ -6,6 +6,7 @@ use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
+use Corma\Util\RelationshipLoader;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Connection;
@@ -25,6 +26,11 @@ class ObjectMapper
      * @var QueryHelperInterface
      */
     private $queryHelper;
+
+    /**
+     * @var RelationshipLoader
+     */
+    private $relationshipLoader;
 
     /**
      * Creates a ObjectMapper instance using the default QueryHelper and ObjectRepositoryFactory
@@ -218,5 +224,16 @@ class ObjectMapper
     public function getQueryHelper()
     {
         return $this->queryHelper;
+    }
+
+    /**
+     * @return RelationshipLoader
+     */
+    public function getRelationshipLoader()
+    {
+        if($this->relationshipLoader) {
+            return $this->relationshipLoader;
+        }
+        return $this->relationshipLoader = new RelationshipLoader($this);
     }
 }

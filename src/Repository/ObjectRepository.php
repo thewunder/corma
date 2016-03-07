@@ -162,32 +162,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function loadOneToMany(array $objects, $className, $foreignIdColumn)
     {
-        $idToForeignId = [];
-        $foreignIdColumn = ucfirst($foreignIdColumn);
-        $getter = 'get' . $foreignIdColumn;
-        foreach($objects as $object) {
-            if(method_exists($object, $getter)) {
-                $idToForeignId[$object->getId()] = $object->$getter();
-            } else {
-                throw new InvalidArgumentException("$getter must be defined on {$this->getClassName()} to load oneToMany relationship with $className");
-            }
-        }
-
-        $foreignObjects = $this->objectMapper->findByIds($className, array_unique(array_values($idToForeignId)));
-        $foreignObjectsById = [];
-        foreach($foreignObjects as $foreignObject) {
-            $foreignObjectsById[$foreignObject->getId()] = $foreignObject;
-        }
-        unset($foreignObjects);
-
-        $setter = 'set' . str_replace(['Id', '_id'], '', $foreignIdColumn);
-        foreach($objects as $object) {
-            if(method_exists($object, $setter)) {
-                $object->$setter($foreignObjectsById[$idToForeignId[$object->getId()]]);
-            } else {
-                throw new InvalidArgumentException("$setter must be defined on {$this->getClassName()} to load oneToMany relationship at $className");
-            }
-        }
+        $this->objectMapper->getRelationshipLoader()->loadOneToMany($objects, $className, $foreignIdColumn);
     }
 
     /**
@@ -199,32 +174,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function loadManyToOne(array $objects, $className, $foreignColumn)
     {
-        $objectsById = [];
-        foreach($objects as $object) {
-            $objectsById[$object->getId()] = $objects;
-        }
-
-        $ids = DataObject::getIds($objects);
-        $foreignObjects = $this->objectMapper->findBy($className, [$foreignColumn=>$ids]);
-        $foreignObjectsById = [];
-        $getter = 'get' . ucfirst($foreignColumn);
-        foreach($foreignObjects as $foreignObject) {
-            if(method_exists($foreignObject, $getter)) {
-                $id = $foreignObject->$getter();
-                $foreignObjectsById[$id][] = $foreignObject;
-            } else {
-                throw new InvalidArgumentException("$getter must be defined on $className to load manyToOne relationship with {$this->getClassName()}");
-            }
-        }
-
-        $setter = 'set' . substr($className, strrpos($className, '\\') + 1) . 's';
-        foreach($objects as $object) {
-            if(method_exists($object, $setter)) {
-                $object->$setter($foreignObjectsById[$object->getId()]);
-            } else {
-                throw new InvalidArgumentException("$setter must be defined on {$this->getClassName()} to load manyToOne relationship with $className");
-            }
-        }
+        $this->objectMapper->getRelationshipLoader()->loadManyToOne($objects, $className, $foreignColumn);
     }
 
     /**
@@ -239,39 +189,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         $idColumn = $idColumn ? $idColumn : lcfirst(substr($this->getClassName(), strrpos($this->getClassName(), '\\') + 1)) . 'Id';
         $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : lcfirst(substr($className, strrpos($className, '\\') + 1)). 'Id';
 
-        $ids = DataObject::getIds($objects);
-        $qb = $this->queryHelper->buildSelectQuery($linkTable, [$idColumn.' AS id', $foreignIdColumn.' AS foreignId'], [$idColumn=>$ids]);
-        $foreignIdsById = [];
-        $foreignIds = [];
-        $linkRows = $qb->execute();
-        $linkRows->setFetchMode(\PDO::FETCH_OBJ);
-        foreach($linkRows as $linkRow) {
-            $foreignIdsById[$linkRow->id][] = $linkRow->foreignId;
-            $foreignIds[$linkRow->foreignId] = true;
-        }
-
-        $foreignObjects = $this->objectMapper->findByIds($className, array_keys($foreignIds));
-        unset($foreignIds);
-
-        $foreignObjectsById = [];
-        foreach($foreignObjects as $foreignObject) {
-            $foreignObjectsById[$foreignObject->getId()] = $foreignObject;
-        }
-        unset($foreignObjects);
-
-        $setter = 'set' . ucfirst(str_replace(['Id', '_id'], '', $foreignIdColumn)) . 's';
-        foreach($objects as $object) {
-            if(method_exists($object, $setter)) {
-                $foreignIds = $foreignIdsById[$object->getId()];
-                $foreignObjects = [];
-                foreach($foreignIds as $foreignId) {
-                    $foreignObjects[] = $foreignObjectsById[$foreignId];
-                }
-                $object->$setter($foreignObjects);
-            } else {
-                throw new InvalidArgumentException("$setter must be defined on {$this->getClassName()} to load manyToOne relationship with $className");
-            }
-        }
+        $this->objectMapper->getRelationshipLoader()->loadManyToMany($objects, $className, $linkTable, $idColumn, $foreignIdColumn);
     }
 
     /**
