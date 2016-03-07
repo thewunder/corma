@@ -44,7 +44,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * @var ObjectMapper
      */
-    private $objectMapper;
+    protected $objectMapper;
 
     protected $objectByIdCache;
 
