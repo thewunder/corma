@@ -3,7 +3,7 @@ namespace Corma\Util;
 
 use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
-use Corma\Exception\InvalidArgumentException;
+use Corma\Exception\MethodNotImplementedException;
 use Corma\ObjectMapper;
 
 class RelationshipLoader
@@ -38,7 +38,7 @@ class RelationshipLoader
             if(method_exists($object, $getter)) {
                 $idToForeignId[$object->getId()] = $object->$getter();
             } else {
-                throw new InvalidArgumentException("$getter must be defined on {$object->getClassName()} to load oneToMany relationship with $className");
+                throw new MethodNotImplementedException("$getter must be defined on {$object->getClassName()} to load oneToMany relationship with $className");
             }
         }
 
@@ -54,7 +54,7 @@ class RelationshipLoader
             if(method_exists($object, $setter)) {
                 $object->$setter($foreignObjectsById[$idToForeignId[$object->getId()]]);
             } else {
-                throw new InvalidArgumentException("$setter must be defined on {$object->getClassName()} to load oneToMany relationship at $className");
+                throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load oneToMany relationship at $className");
             }
         }
     }
@@ -86,7 +86,7 @@ class RelationshipLoader
                 $id = $foreignObject->$getter();
                 $foreignObjectsById[$id][] = $foreignObject;
             } else {
-                throw new InvalidArgumentException("$getter must be defined on $className to load many-to-one relationship with {$foreignObject->getClassName()}");
+                throw new MethodNotImplementedException("$getter must be defined on $className to load many-to-one relationship with {$foreignObject->getClassName()}");
             }
         }
 
@@ -95,7 +95,7 @@ class RelationshipLoader
             if(method_exists($object, $setter)) {
                 $object->$setter($foreignObjectsById[$object->getId()]);
             } else {
-                throw new InvalidArgumentException("$setter must be defined on {$object->getClassName()} to load many-to-one relationship with $className");
+                throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load many-to-one relationship with $className");
             }
         }
     }
@@ -146,7 +146,7 @@ class RelationshipLoader
                 }
                 $object->$setter($foreignObjects);
             } else {
-                throw new InvalidArgumentException("$setter must be defined on {$object->getClassName()} to load many-to-many relationship with $className");
+                throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load many-to-many relationship with $className");
             }
         }
     }
