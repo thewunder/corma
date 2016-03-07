@@ -5,6 +5,7 @@ use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
 use Corma\Exception\MethodNotImplementedException;
 use Corma\ObjectMapper;
+use Doctrine\Common\Inflector\Inflector;
 
 class RelationshipLoader
 {
@@ -90,7 +91,7 @@ class RelationshipLoader
             }
         }
 
-        $setter = 'set' . substr($className, strrpos($className, '\\') + 1) . 's';
+        $setter = 'set' . Inflector::pluralize(substr($className, strrpos($className, '\\') + 1));
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
                 $object->$setter($foreignObjectsById[$object->getId()]);
@@ -136,7 +137,7 @@ class RelationshipLoader
         }
         unset($foreignObjects);
 
-        $setter = 'set' . ucfirst(str_replace(['Id', '_id'], '', $foreignIdColumn)) . 's';
+        $setter = 'set' . Inflector::pluralize(ucfirst(str_replace(['Id', '_id'], '', $foreignIdColumn)));
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
                 $foreignIds = $foreignIdsById[$object->getId()];
