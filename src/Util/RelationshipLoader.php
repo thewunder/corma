@@ -73,11 +73,6 @@ class RelationshipLoader
             return;
         }
 
-        $objectsById = [];
-        foreach($objects as $object) {
-            $objectsById[$object->getId()] = $objects;
-        }
-
         $ids = DataObject::getIds($objects);
         $foreignObjects = $this->objectMapper->findBy($className, [$foreignColumn=>$ids]);
         $foreignObjectsById = [];
