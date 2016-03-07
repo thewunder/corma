@@ -156,24 +156,32 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * Loads a foreign relationship where a property on the supplied objects references an id for another object
      *
+     * $foreignIdColumn defaults to foreignObjectId if the $className is Namespace\\ForeignObject
+     *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      */
-    public function loadOneToMany(array $objects, $className, $foreignIdColumn)
+    public function loadOneToMany(array $objects, $className, $foreignIdColumn = null)
     {
+        $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : lcfirst(substr($className, strrpos($className, '\\') + 1)) . 'Id';
+
         $this->objectMapper->getRelationshipLoader()->loadOneToMany($objects, $className, $foreignIdColumn);
     }
 
     /**
      * Loads a foreign relationship where a column on another object references the id for the supplied object
      *
+     * $foreignColumn defaults to objectId for objects of class Namespace\\Object
+     *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Property on foreign object that relates to this object id
      */
-    public function loadManyToOne(array $objects, $className, $foreignColumn)
+    public function loadManyToOne(array $objects, $className, $foreignColumn = null)
     {
+        $foreignColumn = $foreignColumn ? $foreignColumn : lcfirst(substr($this->getClassName(), strrpos($this->getClassName(), '\\') + 1)) . 'Id';
+
         $this->objectMapper->getRelationshipLoader()->loadManyToOne($objects, $className, $foreignColumn);
     }
 

@@ -310,7 +310,7 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $object->setMyColumn('one-to-many')->setOtherDataObjectId($otherObject->getId());
         $this->repository->save($object);
 
-        $this->repository->loadOneToMany([$object], OtherDataObject::class, 'otherDataObjectId');
+        $this->repository->loadOneToMany([$object], OtherDataObject::class);
 
         $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
@@ -329,7 +329,7 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $otherObjects[] = $otherObject->setName('Other object many-to-one 2')->setExtendedDataObjectId($object->getId());
         $this->objectMapper->saveAll($otherObjects);
 
-        $this->repository->loadManyToOne([$object], OtherDataObject::class, 'extendedDataObjectId');
+        $this->repository->loadManyToOne([$object], OtherDataObject::class);
 
         $loadedOtherObjects = $object->getOtherDataObjects();
         $this->assertCount(2, $loadedOtherObjects);

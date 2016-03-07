@@ -167,13 +167,15 @@ class ObjectMapper
     /**
      * Loads a foreign relationship where a property on the supplied objects references an id for another object
      *
-     * This works on objects of mixed type, although they must have exactly the same $foreignIdColumn
+     * This works on objects of mixed type, although they must have exactly the same $foreignIdColumn, or use the default
+     *
+     * $foreignIdColumn defaults to foreignObjectId if the $className is Namespace\\ForeignObject
      *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign object to load
-     * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id
+     * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id (defaults to if the class = ForeignObject foreignObjectId)
      */
-    public function loadOneToMany(array $objects, $className, $foreignIdColumn)
+    public function loadOneToMany(array $objects, $className, $foreignIdColumn = null)
     {
         $objectsByClass = $this->groupByClass($objects);
 
@@ -185,13 +187,13 @@ class ObjectMapper
     /**
      * Loads a foreign relationship where a column on another object references the id for the supplied object
      *
-     * This works on objects of mixed type, although they must have exactly the same $foreignColumn
+     * This works on objects of mixed type, although they must have exactly the same $foreignColumn, or use the default
      *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Property on foreign object that relates to this object id
      */
-    public function loadManyToOne(array $objects, $className, $foreignColumn)
+    public function loadManyToOne(array $objects, $className, $foreignColumn = null)
     {
         $objectsByClass = $this->groupByClass($objects);
 

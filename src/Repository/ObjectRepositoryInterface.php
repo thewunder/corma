@@ -67,7 +67,7 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id
      */
-    public function loadOneToMany(array $objects, $className, $foreignIdColumn);
+    public function loadOneToMany(array $objects, $className, $foreignIdColumn = null);
 
     /**
      * Loads a foreign relationship where a column on another object references the id for the supplied object
@@ -76,7 +76,7 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Property on foreign object that relates to this object id
      */
-    public function loadManyToOne(array $objects, $className, $foreignColumn);
+    public function loadManyToOne(array $objects, $className, $foreignColumn = null);
 
     /**
      * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects
