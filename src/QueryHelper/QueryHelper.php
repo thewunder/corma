@@ -1,6 +1,7 @@
 <?php
 namespace Corma\QueryHelper;
 
+use Corma\Exception\BadMethodCallException;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
@@ -285,7 +286,7 @@ class QueryHelper implements QueryHelperInterface
      */
     public function isDuplicateException(DBALException $error)
     {
-        return false;
+        throw new BadMethodCallException('This method has not been implemented for the current database type');
     }
 
     /**
