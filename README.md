@@ -41,55 +41,58 @@ Or add the following to the require section your composer.json:
 Basic Usage
 -----------
 Create a DataObject
+```php
+namespace YourNamespace\Dataobjects;
 
-    namespace YourNamespace\Dataobjects;
+class YourDataObject extends DataObject {
+    //If the property name == column name on the table your_data_objects it will be saved
+    protected $myColumn;
 
-    class YourDataObject extends DataObject {
-        //If the property name == column name on the table your_data_objects it will be saved
-        protected $myColumn;
-
-        //Getters and setters..
-    }
+    //Getters and setters..
+}
+```
 
 And a Repository (optional)
+```php
+namespace YourNamespace\Dataobjects\Repository;
 
-    namespace YourNamespace\Dataobjects\Repository;
-
-    class YourDataObjectRepository extends DataObjectRepository {
-        //Override default behavior and add custom methods...
-    }
+class YourDataObjectRepository extends DataObjectRepository {
+    //Override default behavior and add custom methods...
+}
+```
 
 Create the orm and use it
+```php
+$db = DriverManager::getConnection(...); //see Doctrine DBAL docs
+$orm = ObjectMapper::create($db, new EventDispatcher(), ['YourNamespace\\Dataobjects']);
 
-    $db = DriverManager::getConnection(...); //see Doctrine DBAL docs
-    $orm = ObjectMapper::create($db, new EventDispatcher(), ['YourNamespace\\Dataobjects']);
+$object = $orm->createObject(YourDataObject::class);
+//Call setters...
+$orm->save($object);
+//Call more setters...
+$orm->save($object);
 
-    $object = $orm->createObject(YourDataObject::class);
-    //Call setters...
-    $orm->save($object);
-    //Call more setters...
-    $orm->save($object);
+//Call more setters on $object...
+$objects = [$object];
+$newObject = $orm->createObject(YourDataObject::class);
+//call setters on $newObject..
+$objects[] = $newObject;
 
-    //Call more setters on $object...
-    $objects = [$object];
-    $newObject = $orm->createObject(YourDataObject::class);
-    //call setters on $newObject..
-    $objects[] = $newObject;
+$orm->saveAll($objects);
 
-    $orm->saveAll($objects);
+//find existing object by id
+$existingObject = $orm->find(YourDataObject::class, 5);
 
-    //find existing object by id
-    $existingObject = $orm->find(YourDataObject::class, 5);
+//find existing objects with myColumn >= 42 AND otherColumn = 1
+$existingObjects = $orm->findBy(YourDataObject::class, ['myColumn >='=>42, 'otherColumn'=>1], ['sortColumn'=>'ASC']);
 
-    //find existing objects with myColumn >= 42 AND otherColumn = 1
-    $existingObjects = $orm->findBy(YourDataObject::class, ['myColumn >='=>42, 'otherColumn'=>1], ['sortColumn'=>'ASC']);
+//load relationships
+$orm->loadOneToMany($existingObjects, OtherObject::class, 'otherObjectId');
+$orm->loadManyToMany($existingObjects, DifferentObject::class, 'link_table');
 
-    //load relationships
-    $orm->loadOneToMany($existingObjects, OtherObject::class, 'otherObjectId');
-    $orm->loadManyToMany($existingObjects, DifferentObject::class, 'link_table');
-
-    //delete those
-    $orm->deleteAll($existingObjects);
+//delete those
+$orm->deleteAll($existingObjects);
+```
 
 Events
 ------
