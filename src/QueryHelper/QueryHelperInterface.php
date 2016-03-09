@@ -1,6 +1,7 @@
 <?php
 namespace Corma\QueryHelper;
 
+use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 interface QueryHelperInterface
@@ -88,4 +89,12 @@ interface QueryHelperInterface
      * @return array column => accepts null (bool)
      */
     public function getDbColumns($table);
+
+    /**
+     * Is this exception caused by a duplicate record (i.e. unique index constraint violation)
+     *
+     * @param DBALException $error
+     * @return bool
+     */
+    public function isDuplicateException(DBALException $error);
 }
