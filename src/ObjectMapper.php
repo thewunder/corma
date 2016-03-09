@@ -67,7 +67,7 @@ class ObjectMapper
         $database = preg_replace('/[^A-Za-z]/', '', $database); //strip version
         $className = "Corma\\QueryHelper\\{$database}QueryHelper";
         if(class_exists($className)) {
-            new $className($db, $cache);
+            return new $className($db, $cache);
         }
 
         return new QueryHelper($db, $cache);
