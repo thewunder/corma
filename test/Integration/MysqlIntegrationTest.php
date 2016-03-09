@@ -160,9 +160,28 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $object->setMyColumn('ASDF 4');
         $this->repository->save($object);
 
-        /** @var ExtendedDataObject[] $limited */
+        /** @var ExtendedDataObject[] $nullObjects */
         $nullObjects = $this->repository->findBy(['myNullableColumn'=>null]);
         $this->assertGreaterThan(0, $nullObjects);
+
+        foreach($nullObjects as $object) {
+            $this->assertNull($object->getMyNullableColumn());
+        }
+    }
+
+    public function testFindByIsNotNull()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('ASDF 4')->setMyNullableColumn(42);
+        $this->repository->save($object);
+
+        /** @var ExtendedDataObject[] $notNullObjects */
+        $notNullObjects = $this->repository->findBy(['myNullableColumn !='=>null]);
+        $this->assertGreaterThan(0, $notNullObjects);
+
+        foreach($notNullObjects as $object) {
+            $this->assertNotNull($object->getMyNullableColumn());
+        }
     }
 
     public function testFindOneBy()

@@ -17,7 +17,7 @@ class QueryHelper implements QueryHelperInterface
      */
     const WHERE_COLUMN_REGEX = '/^(([\w]+\\.)|)([\w]+)(([^\w]*))/';
 
-    protected $COMPARISON_OPERATORS = ['=', '<', '>', '<=', '>=', '<>'];
+    protected $COMPARISON_OPERATORS = ['=', '<', '>', '<=', '>=', '<>', '!='];
 
     /**
      * @var Connection
@@ -209,15 +209,20 @@ class QueryHelper implements QueryHelperInterface
     public function processWhereQuery(QueryBuilder $qb, array $where)
     {
         $firstWhere = true;
-        $db = $qb->getConnection();
         foreach ($where as $wherePart => $value) {
             $paramName = $this->getParameterName($wherePart);
-            $columnName = $this->db->quoteIdentifier($this->getColumnName($wherePart));
+            $column = $this->getColumnName($wherePart);
+            $columnName = $this->db->quoteIdentifier($column);
             if (is_array($value)) {
                 $clause = "$columnName IN($paramName)";
                 $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
-            } else if($value === null && $this->acceptsNull($qb->getQueryPart('from'), $wherePart)) {
-                $clause = $db->getDatabasePlatform()->getIsNullExpression($columnName);
+            } else if($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
+                $operator = $this->getOperator($wherePart);
+                if($operator == '<>' || $operator == '!=') {
+                    $clause = $this->db->getDatabasePlatform()->getIsNotNullExpression($columnName);
+                } else {
+                    $clause = $this->db->getDatabasePlatform()->getIsNullExpression($columnName);
+                }
             } else {
                 $operator = $this->getOperator($wherePart);
                 $clause = "$columnName $operator $paramName";
