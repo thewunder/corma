@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Test\QueryHelper;
 
+use Corma\Exception\InvalidArgumentException;
 use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
 use Doctrine\Common\Cache\ArrayCache;
@@ -46,6 +47,19 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
 
         $orderBy = $qb->getQueryPart('orderBy');
         $this->assertEquals(['`column` ASC'], $orderBy);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testProcessWhereInvalidArgument()
+    {
+        $qb = new QueryBuilder($this->connection);
+        $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
+            ->setMethods('acceptsNull')->setConstructorArgs([$this->connection, new ArrayCache()])
+            ->getMock();
+
+        $this->queryHelper->processWhereQuery($qb, ['main.column'=>null]);
     }
 
     public function testBuildUpdateQuery()

@@ -2,6 +2,7 @@
 namespace Corma\QueryHelper;
 
 use Corma\Exception\BadMethodCallException;
+use Corma\Exception\InvalidArgumentException;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
@@ -223,10 +224,12 @@ class QueryHelper implements QueryHelperInterface
                 } else {
                     $clause = $this->db->getDatabasePlatform()->getIsNullExpression($columnName);
                 }
-            } else {
+            } else if($value !== null) {
                 $operator = $this->getOperator($wherePart);
                 $clause = "$columnName $operator $paramName";
                 $qb->setParameter($paramName, $value);
+            } else {
+                throw new InvalidArgumentException("Value for $column is null, but null is not allowed on this column");
             }
 
             if ($firstWhere) {
