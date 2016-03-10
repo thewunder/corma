@@ -56,7 +56,7 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
     {
         $qb = new QueryBuilder($this->connection);
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
-            ->setMethods('acceptsNull')->setConstructorArgs([$this->connection, new ArrayCache()])
+            ->setMethods(['acceptsNull'])->setConstructorArgs([$this->connection, new ArrayCache()])
             ->getMock();
 
         $this->queryHelper->processWhereQuery($qb, ['main.column'=>null]);
