@@ -135,11 +135,14 @@ class RelationshipLoader
         $setter =  'set' . $this->methodNameFromColumn($foreignIdColumn, true);
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
-                $foreignIds = $foreignIdsById[$object->getId()];
                 $foreignObjects = [];
-                foreach($foreignIds as $foreignId) {
-                    $foreignObjects[] = $foreignObjectsById[$foreignId];
+                if(isset($foreignIdsById[$object->getId()])) {
+                    $foreignIds = $foreignIdsById[$object->getId()];
+                    foreach($foreignIds as $foreignId) {
+                        $foreignObjects[] = $foreignObjectsById[$foreignId];
+                    }
                 }
+
                 $object->$setter($foreignObjects);
             } else {
                 throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load many-to-many relationship with $className");
