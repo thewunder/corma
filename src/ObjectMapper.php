@@ -109,11 +109,12 @@ class ObjectMapper
      *
      * @param string $objectName Object class with or without namespace
      * @param string|int $id
+     * @param bool $useCache Use cache?
      * @return DataObjectInterface
      */
-    public function find($objectName, $id)
+    public function find($objectName, $id, $useCache = true)
     {
-        return $this->getRepository($objectName)->find($id);
+        return $this->getRepository($objectName)->find($id, $useCache);
     }
 
     /**

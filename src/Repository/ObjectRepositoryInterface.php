@@ -14,10 +14,17 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
     public function create();
 
     /**
+     * @param mixed $id The Identifier
+     * @param bool $useCache Use cache?
+     * @return mixed
+     */
+    public function find($id, $useCache = true);
+
+    /**
      * Find one or more data objects by id
      *
      * @param array $ids
-     * @param bool $useCache
+     * @param bool $useCache Use cache?
      * @return \Corma\DataObject\DataObjectInterface[]
      */
     public function findByIds(array $ids, $useCache = true);
