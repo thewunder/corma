@@ -6,7 +6,7 @@ use Doctrine\Common\Inflector\Inflector;
 /**
  * An object that can be persisted and retrieved by a ObjectMapper ObjectRepository
  */
-abstract class DataObject implements \JsonSerializable, DataObjectInterface
+abstract class DataObject implements DataObjectInterface
 {
     protected $id, $isDeleted;
 
@@ -123,29 +123,5 @@ abstract class DataObject implements \JsonSerializable, DataObjectInterface
             $data[$property] = $value;
         }
         return $data;
-    }
-
-    function jsonSerialize()
-    {
-        $vars = get_object_vars($this);
-        foreach($vars as $name => &$value)
-        {
-            if(is_object($value)) {
-                if(!$value instanceof \JsonSerializable || $value === $this) {
-                    unset($vars[$name]);
-                } else {
-                    $vars[$name] = $value->jsonSerialize();
-                }
-            } else if(is_array($value)) {
-                foreach($value as $k => $v) {
-                    if($v instanceof \JsonSerializable) {
-                        $value[$k] = $v->jsonSerialize();
-                    }
-                }
-            } else if($value === null) {
-                unset($vars[$name]);
-            }
-        }
-        return (object) $vars;
     }
 }
