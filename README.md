@@ -87,7 +87,8 @@ $existingObject = $orm->find(YourDataObject::class, 5);
 $existingObjects = $orm->findBy(YourDataObject::class, ['myColumn >='=>42, 'otherColumn'=>1], ['sortColumn'=>'ASC']);
 
 //load relationships
-$orm->loadOneToMany($existingObjects, OtherObject::class, 'otherObjectId');
+$orm->loadOne($existingObjects, OtherObject::class, 'otherObjectId');
+$orm->loadMany($existingObjects, AnotherObject::class, 'yourObjectId');
 $orm->loadManyToMany($existingObjects, DifferentObject::class, 'link_table');
 
 //delete those
