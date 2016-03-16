@@ -4,7 +4,7 @@ namespace Corma\DataObject;
 use Doctrine\Common\Inflector\Inflector;
 
 /**
- * An object that can be persisted and retrieved by a ObjectMapper ObjectRepository
+ * An object that can be persisted and retrieved by Corma
  */
 abstract class DataObject implements DataObjectInterface
 {
