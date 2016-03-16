@@ -100,7 +100,7 @@ abstract class DataObject implements DataObjectInterface
             $setter = "set{$setter}";
             if(method_exists($this, $setter)) {
                 $this->$setter($value);
-            } else if(property_exists($this, $name) && !is_array($value)) {
+            } else if(property_exists($this, $name)) {
                 $this->{$name} = $value;
             }
         }
