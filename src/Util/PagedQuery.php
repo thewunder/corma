@@ -11,7 +11,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 class PagedQuery implements \JsonSerializable
 {
-    const DEFAULT_PAGESIZE = 100;
+    const DEFAULT_PAGE_SIZE = 100;
 
     /** @var int  */
     protected $pageSize, $resultCount, $pages, $page, $prev, $next;
@@ -25,12 +25,18 @@ class PagedQuery implements \JsonSerializable
     private $qb;
 
     /**
+     * @var array
+     */
+    private $dependencies;
+
+    /**
      * @param QueryBuilder $qb
      * @param QueryHelperInterface $queryHelper
      * @param string $class Full class name
+     * @param array $dependencies Object dependencies
      * @param int $pageSize
      */
-    public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, $class, $pageSize = self::DEFAULT_PAGESIZE)
+    public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, $class, array $dependencies = [], $pageSize = self::DEFAULT_PAGE_SIZE)
     {
         if($pageSize < 1) {
             throw new InvalidArgumentException('Page size must be greater than 0');
@@ -41,6 +47,7 @@ class PagedQuery implements \JsonSerializable
         $this->pageSize = $pageSize;
         $this->resultCount = $queryHelper->getCount($qb);
         $this->pages = floor( $this->resultCount / $this->pageSize) + 1;
+        $this->dependencies = $dependencies;
     }
 
     /**
@@ -64,7 +71,7 @@ class PagedQuery implements \JsonSerializable
         }
 
         $statement = $this->qb->execute();
-        return $statement->fetchAll(\PDO::FETCH_CLASS, $this->class);
+        return $statement->fetchAll(\PDO::FETCH_CLASS, $this->class, $this->dependencies);
     }
 
     /**

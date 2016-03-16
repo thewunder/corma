@@ -30,7 +30,7 @@ class PagedQueryTest extends \PHPUnit_Framework_TestCase
     {
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
 
-        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, ExtendedDataObject::class, 50);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, ExtendedDataObject::class, [], 50);
 
         $this->assertEquals(50, $pagedQuery->getPageSize());
         $this->assertEquals(5, $pagedQuery->getPages());
@@ -47,7 +47,7 @@ class PagedQueryTest extends \PHPUnit_Framework_TestCase
 
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
 
-        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, ExtendedDataObject::class, 50);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, ExtendedDataObject::class, [], 50);
         $pagedQuery->getResults(3);
         $this->assertEquals(3, $pagedQuery->getPage());
         $this->assertEquals(2, $pagedQuery->getPrev());
