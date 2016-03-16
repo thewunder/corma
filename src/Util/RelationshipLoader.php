@@ -53,7 +53,9 @@ class RelationshipLoader
         $setter = 'set' . $this->methodNameFromColumn($foreignIdColumn);
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
-                $object->$setter($foreignObjectsById[$idToForeignId[$object->getId()]]);
+                if(isset($foreignObjectsById[$idToForeignId[$object->getId()]])) {
+                    $object->$setter($foreignObjectsById[$idToForeignId[$object->getId()]]);
+                }
             } else {
                 throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load oneToMany relationship at $className");
             }
@@ -89,7 +91,9 @@ class RelationshipLoader
         $setter = 'set' . $this->methodNameFromClass($className, true);
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
-                $object->$setter($foreignObjectsById[$object->getId()]);
+                if(isset($foreignObjectsById[$object->getId()])) {
+                    $object->$setter($foreignObjectsById[$object->getId()]);
+                }
             } else {
                 throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load many-to-one relationship with $className");
             }
