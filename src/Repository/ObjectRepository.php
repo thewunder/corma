@@ -155,11 +155,11 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      */
-    public function loadOneToMany(array $objects, $className, $foreignIdColumn = null)
+    public function loadOne(array $objects, $className, $foreignIdColumn = null)
     {
         $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);
 
-        $this->objectMapper->getRelationshipLoader()->loadOneToMany($objects, $className, $foreignIdColumn);
+        $this->objectMapper->getRelationshipLoader()->loadOne($objects, $className, $foreignIdColumn);
     }
 
     /**
@@ -171,11 +171,11 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Property on foreign object that relates to this object id
      */
-    public function loadManyToOne(array $objects, $className, $foreignColumn = null)
+    public function loadMany(array $objects, $className, $foreignColumn = null)
     {
         $foreignColumn = $foreignColumn ? $foreignColumn : $this->idColumnFromClass($this->getClassName());
 
-        $this->objectMapper->getRelationshipLoader()->loadManyToOne($objects, $className, $foreignColumn);
+        $this->objectMapper->getRelationshipLoader()->loadMany($objects, $className, $foreignColumn);
     }
 
     /**

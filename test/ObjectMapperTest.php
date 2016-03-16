@@ -119,9 +119,9 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockRepo->expects($this->once())->method('loadOneToMany')->with($objects, OtherDataObject::class, 'otherDataObjectId');
+        $mockRepo->expects($this->once())->method('loadOne')->with($objects, OtherDataObject::class, 'otherDataObjectId');
 
-        $this->getCorma($mockRepo)->loadOneToMany($objects, OtherDataObject::class, 'otherDataObjectId');
+        $this->getCorma($mockRepo)->loadOne($objects, OtherDataObject::class, 'otherDataObjectId');
     }
 
     public function testLoadManyToOne()
@@ -137,9 +137,9 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockRepo->expects($this->once())->method('loadManyToOne')->with($objects, OtherDataObject::class, 'extendedDataObjectId');
+        $mockRepo->expects($this->once())->method('loadMany')->with($objects, OtherDataObject::class, 'extendedDataObjectId');
 
-        $this->getCorma($mockRepo)->loadManyToOne($objects, OtherDataObject::class, 'extendedDataObjectId');
+        $this->getCorma($mockRepo)->loadMany($objects, OtherDataObject::class, 'extendedDataObjectId');
     }
 
     public function testLoadManyToMany()

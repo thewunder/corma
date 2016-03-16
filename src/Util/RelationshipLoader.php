@@ -20,13 +20,15 @@ class RelationshipLoader
     }
 
     /**
-     * Loads a foreign relationship where a property on the supplied objects references an id for another object
+     * Loads a foreign relationship where a property on the supplied objects references an id for another object.
+     *
+     * Can be used to load a one-to-one relationship or the "one" side of a one-to-many relationship.
      *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      */
-    public function loadOneToMany(array $objects, $className, $foreignIdColumn)
+    public function loadOne(array $objects, $className, $foreignIdColumn)
     {
         if(empty($objects)) {
             return;
@@ -39,7 +41,7 @@ class RelationshipLoader
             if(method_exists($object, $getter)) {
                 $idToForeignId[$object->getId()] = $object->$getter();
             } else {
-                throw new MethodNotImplementedException("$getter must be defined on {$object->getClassName()} to load oneToMany relationship with $className");
+                throw new MethodNotImplementedException("$getter must be defined on {$object->getClassName()} to load one-to-one relationship with $className");
             }
         }
 
@@ -57,19 +59,21 @@ class RelationshipLoader
                     $object->$setter($foreignObjectsById[$idToForeignId[$object->getId()]]);
                 }
             } else {
-                throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load oneToMany relationship at $className");
+                throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load one-to-one relationship at $className");
             }
         }
     }
 
     /**
-     * Loads a foreign relationship where a column on another object references the id for the supplied object
+     * Loads a foreign relationship where a column on another object references the id for the supplied objects.
+     *
+     * Used to load the "many" side of a one-to-many relationship.
      *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Property on foreign object that relates to this object id
      */
-    public function loadManyToOne(array $objects, $className, $foreignColumn)
+    public function loadMany(array $objects, $className, $foreignColumn)
     {
         if(empty($objects)) {
             return;
@@ -84,7 +88,7 @@ class RelationshipLoader
                 $id = $foreignObject->$getter();
                 $foreignObjectsById[$id][] = $foreignObject;
             } else {
-                throw new MethodNotImplementedException("$getter must be defined on $className to load many-to-one relationship with {$foreignObject->getClassName()}");
+                throw new MethodNotImplementedException("$getter must be defined on $className to load one-to-many relationship with {$foreignObject->getClassName()}");
             }
         }
 
@@ -95,7 +99,7 @@ class RelationshipLoader
                     $object->$setter($foreignObjectsById[$object->getId()]);
                 }
             } else {
-                throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load many-to-one relationship with $className");
+                throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load one-to-many relationship with $className");
             }
         }
     }

@@ -68,22 +68,26 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
     public function deleteAll(array $objects);
 
     /**
-     * Loads a foreign relationship where a property on the supplied objects references an id for another object
+     * Loads a foreign relationship where a property on the supplied objects references an id for another object.
+     *
+     * Can be used to load a one-to-one relationship or the "one" side of a one-to-many relationship.
      *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign object to load
-     * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id
+     * @param string $foreignIdColumn Column / property on objects that relates to the foreign table's id
      */
-    public function loadOneToMany(array $objects, $className, $foreignIdColumn = null);
+    public function loadOne(array $objects, $className, $foreignIdColumn = null);
 
     /**
-     * Loads a foreign relationship where a column on another object references the id for the supplied object
+     * Loads a foreign relationship where a column on another object references the id for the supplied objects.
+     *
+     * Used to load the "many" side of a one-to-many relationship.
      *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
-     * @param string $foreignColumn Property on foreign object that relates to this object id
+     * @param string $foreignColumn Column / property on foreign object that relates to the objects id
      */
-    public function loadManyToOne(array $objects, $className, $foreignColumn = null);
+    public function loadMany(array $objects, $className, $foreignColumn = null);
 
     /**
      * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects

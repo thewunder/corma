@@ -166,9 +166,10 @@ class ObjectMapper
     }
 
     /**
-     * Loads a foreign relationship where a property on the supplied objects references an id for another object
+     * Loads a foreign relationship where a property on the supplied objects references an id for another object.
+     * Can be used to load a one-to-one relationship or the "one" side of a one-to-many relationship.
      *
-     * This works on objects of mixed type, although they must have exactly the same $foreignIdColumn, or use the default
+     * This works on objects of mixed type, although they must have exactly the same $foreignIdColumn, or use the default.
      *
      * $foreignIdColumn defaults to foreignObjectId if the $className is Namespace\\ForeignObject
      *
@@ -176,37 +177,38 @@ class ObjectMapper
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id (defaults to if the class = ForeignObject foreignObjectId)
      */
-    public function loadOneToMany(array $objects, $className, $foreignIdColumn = null)
+    public function loadOne(array $objects, $className, $foreignIdColumn = null)
     {
         $objectsByClass = $this->groupByClass($objects);
 
         foreach($objectsByClass as $class => $classObjects) {
-            $this->getRepository($class)->loadOneToMany($classObjects, $className, $foreignIdColumn);
+            $this->getRepository($class)->loadOne($classObjects, $className, $foreignIdColumn);
         }
     }
 
     /**
-     * Loads a foreign relationship where a column on another object references the id for the supplied object
+     * Loads a foreign relationship where a column on the foreign object references the id for the supplied objects.
+     * Used to load the "many" side of a one-to-many relationship.
      *
-     * This works on objects of mixed type, although they must have exactly the same $foreignColumn, or use the default
+     * This works on objects of mixed type, although they must have exactly the same $foreignColumn, or use the default.
      *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
-     * @param string $foreignColumn Property on foreign object that relates to this object id
+     * @param string $foreignColumn Column / property on foreign object that relates to this object id
      */
-    public function loadManyToOne(array $objects, $className, $foreignColumn = null)
+    public function loadMany(array $objects, $className, $foreignColumn = null)
     {
         $objectsByClass = $this->groupByClass($objects);
 
         foreach($objectsByClass as $class => $classObjects) {
-            $this->getRepository($class)->loadManyToOne($classObjects, $className, $foreignColumn);
+            $this->getRepository($class)->loadMany($classObjects, $className, $foreignColumn);
         }
     }
 
     /**
-     * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects
+     * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects.
      *
-     * This works theoretically on objects of mixed type, although they must have the same link table, which makes this in reality only usable
+     * This works theoretically on objects of mixed type, although they must have the same link table, which makes this in reality only usable.
      * by for objects of the same class.
      *
      * @param DataObjectInterface[] $objects
