@@ -32,6 +32,9 @@ class MySQLQueryHelper extends QueryHelper
                 $updates++;
             }
             foreach($dbColumns as $column => $acceptNull) {
+                if(!$acceptNull && !isset($row[$column])) {
+                    continue;
+                }
                 $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : null;
             }
             $normalizedRows[] = $normalizedRow;
