@@ -343,7 +343,7 @@ class PostgresIntegrationTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        if(empty(getenv('MYSQL_HOST')) && file_exists(__DIR__.'/../../.env')) {
+        if(empty(getenv('PGSQL_HOST')) && file_exists(__DIR__.'/../../.env')) {
             $dotenv = new Dotenv(__DIR__.'/../../');
             $dotenv->load();
         }

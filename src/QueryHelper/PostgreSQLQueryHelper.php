@@ -21,6 +21,11 @@ class PostgreSQLQueryHelper extends QueryHelper
             return 0;
         }
 
+        $version = $this->getVersion();
+        if($version < 9.5) {
+            return parent::massUpsert($table, $rows, $lastInsertId);
+        }
+
         $dbColumns = $this->getDbColumns($table);
 
         //Ensure uniform rows
@@ -115,5 +120,16 @@ class PostgreSQLQueryHelper extends QueryHelper
             $this->cache->save($key, $dbColumns);
             return $dbColumns;
         }
+    }
+
+    /**
+     * @return float
+     */
+    protected function getVersion()
+    {
+        $versionString = $this->db->query('SELECT version()')->fetchColumn();
+        preg_match('/^PostgreSQL ([\d\.]+).*/', $versionString, $matches);
+        $version = $matches[1];
+        return (float) $version;
     }
 }

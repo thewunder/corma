@@ -153,7 +153,7 @@ class QueryHelper implements QueryHelperInterface
 
         try {
             $effected = $this->massInsert($table, $rowsToInsert);
-            $lastInsertId = $this->db->lastInsertId();
+            $lastInsertId = $this->getLastInsertId($table) - (count($rowsToInsert) - 1);
 
             foreach($rowsToUpdate as $row) {
                 $id = $row['id'];
