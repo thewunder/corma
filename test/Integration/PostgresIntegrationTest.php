@@ -5,7 +5,7 @@ namespace Corma\Test\Integration;
 use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
 use Corma\ObjectMapper;
-use Corma\QueryHelper\MySQLQueryHelper;
+use Corma\QueryHelper\PostgreSQLQueryHelper;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
@@ -19,7 +19,7 @@ use Dotenv\Dotenv;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
+class PostgresIntegrationTest extends \PHPUnit_Framework_TestCase
 {
     /** @var ExtendedDataObjectRepository */
     private $repository;
@@ -36,7 +36,7 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $cache = new ArrayCache();
-        $queryHelper = new MySQLQueryHelper(self::$connection, $cache);
+        $queryHelper = new PostgreSQLQueryHelper(self::$connection, $cache);
         $this->dispatcher = new EventDispatcher();
 
         $repositoryFactory = new ObjectRepositoryFactory(['Corma\\Test\\Fixtures']);
@@ -196,9 +196,9 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * This one tests the MySQLQueryHelper implementation of massUpsert
+     * This one tests the default QueryHelper implementation of massUpsert
      */
-    public function testSaveAllOnDuplicateKey()
+    public function testSaveAll()
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('Save All');
@@ -212,20 +212,18 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $object3 = new ExtendedDataObject();
         $objects[] = $object3->setMyColumn('Save All 3');
 
-        $cache = new ArrayCache();
-        $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
-
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($mySQLQueryHelper);
+        $cache = new ArrayCache();
+        $objectMapper->expects($this->any())->method('getQueryHelper')->willReturn(new PostgreSQLQueryHelper(self::$connection, $cache));
 
         $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $objectMapper, $cache);
 
-        $inserts = $this->repository->saveAll($objects);
+        $effected = $this->repository->saveAll($objects);
 
-        $this->assertEquals(3, $inserts);
+        $this->assertEquals(3, $effected);
 
         /** @var ExtendedDataObject $fromDb */
         $fromDb = $this->repository->find($object->getId(), false);
@@ -261,7 +259,7 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
     public function testIsDuplicateException()
     {
         $cache = new ArrayCache();
-        $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
+        $mySQLQueryHelper = new PostgreSQLQueryHelper(self::$connection, $cache);
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -350,44 +348,36 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
             $dotenv->load();
         }
 
-        if(empty(getenv('MYSQL_HOST')) || empty(getenv('MYSQL_USER'))) {
-            throw new \RuntimeException('Create a .env file with MYSQL_HOST, MYSQL_USER, and MYSQL_PASS to run this test.');
+        if(empty(getenv('PGSQL_HOST')) || empty(getenv('PGSQL_USER'))) {
+            throw new \RuntimeException('Create a .env file with PGSQL_HOST, PGSQL_USER, and PGSQL_PASS to run this test.');
         }
 
-        $pass = getenv('MYSQL_PASS') ? getenv('MYSQL_PASS') : '';
+        $pass = getenv('PGSQL_PASS') ? getenv('PGSQL_PASS') : '';
 
-        $pdo = new \PDO('mysql:host='.getenv('MYSQL_HOST'), getenv('MYSQL_USER'), $pass);
+        $pdo = new \PDO('pgsql:host='.getenv('PGSQL_HOST'), getenv('PGSQL_USER'), $pass);
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-        self::$connection = DriverManager::getConnection(['driver'=>'pdo_mysql','pdo'=>$pdo]);
-        self::$connection->query('CREATE DATABASE corma_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;');
-        self::$connection->query('USE corma_test');
+        self::$connection = DriverManager::getConnection(['driver'=>'pdo_pgsql','pdo'=>$pdo]);
+        self::$connection->query('drop schema public cascade');
+        self::$connection->query('create schema public');
         self::$connection->query('CREATE TABLE extended_data_objects (
-          id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-          isDeleted TINYINT(1) UNSIGNED NOT NULL,
-          myColumn VARCHAR(255) NOT NULL,
-          myNullableColumn INT(11) UNSIGNED NULL DEFAULT NULL,
-          otherDataObjectId INT (11) UNSIGNED NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1');
+          id SERIAL PRIMARY KEY,
+          "isDeleted" BOOLEAN NOT NULL DEFAULT FALSE,
+          "myColumn" VARCHAR(255) NOT NULL,
+          "myNullableColumn" INT NULL DEFAULT NULL,
+          "otherDataObjectId" INT NULL
+        )');
 
         self::$connection->query('CREATE TABLE other_data_objects (
-          id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-          isDeleted TINYINT(1) UNSIGNED NOT NULL,
-          `name` VARCHAR(255) NOT NULL,
-          `extendedDataObjectId` INT (11) UNSIGNED NULL,
-          FOREIGN KEY `extendedDataObjectId` (`extendedDataObjectId`) REFERENCES `extended_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1');
+          id SERIAL PRIMARY KEY,
+          "isDeleted" BOOLEAN NOT NULL DEFAULT FALSE,
+          "name" VARCHAR(255) NOT NULL,
+          "extendedDataObjectId" INT NULL REFERENCES extended_data_objects (id)
+        )');
 
         self::$connection->query('CREATE TABLE extended_other_rel (
-          extendedDataObjectId INT(11) UNSIGNED NOT NULL,
-          otherDataObjectId INT(11) UNSIGNED NOT NULL,
-          FOREIGN KEY `extendedId` (`extendedDataObjectId`) REFERENCES `extended_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-          FOREIGN KEY `otherId` (`otherDataObjectId`) REFERENCES `other_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci');
-    }
-
-    public static function tearDownAfterClass()
-    {
-        self::$connection->query('DROP DATABASE corma_test');
+          "extendedDataObjectId" INT NOT NULL REFERENCES extended_data_objects (id),
+          "otherDataObjectId" INT NOT NULL REFERENCES other_data_objects (id)
+        )');
     }
 }

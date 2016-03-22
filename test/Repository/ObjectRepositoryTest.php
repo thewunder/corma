@@ -10,6 +10,7 @@ use Corma\Test\Fixtures\Repository\NoClassObjectRepository;
 use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
@@ -29,6 +30,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->connection->expects($this->any())->method('quoteIdentifier')->will($this->returnCallback(function($column){
             return "`$column`";
         }));
+        $this->connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
 
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
             ->disableOriginalConstructor()
@@ -151,7 +153,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $object = new ExtendedDataObject();
         $object->setId('123')->setMyColumn('testValue');
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
-        $this->connection->expects($this->once())->method('update')->with($object->getTableName(), ['isDeleted'=>1], ['id'=>'123']);
+        $this->connection->expects($this->once())->method('update')->with($object->getTableName(), ['`isDeleted`'=>1], ['id'=>'123']);
         $repo = $this->getRepository();
         $repo->delete($object);
         $this->assertTrue($object->isDeleted());

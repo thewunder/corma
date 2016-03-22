@@ -335,7 +335,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         $columns = $this->queryHelper->getDbColumns($object->getTableName());
 
         if(isset($columns['isDeleted'])) {
-            $this->db->update($object->getTableName(), ['isDeleted'=>1], ['id'=>$object->getId()]);
+            $this->db->update($object->getTableName(), [$this->db->quoteIdentifier('isDeleted')=>1], ['id'=>$object->getId()]);
         } else {
             $this->db->delete($object->getTableName(), ['id'=>$object->getId()]);
         }
@@ -392,7 +392,12 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $this->db->insert($object->getTableName(), $queryParams);
 
-        $object->setId($this->db->lastInsertId());
+        $sequence = null;
+        $platform = $this->db->getDatabasePlatform();
+        if($platform->usesSequenceEmulatedIdentityColumns()) {
+            $sequence = $platform->getIdentitySequenceName($object->getTableName(), 'id');
+        }
+        $object->setId($this->db->lastInsertId($sequence));
 
         $this->dispatchEvents('afterInsert', $object);
         return $object;

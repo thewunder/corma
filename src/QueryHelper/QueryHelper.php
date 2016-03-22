@@ -267,21 +267,7 @@ class QueryHelper implements QueryHelperInterface
      */
     public function getDbColumns($table)
     {
-        $key = 'db_columns.'.$table;
-        if($this->cache->contains($key)) {
-            return $this->cache->fetch($key);
-        } else {
-            $query = 'DESCRIBE ' . $this->db->quoteIdentifier($table);
-            $statement = $this->db->prepare($query);
-            $statement->execute();
-            $dbColumnInfo = $statement->fetchAll(\PDO::FETCH_OBJ);
-            $dbColumns = [];
-            foreach($dbColumnInfo as $column) {
-                $dbColumns[$column->Field] = $column->Null == 'YES' ? true : false;
-            }
-            $this->cache->save($key, $dbColumns);
-            return $dbColumns;
-        }
+        throw new BadMethodCallException('This method has not been implemented for the current database type');
     }
 
     /**

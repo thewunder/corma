@@ -4,7 +4,7 @@ namespace Corma\QueryHelper;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 
-class MySQLQueryHelper extends QueryHelper
+class PostgreSQLQueryHelper extends QueryHelper
 {
     /**
      * Use ON DUPLICATE KEY UPDATE to optimize upsert in MySQL
@@ -27,15 +27,16 @@ class MySQLQueryHelper extends QueryHelper
         $normalizedRows = [];
         $updates = 0;
         foreach($rows as $row) {
-            $normalizedRow = ['id'=>null];
+            $normalizedRow = [];
             if(!empty($row['id'])) {
                 $updates++;
             }
             foreach($dbColumns as $column => $acceptNull) {
-                if(!$acceptNull && !isset($row[$column])) {
-                    continue;
+                if($acceptNull) {
+                    $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : null;
+                } else {
+                    $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : 'DEFAULT';
                 }
-                $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : null;
             }
             $normalizedRows[] = $normalizedRow;
         }
@@ -49,10 +50,10 @@ class MySQLQueryHelper extends QueryHelper
             }
 
             $column = $this->db->quoteIdentifier($column);
-            $columnsToUpdate[] = "$column = VALUES($column)";
+            $columnsToUpdate[] = "$column = EXCLUDED.$column";
         }
 
-        $query .= ' ON DUPLICATE KEY UPDATE ' . implode(', ', $columnsToUpdate);
+        $query .= ' ON CONFLICT (id) DO UPDATE SET ' . implode(', ', $columnsToUpdate);
 
         $params = array_map(function($row) {
             return array_values($row);
@@ -61,26 +62,7 @@ class MySQLQueryHelper extends QueryHelper
         $effected = $this->db->executeUpdate($query, $params, array_fill(0, count($rows), Connection::PARAM_STR_ARRAY));
         $lastInsertId = $this->db->lastInsertId();
 
-        return $effected - $updates; //compensate for mysql returning 2 for each row updated
-    }
-    
-    public function getDbColumns($table)
-    {
-        $key = 'db_columns.'.$table;
-        if($this->cache->contains($key)) {
-            return $this->cache->fetch($key);
-        } else {
-            $query = 'DESCRIBE ' . $this->db->quoteIdentifier($table);
-            $statement = $this->db->prepare($query);
-            $statement->execute();
-            $dbColumnInfo = $statement->fetchAll(\PDO::FETCH_OBJ);
-            $dbColumns = [];
-            foreach($dbColumnInfo as $column) {
-                $dbColumns[$column->Field] = $column->Null == 'YES' ? true : false;
-            }
-            $this->cache->save($key, $dbColumns);
-            return $dbColumns;
-        }
+        return $effected;
     }
 
     /**
@@ -93,9 +75,28 @@ class MySQLQueryHelper extends QueryHelper
     {
         /** @var \PDOException $previous */
         $previous = $error->getPrevious();
-        if(!$previous || $previous->getCode() != 23000) {
+        if(!$previous || $previous->getCode() != 23505) {
             return false;
         }
-        return isset($previous->errorInfo[1]) && $previous->errorInfo[1] == 1062;
+        return true;
+    }
+
+    public function getDbColumns($table)
+    {
+        $key = 'db_columns.'.$table;
+        if($this->cache->contains($key)) {
+            return $this->cache->fetch($key);
+        } else {
+            $query = 'SELECT * FROM information_schema.COLUMNS WHERE TABLE_NAME = :table';
+            $statement = $this->db->prepare($query);
+            $statement->execute([':table'=>$table]);
+            $dbColumnInfo = $statement->fetchAll(\PDO::FETCH_OBJ);
+            $dbColumns = [];
+            foreach($dbColumnInfo as $column) {
+                $dbColumns[$column->column_name] = $column->is_nullable == 'YES' ? true : false;
+            }
+            $this->cache->save($key, $dbColumns);
+            return $dbColumns;
+        }
     }
 }
