@@ -120,8 +120,9 @@ class RelationshipLoader
         }
 
         $ids = DataObject::getIds($objects);
-        $qb = $this->objectMapper->getQueryHelper()
-            ->buildSelectQuery($linkTable, [$idColumn.' AS id', $foreignIdColumn.' AS foreignId'], [$idColumn=>$ids]);
+        $queryHelper = $this->objectMapper->getQueryHelper();
+        $db = $queryHelper->getConnection();
+        $qb = $queryHelper->buildSelectQuery($linkTable, [$db->quoteIdentifier($idColumn).' AS id', $db->quoteIdentifier($foreignIdColumn).' AS '. $db->quoteIdentifier('foreignId')], [$idColumn=>$ids]);
         $foreignIdsById = [];
         $foreignIds = [];
         $linkRows = $qb->execute();

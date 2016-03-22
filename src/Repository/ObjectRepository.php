@@ -392,12 +392,8 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $this->db->insert($object->getTableName(), $queryParams);
 
-        $sequence = null;
-        $platform = $this->db->getDatabasePlatform();
-        if($platform->usesSequenceEmulatedIdentityColumns()) {
-            $sequence = $platform->getIdentitySequenceName($object->getTableName(), 'id');
-        }
-        $object->setId($this->db->lastInsertId($sequence));
+        $id = $this->queryHelper->getLastInsertId($object->getTableName());
+        $object->setId($id);
 
         $this->dispatchEvents('afterInsert', $object);
         return $object;

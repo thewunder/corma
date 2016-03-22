@@ -271,6 +271,21 @@ class QueryHelper implements QueryHelperInterface
     }
 
     /**
+     * @param string $table
+     * @param string $column
+     * @return string
+     */
+    public function getLastInsertId($table, $column = 'id')
+    {
+        $sequence = null;
+        $platform = $this->db->getDatabasePlatform();
+        if ($platform->usesSequenceEmulatedIdentityColumns()) {
+            $sequence = $platform->getIdentitySequenceName($table, $column);
+        }
+        return $this->db->lastInsertId($sequence);
+    }
+
+    /**
      * Is this exception caused by a duplicate record (i.e. unique index constraint violation)
      *
      * This will need to be overridden in db specific query helpers
@@ -353,5 +368,13 @@ class QueryHelper implements QueryHelperInterface
         }, array_keys($where));
         $identifier = array_combine($columns, array_values($where));
         return $identifier;
+    }
+
+    /**
+     * @return Connection
+     */
+    public function getConnection()
+    {
+        return $this->db;
     }
 }

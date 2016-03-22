@@ -88,7 +88,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $object->setMyColumn('testValue');
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
         $this->connection->expects($this->once())->method('insert')->with($object->getTableName(), ['`myColumn`'=>'testValue']);
-        $this->connection->expects($this->any())->method('lastInsertId')->willReturn('123');
+        $this->queryHelper->expects($this->any())->method('getLastInsertId')->willReturn('123');
         $repo = $this->getRepository();
         $repo->save($object);
         $this->assertEquals('123', $object->getId());

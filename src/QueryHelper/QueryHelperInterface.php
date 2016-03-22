@@ -1,6 +1,7 @@
 <?php
 namespace Corma\QueryHelper;
 
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Query\QueryBuilder;
 
@@ -97,4 +98,18 @@ interface QueryHelperInterface
      * @return bool
      */
     public function isDuplicateException(DBALException $error);
+
+    /**
+     * Retrieve the last inserted row id
+     * 
+     * @param string $table
+     * @param string $column
+     * @return string
+     */
+    public function getLastInsertId($table, $column = 'id');
+
+    /**
+     * @return Connection
+     */
+    public function getConnection();
 }

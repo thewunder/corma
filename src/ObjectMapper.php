@@ -47,7 +47,7 @@ class ObjectMapper
         if($cache === null) {
             $cache = new ArrayCache();
         }
-
+        
         $queryHelper = self::createQueryHelper($db, $cache);
         $repositoryFactory = new ObjectRepositoryFactory($namespaces);
         $instance = new static($queryHelper, $repositoryFactory);

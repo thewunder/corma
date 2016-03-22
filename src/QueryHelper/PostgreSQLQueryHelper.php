@@ -32,16 +32,37 @@ class PostgreSQLQueryHelper extends QueryHelper
                 $updates++;
             }
             foreach($dbColumns as $column => $acceptNull) {
-                if($acceptNull) {
-                    $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : null;
-                } else {
-                    $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : 'DEFAULT';
-                }
+                $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : null;
             }
             $normalizedRows[] = $normalizedRow;
         }
 
-        $query = $this->getInsertSql($table, $normalizedRows);
+        $tableName = $this->db->quoteIdentifier($table);
+        $columns = array_keys($normalizedRows[0]);
+        array_walk($columns, function (&$column) {
+            $column = $this->db->quoteIdentifier($column);
+        });
+        $columnStr = implode(', ', $columns);
+        $query = "INSERT INTO $tableName ($columnStr) VALUES ";
+
+        $params = [];
+        $types = [];
+        $values = [];
+        foreach($normalizedRows as $normalizedRow) {
+            $rowValues = [];
+            foreach($normalizedRow as $value) {
+                if($value === null) {
+                    $rowValues[] = 'DEFAULT';
+                } else {
+                    $types[] = \PDO::PARAM_STR;
+                    $params[] = $value;
+                    $rowValues[] = '?';
+                }
+            }
+            $values[] = '('.implode(', ', $rowValues).')';
+        }
+
+        $query .= implode(', ', $values);
 
         $columnsToUpdate = [];
         foreach($dbColumns as $column => $acceptNull) {
@@ -55,12 +76,8 @@ class PostgreSQLQueryHelper extends QueryHelper
 
         $query .= ' ON CONFLICT (id) DO UPDATE SET ' . implode(', ', $columnsToUpdate);
 
-        $params = array_map(function($row) {
-            return array_values($row);
-        }, $normalizedRows);
-
-        $effected = $this->db->executeUpdate($query, $params, array_fill(0, count($rows), Connection::PARAM_STR_ARRAY));
-        $lastInsertId = $this->db->lastInsertId();
+        $effected = $this->db->executeUpdate($query, $params, $types);
+        $lastInsertId = $this->getLastInsertId($table) - ($effected - $updates - 1);
 
         return $effected;
     }
