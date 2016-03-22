@@ -24,9 +24,7 @@ Corma doesn't:
 * Have any Unit of Work concept, everything is executed right away
 * Do migrations or code generation
 
-Don't use this in production, things will change.
-
-Only tested on MySQL.
+Works in MySql and PostgreSQL.
 
 Install via Composer
 --------------------
