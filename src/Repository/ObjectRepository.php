@@ -9,7 +9,7 @@ use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\InvalidClassException;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\QueryHelperInterface;
-use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
@@ -37,7 +37,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected $className;
 
     /**
-     * @var Cache
+     * @var CacheProvider
      */
     protected $cache;
 
@@ -53,7 +53,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected $objectDependencies = [];
 
-    public function __construct(Connection $db, EventDispatcherInterface $dispatcher, ObjectMapper $objectMapper, Cache $cache)
+    public function __construct(Connection $db, EventDispatcherInterface $dispatcher, ObjectMapper $objectMapper, CacheProvider $cache)
     {
         $this->db = $db;
         $this->dispatcher = $dispatcher;

@@ -8,7 +8,7 @@ use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\Util\RelationshipLoader;
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -38,11 +38,11 @@ class ObjectMapper
      * @param Connection $db Database connection
      * @param EventDispatcherInterface $dispatcher
      * @param array $namespaces Namespaces to search for data objects and repositories
-     * @param Cache $cache Cache for table metadata and repositories
+     * @param CacheProvider $cache Cache for table metadata and repositories
      * @param array $additionalDependencies Additional dependencies to inject into Repository constructors
      * @return static
      */
-    public static function create(Connection $db, EventDispatcherInterface $dispatcher, array $namespaces, Cache $cache = null, array $additionalDependencies = [])
+    public static function create(Connection $db, EventDispatcherInterface $dispatcher, array $namespaces, CacheProvider $cache = null, array $additionalDependencies = [])
     {
         if($cache === null) {
             $cache = new ArrayCache();
@@ -58,10 +58,10 @@ class ObjectMapper
 
     /**
      * @param Connection $db
-     * @param Cache $cache
+     * @param CacheProvider $cache
      * @return QueryHelperInterface
      */
-    protected static function createQueryHelper(Connection $db, Cache $cache)
+    protected static function createQueryHelper(Connection $db, CacheProvider $cache)
     {
         $database = $db->getDatabasePlatform()->getReservedKeywordsList()->getName();
         $database = preg_replace('/[^A-Za-z]/', '', $database); //strip version

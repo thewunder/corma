@@ -3,7 +3,7 @@ namespace Corma\QueryHelper;
 
 use Corma\Exception\BadMethodCallException;
 use Corma\Exception\InvalidArgumentException;
-use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -26,11 +26,11 @@ class QueryHelper implements QueryHelperInterface
     protected $db;
 
     /**
-     * @var Cache
+     * @var CacheProvider
      */
     protected $cache;
 
-    public function __construct(Connection $db, Cache $cache)
+    public function __construct(Connection $db, CacheProvider $cache)
     {
         $this->db = $db;
         $this->cache = $cache;
