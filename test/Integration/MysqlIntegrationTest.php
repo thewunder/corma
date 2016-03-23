@@ -10,7 +10,6 @@ use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
-use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
@@ -198,7 +197,7 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
     /**
      * This one tests the MySQLQueryHelper implementation of massUpsert
      */
-    public function testSaveAllOnDuplicateKey()
+    public function testSaveAll()
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('Save All');
@@ -211,17 +210,6 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $object3 = new ExtendedDataObject();
         $objects[] = $object3->setMyColumn('Save All 3');
-
-        $cache = new ArrayCache();
-        $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
-
-        $objectMapper = $this->getMockBuilder(ObjectMapper::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($mySQLQueryHelper);
-
-        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $objectMapper, $cache);
 
         $inserts = $this->repository->saveAll($objects);
 

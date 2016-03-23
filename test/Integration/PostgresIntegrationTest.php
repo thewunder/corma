@@ -10,7 +10,6 @@ use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
-use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
@@ -211,15 +210,6 @@ class PostgresIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $object3 = new ExtendedDataObject();
         $objects[] = $object3->setMyColumn('Save All 3');
-
-        $objectMapper = $this->getMockBuilder(ObjectMapper::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $cache = new ArrayCache();
-        $objectMapper->expects($this->any())->method('getQueryHelper')->willReturn(new PostgreSQLQueryHelper(self::$connection, $cache));
-
-        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $objectMapper, $cache);
 
         $effected = $this->repository->saveAll($objects);
 
