@@ -1,7 +1,6 @@
 <?php
 namespace Corma\QueryHelper;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 
 class PostgreSQLQueryHelper extends QueryHelper
