@@ -84,7 +84,8 @@ abstract class DataObject implements DataObjectInterface
     }
 
     /**
-     * Sets the data provided to the properties of the object
+     * Sets the data provided to the properties of the object. Used when restoring objects from cache.
+     * Scalar data will set properties directly, while non-scalar data requires a setter.
      *
      * @param array $data
      * @return $this
@@ -98,20 +99,15 @@ abstract class DataObject implements DataObjectInterface
         foreach($data as $name => $value) {
             $setter = ucfirst($name);
             $setter = "set{$setter}";
-            if(method_exists($this, $setter)) {
-                $this->$setter($value);
-            } else if(property_exists($this, $name)) {
+            if(is_scalar($value) && property_exists($this, $name)) {
                 $this->{$name} = $value;
+            } else if(method_exists($this, $setter)) {
+                $this->$setter($value);
             }
         }
         return $this;
     }
-
-    /**
-     * Returns all scalar data (i.e. no objects / arrays)
-     *
-     * @return array
-     */
+    
     public function getData()
     {
         $data = [];

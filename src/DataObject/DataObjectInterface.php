@@ -50,7 +50,7 @@ interface DataObjectInterface
     public function isDeleted();
 
     /**
-     * Sets the data provided to the properties of the object
+     * Sets the data provided to the properties of the object. Used when restoring objects from cache.
      *
      * @param array $data
      * @return $this
@@ -58,7 +58,8 @@ interface DataObjectInterface
     public function setData(array $data);
 
     /**
-     * Returns all scalar data (i.e. no objects / arrays)
+     * Returns all scalar data (i.e. no objects / arrays). 
+     * Used when persisting objects to the database and cache. 
      *
      * @return array
      */
