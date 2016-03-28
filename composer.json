@@ -19,6 +19,7 @@
   },
   "require": {
     "php": ">=5.5",
+    "ext-pdo" : "*",
     "doctrine/dbal": "~2.0",
     "symfony/event-dispatcher": ">=2.0 <4.0.0"
   },
