@@ -267,7 +267,21 @@ class QueryHelper implements QueryHelperInterface
      */
     public function getDbColumns($table)
     {
-        throw new BadMethodCallException('This method has not been implemented for the current database type');
+        $key = 'db_columns.'.$table;
+        if($this->cache->contains($key)) {
+            return $this->cache->fetch($key);
+        } else {
+            $qb = $this->db->createQueryBuilder();
+            $qb->select('COLUMN_NAME AS '.$this->db->quoteIdentifier('COLUMN_NAME'), 'IS_NULLABLE AS '.$this->db->quoteIdentifier('IS_NULLABLE'))
+                ->from('information_schema.COLUMNS')->where('TABLE_NAME = ?')->setParameter(0, $table);
+            $dbColumnInfo = $qb->execute()->fetchAll(\PDO::FETCH_OBJ);
+            $dbColumns = [];
+            foreach($dbColumnInfo as $column) {
+                $dbColumns[$column->COLUMN_NAME] = $column->IS_NULLABLE == 'YES' ? true : false;
+            }
+            $this->cache->save($key, $dbColumns);
+            return $dbColumns;
+        }
     }
 
     /**

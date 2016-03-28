@@ -63,25 +63,6 @@ class MySQLQueryHelper extends QueryHelper
 
         return $effected - $updates; //compensate for mysql returning 2 for each row updated
     }
-    
-    public function getDbColumns($table)
-    {
-        $key = 'db_columns.'.$table;
-        if($this->cache->contains($key)) {
-            return $this->cache->fetch($key);
-        } else {
-            $query = 'DESCRIBE ' . $this->db->quoteIdentifier($table);
-            $statement = $this->db->prepare($query);
-            $statement->execute();
-            $dbColumnInfo = $statement->fetchAll(\PDO::FETCH_OBJ);
-            $dbColumns = [];
-            foreach($dbColumnInfo as $column) {
-                $dbColumns[$column->Field] = $column->Null == 'YES' ? true : false;
-            }
-            $this->cache->save($key, $dbColumns);
-            return $dbColumns;
-        }
-    }
 
     /**
      * Only tested with PDO

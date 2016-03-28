@@ -102,25 +102,6 @@ class PostgreSQLQueryHelper extends QueryHelper
         return true;
     }
 
-    public function getDbColumns($table)
-    {
-        $key = 'db_columns.'.$table;
-        if($this->cache->contains($key)) {
-            return $this->cache->fetch($key);
-        } else {
-            $query = 'SELECT * FROM information_schema.COLUMNS WHERE TABLE_NAME = :table';
-            $statement = $this->db->prepare($query);
-            $statement->execute([':table'=>$table]);
-            $dbColumnInfo = $statement->fetchAll(\PDO::FETCH_OBJ);
-            $dbColumns = [];
-            foreach($dbColumnInfo as $column) {
-                $dbColumns[$column->column_name] = $column->is_nullable == 'YES' ? true : false;
-            }
-            $this->cache->save($key, $dbColumns);
-            return $dbColumns;
-        }
-    }
-
     /**
      * @return float
      */
