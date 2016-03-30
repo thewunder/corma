@@ -30,11 +30,11 @@ Install via Composer
 --------------------
 Via the command line:
 
-    composer.phar require thewunder/corma *
+    composer.phar require thewunder/corma ~1.0
 
 Or add the following to the require section your composer.json:
 
-    "thewunder/corma": "*"
+    "thewunder/corma": "~1.0"
 
 Basic Usage
 -----------
