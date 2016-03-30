@@ -75,6 +75,7 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Column / property on objects that relates to the foreign table's id
+     * @return DataObjectInterface[] Loaded objects keyed by id
      */
     public function loadOne(array $objects, $className, $foreignIdColumn = null);
 
@@ -86,6 +87,7 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Column / property on foreign object that relates to the objects id
+     * @return DataObjectInterface[] Loaded objects keyed by id
      */
     public function loadMany(array $objects, $className, $foreignColumn = null);
 
@@ -97,6 +99,7 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @param string $linkTable Table that links two objects together
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
+     * @return DataObjectInterface[] Loaded objects keyed by id
      */
     public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null);
 }
