@@ -27,11 +27,12 @@ class RelationshipLoader
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
+     * @return DataObjectInterface[] Loaded objects keyed by id
      */
     public function loadOne(array $objects, $className, $foreignIdColumn)
     {
         if(empty($objects)) {
-            return;
+            return [];
         }
 
         $idToForeignId = [];
@@ -62,6 +63,7 @@ class RelationshipLoader
                 throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load one-to-one relationship at $className");
             }
         }
+        return $foreignObjectsById;
     }
 
     /**
@@ -72,11 +74,12 @@ class RelationshipLoader
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Property on foreign object that relates to this object id
+     * @return DataObjectInterface[] Loaded objects keyed by id
      */
     public function loadMany(array $objects, $className, $foreignColumn)
     {
         if(empty($objects)) {
-            return;
+            return [];
         }
 
         $ids = DataObject::getIds($objects);
@@ -102,6 +105,7 @@ class RelationshipLoader
                 throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load one-to-many relationship with $className");
             }
         }
+        return $foreignObjectsById;
     }
 
     /**
@@ -112,11 +116,12 @@ class RelationshipLoader
      * @param string $linkTable Table that links two objects together
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
+     * @return DataObjectInterface[] Loaded objects keyed by id
      */
     public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
     {
         if(empty($objects)) {
-            return;
+            return [];
         }
 
         $ids = DataObject::getIds($objects);
@@ -157,6 +162,7 @@ class RelationshipLoader
                 throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load many-to-many relationship with $className");
             }
         }
+        return $foreignObjectsById;
     }
 
     /**

@@ -154,12 +154,13 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
+     * @return DataObjectInterface[] Loaded objects keyed by id
      */
     public function loadOne(array $objects, $className, $foreignIdColumn = null)
     {
         $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);
 
-        $this->objectMapper->getRelationshipLoader()->loadOne($objects, $className, $foreignIdColumn);
+        return $this->objectMapper->getRelationshipLoader()->loadOne($objects, $className, $foreignIdColumn);
     }
 
     /**
@@ -170,12 +171,13 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Property on foreign object that relates to this object id
+     * @return DataObjectInterface[] Loaded objects keyed by id
      */
     public function loadMany(array $objects, $className, $foreignColumn = null)
     {
         $foreignColumn = $foreignColumn ? $foreignColumn : $this->idColumnFromClass($this->getClassName());
 
-        $this->objectMapper->getRelationshipLoader()->loadMany($objects, $className, $foreignColumn);
+        return $this->objectMapper->getRelationshipLoader()->loadMany($objects, $className, $foreignColumn);
     }
 
     /**
@@ -186,13 +188,14 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $linkTable Table that links two objects together
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
+     * @return DataObjectInterface[] Loaded objects keyed by id
      */
     public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
     {
         $idColumn = $idColumn ? $idColumn : $this->idColumnFromClass($this->getClassName());
         $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);
 
-        $this->objectMapper->getRelationshipLoader()->loadManyToMany($objects, $className, $linkTable, $idColumn, $foreignIdColumn);
+        return $this->objectMapper->getRelationshipLoader()->loadManyToMany($objects, $className, $linkTable, $idColumn, $foreignIdColumn);
     }
 
     /**

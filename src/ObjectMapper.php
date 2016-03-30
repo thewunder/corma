@@ -47,7 +47,7 @@ class ObjectMapper
         if($cache === null) {
             $cache = new ArrayCache();
         }
-        
+
         $queryHelper = self::createQueryHelper($db, $cache);
         $repositoryFactory = new ObjectRepositoryFactory($namespaces);
         $instance = new static($queryHelper, $repositoryFactory);
@@ -176,14 +176,17 @@ class ObjectMapper
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id (defaults to if the class = ForeignObject foreignObjectId)
+     * @return DataObjectInterface[] Loaded objects keyed by id
      */
     public function loadOne(array $objects, $className, $foreignIdColumn = null)
     {
         $objectsByClass = $this->groupByClass($objects);
 
+        $loadedObjects = [];
         foreach($objectsByClass as $class => $classObjects) {
-            $this->getRepository($class)->loadOne($classObjects, $className, $foreignIdColumn);
+            $loadedObjects += $this->getRepository($class)->loadOne($classObjects, $className, $foreignIdColumn);
         }
+        return $loadedObjects;
     }
 
     /**
@@ -195,14 +198,17 @@ class ObjectMapper
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Column / property on foreign object that relates to this object id
+     * @return DataObjectInterface[] Loaded objects keyed by id
      */
     public function loadMany(array $objects, $className, $foreignColumn = null)
     {
         $objectsByClass = $this->groupByClass($objects);
 
+        $loadedObjects = [];
         foreach($objectsByClass as $class => $classObjects) {
-            $this->getRepository($class)->loadMany($classObjects, $className, $foreignColumn);
+            $loadedObjects += $this->getRepository($class)->loadMany($classObjects, $className, $foreignColumn);
         }
+        return $loadedObjects;
     }
 
     /**
@@ -216,14 +222,17 @@ class ObjectMapper
      * @param string $linkTable Table that links two objects together
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
+     * @return DataObjectInterface[] Loaded objects keyed by id
      */
     public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
     {
         $objectsByClass = $this->groupByClass($objects);
 
+        $loadedObjects = [];
         foreach($objectsByClass as $class => $classObjects) {
-            $this->getRepository($class)->loadManyToMany($classObjects, $className, $linkTable, $idColumn, $foreignIdColumn);
+            $loadedObjects += $this->getRepository($class)->loadManyToMany($classObjects, $className, $linkTable, $idColumn, $foreignIdColumn);
         }
+        return $loadedObjects;
     }
 
     /**

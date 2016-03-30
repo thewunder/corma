@@ -119,9 +119,13 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockRepo->expects($this->once())->method('loadOne')->with($objects, OtherDataObject::class, 'otherDataObjectId');
+        $return = ['789' => new OtherDataObject()];
+        $mockRepo->expects($this->once())->method('loadOne')
+            ->with($objects, OtherDataObject::class, 'otherDataObjectId')
+            ->willReturn($return);
 
-        $this->getCorma($mockRepo)->loadOne($objects, OtherDataObject::class, 'otherDataObjectId');
+        $loaded = $this->getCorma($mockRepo)->loadOne($objects, OtherDataObject::class, 'otherDataObjectId');
+        $this->assertEquals($return, $loaded);
     }
 
     public function testLoadManyToOne()
@@ -137,9 +141,13 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockRepo->expects($this->once())->method('loadMany')->with($objects, OtherDataObject::class, 'extendedDataObjectId');
+        $return = ['789' => new OtherDataObject()];
+        $mockRepo->expects($this->once())->method('loadMany')
+            ->with($objects, OtherDataObject::class, 'extendedDataObjectId')
+            ->willReturn($return);
 
-        $this->getCorma($mockRepo)->loadMany($objects, OtherDataObject::class, 'extendedDataObjectId');
+        $loaded = $this->getCorma($mockRepo)->loadMany($objects, OtherDataObject::class, 'extendedDataObjectId');
+        $this->assertEquals($return, $loaded);
     }
 
     public function testLoadManyToMany()
@@ -155,9 +163,13 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockRepo->expects($this->once())->method('loadManyToMany')->with($objects, OtherDataObject::class, 'link_table');
+        $return = ['789' => new OtherDataObject()];
+        $mockRepo->expects($this->once())->method('loadManyToMany')
+            ->with($objects, OtherDataObject::class, 'link_table')
+            ->willReturn($return);
 
-        $this->getCorma($mockRepo)->loadManyToMany($objects, OtherDataObject::class, 'link_table');
+        $loaded = $this->getCorma($mockRepo)->loadManyToMany($objects, OtherDataObject::class, 'link_table');
+        $this->assertEquals($return, $loaded);
     }
 
     public function testSave()
