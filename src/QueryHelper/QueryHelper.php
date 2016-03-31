@@ -112,13 +112,11 @@ class QueryHelper implements QueryHelperInterface
             return 0;
         }
 
-        $query = $this->getInsertSql($table, $rows);
+        $normalizedRows = $this->normalizeRows($table, $rows);
+        $query = $this->getInsertSql($table, $normalizedRows);
+        $params = $this->getParams($normalizedRows);
 
-        $params = array_map(function($row) {
-            return array_values($row);
-        }, $rows);
-
-        return $this->db->executeUpdate($query, $params, array_fill(0, count($rows), Connection::PARAM_STR_ARRAY));
+        return $this->db->executeUpdate($query, $params);
     }
 
     /**
@@ -353,20 +351,32 @@ class QueryHelper implements QueryHelperInterface
 
     /**
      * @param $table
-     * @param array $rows
+     * @param array $normalizedRows
      * @return string INSERT SQL Query
      */
-    protected function getInsertSql($table, array $rows)
+    protected function getInsertSql($table, array $normalizedRows)
     {
         $tableName = $this->db->quoteIdentifier($table);
-        $columns = array_keys($rows[0]);
+        $columns = array_keys($normalizedRows[0]);
         array_walk($columns, function (&$column) {
             $column = $this->db->quoteIdentifier($column);
         });
         $columnStr = implode(', ', $columns);
         $query = "INSERT INTO $tableName ($columnStr) VALUES ";
 
-        $values = array_fill(0, count($rows), '(?)');
+        $values = [];
+        foreach ($normalizedRows as $normalizedRow) {
+            $rowValues = [];
+            foreach ($normalizedRow as $value) {
+                if ($value === null) {
+                    $rowValues[] = 'DEFAULT';
+                } else {
+                    $rowValues[] = '?';
+                }
+            }
+            $values[] = '(' . implode(', ', $rowValues) . ')';
+        }
+
         $query .= implode(', ', $values);
         return $query;
     }
@@ -390,5 +400,63 @@ class QueryHelper implements QueryHelperInterface
     public function getConnection()
     {
         return $this->db;
+    }
+
+    /**
+     * Creates an array with database columns, all in the same order
+     * 
+     * @param string $table
+     * @param array $rows
+     * @return array
+     */
+    protected function normalizeRows($table, array $rows)
+    {
+        $dbColumns = $this->getDbColumns($table);
+
+        //Ensure uniform rows
+        $normalizedRows = [];
+        foreach ($rows as $row) {
+            $normalizedRow = [];
+
+            foreach ($dbColumns as $column => $acceptNull) {
+                $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : null;
+            }
+            $normalizedRows[] = $normalizedRow;
+        }
+        return $normalizedRows;
+    }
+
+    /**
+     * Returns an array of parameters
+     * 
+     * @param array $normalizedRows
+     * @return array
+     */
+    protected function getParams(array $normalizedRows)
+    {
+        $params = [];
+        foreach ($normalizedRows as $normalizedRow) {
+            foreach ($normalizedRow as $value) {
+                if ($value !== null) {
+                    $params[] = $value;
+                }
+            }
+        }
+        return $params;
+    }
+
+    /**
+     * @param array $rows
+     * @return int
+     */
+    protected function countUpdates(array $rows)
+    {
+        $updates = 0;
+        foreach ($rows as $row) {
+            if (!empty($row['id'])) {
+                $updates++;
+            }
+        }
+        return $updates;
     }
 }

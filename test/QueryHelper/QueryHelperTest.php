@@ -103,11 +103,20 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
     public function testMassInsert()
     {
         $this->connection->expects($this->once())->method('executeUpdate')
-            ->with('INSERT INTO `test_table` (`column1`, `column2`) VALUES (?), (?)',
-                [[1,2], [3,4]], [Connection::PARAM_STR_ARRAY, Connection::PARAM_STR_ARRAY])
-            ->willReturn(4);
+            ->with('INSERT INTO `test_table` (`column1`, `column2`) VALUES (?, ?), (?, ?)',
+                [1, 2, 3, 4])
+            ->willReturn(2);
 
-        $this->queryHelper->massInsert('test_table', [['column1'=>1, 'column2'=>2], ['column1'=>3, 'column2'=>4]]);
+        $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
+            ->setMethods(['getDbColumns'])
+            ->setConstructorArgs([$this->connection, new ArrayCache()])
+            ->getMock();
+
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->with('test_table')
+            ->willReturn(['column1'=>true, 'column2'=>false]);
+
+        $effected = $this->queryHelper->massInsert('test_table', [['column1'=>1, 'column2'=>2], ['column1'=>3, 'column2'=>4]]);
+        $this->assertEquals(2, $effected);
     }
 
     public function testMassDelete()

@@ -6,7 +6,7 @@ use Doctrine\DBAL\DBALException;
 class PostgreSQLQueryHelper extends QueryHelper
 {
     /**
-     * Use ON DUPLICATE KEY UPDATE to optimize upsert in MySQL
+     * Use ON CONFLICT (id) DO UPDATE to optimize upsert in PostgreSQL > 9.5
      *
      * @param string $table
      * @param array $rows
@@ -25,49 +25,11 @@ class PostgreSQLQueryHelper extends QueryHelper
             return parent::massUpsert($table, $rows, $lastInsertId);
         }
 
+        $updates = $this->countUpdates($rows);
+        $normalizedRows = $this->normalizeRows($table, $rows);
+        $query = $this->getInsertSql($table, $normalizedRows);
+
         $dbColumns = $this->getDbColumns($table);
-
-        //Ensure uniform rows
-        $normalizedRows = [];
-        $updates = 0;
-        foreach($rows as $row) {
-            $normalizedRow = [];
-            if(!empty($row['id'])) {
-                $updates++;
-            }
-            foreach($dbColumns as $column => $acceptNull) {
-                $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : null;
-            }
-            $normalizedRows[] = $normalizedRow;
-        }
-
-        $tableName = $this->db->quoteIdentifier($table);
-        $columns = array_keys($normalizedRows[0]);
-        array_walk($columns, function (&$column) {
-            $column = $this->db->quoteIdentifier($column);
-        });
-        $columnStr = implode(', ', $columns);
-        $query = "INSERT INTO $tableName ($columnStr) VALUES ";
-
-        $params = [];
-        $types = [];
-        $values = [];
-        foreach($normalizedRows as $normalizedRow) {
-            $rowValues = [];
-            foreach($normalizedRow as $value) {
-                if($value === null) {
-                    $rowValues[] = 'DEFAULT';
-                } else {
-                    $types[] = \PDO::PARAM_STR;
-                    $params[] = $value;
-                    $rowValues[] = '?';
-                }
-            }
-            $values[] = '('.implode(', ', $rowValues).')';
-        }
-
-        $query .= implode(', ', $values);
-
         $columnsToUpdate = [];
         foreach($dbColumns as $column => $acceptNull) {
             if($column == 'id') {
@@ -80,7 +42,9 @@ class PostgreSQLQueryHelper extends QueryHelper
 
         $query .= ' ON CONFLICT (id) DO UPDATE SET ' . implode(', ', $columnsToUpdate);
 
-        $effected = $this->db->executeUpdate($query, $params, $types);
+        $params = $this->getParams($normalizedRows);
+
+        $effected = $this->db->executeUpdate($query, $params);
         $lastInsertId = $this->getLastInsertId($table) - ($effected - $updates - 1);
 
         return $effected;

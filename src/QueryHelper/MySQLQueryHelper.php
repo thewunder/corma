@@ -20,52 +20,14 @@ class MySQLQueryHelper extends QueryHelper
             return 0;
         }
 
+        $updates = $this->countUpdates($rows);
+        $normalizedRows = $this->normalizeRows($table, $rows);
+        $query = $this->getInsertSql($table, $normalizedRows);
+
         $dbColumns = $this->getDbColumns($table);
-
-        //Ensure uniform rows
-        $normalizedRows = [];
-        $updates = 0;
-        foreach($rows as $row) {
-            $normalizedRow = [];
-            if(!empty($row['id'])) {
-                $updates++;
-            }
-            foreach($dbColumns as $column => $acceptNull) {
-                $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : null;
-            }
-            $normalizedRows[] = $normalizedRow;
-        }
-
-        $tableName = $this->db->quoteIdentifier($table);
-        $columns = array_keys($normalizedRows[0]);
-        array_walk($columns, function (&$column) {
-            $column = $this->db->quoteIdentifier($column);
-        });
-        $columnStr = implode(', ', $columns);
-        $query = "INSERT INTO $tableName ($columnStr) VALUES ";
-
-        $params = [];
-        $types = [];
-        $values = [];
-        foreach($normalizedRows as $normalizedRow) {
-            $rowValues = [];
-            foreach($normalizedRow as $value) {
-                if($value === null) {
-                    $rowValues[] = 'DEFAULT';
-                } else {
-                    $types[] = \PDO::PARAM_STR;
-                    $params[] = $value;
-                    $rowValues[] = '?';
-                }
-            }
-            $values[] = '('.implode(', ', $rowValues).')';
-        }
-
-        $query .= implode(', ', $values);
-
         $columnsToUpdate = [];
-        foreach($dbColumns as $column => $acceptNull) {
-            if($column == 'id') {
+        foreach ($dbColumns as $column => $acceptNull) {
+            if ($column == 'id') {
                 continue;
             }
 
@@ -74,8 +36,10 @@ class MySQLQueryHelper extends QueryHelper
         }
 
         $query .= ' ON DUPLICATE KEY UPDATE ' . implode(', ', $columnsToUpdate);
+
+        $params = $this->getParams($normalizedRows);
         
-        $effected = $this->db->executeUpdate($query, $params, $types);
+        $effected = $this->db->executeUpdate($query, $params);
         $lastInsertId = $this->db->lastInsertId();
 
         return $effected - $updates; //compensate for mysql returning 2 for each row updated
