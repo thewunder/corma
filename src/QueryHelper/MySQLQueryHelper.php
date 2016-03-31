@@ -1,7 +1,6 @@
 <?php
 namespace Corma\QueryHelper;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 
 class MySQLQueryHelper extends QueryHelper
@@ -37,7 +36,32 @@ class MySQLQueryHelper extends QueryHelper
             $normalizedRows[] = $normalizedRow;
         }
 
-        $query = $this->getInsertSql($table, $normalizedRows);
+        $tableName = $this->db->quoteIdentifier($table);
+        $columns = array_keys($normalizedRows[0]);
+        array_walk($columns, function (&$column) {
+            $column = $this->db->quoteIdentifier($column);
+        });
+        $columnStr = implode(', ', $columns);
+        $query = "INSERT INTO $tableName ($columnStr) VALUES ";
+
+        $params = [];
+        $types = [];
+        $values = [];
+        foreach($normalizedRows as $normalizedRow) {
+            $rowValues = [];
+            foreach($normalizedRow as $value) {
+                if($value === null) {
+                    $rowValues[] = 'DEFAULT';
+                } else {
+                    $types[] = \PDO::PARAM_STR;
+                    $params[] = $value;
+                    $rowValues[] = '?';
+                }
+            }
+            $values[] = '('.implode(', ', $rowValues).')';
+        }
+
+        $query .= implode(', ', $values);
 
         $columnsToUpdate = [];
         foreach($dbColumns as $column => $acceptNull) {
@@ -50,12 +74,8 @@ class MySQLQueryHelper extends QueryHelper
         }
 
         $query .= ' ON DUPLICATE KEY UPDATE ' . implode(', ', $columnsToUpdate);
-
-        $params = array_map(function($row) {
-            return array_values($row);
-        }, $normalizedRows);
-
-        $effected = $this->db->executeUpdate($query, $params, array_fill(0, count($rows), Connection::PARAM_STR_ARRAY));
+        
+        $effected = $this->db->executeUpdate($query, $params, $types);
         $lastInsertId = $this->db->lastInsertId();
 
         return $effected - $updates; //compensate for mysql returning 2 for each row updated
