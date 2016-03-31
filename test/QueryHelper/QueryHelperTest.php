@@ -121,9 +121,21 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
 
     public function testMassDelete()
     {
-        $this->connection->expects($this->once())->method('delete')
-            ->with('`test_table`', ['`column`'=>'value'])->willReturn(29);
-        $rows = $this->queryHelper->massDelete('test_table', ['column'=>'value']);
+        $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
+            ->setMethods(['buildDeleteQuery'])
+            ->setConstructorArgs([$this->connection, new ArrayCache()])
+            ->getMock();
+
+        $qb = $this->getMockBuilder(QueryBuilder::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $qb->expects($this->once())->method('execute')->willReturn(29);
+
+        $this->queryHelper->expects($this->once())->method('buildDeleteQuery')
+            ->with('test_table', ['whereColumn'=>'x'])
+            ->willReturn($qb);
+
+        $rows = $this->queryHelper->massDelete('test_table', ['whereColumn'=>'x']);
         $this->assertEquals(29, $rows);
     }
 

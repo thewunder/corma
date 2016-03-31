@@ -86,6 +86,20 @@ class QueryHelper implements QueryHelperInterface
     }
 
     /**
+     * Build a delete query for the provided table
+     *
+     * @param string $table
+     * @param array $where column => value pairs, value may be an array for an IN() clause
+     * @return QueryBuilder
+     */
+    public function buildDeleteQuery($table, array $where)
+    {
+        $qb = $this->db->createQueryBuilder()->delete($this->db->quoteIdentifier($table));
+        $this->processWhereQuery($qb, $where);
+        return $qb;
+    }
+
+    /**
      * Update multiple rows
      *
      * @param string $table
@@ -176,8 +190,8 @@ class QueryHelper implements QueryHelperInterface
      */
     public function massDelete($table, array $where)
     {
-        $identifier = $this->quoteIdentifiers($where);
-        return $this->db->delete($this->db->quoteIdentifier($table), $identifier);
+        $qb = $this->buildDeleteQuery($table, $where);
+        return $qb->execute();
     }
 
     /**
