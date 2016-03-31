@@ -27,14 +27,11 @@ class MySQLQueryHelper extends QueryHelper
         $normalizedRows = [];
         $updates = 0;
         foreach($rows as $row) {
-            $normalizedRow = ['id'=>null];
+            $normalizedRow = [];
             if(!empty($row['id'])) {
                 $updates++;
             }
             foreach($dbColumns as $column => $acceptNull) {
-                if(!$acceptNull && !isset($row[$column])) {
-                    continue;
-                }
                 $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : null;
             }
             $normalizedRows[] = $normalizedRow;
