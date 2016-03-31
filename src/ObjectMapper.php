@@ -147,6 +147,8 @@ class ObjectMapper
      * @param int $limit Maximum results to return
      * @param int $offset First result to return
      * @return DataObjectInterface[]
+     * 
+     * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
     public function findBy($objectName, array $criteria, array $orderBy = [], $limit = null, $offset = null)
     {
@@ -159,6 +161,8 @@ class ObjectMapper
      * @param string $objectName Object class with or without namespace
      * @param array $criteria column => value pairs
      * @return DataObjectInterface
+     * 
+     * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
     public function findOneBy($objectName, array $criteria)
     {
