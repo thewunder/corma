@@ -29,6 +29,15 @@ interface QueryHelperInterface
     public function buildUpdateQuery($table, array $update, array $where);
 
     /**
+     * Build a delete query for the provided table
+     *
+     * @param string $table
+     * @param array $where column => value pairs, value may be an array for an IN() clause
+     * @return QueryBuilder
+     */
+    public function buildDeleteQuery($table, array $where);
+
+    /**
      * Update multiple rows
      *
      * @param string $table
