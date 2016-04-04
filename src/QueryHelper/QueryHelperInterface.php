@@ -5,6 +5,10 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Query\QueryBuilder;
 
+/**
+ * Builds sql queries and performs other related tasks.  
+ * The query helper implementation normalizes differences in database systems.
+ */
 interface QueryHelperInterface
 {
     /**
