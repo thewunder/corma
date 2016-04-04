@@ -14,11 +14,11 @@ class QueryHelper implements QueryHelperInterface
      * Splits a column like the following
      * 2. table alias
      * 3. column
-     * 4. optional operator
+     * 4. optional comparison operator
      */
-    const WHERE_COLUMN_REGEX = '/^(([\w]+\\.)|)([\w]+)(([^\w]*))/';
+    const WHERE_COLUMN_REGEX = '/^(([\w]+\\.)|)([\w]+)( LIKE|([^\w]*))/';
 
-    protected $COMPARISON_OPERATORS = ['=', '<', '>', '<=', '>=', '<>', '!='];
+    protected $COMPARISON_OPERATORS = ['=', '<', '>', '<=', '>=', '<>', '!=', 'LIKE'];
 
     /**
      * @var Connection
@@ -226,7 +226,7 @@ class QueryHelper implements QueryHelperInterface
     /**
      * Sets the where query part on the provided query builder.
      *
-     * $where Array keys are the column, plus optionally a comparison operator (=, <, >, <=, >=, <>, !=).
+     * $where Array keys are the column, plus optionally a comparison operator (=, <, >, <=, >=, <>, !=, LIKE).
      * If the operator is omitted the operator is assumed to be equals.
      *
      * $where Array values may be a simple value or an array of values for an IN() clause.  Array values will ignore
