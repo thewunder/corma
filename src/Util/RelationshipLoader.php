@@ -105,7 +105,14 @@ class RelationshipLoader
                 throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load one-to-many relationship with $className");
             }
         }
-        return $foreignObjectsById;
+
+        $flattenedForeignObjects = [];
+        foreach($foreignObjectsById as $array) {
+            foreach($array as $object) {
+                $flattenedForeignObjects[] = $object;
+            }
+        }
+        return $flattenedForeignObjects;
     }
 
     /**

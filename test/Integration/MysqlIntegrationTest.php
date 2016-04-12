@@ -297,7 +297,10 @@ class MysqlIntegrationTest extends \PHPUnit_Framework_TestCase
         $otherObjects[] = $otherObject->setName('Other object many-to-one 2')->setExtendedDataObjectId($object->getId());
         $this->objectMapper->saveAll($otherObjects);
 
-        $this->repository->loadMany([$object], OtherDataObject::class);
+        /** @var OtherDataObject[] $loadedObjects */
+        $loadedObjects = $this->repository->loadMany([$object], OtherDataObject::class);
+        $this->assertCount(2, $loadedObjects);
+        $this->assertInstanceOf(OtherDataObject::class, $loadedObjects[1]);
 
         $loadedOtherObjects = $object->getOtherDataObjects();
         $this->assertCount(2, $loadedOtherObjects);
