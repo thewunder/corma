@@ -291,11 +291,15 @@ class PostgresIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->repository->save($object);
 
         $otherObjects = [];
+        $softDeleted = new OtherDataObject();
+        $otherObjects[] = $softDeleted->setName('Other object (soft deleted)')->setExtendedDataObjectId($object->getId());
         $otherObject = new OtherDataObject();
         $otherObjects[] = $otherObject->setName('Other object many-to-one 1')->setExtendedDataObjectId($object->getId());
         $otherObject = new OtherDataObject();
         $otherObjects[] = $otherObject->setName('Other object many-to-one 2')->setExtendedDataObjectId($object->getId());
         $this->objectMapper->saveAll($otherObjects);
+
+        $this->objectMapper->delete($softDeleted);
 
         /** @var OtherDataObject[] $loadedObjects */
         $loadedObjects = $this->repository->loadMany([$object], OtherDataObject::class);

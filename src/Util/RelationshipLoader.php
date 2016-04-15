@@ -83,7 +83,13 @@ class RelationshipLoader
         }
 
         $ids = DataObject::getIds($objects);
-        $foreignObjects = $this->objectMapper->findBy($className, [$foreignColumn=>$ids]);
+
+        $where = [$foreignColumn => $ids];
+        $dbColumns = $this->objectMapper->getQueryHelper()->getDbColumns($className::getTableName());
+        if(isset($dbColumns['isDeleted'])) {
+            $where['isDeleted'] = 0;
+        }
+        $foreignObjects = $this->objectMapper->findBy($className, $where);
         $foreignObjectsById = [];
         $getter = 'get' . ucfirst($foreignColumn);
         foreach($foreignObjects as $foreignObject) {
