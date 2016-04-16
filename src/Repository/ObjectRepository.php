@@ -37,6 +37,11 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected $className;
 
     /**
+     * @var string
+     */
+    protected $shortClassName;
+
+    /**
      * @var CacheProvider
      */
     protected $cache;
@@ -473,8 +478,22 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $event = new DataObjectEvent($object);
         $this->dispatcher->dispatch('DataObject.'.$eventName, $event);
-        $class = $object->getClassName();
+        $class = $this->getShortClassName();
         $this->dispatcher->dispatch('DataObject.'.$class.'.'.$eventName, $event);
+    }
+
+    /**
+     * Returns the class name minus namespace of the object managed by the repository.
+     *
+     * @return string
+     */
+    protected function getShortClassName()
+    {
+        if($this->shortClassName) {
+            return $this->shortClassName;
+        }
+        $class = $this->getClassName();
+        return $this->shortClassName = substr($class, strrpos($class, '\\') + 1);
     }
 
     /**
