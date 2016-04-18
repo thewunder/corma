@@ -119,6 +119,22 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $effected);
     }
 
+    public function testBuildDeleteQuery()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildDeleteQuery('test_table', ['column'=>'value', 'inColumn'=>[1,2,3]]);
+
+        $this->assertEquals(QueryBuilder::DELETE, $qb->getType());
+
+        $from = $qb->getQueryPart('from');
+        $this->assertEquals(['table'=>'`test_table`', 'alias'=>null], $from);
+
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('(`column` = :column) AND (`inColumn` IN(:inColumn))', $where);
+    }
+
     public function testMassDelete()
     {
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
