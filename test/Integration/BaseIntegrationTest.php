@@ -261,10 +261,12 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $object->setMyColumn('one-to-many')->setOtherDataObjectId($otherObject->getId());
         $this->repository->save($object);
 
-        $this->repository->loadOne([$object], OtherDataObject::class);
+        $return = $this->repository->loadOne([$object], OtherDataObject::class);
 
         $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
+        $this->assertCount(1, $return);
+        $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
     }
 
     public function testLoadMany()
@@ -284,10 +286,10 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $this->objectMapper->delete($softDeleted);
 
-        /** @var OtherDataObject[] $loadedObjects */
-        $loadedObjects = $this->repository->loadMany([$object], OtherDataObject::class);
-        $this->assertCount(2, $loadedObjects);
-        $this->assertInstanceOf(OtherDataObject::class, $loadedObjects[1]);
+        /** @var OtherDataObject[] $return */
+        $return = $this->repository->loadMany([$object], OtherDataObject::class);
+        $this->assertCount(2, $return);
+        $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
 
         $loadedOtherObjects = $object->getOtherDataObjects();
         $this->assertCount(2, $loadedOtherObjects);
@@ -313,7 +315,9 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
             ['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=>$otherObject2->getId()]
         ]);
 
-        $this->repository->loadManyToMany([$object], OtherDataObject::class, 'extended_other_rel');
+        $return = $this->repository->loadManyToMany([$object], OtherDataObject::class, 'extended_other_rel');
+        $this->assertCount(2, $return);
+        $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
 
         $loadedOtherObjects = $object->getOtherDataObjects();
         $this->assertCount(2, $loadedOtherObjects);
