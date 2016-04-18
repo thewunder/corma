@@ -251,7 +251,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testLoadOneToMany()
+    public function testLoadOne()
     {
         $otherObject = new OtherDataObject();
         $otherObject->setName('Other object one-to-many');
@@ -267,7 +267,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
     }
 
-    public function testLoadManyToOne()
+    public function testLoadMany()
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('many-to-one');;
