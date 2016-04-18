@@ -114,8 +114,9 @@ class RelationshipLoader
 
         $flattenedForeignObjects = [];
         foreach($foreignObjectsById as $array) {
+            /** @var DataObjectInterface $object */
             foreach($array as $object) {
-                $flattenedForeignObjects[] = $object;
+                $flattenedForeignObjects[$object->getId()] = $object;
             }
         }
         return $flattenedForeignObjects;
