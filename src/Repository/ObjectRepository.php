@@ -91,7 +91,6 @@ class ObjectRepository implements ObjectRepositoryInterface
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.id'=>$id]);
         $instance = $this->fetchOne($qb);
         if($instance) {
-            $this->dispatchEvents('afterLoad', $instance);
             $this->objectByIdCache[$id] = $instance;
         }
         return $instance;
@@ -459,7 +458,11 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         /** @var Statement $statement */
         $statement = $qb->execute();
-        return $statement->fetchAll(\PDO::FETCH_CLASS, $this->getClassName(), $this->objectDependencies);
+        $objects = $statement->fetchAll(\PDO::FETCH_CLASS, $this->getClassName(), $this->objectDependencies);
+        foreach($objects as $object) {
+            $this->dispatchEvents('loaded', $object);
+        }
+        return $objects;
     }
 
     /**
@@ -470,7 +473,9 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $statement = $qb->setMaxResults(1)->execute();
         $statement->setFetchMode(\PDO::FETCH_CLASS, $this->getClassName(), $this->objectDependencies);
-        return $statement->fetch();
+        $object = $statement->fetch();
+        $this->dispatchEvents('loaded', $object);
+        return $object;
     }
 
     /**
