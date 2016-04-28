@@ -64,7 +64,7 @@ Create the orm and use it
 $db = DriverManager::getConnection(...); //see Doctrine DBAL docs
 $orm = ObjectMapper::withDefaults($db, ['YourNamespace\\Dataobjects']);
 
-$object = $orm->createObject(YourDataObject::class);
+$object = $orm->create(YourDataObject::class);
 //Call setters...
 $orm->save($object);
 //Call more setters...
@@ -72,7 +72,7 @@ $orm->save($object);
 
 //Call more setters on $object...
 $objects = [$object];
-$newObject = $orm->createObject(YourDataObject::class);
+$newObject = $orm->create(YourDataObject::class);
 //call setters on $newObject..
 $objects[] = $newObject;
 

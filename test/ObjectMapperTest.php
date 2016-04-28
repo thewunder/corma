@@ -48,7 +48,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 
         $mockRepo->expects($this->once())->method('create');
 
-        $this->getCorma($mockRepo)->createObject('ExtendedDataObject');
+        $this->getCorma($mockRepo)->create('ExtendedDataObject');
     }
 
     public function testFind()

@@ -99,7 +99,7 @@ class ObjectMapper
      * @param string $objectName Object class with or without namespace
      * @return DataObjectInterface
      */
-    public function createObject($objectName)
+    public function create($objectName)
     {
         return $this->repositoryFactory->getRepository($objectName)->create();
     }
