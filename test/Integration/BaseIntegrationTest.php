@@ -28,7 +28,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->dispatcher = new EventDispatcher();
-        $this->objectMapper = ObjectMapper::create(self::$connection, ['Corma\\Test\\Fixtures']);
+        $this->objectMapper = ObjectMapper::withDefaults(self::$connection, ['Corma\\Test\\Fixtures']);
         $this->repository = $this->objectMapper->getRepository(ExtendedDataObject::class);
     }
     

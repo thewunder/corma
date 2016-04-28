@@ -25,7 +25,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 
         $dispatcher = new EventDispatcher();
 
-        $corma = ObjectMapper::create($connection, ['Corma\\Test\\Fixtures']);
+        $corma = ObjectMapper::withDefaults($connection, ['Corma\\Test\\Fixtures']);
         $this->assertInstanceOf(ObjectMapper::class, $corma);
         return $corma;
     }

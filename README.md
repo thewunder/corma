@@ -62,7 +62,7 @@ class YourDataObjectRepository extends DataObjectRepository {
 Create the orm and use it
 ```php
 $db = DriverManager::getConnection(...); //see Doctrine DBAL docs
-$orm = ObjectMapper::create($db, new EventDispatcher(), ['YourNamespace\\Dataobjects']);
+$orm = ObjectMapper::withDefaults($db, ['YourNamespace\\Dataobjects']);
 
 $object = $orm->createObject(YourDataObject::class);
 //Call setters...

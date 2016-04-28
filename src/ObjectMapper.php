@@ -42,7 +42,7 @@ class ObjectMapper
      * @param array $additionalDependencies Additional dependencies to inject into Repository constructors
      * @return static
      */
-    public static function create(Connection $db, array $namespaces, CacheProvider $cache = null, EventDispatcherInterface $dispatcher = null, array $additionalDependencies = [])
+    public static function withDefaults(Connection $db, array $namespaces, CacheProvider $cache = null, EventDispatcherInterface $dispatcher = null, array $additionalDependencies = [])
     {
         if($cache === null) {
             $cache = new ArrayCache();
