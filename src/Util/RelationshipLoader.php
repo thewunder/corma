@@ -7,6 +7,9 @@ use Corma\Exception\MethodNotImplementedException;
 use Corma\ObjectMapper;
 use Doctrine\Common\Inflector\Inflector;
 
+/**
+ * Loads foreign relationships
+ */
 class RelationshipLoader
 {
     /**
