@@ -15,6 +15,11 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * An object repository manages all creation, persistence, retrieval, deletion of objects of a particular class.
+ * 
+ * This base class is used when all no repository is defined for a class, and is the base for all other repository classes.
+ */
 class ObjectRepository implements ObjectRepositoryInterface
 {
     /**

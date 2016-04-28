@@ -4,6 +4,10 @@ namespace Corma\Repository;
 use Corma\DataObject\DataObjectInterface;
 use Doctrine\Common\Persistence\ObjectRepository as DoctrineObjectRepository;
 
+/**
+ * Interface for object repositories.
+ * An object repository manages all creation, persistence, retrieval, deletion of objects of a particular class.
+ */
 interface ObjectRepositoryInterface extends DoctrineObjectRepository
 {
     /**
