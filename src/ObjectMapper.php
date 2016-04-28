@@ -36,13 +36,13 @@ class ObjectMapper
      * Creates a ObjectMapper instance using the default QueryHelper and ObjectRepositoryFactory
      *
      * @param Connection $db Database connection
-     * @param EventDispatcherInterface $dispatcher
      * @param array $namespaces Namespaces to search for data objects and repositories
      * @param CacheProvider $cache Cache for table metadata and repositories
+     * @param EventDispatcherInterface $dispatcher
      * @param array $additionalDependencies Additional dependencies to inject into Repository constructors
      * @return static
      */
-    public static function create(Connection $db, EventDispatcherInterface $dispatcher, array $namespaces, CacheProvider $cache = null, array $additionalDependencies = [])
+    public static function create(Connection $db, array $namespaces, CacheProvider $cache = null, EventDispatcherInterface $dispatcher = null, array $additionalDependencies = [])
     {
         if($cache === null) {
             $cache = new ArrayCache();
@@ -51,7 +51,7 @@ class ObjectMapper
         $queryHelper = self::createQueryHelper($db, $cache);
         $repositoryFactory = new ObjectRepositoryFactory($namespaces);
         $instance = new static($queryHelper, $repositoryFactory);
-        $dependencies = array_merge([$db, $dispatcher, $instance, $cache], $additionalDependencies);
+        $dependencies = array_merge([$db, $instance, $cache, $dispatcher], $additionalDependencies);
         $repositoryFactory->setDependencies($dependencies);
         return $instance;
     }

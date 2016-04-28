@@ -29,7 +29,7 @@ class PostgresIntegrationTest extends BaseIntegrationTest
             ->disableOriginalConstructor()
             ->getMock();
         $objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($mySQLQueryHelper);
-        $this->repository = new ExtendedDataObjectRepository(self::$connection, $this->dispatcher, $objectMapper, $cache);
+        $this->repository = new ExtendedDataObjectRepository(self::$connection, $objectMapper, $cache, $this->dispatcher);
 
         $this->assertFalse($mySQLQueryHelper->isDuplicateException(new DBALException()));
 

@@ -146,7 +146,7 @@ class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
     protected function getRepository()
     {
         $repository = $this->getMockBuilder(CachingRepository::class)
-            ->setConstructorArgs([$this->connection, new EventDispatcher(), $this->objectMapper, $this->cache])
+            ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
             ->setMethods(['fetchAll', 'fetchOne'])->getMock();
 
         $repository->setClassName(Caching::class);

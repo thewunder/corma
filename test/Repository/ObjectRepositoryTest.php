@@ -77,7 +77,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     public function testClassNotFound()
     {
         /** @noinspection PhpParamsInspection */
-        $repository = new NoClassObjectRepository($this->connection, new EventDispatcher(), $this->objectMapper, new ArrayCache());
+        $repository = new NoClassObjectRepository($this->connection, $this->objectMapper, new ArrayCache());
         $repository->getTableName();
     }
 
@@ -87,7 +87,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     public function testInvalidClass()
     {
         /** @noinspection PhpParamsInspection */
-        $repository = new InvalidClassObjectRepository($this->connection, new EventDispatcher(), $this->objectMapper, new ArrayCache());
+        $repository = new InvalidClassObjectRepository($this->connection, $this->objectMapper, new ArrayCache());
         $repository->getTableName();
     }
 
@@ -448,7 +448,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     protected function getRepository()
     {
-        $repository = new ExtendedDataObjectRepository($this->connection, $this->dispatcher, $this->objectMapper, new ArrayCache());
+        $repository = new ExtendedDataObjectRepository($this->connection, $this->objectMapper, new ArrayCache(), $this->dispatcher);
         return $repository;
     }
 }

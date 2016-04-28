@@ -93,6 +93,6 @@ class ObjectRepositoryFactoryTest extends \PHPUnit_Framework_TestCase
 
         $dispatcher = new EventDispatcher();
 
-        $this->repositoryFactory = new ObjectRepositoryFactory(['Corma\\Test\\Fixtures'], [$connection, $dispatcher, $objectMapper, new ArrayCache()]);
+        $this->repositoryFactory = new ObjectRepositoryFactory(['Corma\\Test\\Fixtures'], [$connection, $objectMapper, new ArrayCache(), $dispatcher]);
     }
 }

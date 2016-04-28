@@ -63,13 +63,13 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected $objectDependencies = [];
 
-    public function __construct(Connection $db, EventDispatcherInterface $dispatcher, ObjectMapper $objectMapper, CacheProvider $cache)
+    public function __construct(Connection $db, ObjectMapper $objectMapper, CacheProvider $cache, EventDispatcherInterface $dispatcher = null)
     {
         $this->db = $db;
-        $this->dispatcher = $dispatcher;
         $this->objectMapper = $objectMapper;
         $this->queryHelper = $objectMapper->getQueryHelper();
         $this->cache = $cache;
+        $this->dispatcher = $dispatcher;
     }
 
     public function create()
@@ -486,6 +486,10 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected function dispatchEvents($eventName, DataObjectInterface $object)
     {
+        if(!$this->dispatcher) {
+            return;
+        }
+        
         $event = new DataObjectEvent($object);
         $this->dispatcher->dispatch('DataObject.'.$eventName, $event);
         $class = $this->getShortClassName();
