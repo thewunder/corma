@@ -7,6 +7,7 @@ use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\Relationship\RelationshipLoader;
+use Corma\Util\Inflector;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
@@ -31,6 +32,11 @@ class ObjectMapper
      * @var RelationshipLoader
      */
     private $relationshipLoader;
+
+    /**
+     * @var Inflector
+     */
+    private $inflector;
 
     /**
      * Creates a ObjectMapper instance using the default QueryHelper and ObjectRepositoryFactory
@@ -299,6 +305,17 @@ class ObjectMapper
         return $this->queryHelper;
     }
 
+    /**
+     * @return Inflector
+     */
+    public function getInflector()
+    {
+        if($this->inflector) {
+            return $this->inflector;
+        }
+        return $this->inflector = new Inflector();
+    }
+    
     /**
      * @return RelationshipLoader
      */

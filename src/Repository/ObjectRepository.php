@@ -575,6 +575,6 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected function idColumnFromClass($className, $suffix = 'Id')
     {
-        return lcfirst(substr($className, strrpos($className, '\\') + 1)) . $suffix;
+        return $this->objectMapper->getInflector()->idColumnFromClass($className, $suffix);
     }
 }

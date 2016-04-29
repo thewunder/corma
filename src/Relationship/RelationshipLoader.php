@@ -5,7 +5,7 @@ use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
 use Corma\Exception\MethodNotImplementedException;
 use Corma\ObjectMapper;
-use Doctrine\Common\Inflector\Inflector;
+use Corma\Util\Inflector;
 
 /**
  * Loads foreign relationships
@@ -17,9 +17,15 @@ class RelationshipLoader
      */
     private $objectMapper;
 
+    /**
+     * @var Inflector
+     */
+    private $inflector;
+
     public function __construct(ObjectMapper $objectMapper)
     {
         $this->objectMapper = $objectMapper;
+        $this->inflector = $objectMapper->getInflector();
     }
 
     /**
@@ -56,7 +62,7 @@ class RelationshipLoader
         }
         unset($foreignObjects);
 
-        $setter = 'set' . $this->methodNameFromColumn($foreignIdColumn);
+        $setter = 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn);
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
                 if(isset($foreignObjectsById[$idToForeignId[$object->getId()]])) {
@@ -104,7 +110,7 @@ class RelationshipLoader
             }
         }
 
-        $setter = 'set' . $this->methodNameFromClass($className, true);
+        $setter = 'set' . $this->inflector->methodNameFromClass($className, true);
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
                 if(isset($foreignObjectsById[$object->getId()])) {
@@ -163,7 +169,7 @@ class RelationshipLoader
         }
         unset($foreignObjects);
 
-        $setter =  'set' . $this->methodNameFromColumn($foreignIdColumn, true);
+        $setter =  'set' . $this->inflector->methodNameFromColumn($foreignIdColumn, true);
         foreach($objects as $object) {
             if(method_exists($object, $setter)) {
                 $foreignObjects = [];
@@ -180,35 +186,5 @@ class RelationshipLoader
             }
         }
         return $foreignObjectsById;
-    }
-
-    /**
-     * @param string $columnName
-     * @param bool $plural
-     * @return string Partial method name to get / set object(s)
-     */
-    protected function methodNameFromColumn($columnName, $plural = false)
-    {
-        $method = ucfirst(str_replace(['Id', '_id'], '', $columnName));
-        if($plural) {
-            return Inflector::pluralize($method);
-        } else {
-            return $method;
-        }
-    }
-
-    /**
-     * @param string $className
-     * @param bool $plural
-     * @return string Partial method name to get / set object(s)
-     */
-    protected function methodNameFromClass($className, $plural = false)
-    {
-        $method = substr($className, strrpos($className, '\\') + 1);
-        if($plural) {
-            return Inflector::pluralize($method);
-        } else {
-            return $method;
-        }
     }
 }
