@@ -158,12 +158,7 @@ class RelationshipSaver
         $this->objectMapper->saveAll($foreignObjectsToSave);
 
         if($deleteMissing) {
-            $foreignObjectsToDelete = [];
-            foreach($foreignIdsToDelete as $id) {
-                $foreignObject = $this->objectMapper->create($className);
-                $foreignObject->setId($id);
-                $foreignObjectsToDelete[] = $foreignObject;
-            }
+            $foreignObjectsToDelete = $this->objectMapper->findByIds($className, $foreignIdsToDelete);
             $this->objectMapper->deleteAll($foreignObjectsToDelete);
         }
     }
