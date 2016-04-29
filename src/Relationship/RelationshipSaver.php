@@ -88,14 +88,15 @@ class RelationshipSaver
      *
      * Used to save the "many" side of a one-to-many relationship.
      * 
-     * Missing objects will be deleted.
+     * Missing objects will be deleted by default.
      *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignObjectGetter Name of getter to retrieve foreign objects
      * @param string $foreignColumn Property on foreign object that relates to this object id
+     * @param boolean $deleteMissing Set to false to leave objects alone if missing
      */
-    public function saveMany(array $objects, $className, $foreignObjectGetter = null, $foreignColumn = null)
+    public function saveMany(array $objects, $className, $foreignObjectGetter = null, $foreignColumn = null, $deleteMissing = true)
     {
         if(empty($objects)) {
             return;
@@ -110,7 +111,9 @@ class RelationshipSaver
         }
         $objectIdSetter = 'set' . $foreignColumn;
 
-        $existingForeignIdsByObjectId = $this->getExistingForeignIds($objects, $className, $foreignColumn);
+        if($deleteMissing) {
+            $existingForeignIdsByObjectId = $this->getExistingForeignIds($objects, $className, $foreignColumn);
+        }
 
         $foreignObjectsToSave = [];
         $foreignIdsToDelete = [];
@@ -120,9 +123,12 @@ class RelationshipSaver
             }
 
             $existingForeignIds = [];
-            if(isset($existingForeignIdsByObjectId[$object->getId()])) {
-                $existingForeignIds = $existingForeignIdsByObjectId[$object->getId()];
+            if($deleteMissing) {
+                if(isset($existingForeignIdsByObjectId[$object->getId()])) {
+                    $existingForeignIds = $existingForeignIdsByObjectId[$object->getId()];
+                }
             }
+
             /** @var DataObjectInterface[] $foreignObjects */
             $foreignObjects = $object->{$foreignObjectGetter}();
             if(!empty($foreignObjects)) {
@@ -137,7 +143,8 @@ class RelationshipSaver
 
                     $foreignObject->{$objectIdSetter}($object->getId());
                     $foreignObjectsToSave[] = $foreignObject;
-                    if($foreignObject->getId()) {
+
+                    if($deleteMissing && $foreignObject->getId()) {
                         unset($existingForeignIds[$foreignObject->getId()]);
                     }
                 }
@@ -149,14 +156,16 @@ class RelationshipSaver
         }
         
         $this->objectMapper->saveAll($foreignObjectsToSave);
-        
-        $foreignObjectsToDelete = [];
-        foreach($foreignIdsToDelete as $id) {
-            $foreignObject = $this->objectMapper->create($className);
-            $foreignObject->setId($id);
-            $foreignObjectsToDelete[] = $foreignObject;
+
+        if($deleteMissing) {
+            $foreignObjectsToDelete = [];
+            foreach($foreignIdsToDelete as $id) {
+                $foreignObject = $this->objectMapper->create($className);
+                $foreignObject->setId($id);
+                $foreignObjectsToDelete[] = $foreignObject;
+            }
+            $this->objectMapper->deleteAll($foreignObjectsToDelete);
         }
-        $this->objectMapper->deleteAll($foreignObjectsToDelete);
     }
 
     /**
@@ -219,6 +228,7 @@ class RelationshipSaver
      * Saves relationship data to a link table containing the id's of both objects.
      *
      * This method inserts / updates the foreign objects.
+     * Missing foreign objects will be removed from the link table, but not deleted.
      *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
