@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Relationship;
 
+use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;
 use Corma\Exception\MethodNotImplementedException;
 use Corma\ObjectMapper;
@@ -86,14 +87,76 @@ class RelationshipSaver
      * Saves a foreign relationship where a column on another object references the id for the supplied object.
      *
      * Used to save the "many" side of a one-to-many relationship.
+     * 
+     * Missing objects will be deleted.
      *
-     * @param DataObjectInterface[] $objects 
-     * @param string $className Class name of foreign objects to save
+     * @param DataObjectInterface[] $objects
+     * @param string $className Class name of foreign objects to load
+     * @param string $foreignObjectGetter Name of getter to retrieve foreign objects
      * @param string $foreignColumn Property on foreign object that relates to this object id
      */
-    public function saveMany(array $objects, $className, $foreignColumn = null)
+    public function saveMany(array $objects, $className, $foreignObjectGetter = null, $foreignColumn = null)
     {
-        //TODO: implement method
+        if(empty($objects)) {
+            return;
+        }
+
+        if(!$foreignObjectGetter) {
+            $foreignObjectGetter = 'get' . $this->inflector->methodNameFromClass($className, true);
+        }
+
+        if(!$foreignColumn) {
+            $foreignColumn = $this->inflector->idColumnFromClass(get_class(reset($objects)));
+        }
+        $objectIdSetter = 'set' . $foreignColumn;
+
+        $existingForeignIdsByObjectId = $this->getExistingForeignIds($objects, $className, $foreignColumn);
+
+        $foreignObjectsToSave = [];
+        $foreignIdsToDelete = [];
+        foreach($objects as $object) {
+            if(!method_exists($object, $foreignObjectGetter)) {
+                throw new MethodNotImplementedException("$foreignObjectGetter must be defined on {$object->getClassName()} to save relationship");
+            }
+
+            $existingForeignIds = [];
+            if(isset($existingForeignIdsByObjectId[$object->getId()])) {
+                $existingForeignIds = $existingForeignIdsByObjectId[$object->getId()];
+            }
+            /** @var DataObjectInterface[] $foreignObjects */
+            $foreignObjects = $object->{$foreignObjectGetter}();
+            if(!empty($foreignObjects)) {
+                if(!is_array($foreignObjects)) {
+                    throw new MethodNotImplementedException("$foreignObjectGetter on {$object->getClassName()} must return an array to save relationship");
+                }
+
+                foreach($foreignObjects as $foreignObject) {
+                    if(!method_exists($foreignObject, $objectIdSetter)) {
+                        throw new MethodNotImplementedException("$objectIdSetter must be defined on {$foreignObject->getClassName()} to save relationship");
+                    }
+
+                    $foreignObject->{$objectIdSetter}($object->getId());
+                    $foreignObjectsToSave[] = $foreignObject;
+                    if($foreignObject->getId()) {
+                        unset($existingForeignIds[$foreignObject->getId()]);
+                    }
+                }
+            }
+            
+            foreach($existingForeignIds as $id => $true) {
+                $foreignIdsToDelete[] = $id;
+            }
+        }
+        
+        $this->objectMapper->saveAll($foreignObjectsToSave);
+        
+        $foreignObjectsToDelete = [];
+        foreach($foreignIdsToDelete as $id) {
+            $foreignObject = $this->objectMapper->create($className);
+            $foreignObject->setId($id);
+            $foreignObjectsToDelete[] = $foreignObject;
+        }
+        $this->objectMapper->deleteAll($foreignObjectsToDelete);
     }
 
     /**
@@ -126,5 +189,37 @@ class RelationshipSaver
     public function saveManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
     {
         //TODO: Implement method
+    }
+
+    /**
+     * @param array $objects
+     * @param $className
+     * @param $foreignColumn
+     * @return array
+     */
+    protected function getExistingForeignIds(array $objects, $className, $foreignColumn)
+    {
+        $objectIds = DataObject::getIds($objects);
+        $queryHelper = $this->objectMapper->getQueryHelper();
+        $foreignTable = $className::getTableName();
+        $foreignColumns = $queryHelper->getDbColumns($foreignTable);
+
+        $criteria = [$foreignColumn => $objectIds];
+        if (isset($foreignColumns['isDeleted'])) {
+            $criteria['isDeleted'] = 0;
+        }
+        $qb = $queryHelper->buildSelectQuery($foreignTable, ['id', $queryHelper->getConnection()->quoteIdentifier($foreignColumn)], $criteria);
+        $existingForeignObjectIds = $qb->execute()->fetchAll(\PDO::FETCH_NUM);
+
+        $existingForeignObjectsIdsByObjectId = [];
+        foreach ($existingForeignObjectIds as $row) {
+            list($foreignId, $objectId) = $row;
+            if (!isset($existingForeignObjectsIdsByObjectId[$objectId])) {
+                $existingForeignObjectsIdsByObjectId[$objectId] = [$foreignId=>true];
+            } else {
+                $existingForeignObjectsIdsByObjectId[$objectId][$foreignId] = true;
+            }
+        }
+        return $existingForeignObjectsIdsByObjectId;
     }
 }

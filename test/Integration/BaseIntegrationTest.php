@@ -337,6 +337,8 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $objects[] = $object->setMyColumn('Save one-to-one 1')->setOtherDataObject($otherObject);
         $object2 = new ExtendedDataObject();
         $objects[] = $object2->setMyColumn('Save one-to-one 2')->setOtherDataObject($otherObject2);
+        $object3 = new ExtendedDataObject();
+        $objects[] = $object3->setMyColumn('Save one-to-one 3');
 
         $this->repository->saveAll($objects);
         $relationshipSaver = $this->objectMapper->getRelationshipSaver();
@@ -348,8 +350,56 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($otherObject2->getId(), $object2->getOtherDataObjectId());
         $this->assertEquals($object->getId(), $otherObject->getExtendedDataObjectId());
         $this->assertEquals($object2->getId(), $otherObject2->getExtendedDataObjectId());
+        $this->assertNull($object3->getOtherDataObjectId());
 
         $fromDb = $this->repository->find($object->getId(), false);
         $this->assertEquals($otherObject->getId(), $fromDb->getOtherDataObjectId());
+    }
+
+    public function testSaveMany()
+    {
+        $otherObject = new OtherDataObject();
+        $otherObject->setName('Other object one-to-many 1-1');
+        $otherObject2 = new OtherDataObject();
+        $otherObject2->setName('Other object one-to-many 1-2');
+
+        $otherObject3 = new OtherDataObject();
+        $otherObject3->setName('Other object one-to-many 2-1');
+        $otherObject4 = new OtherDataObject();
+        $otherObject4->setName('Other object one-to-many 2-2');
+
+        $otherObjectToDelete = new OtherDataObject();
+        $otherObjectToDelete->setName('Other object one-to-many 1-3');
+        $otherObjectToDelete2 = new OtherDataObject();
+        $otherObjectToDelete2->setName('Other object one-to-many 2-3');
+
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $object2 = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('Save one-to-many 1')->setOtherDataObjects([$otherObject, $otherObject2]);
+        $objects[] = $object2->setMyColumn('Save one-to-many 2')->setOtherDataObjects([$otherObject3, $otherObject4]);
+
+        $this->repository->saveAll($objects);
+        
+        $otherObjectToDelete->setExtendedDataObjectId($object->getId());
+        $otherObjectToDelete2->setExtendedDataObjectId($object2->getId());
+        $this->objectMapper->saveAll([$otherObjectToDelete, $otherObjectToDelete2]);
+
+        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
+        $relationshipSaver->saveMany($objects, OtherDataObject::class);
+
+        $this->assertGreaterThan(0, $otherObject->getId());
+        $this->assertGreaterThan(0, $otherObject2->getId());
+        $this->assertGreaterThan(0, $otherObject3->getId());
+        $this->assertGreaterThan(0, $otherObject4->getId());
+        $this->assertEquals($object->getId(), $otherObject->getExtendedDataObjectId());
+        $this->assertEquals($object->getId(), $otherObject2->getExtendedDataObjectId());
+        $this->assertEquals($object2->getId(), $otherObject3->getExtendedDataObjectId());
+        $this->assertEquals($object2->getId(), $otherObject4->getExtendedDataObjectId());
+
+        $otherObjectToDelete = $this->objectMapper->find(OtherDataObject::class, $otherObjectToDelete->getId(), false);
+        $otherObjectToDelete2 = $this->objectMapper->find(OtherDataObject::class, $otherObjectToDelete2->getId(), false);
+        $this->assertTrue($otherObjectToDelete->isDeleted());
+        $this->assertTrue($otherObjectToDelete2->isDeleted());
     }
 }
