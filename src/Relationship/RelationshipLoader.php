@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Util;
+namespace Corma\Relationship;
 
 use Corma\DataObject\DataObject;
 use Corma\DataObject\DataObjectInterface;

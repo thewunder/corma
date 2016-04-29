@@ -6,7 +6,7 @@ use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
-use Corma\Util\RelationshipLoader;
+use Corma\Relationship\RelationshipLoader;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
