@@ -2,6 +2,7 @@
 namespace Corma;
 
 use Corma\DataObject\DataObjectInterface;
+use Corma\Relationship\RelationshipSaver;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\QueryHelper\QueryHelper;
@@ -32,6 +33,11 @@ class ObjectMapper
      * @var RelationshipLoader
      */
     private $relationshipLoader;
+
+    /**
+     * @var RelationshipSaver
+     */
+    private $relationshipSaver;
 
     /**
      * @var Inflector
@@ -325,6 +331,17 @@ class ObjectMapper
             return $this->relationshipLoader;
         }
         return $this->relationshipLoader = new RelationshipLoader($this);
+    }
+
+    /**
+     * @return RelationshipSaver
+     */
+    public function getRelationshipSaver()
+    {
+        if($this->relationshipSaver) {
+            return $this->relationshipSaver;
+        }
+        return $this->relationshipSaver = new RelationshipSaver($this);
     }
 
     /**

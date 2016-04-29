@@ -324,4 +324,32 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($otherObject2->getId(), $loadedOtherObjects[1]->getId());
         $this->assertEquals($otherObject2->getName(), $loadedOtherObjects[1]->getName());
     }
+
+    public function testSaveOne()
+    {
+        $otherObject = new OtherDataObject();
+        $otherObject->setName('Other object one-to-one 1');
+        $otherObject2 = new OtherDataObject();
+        $otherObject2->setName('Other object one-to-one 2');
+
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('Save one-to-one 1')->setOtherDataObject($otherObject);
+        $object2 = new ExtendedDataObject();
+        $objects[] = $object2->setMyColumn('Save one-to-one 2')->setOtherDataObject($otherObject2);
+
+        $this->repository->saveAll($objects);
+        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
+        $relationshipSaver->saveOne($objects, 'otherDataObjectId');
+
+        $this->assertGreaterThan(0, $otherObject->getId());
+        $this->assertGreaterThan(0, $otherObject2->getId());
+        $this->assertEquals($otherObject->getId(), $object->getOtherDataObjectId());
+        $this->assertEquals($otherObject2->getId(), $object2->getOtherDataObjectId());
+        $this->assertEquals($object->getId(), $otherObject->getExtendedDataObjectId());
+        $this->assertEquals($object2->getId(), $otherObject2->getExtendedDataObjectId());
+
+        $fromDb = $this->repository->find($object->getId(), false);
+        $this->assertEquals($otherObject->getId(), $fromDb->getOtherDataObjectId());
+    }
 }
