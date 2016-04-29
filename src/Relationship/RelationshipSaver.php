@@ -161,18 +161,58 @@ class RelationshipSaver
 
     /**
      * Saves relationship data to a link table containing the id's of both objects.
-     * 
+     *
      * This method does not insert or update the foreign objects.
+     * Missing foreign objects will be removed from the link table.
      *
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
+     * @param string $foreignObjectGetter Name of getter to retrieve foreign objects
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
      */
-    public function saveManyToManyLinks(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
+    public function saveManyToManyLinks(array $objects, $className, $linkTable, $foreignObjectGetter = null, $idColumn = null, $foreignIdColumn = null)
     {
-        //TODO: implement method
+        if(empty($objects)) {
+            return;
+        }
+
+        if(!$foreignObjectGetter) {
+            $foreignObjectGetter = 'get' . $this->inflector->methodNameFromClass($className, true);
+        }
+
+        if(!$idColumn) {
+            $idColumn = $this->inflector->idColumnFromClass(get_class(reset($objects)));
+        }
+
+        if(!$foreignIdColumn) {
+            $foreignIdColumn = $this->inflector->idColumnFromClass($className);
+        }
+
+        $queryHelper = $this->objectMapper->getQueryHelper();
+        $queryHelper->buildDeleteQuery($linkTable, [$idColumn=>DataObject::getIds($objects)])
+            ->execute();
+        
+        $linkData = [];
+        foreach($objects as $object) {
+            if(!method_exists($object, $foreignObjectGetter)) {
+                throw new MethodNotImplementedException("$foreignObjectGetter must be defined on {$object->getClassName()} to save relationship");
+            }
+
+            /** @var DataObjectInterface[] $foreignObjects */
+            $foreignObjects = $object->{$foreignObjectGetter}();
+            if(!empty($foreignObjects)) {
+                if(!is_array($foreignObjects)) {
+                    throw new MethodNotImplementedException("$foreignObjectGetter on {$object->getClassName()} must return an array to save relationship");
+                }
+
+                foreach($foreignObjects as $foreignObject) {
+                    $linkData[] = [$idColumn=>$object->getId(), $foreignIdColumn=>$foreignObject->getId()];
+                }
+            }
+        }
+        $queryHelper->massInsert($linkTable, $linkData);
     }
 
     /**
