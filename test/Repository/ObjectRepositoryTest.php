@@ -443,6 +443,79 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $firedEvents['DataObject.ExtendedDataObject.afterUpdate']);
     }
 
+    public function testDeleteEvents()
+    {
+        $firedEvents = [
+            'DataObject.beforeDelete'                    => 0,
+            'DataObject.ExtendedDataObject.beforeDelete' => 0,
+            'DataObject.afterDelete'                     => 0,
+            'DataObject.ExtendedDataObject.afterDelete'  => 0
+        ];
+
+        $this->dispatcher->addListener('DataObject.beforeDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $firedEvents['DataObject.beforeDelete']++;
+        });
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $firedEvents['DataObject.ExtendedDataObject.beforeDelete']++;
+        });
+
+        $this->dispatcher->addListener('DataObject.afterDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $firedEvents['DataObject.afterDelete']++;
+        });
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $firedEvents['DataObject.ExtendedDataObject.afterDelete']++;
+        });
+
+
+        $repo = $this->getRepository();
+        $dataObject = new ExtendedDataObject();
+        $dataObject->setId('12345');
+        $repo->delete($dataObject);
+
+        $this->assertEquals(1, $firedEvents['DataObject.beforeDelete']);
+        $this->assertEquals(1, $firedEvents['DataObject.ExtendedDataObject.beforeDelete']);
+        $this->assertEquals(1, $firedEvents['DataObject.afterDelete']);
+        $this->assertEquals(1, $firedEvents['DataObject.ExtendedDataObject.afterDelete']);
+    }
+
+    public function testDeleteAllEvents()
+    {
+        $firedEvents = [
+            'DataObject.beforeDelete'                    => 0,
+            'DataObject.ExtendedDataObject.beforeDelete' => 0,
+            'DataObject.afterDelete'                     => 0,
+            'DataObject.ExtendedDataObject.afterDelete'  => 0
+        ];
+
+        $this->dispatcher->addListener('DataObject.beforeDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $firedEvents['DataObject.beforeDelete']++;
+        });
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $firedEvents['DataObject.ExtendedDataObject.beforeDelete']++;
+        });
+
+        $this->dispatcher->addListener('DataObject.afterDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $firedEvents['DataObject.afterDelete']++;
+        });
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $firedEvents['DataObject.ExtendedDataObject.afterDelete']++;
+        });
+
+
+        $repo = $this->getRepository();
+        $dataObjects = [];
+        $dataObject = new ExtendedDataObject();
+        $dataObjects[] = $dataObject->setId('12345');
+        $dataObject = new ExtendedDataObject();
+        $dataObjects[] = $dataObject->setId('6789');
+        $repo->deleteAll($dataObjects);
+
+        $this->assertEquals(2, $firedEvents['DataObject.beforeDelete']);
+        $this->assertEquals(2, $firedEvents['DataObject.ExtendedDataObject.beforeDelete']);
+        $this->assertEquals(2, $firedEvents['DataObject.afterDelete']);
+        $this->assertEquals(2, $firedEvents['DataObject.ExtendedDataObject.afterDelete']);
+    }
+
     /**
      * @return ExtendedDataObjectRepository
      */
