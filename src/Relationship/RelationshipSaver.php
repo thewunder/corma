@@ -261,10 +261,12 @@ class RelationshipSaver
     }
 
     /**
-     * @param array $objects
-     * @param $className
-     * @param $foreignColumn
-     * @return array
+     * Retrieve foreign ids for a one-to-many relationship
+     *
+     * @param DataObjectInterface[] $objects
+     * @param string $className
+     * @param string $foreignColumn
+     * @return array objectId => map of foreign ids
      */
     protected function getExistingForeignIds(array $objects, $className, $foreignColumn)
     {
