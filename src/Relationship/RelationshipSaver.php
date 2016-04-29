@@ -223,12 +223,41 @@ class RelationshipSaver
      * @param DataObjectInterface[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
+     * @param string $foreignObjectGetter Name of getter to retrieve foreign objects
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
      */
-    public function saveManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
+    public function saveManyToMany(array $objects, $className, $linkTable, $foreignObjectGetter = null, $idColumn = null, $foreignIdColumn = null)
     {
-        //TODO: Implement method
+        if(empty($objects)) {
+            return;
+        }
+
+        if(!$foreignObjectGetter) {
+            $foreignObjectGetter = 'get' . $this->inflector->methodNameFromClass($className, true);
+        }
+
+        $foreignObjectsToSave = [];
+        foreach($objects as $object) {
+            if(!method_exists($object, $foreignObjectGetter)) {
+                throw new MethodNotImplementedException("$foreignObjectGetter must be defined on {$object->getClassName()} to save relationship");
+            }
+
+            /** @var DataObjectInterface[] $foreignObjects */
+            $foreignObjects = $object->{$foreignObjectGetter}();
+            if(!empty($foreignObjects)) {
+                if(!is_array($foreignObjects)) {
+                    throw new MethodNotImplementedException("$foreignObjectGetter on {$object->getClassName()} must return an array to save relationship");
+                }
+
+                foreach($foreignObjects as $foreignObject) {
+                    $foreignObjectsToSave[] = $foreignObject;
+                }
+            }
+        }
+        $this->objectMapper->saveAll($foreignObjectsToSave);
+        
+        $this->saveManyToManyLinks($objects, $className, $linkTable, $foreignObjectGetter, $idColumn, $foreignIdColumn);
     }
 
     /**

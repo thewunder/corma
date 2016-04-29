@@ -454,4 +454,61 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($otherObject3->getId(), $object2Links[0]);
         $this->assertEquals($otherObject4->getId(), $object2Links[1]);
     }
+
+    public function testSaveManyToMany()
+    {
+        $otherObjects = [];
+        $otherObject = new OtherDataObject();
+        $otherObject->setName('Other object many-to-many 1-1');
+        $otherObject2 = new OtherDataObject();
+        $otherObject2->setName('Other object many-to-many 1-2');
+
+        $otherObject3 = new OtherDataObject();
+        $otherObject3->setName('Other object many-to-many 2-1');
+        $otherObject4 = new OtherDataObject();
+        $otherObject4->setName('Other object many-to-many 2-2');
+
+        $otherObjectToDelete = new OtherDataObject();
+        $otherObjects[] = $otherObjectToDelete->setName('Other object many-to-many 1-3');
+        $otherObjectToDelete2 = new OtherDataObject();
+        $otherObjects[] = $otherObjectToDelete2->setName('Other object many-to-many 2-3');
+
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $object2 = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('Save many-to-many 1')->setOtherDataObjects([$otherObject, $otherObject2]);
+        $objects[] = $object2->setMyColumn('Save many-to-many 2')->setOtherDataObjects([$otherObject3, $otherObject4]);
+
+        $this->repository->saveAll($objects);
+
+        $this->objectMapper->saveAll($otherObjects);
+
+        $queryHelper = $this->objectMapper->getQueryHelper();
+        $queryHelper->massInsert('extended_other_rel', [
+            ['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=> $otherObjectToDelete->getId()],
+            ['extendedDataObjectId'=>$object2->getId(), 'otherDataObjectId'=> $otherObjectToDelete2->getId()],
+        ]);
+
+        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
+        $relationshipSaver->saveManyToMany($objects, OtherDataObject::class, 'extended_other_rel');
+
+        $this->assertGreaterThan(0, $otherObject->getId());
+        $this->assertGreaterThan(0, $otherObject2->getId());
+        $this->assertGreaterThan(0, $otherObject3->getId());
+        $this->assertGreaterThan(0, $otherObject4->getId());
+
+        $objectLinks = $queryHelper->buildSelectQuery('extended_other_rel', self::$connection->quoteIdentifier('otherDataObjectId'), ['extendedDataObjectId'=>$object->getId()])
+            ->execute()->fetchAll(\PDO::FETCH_COLUMN);
+
+        $this->assertCount(2, $objectLinks);
+        $this->assertEquals($otherObject->getId(), $objectLinks[0]);
+        $this->assertEquals($otherObject2->getId(), $objectLinks[1]);
+
+        $object2Links = $queryHelper->buildSelectQuery('extended_other_rel', self::$connection->quoteIdentifier('otherDataObjectId'), ['extendedDataObjectId'=>$object2->getId()])
+            ->execute()->fetchAll(\PDO::FETCH_COLUMN);
+
+        $this->assertCount(2, $object2Links);
+        $this->assertEquals($otherObject3->getId(), $object2Links[0]);
+        $this->assertEquals($otherObject4->getId(), $object2Links[1]);
+    }
 }
