@@ -17,7 +17,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * An object repository manages all creation, persistence, retrieval, deletion of objects of a particular class.
- * 
+ *
  * This base class is used when all no repository is defined for a class, and is the base for all other repository classes.
  */
 class ObjectRepository implements ObjectRepositoryInterface
@@ -263,6 +263,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * @param DataObjectInterface $object
      * @return DataObjectInterface
+     * @throws \Exception
      */
     public function save(DataObjectInterface $object)
     {
@@ -428,6 +429,52 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
+     * Saves the object, and executes the supplied callback, wrapping in a try / catch and transaction.
+     * This meant to be used to save associated relationships when overriding the the save() method.
+     *
+     * Functions will receive an array parameter with the object that has just been saved
+     *
+     * @param DataObjectInterface $object
+     * @param callable $afterSave
+     * @throws \Exception
+     */
+    protected function saveWith(DataObjectInterface $object, callable $afterSave)
+    {
+        $this->db->beginTransaction();
+        try {
+            self::save($object);
+            $afterSave([$object]);
+            $this->db->commit();
+        } catch (\Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Saves the objects, and executes the supplied callback, wrapping in a try / catch and transaction.
+     * This meant to be used to save associated relationships when overriding the the saveAll() method.
+     *
+     * Functions will receive an array parameter with the objects that have just been saved
+     *
+     * @param DataObjectInterface[] $objects
+     * @param callable $afterSave
+     * @throws \Exception
+     */
+    protected function saveAllWith(array $objects, callable $afterSave)
+    {
+        $this->db->beginTransaction();
+        try {
+            self::saveAll($objects);
+            $afterSave($objects);
+            $this->db->commit();
+        } catch (\Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
      * Build parameters for insert or update
      * @param DataObjectInterface $object
      * @return array
@@ -489,7 +536,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         if(!$this->dispatcher) {
             return;
         }
-        
+
         $event = new DataObjectEvent($object);
         $this->dispatcher->dispatch('DataObject.'.$eventName, $event);
         $class = $this->getShortClassName();

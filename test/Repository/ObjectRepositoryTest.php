@@ -516,6 +516,70 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $firedEvents['DataObject.ExtendedDataObject.afterDelete']);
     }
 
+    public function testSaveWith()
+    {
+        $repository = $this->getRepository();
+        $reflectionObj = new \ReflectionClass($repository);
+        $saveWith = $reflectionObj->getMethod('saveWith');
+        $saveWith->setAccessible(true);
+
+        $this->connection->expects($this->once())->method('beginTransaction');
+        $this->connection->expects($this->once())->method('commit');
+        $test = $this;
+        $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function(array $objects) use($test) {
+            $test->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
+        }]);
+    }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testSaveWithException()
+    {
+        $repository = $this->getRepository();
+        $reflectionObj = new \ReflectionClass($repository);
+        $saveWith = $reflectionObj->getMethod('saveWith');
+        $saveWith->setAccessible(true);
+
+        $this->connection->expects($this->once())->method('rollback');
+        $test = $this;
+        $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function(array $objects) use($test) {
+            throw new \Exception('Testing rollback');
+        }]);
+    }
+
+    public function testSaveAllWith()
+    {
+        $repository = $this->getRepository();
+        $reflectionObj = new \ReflectionClass($repository);
+        $saveWith = $reflectionObj->getMethod('saveAllWith');
+        $saveWith->setAccessible(true);
+
+        $this->connection->expects($this->once())->method('beginTransaction');
+        $this->connection->expects($this->once())->method('commit');
+        $test = $this;
+        $saveWith->invokeArgs($repository, [[new ExtendedDataObject()], function(array $objects) use($test) {
+            $test->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
+        }]);
+    }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testSaveAllWithException()
+    {
+        $repository = $this->getRepository();
+        $reflectionObj = new \ReflectionClass($repository);
+        $saveWith = $reflectionObj->getMethod('saveAllWith');
+        $saveWith->setAccessible(true);
+
+        $this->connection->expects($this->once())->method('rollback');
+        $test = $this;
+        $saveWith->invokeArgs($repository, [[new ExtendedDataObject()], function(array $objects) use($test) {
+            throw new \Exception('Testing rollback');
+        }]);
+    }
+
     /**
      * @return ExtendedDataObjectRepository
      */
