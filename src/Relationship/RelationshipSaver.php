@@ -61,8 +61,8 @@ class RelationshipSaver
         
         $this->objectMapper->saveAll($foreignObjectsByObjectId);
         
-        $idSetter = 'set' . $foreignIdColumn;
-        $idGetter = 'get' . $foreignIdColumn;
+        $idSetter = 'set' . ucfirst($foreignIdColumn);
+        $idGetter = 'get' . ucfirst($foreignIdColumn);
         $objectsToUpdate = [];
         foreach($objects as $object) {
             if(!method_exists($object, $idSetter)) {
@@ -109,7 +109,7 @@ class RelationshipSaver
         if(!$foreignColumn) {
             $foreignColumn = $this->inflector->idColumnFromClass(get_class(reset($objects)));
         }
-        $objectIdSetter = 'set' . $foreignColumn;
+        $objectIdSetter = 'set' . ucfirst($foreignColumn);
 
         if($deleteMissing) {
             $existingForeignIdsByObjectId = $this->getExistingForeignIds($objects, $className, $foreignColumn);
