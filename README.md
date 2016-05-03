@@ -11,16 +11,15 @@ Croute is great because:
 
 * No complex and difficult to verify annotations or configuration files
 * Promotes consistent code organization
-* Allows for customization through symfony events
-* Supports soft deletes
+* Loads and saves one-to-one, one-to-many, and many-to-many relationships with a method call
 * Can save multiple objects in a single query (using an upsert)
 * Makes it easy to cache and avoid database queries
-* Loads one-to-many and many-to-many relationships with a method call
+* Supports soft deletes
+* Allows for customization through symfony events
 
 Corma doesn't:
 
-* Autoload or lazy load anything
-* Have any knowledge of relationships between objects
+* Autoload or lazy load relationships by default
 * Have any Unit of Work concept, everything is executed right away
 * Do migrations or code generation
 
@@ -30,11 +29,11 @@ Install via Composer
 --------------------
 Via the command line:
 
-    composer.phar require thewunder/corma ~1.0
+    composer.phar require thewunder/corma ~2.0
 
 Or add the following to the require section your composer.json:
 
-    "thewunder/corma": "~1.0"
+    "thewunder/corma": "~2.0"
 
 Basic Usage
 -----------
