@@ -7,7 +7,7 @@ Corma
 
 Corma is a high-performance, convention-based ORM based on Doctrine DBAL.
 
-Croute is great because:
+Corma is great because:
 
 * No complex and difficult to verify annotations or configuration files
 * Promotes consistent code organization
