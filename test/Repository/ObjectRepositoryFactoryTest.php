@@ -11,8 +11,6 @@ use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
-use Corma\QueryHelper\QueryHelper;
-use Corma\QueryHelper\QueryHelperInterface;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -80,16 +78,9 @@ class ObjectRepositoryFactoryTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        /** @var QueryHelperInterface $queryHelper */
-        $queryHelper = $this->getMockBuilder(QueryHelper::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
             ->getMock();
-
-
 
         $dispatcher = new EventDispatcher();
 

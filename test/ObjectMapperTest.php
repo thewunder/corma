@@ -11,7 +11,6 @@ use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 {
@@ -22,8 +21,6 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         $connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
-
-        $dispatcher = new EventDispatcher();
 
         $corma = ObjectMapper::withDefaults($connection, ['Corma\\Test\\Fixtures']);
         $this->assertInstanceOf(ObjectMapper::class, $corma);

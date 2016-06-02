@@ -1,23 +1,14 @@
 <?php
 namespace Corma\Test\Integration;
 
-
-use Corma\DataObject\DataObject;
-use Corma\DataObject\DataObjectInterface;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\PostgreSQLQueryHelper;
-use Corma\Repository\ObjectRepositoryFactory;
-use Corma\Test\Fixtures\ExtendedDataObject;
-use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use Dotenv\Dotenv;
 use Integration\BaseIntegrationTest;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PostgresIntegrationTest extends BaseIntegrationTest
 {

@@ -8,7 +8,6 @@ use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ReadOnlyRepositoryTest extends \PHPUnit_Framework_TestCase
 {

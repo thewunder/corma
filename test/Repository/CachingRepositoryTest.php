@@ -8,7 +8,6 @@ use Corma\Test\Fixtures\Repository\CachingRepository;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
 {
