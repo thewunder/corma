@@ -32,7 +32,7 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
      */
     public function __construct(array $namespaces, array $dependencies = [])
     {
-        if(empty($namespaces)) {
+        if (empty($namespaces)) {
             throw new InvalidArgumentException('At least one data object repository namespace must be specified');
         }
         $this->namespaces = $namespaces;
@@ -42,19 +42,19 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     public function getRepository($objectName)
     {
         $objectName = $this->getObjectName($objectName);
-        if(isset($this->repositories[$objectName])) {
+        if (isset($this->repositories[$objectName])) {
             return $this->repositories[$objectName];
         }
 
-        foreach($this->namespaces as $namespace) {
+        foreach ($this->namespaces as $namespace) {
             $className = $this->getRepositoryClass($objectName, $namespace);
             $repository = $this->createRepository($className);
-            if($repository) {
+            if ($repository) {
                 $this->repositories[$objectName] = $repository;
                 return $repository;
             } else {
                 $objectClass = "$namespace\\$objectName";
-                if(class_exists($objectClass) && is_subclass_of($objectClass, DataObjectInterface::class)) {
+                if (class_exists($objectClass) && is_subclass_of($objectClass, DataObjectInterface::class)) {
                     /** @var ObjectRepository $default */
                     $default = $this->createRepository(ObjectRepository::class);
                     $default->setClassName($objectClass);
@@ -75,7 +75,7 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     protected function getObjectName($objectClass)
     {
         $lastSlash = strrpos($objectClass, '\\');
-        if($lastSlash !== false) {
+        if ($lastSlash !== false) {
             return substr($objectClass, $lastSlash+1);
         } else {
             return $objectClass;
@@ -96,8 +96,8 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
      */
     protected function createRepository($className)
     {
-        if(class_exists($className)) {
-            if(!is_subclass_of($className, ObjectRepositoryInterface::class)) {
+        if (class_exists($className)) {
+            if (!is_subclass_of($className, ObjectRepositoryInterface::class)) {
                 throw new InvalidClassException("$className does not implement ObjectRepositoryInterface");
             }
 

@@ -9,7 +9,7 @@ use Corma\Util\Inflector;
 
 /**
  * Makes saving foreign relationships easier, intended for use within ObjectRepository::save() or ObjectRepository::saveAll()
- * 
+ *
  * The supplied objects must be saved prior to calling these methods.
  * The repository is responsible for wrapping these method calls in a transaction.
  */
@@ -44,16 +44,16 @@ class RelationshipSaver
         $getter = 'get' . $this->inflector->methodNameFromColumn($foreignIdColumn);
         /** @var DataObjectInterface[] $foreignObjectsByObjectId */
         $foreignObjectsByObjectId = [];
-        foreach($objects as $object) {
-            if(!method_exists($object, $getter)) {
+        foreach ($objects as $object) {
+            if (!method_exists($object, $getter)) {
                 throw new MethodNotImplementedException("$getter must be defined on {$object->getClassName()} to save relationship");
             }
             
             $objectIdSetter = 'set' . $this->inflector->idColumnFromClass(get_class($object));
             $foreignObject = $object->{$getter}();
-            if($foreignObject) {
+            if ($foreignObject) {
                 $foreignObjectsByObjectId[$object->getId()] = $foreignObject;
-                if(method_exists($foreignObject, $objectIdSetter)) { // for true one-to-one relationships
+                if (method_exists($foreignObject, $objectIdSetter)) { // for true one-to-one relationships
                     $foreignObject->{$objectIdSetter}($object->getId());
                 }
             }
@@ -64,17 +64,17 @@ class RelationshipSaver
         $idSetter = 'set' . ucfirst($foreignIdColumn);
         $idGetter = 'get' . ucfirst($foreignIdColumn);
         $objectsToUpdate = [];
-        foreach($objects as $object) {
-            if(!method_exists($object, $idSetter)) {
+        foreach ($objects as $object) {
+            if (!method_exists($object, $idSetter)) {
                 throw new MethodNotImplementedException("$idSetter must be defined on {$object->getClassName()} to save relationship");
             }
-            if(!method_exists($object, $idGetter)) {
+            if (!method_exists($object, $idGetter)) {
                 throw new MethodNotImplementedException("$idGetter must be defined on {$object->getClassName()} to save relationship");
             }
             
-            if(isset($foreignObjectsByObjectId[$object->getId()])) {
+            if (isset($foreignObjectsByObjectId[$object->getId()])) {
                 $foreignObject = $foreignObjectsByObjectId[$object->getId()];
-                if($object->{$idGetter}() != $foreignObject->getId()) {
+                if ($object->{$idGetter}() != $foreignObject->getId()) {
                     $object->{$idSetter}($foreignObject->getId());
                     $objectsToUpdate[] = $object;
                 }
@@ -87,7 +87,7 @@ class RelationshipSaver
      * Saves a foreign relationship where a column on another object references the id for the supplied object.
      *
      * Used to save the "many" side of a one-to-many relationship.
-     * 
+     *
      * Missing objects will be deleted by default.
      *
      * @param DataObjectInterface[] $objects
@@ -98,66 +98,66 @@ class RelationshipSaver
      */
     public function saveMany(array $objects, $className, $foreignObjectGetter = null, $foreignColumn = null, $deleteMissing = true)
     {
-        if(empty($objects)) {
+        if (empty($objects)) {
             return;
         }
 
-        if(!$foreignObjectGetter) {
+        if (!$foreignObjectGetter) {
             $foreignObjectGetter = 'get' . $this->inflector->methodNameFromClass($className, true);
         }
 
-        if(!$foreignColumn) {
+        if (!$foreignColumn) {
             $foreignColumn = $this->inflector->idColumnFromClass(get_class(reset($objects)));
         }
         $objectIdSetter = 'set' . ucfirst($foreignColumn);
 
-        if($deleteMissing) {
+        if ($deleteMissing) {
             $existingForeignIdsByObjectId = $this->getExistingForeignIds($objects, $className, $foreignColumn);
         }
 
         $foreignObjectsToSave = [];
         $foreignIdsToDelete = [];
-        foreach($objects as $object) {
-            if(!method_exists($object, $foreignObjectGetter)) {
+        foreach ($objects as $object) {
+            if (!method_exists($object, $foreignObjectGetter)) {
                 throw new MethodNotImplementedException("$foreignObjectGetter must be defined on {$object->getClassName()} to save relationship");
             }
 
             $existingForeignIds = [];
-            if($deleteMissing) {
-                if(isset($existingForeignIdsByObjectId[$object->getId()])) {
+            if ($deleteMissing) {
+                if (isset($existingForeignIdsByObjectId[$object->getId()])) {
                     $existingForeignIds = $existingForeignIdsByObjectId[$object->getId()];
                 }
             }
 
             /** @var DataObjectInterface[] $foreignObjects */
             $foreignObjects = $object->{$foreignObjectGetter}();
-            if(!empty($foreignObjects)) {
-                if(!is_array($foreignObjects)) {
+            if (!empty($foreignObjects)) {
+                if (!is_array($foreignObjects)) {
                     throw new MethodNotImplementedException("$foreignObjectGetter on {$object->getClassName()} must return an array to save relationship");
                 }
 
-                foreach($foreignObjects as $foreignObject) {
-                    if(!method_exists($foreignObject, $objectIdSetter)) {
+                foreach ($foreignObjects as $foreignObject) {
+                    if (!method_exists($foreignObject, $objectIdSetter)) {
                         throw new MethodNotImplementedException("$objectIdSetter must be defined on {$foreignObject->getClassName()} to save relationship");
                     }
 
                     $foreignObject->{$objectIdSetter}($object->getId());
                     $foreignObjectsToSave[] = $foreignObject;
 
-                    if($deleteMissing && $foreignObject->getId()) {
+                    if ($deleteMissing && $foreignObject->getId()) {
                         unset($existingForeignIds[$foreignObject->getId()]);
                     }
                 }
             }
             
-            foreach($existingForeignIds as $id => $true) {
+            foreach ($existingForeignIds as $id => $true) {
                 $foreignIdsToDelete[] = $id;
             }
         }
         
         $this->objectMapper->saveAll($foreignObjectsToSave);
 
-        if($deleteMissing) {
+        if ($deleteMissing) {
             $foreignObjectsToDelete = $this->objectMapper->findByIds($className, $foreignIdsToDelete);
             $this->objectMapper->deleteAll($foreignObjectsToDelete);
         }
@@ -178,19 +178,19 @@ class RelationshipSaver
      */
     public function saveManyToManyLinks(array $objects, $className, $linkTable, $foreignObjectGetter = null, $idColumn = null, $foreignIdColumn = null)
     {
-        if(empty($objects)) {
+        if (empty($objects)) {
             return;
         }
 
-        if(!$foreignObjectGetter) {
+        if (!$foreignObjectGetter) {
             $foreignObjectGetter = 'get' . $this->inflector->methodNameFromClass($className, true);
         }
 
-        if(!$idColumn) {
+        if (!$idColumn) {
             $idColumn = $this->inflector->idColumnFromClass(get_class(reset($objects)));
         }
 
-        if(!$foreignIdColumn) {
+        if (!$foreignIdColumn) {
             $foreignIdColumn = $this->inflector->idColumnFromClass($className);
         }
 
@@ -199,19 +199,19 @@ class RelationshipSaver
             ->execute();
         
         $linkData = [];
-        foreach($objects as $object) {
-            if(!method_exists($object, $foreignObjectGetter)) {
+        foreach ($objects as $object) {
+            if (!method_exists($object, $foreignObjectGetter)) {
                 throw new MethodNotImplementedException("$foreignObjectGetter must be defined on {$object->getClassName()} to save relationship");
             }
 
             /** @var DataObjectInterface[] $foreignObjects */
             $foreignObjects = $object->{$foreignObjectGetter}();
-            if(!empty($foreignObjects)) {
-                if(!is_array($foreignObjects)) {
+            if (!empty($foreignObjects)) {
+                if (!is_array($foreignObjects)) {
                     throw new MethodNotImplementedException("$foreignObjectGetter on {$object->getClassName()} must return an array to save relationship");
                 }
 
-                foreach($foreignObjects as $foreignObject) {
+                foreach ($foreignObjects as $foreignObject) {
                     $linkData[] = [$idColumn=>$object->getId(), $foreignIdColumn=>$foreignObject->getId()];
                 }
             }
@@ -234,28 +234,28 @@ class RelationshipSaver
      */
     public function saveManyToMany(array $objects, $className, $linkTable, $foreignObjectGetter = null, $idColumn = null, $foreignIdColumn = null)
     {
-        if(empty($objects)) {
+        if (empty($objects)) {
             return;
         }
 
-        if(!$foreignObjectGetter) {
+        if (!$foreignObjectGetter) {
             $foreignObjectGetter = 'get' . $this->inflector->methodNameFromClass($className, true);
         }
 
         $foreignObjectsToSave = [];
-        foreach($objects as $object) {
-            if(!method_exists($object, $foreignObjectGetter)) {
+        foreach ($objects as $object) {
+            if (!method_exists($object, $foreignObjectGetter)) {
                 throw new MethodNotImplementedException("$foreignObjectGetter must be defined on {$object->getClassName()} to save relationship");
             }
 
             /** @var DataObjectInterface[] $foreignObjects */
             $foreignObjects = $object->{$foreignObjectGetter}();
-            if(!empty($foreignObjects)) {
-                if(!is_array($foreignObjects)) {
+            if (!empty($foreignObjects)) {
+                if (!is_array($foreignObjects)) {
                     throw new MethodNotImplementedException("$foreignObjectGetter on {$object->getClassName()} must return an array to save relationship");
                 }
 
-                foreach($foreignObjects as $foreignObject) {
+                foreach ($foreignObjects as $foreignObject) {
                     $foreignObjectsToSave[] = $foreignObject;
                 }
             }

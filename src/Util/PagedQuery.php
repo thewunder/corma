@@ -14,7 +14,17 @@ class PagedQuery implements \JsonSerializable
     const DEFAULT_PAGE_SIZE = 100;
 
     /** @var int  */
-    protected $pageSize, $resultCount, $pages, $page, $prev, $next;
+    protected $pageSize;
+    /** @var int  */
+    protected $resultCount;
+    /** @var int  */
+    protected $pages;
+    /** @var int  */
+    protected $page;
+    /** @var int  */
+    protected $prev;
+    /** @var int  */
+    protected $next;
 
     /** @var string */
     private $class;
@@ -38,7 +48,7 @@ class PagedQuery implements \JsonSerializable
      */
     public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, $class, array $dependencies = [], $pageSize = self::DEFAULT_PAGE_SIZE)
     {
-        if($pageSize < 1) {
+        if ($pageSize < 1) {
             throw new InvalidArgumentException('Page size must be greater than 0');
         }
 
@@ -46,7 +56,7 @@ class PagedQuery implements \JsonSerializable
         $this->class = $class;
         $this->pageSize = $pageSize;
         $this->resultCount = $queryHelper->getCount($qb);
-        $this->pages = floor( $this->resultCount / $this->pageSize) + 1;
+        $this->pages = floor($this->resultCount / $this->pageSize) + 1;
         $this->dependencies = $dependencies;
     }
 
@@ -57,11 +67,11 @@ class PagedQuery implements \JsonSerializable
      */
     public function getResults($page, $allResults = false)
     {
-        if($page < 1 || $page > $this->getPages()) {
+        if ($page < 1 || $page > $this->getPages()) {
             throw new InvalidArgumentException("Page must be between 1 and {$this->getPages()}");
         }
 
-        if(!$allResults) {
+        if (!$allResults) {
             $this->page = $page;
             $this->prev = $page > 1 ? $page - 1: 0;
             $this->next = $page < $this->pages ? $page + 1 : 0;
@@ -122,7 +132,7 @@ class PagedQuery implements \JsonSerializable
         return $this->pageSize;
     }
 
-    function jsonSerialize()
+    public function jsonSerialize()
     {
         $vars = get_object_vars($this);
         unset($vars['qb'], $vars['class']);

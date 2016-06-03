@@ -56,7 +56,7 @@ class ObjectMapper
      */
     public static function withDefaults(Connection $db, array $namespaces, CacheProvider $cache = null, EventDispatcherInterface $dispatcher = null, array $additionalDependencies = [])
     {
-        if($cache === null) {
+        if ($cache === null) {
             $cache = new ArrayCache();
         }
 
@@ -78,7 +78,7 @@ class ObjectMapper
         $database = $db->getDatabasePlatform()->getReservedKeywordsList()->getName();
         $database = preg_replace('/[^A-Za-z]/', '', $database); //strip version
         $className = "Corma\\QueryHelper\\{$database}QueryHelper";
-        if(class_exists($className)) {
+        if (class_exists($className)) {
             return new $className($db, $cache);
         }
 
@@ -159,7 +159,7 @@ class ObjectMapper
      * @param int $limit Maximum results to return
      * @param int $offset First result to return
      * @return DataObjectInterface[]
-     * 
+     *
      * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
     public function findBy($objectName, array $criteria, array $orderBy = [], $limit = null, $offset = null)
@@ -173,7 +173,7 @@ class ObjectMapper
      * @param string $objectName Object class with or without namespace
      * @param array $criteria column => value pairs
      * @return DataObjectInterface
-     * 
+     *
      * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
     public function findOneBy($objectName, array $criteria)
@@ -199,7 +199,7 @@ class ObjectMapper
         $objectsByClass = $this->groupByClass($objects);
 
         $loadedObjects = [];
-        foreach($objectsByClass as $class => $classObjects) {
+        foreach ($objectsByClass as $class => $classObjects) {
             $loadedObjects += $this->getRepository($class)->loadOne($classObjects, $className, $foreignIdColumn);
         }
         return $loadedObjects;
@@ -221,7 +221,7 @@ class ObjectMapper
         $objectsByClass = $this->groupByClass($objects);
 
         $loadedObjects = [];
-        foreach($objectsByClass as $class => $classObjects) {
+        foreach ($objectsByClass as $class => $classObjects) {
             $loadedObjects += $this->getRepository($class)->loadMany($classObjects, $className, $foreignColumn);
         }
         return $loadedObjects;
@@ -245,7 +245,7 @@ class ObjectMapper
         $objectsByClass = $this->groupByClass($objects);
 
         $loadedObjects = [];
-        foreach($objectsByClass as $class => $classObjects) {
+        foreach ($objectsByClass as $class => $classObjects) {
             $loadedObjects += $this->getRepository($class)->loadManyToMany($classObjects, $className, $linkTable, $idColumn, $foreignIdColumn);
         }
         return $loadedObjects;
@@ -273,7 +273,7 @@ class ObjectMapper
     {
         $objectsByClass = $this->groupByClass($objects);
 
-        foreach($objectsByClass as $class => $classObjects) {
+        foreach ($objectsByClass as $class => $classObjects) {
             $this->getRepository($class)->saveAll($classObjects);
         }
     }
@@ -298,7 +298,7 @@ class ObjectMapper
     {
         $objectsByClass = $this->groupByClass($objects);
 
-        foreach($objectsByClass as $class => $classObjects) {
+        foreach ($objectsByClass as $class => $classObjects) {
             $this->getRepository($class)->deleteAll($classObjects);
         }
     }
@@ -316,7 +316,7 @@ class ObjectMapper
      */
     public function getInflector()
     {
-        if($this->inflector) {
+        if ($this->inflector) {
             return $this->inflector;
         }
         return $this->inflector = new Inflector();
@@ -327,7 +327,7 @@ class ObjectMapper
      */
     public function getRelationshipLoader()
     {
-        if($this->relationshipLoader) {
+        if ($this->relationshipLoader) {
             return $this->relationshipLoader;
         }
         return $this->relationshipLoader = new RelationshipLoader($this);
@@ -338,7 +338,7 @@ class ObjectMapper
      */
     public function getRelationshipSaver()
     {
-        if($this->relationshipSaver) {
+        if ($this->relationshipSaver) {
             return $this->relationshipSaver;
         }
         return $this->relationshipSaver = new RelationshipSaver($this);

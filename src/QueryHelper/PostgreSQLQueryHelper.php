@@ -16,12 +16,12 @@ class PostgreSQLQueryHelper extends QueryHelper
      */
     public function massUpsert($table, array $rows, &$lastInsertId = null)
     {
-        if(empty($rows)) {
+        if (empty($rows)) {
             return 0;
         }
 
         $version = $this->getVersion();
-        if($version < 9.5) {
+        if ($version < 9.5) {
             return parent::massUpsert($table, $rows, $lastInsertId);
         }
 
@@ -31,8 +31,8 @@ class PostgreSQLQueryHelper extends QueryHelper
 
         $dbColumns = $this->getDbColumns($table);
         $columnsToUpdate = [];
-        foreach($dbColumns as $column => $acceptNull) {
-            if($column == 'id') {
+        foreach ($dbColumns as $column => $acceptNull) {
+            if ($column == 'id') {
                 continue;
             }
 
@@ -60,7 +60,7 @@ class PostgreSQLQueryHelper extends QueryHelper
     {
         /** @var \PDOException $previous */
         $previous = $error->getPrevious();
-        if(!$previous || $previous->getCode() != 23505) {
+        if (!$previous || $previous->getCode() != 23505) {
             return false;
         }
         return true;

@@ -1,5 +1,6 @@
 <?php
 namespace Corma\Repository;
+
 use Corma\DataObject\DataObjectInterface;
 
 /**
@@ -9,18 +10,18 @@ abstract class CachingObjectRepository extends ObjectRepository
 {
     public function find($id, $useCache = true)
     {
-        if(!$useCache) {
+        if (!$useCache) {
             return parent::find($id, false);
         }
         
-        if(!isset($this->objectByIdCache[$id])) {
+        if (!isset($this->objectByIdCache[$id])) {
             $dataFromCache = $this->cache->fetch($this->getCacheKey($id));
-            if($dataFromCache) {
+            if ($dataFromCache) {
                 return $this->restoreFromCache($dataFromCache);
             }
         }
         $object = parent::find($id, $useCache);
-        if($object) {
+        if ($object) {
             $this->storeInCache($object);
         }
         return $object;
@@ -28,35 +29,35 @@ abstract class CachingObjectRepository extends ObjectRepository
 
     public function findByIds(array $ids, $useCache = true)
     {
-        if(!$useCache) {
+        if (!$useCache) {
             return parent::findByIds($ids, false);
         }
 
         $objects = [];
         foreach ($ids as $i => $id) {
-            if(isset($this->objectByIdCache[$id])) {
+            if (isset($this->objectByIdCache[$id])) {
                 $objects[] = $this->objectByIdCache[$id];
                 unset($ids[$i]);
             }
         }
 
-        if(empty($ids)) {
+        if (empty($ids)) {
             return $objects;
         }
 
-        $keys = array_map(function($id){
+        $keys = array_map(function ($id) {
             return $this->getCacheKey($id);
         }, $ids);
 
         $cachedData = $this->cache->fetchMultiple($keys);
 
-        foreach($cachedData as $data) {
+        foreach ($cachedData as $data) {
             $object = $this->restoreFromCache($data);
             $objects[] = $object;
             unset($ids[array_search($object->getId(), $ids)]);
         }
 
-        if(empty($ids)) {
+        if (empty($ids)) {
             return $objects;
         }
         
@@ -93,7 +94,7 @@ abstract class CachingObjectRepository extends ObjectRepository
     {
         $result = parent::deleteAll($objects);
         /** @var DataObjectInterface $object */
-        foreach($objects as $object) {
+        foreach ($objects as $object) {
             $this->cache->delete($this->getCacheKey($object->getId()));
         }
         return $result;

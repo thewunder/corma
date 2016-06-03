@@ -1,7 +1,6 @@
 <?php
 namespace Corma\DataObject;
 
-
 /**
  * An object that can be persisted and retrieved by Corma
  */
@@ -58,8 +57,8 @@ interface DataObjectInterface
     public function setData(array $data);
 
     /**
-     * Returns all scalar data (i.e. no objects / arrays). 
-     * Used when persisting objects to the database and cache. 
+     * Returns all scalar data (i.e. no objects / arrays).
+     * Used when persisting objects to the database and cache.
      *
      * @return array
      */

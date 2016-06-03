@@ -16,7 +16,7 @@ class Inflector
     public function methodNameFromColumn($columnName, $plural = false)
     {
         $method = ucfirst(str_replace(['Id', '_id'], '', $columnName));
-        if($plural) {
+        if ($plural) {
             return DoctrineInflector::pluralize($method);
         } else {
             return $method;
@@ -31,7 +31,7 @@ class Inflector
     public function methodNameFromClass($className, $plural = false)
     {
         $method = substr($className, strrpos($className, '\\') + 1);
-        if($plural) {
+        if ($plural) {
             return DoctrineInflector::pluralize($method);
         } else {
             return $method;

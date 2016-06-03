@@ -14,7 +14,7 @@ abstract class ReadOnlyObjectRepository extends ObjectRepository
 {
     public function find($id, $useCache = true)
     {
-        if($useCache && empty($this->objectByIdCache)) {
+        if ($useCache && empty($this->objectByIdCache)) {
             $this->findAll();
         }
 
@@ -23,7 +23,7 @@ abstract class ReadOnlyObjectRepository extends ObjectRepository
 
     public function findByIds(array $ids, $useCache = true)
     {
-        if($useCache && empty($this->objectByIdCache)) {
+        if ($useCache && empty($this->objectByIdCache)) {
             $this->findAll();
         }
 
@@ -33,7 +33,7 @@ abstract class ReadOnlyObjectRepository extends ObjectRepository
     public function findAll()
     {
         $key = $this->getCacheKey();
-        if($this->cache->contains($key)) {
+        if ($this->cache->contains($key)) {
             return $this->restoreAllFromCache($key);
         }
 

@@ -40,15 +40,15 @@ class RelationshipLoader
      */
     public function loadOne(array $objects, $className, $foreignIdColumn)
     {
-        if(empty($objects)) {
+        if (empty($objects)) {
             return [];
         }
 
         $idToForeignId = [];
         $foreignIdColumn = ucfirst($foreignIdColumn);
         $getter = 'get' . $foreignIdColumn;
-        foreach($objects as $object) {
-            if(method_exists($object, $getter)) {
+        foreach ($objects as $object) {
+            if (method_exists($object, $getter)) {
                 $idToForeignId[$object->getId()] = $object->$getter();
             } else {
                 throw new MethodNotImplementedException("$getter must be defined on {$object->getClassName()} to load one-to-one relationship with $className");
@@ -57,15 +57,15 @@ class RelationshipLoader
 
         $foreignObjects = $this->objectMapper->findByIds($className, array_unique(array_values($idToForeignId)));
         $foreignObjectsById = [];
-        foreach($foreignObjects as $foreignObject) {
+        foreach ($foreignObjects as $foreignObject) {
             $foreignObjectsById[$foreignObject->getId()] = $foreignObject;
         }
         unset($foreignObjects);
 
         $setter = 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn);
-        foreach($objects as $object) {
-            if(method_exists($object, $setter)) {
-                if(isset($foreignObjectsById[$idToForeignId[$object->getId()]])) {
+        foreach ($objects as $object) {
+            if (method_exists($object, $setter)) {
+                if (isset($foreignObjectsById[$idToForeignId[$object->getId()]])) {
                     $object->$setter($foreignObjectsById[$idToForeignId[$object->getId()]]);
                 }
             } else {
@@ -87,7 +87,7 @@ class RelationshipLoader
      */
     public function loadMany(array $objects, $className, $foreignColumn)
     {
-        if(empty($objects)) {
+        if (empty($objects)) {
             return [];
         }
 
@@ -95,14 +95,14 @@ class RelationshipLoader
 
         $where = [$foreignColumn => $ids];
         $dbColumns = $this->objectMapper->getQueryHelper()->getDbColumns($className::getTableName());
-        if(isset($dbColumns['isDeleted'])) {
+        if (isset($dbColumns['isDeleted'])) {
             $where['isDeleted'] = 0;
         }
         $foreignObjects = $this->objectMapper->findBy($className, $where);
         $foreignObjectsById = [];
         $getter = 'get' . ucfirst($foreignColumn);
-        foreach($foreignObjects as $foreignObject) {
-            if(method_exists($foreignObject, $getter)) {
+        foreach ($foreignObjects as $foreignObject) {
+            if (method_exists($foreignObject, $getter)) {
                 $id = $foreignObject->$getter();
                 $foreignObjectsById[$id][] = $foreignObject;
             } else {
@@ -111,9 +111,9 @@ class RelationshipLoader
         }
 
         $setter = 'set' . $this->inflector->methodNameFromClass($className, true);
-        foreach($objects as $object) {
-            if(method_exists($object, $setter)) {
-                if(isset($foreignObjectsById[$object->getId()])) {
+        foreach ($objects as $object) {
+            if (method_exists($object, $setter)) {
+                if (isset($foreignObjectsById[$object->getId()])) {
                     $object->$setter($foreignObjectsById[$object->getId()]);
                 }
             } else {
@@ -122,9 +122,9 @@ class RelationshipLoader
         }
 
         $flattenedForeignObjects = [];
-        foreach($foreignObjectsById as $array) {
+        foreach ($foreignObjectsById as $array) {
             /** @var DataObjectInterface $object */
-            foreach($array as $object) {
+            foreach ($array as $object) {
                 $flattenedForeignObjects[$object->getId()] = $object;
             }
         }
@@ -143,7 +143,7 @@ class RelationshipLoader
      */
     public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
     {
-        if(empty($objects)) {
+        if (empty($objects)) {
             return [];
         }
 
@@ -155,7 +155,7 @@ class RelationshipLoader
         $foreignIds = [];
         $linkRows = $qb->execute();
         $linkRows->setFetchMode(\PDO::FETCH_OBJ);
-        foreach($linkRows as $linkRow) {
+        foreach ($linkRows as $linkRow) {
             $foreignIdsById[$linkRow->id][] = $linkRow->foreignId;
             $foreignIds[$linkRow->foreignId] = true;
         }
@@ -164,18 +164,18 @@ class RelationshipLoader
         unset($foreignIds);
 
         $foreignObjectsById = [];
-        foreach($foreignObjects as $foreignObject) {
+        foreach ($foreignObjects as $foreignObject) {
             $foreignObjectsById[$foreignObject->getId()] = $foreignObject;
         }
         unset($foreignObjects);
 
         $setter =  'set' . $this->inflector->methodNameFromColumn($foreignIdColumn, true);
-        foreach($objects as $object) {
-            if(method_exists($object, $setter)) {
+        foreach ($objects as $object) {
+            if (method_exists($object, $setter)) {
                 $foreignObjects = [];
-                if(isset($foreignIdsById[$object->getId()])) {
+                if (isset($foreignIdsById[$object->getId()])) {
                     $foreignIds = $foreignIdsById[$object->getId()];
-                    foreach($foreignIds as $foreignId) {
+                    foreach ($foreignIds as $foreignId) {
                         $foreignObjects[] = $foreignObjectsById[$foreignId];
                     }
                 }

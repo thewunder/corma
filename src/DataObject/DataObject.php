@@ -8,7 +8,8 @@ use Doctrine\Common\Inflector\Inflector;
  */
 abstract class DataObject implements DataObjectInterface
 {
-    protected $id, $isDeleted;
+    protected $id;
+    protected $isDeleted;
 
     public function __construct()
     {
@@ -42,7 +43,7 @@ abstract class DataObject implements DataObjectInterface
      */
     public static function getIds(array $objects)
     {
-        return array_map(function(DataObjectInterface $object) {
+        return array_map(function (DataObjectInterface $object) {
             return $object->getId();
         }, $objects);
     }
@@ -92,16 +93,16 @@ abstract class DataObject implements DataObjectInterface
      */
     public function setData(array $data)
     {
-        if($this->id) {
+        if ($this->id) {
             unset($data['id']);
         }
 
-        foreach($data as $name => $value) {
+        foreach ($data as $name => $value) {
             $setter = ucfirst($name);
             $setter = "set{$setter}";
-            if(is_scalar($value) && property_exists($this, $name)) {
+            if (is_scalar($value) && property_exists($this, $name)) {
                 $this->{$name} = $value;
-            } else if(method_exists($this, $setter)) {
+            } elseif (method_exists($this, $setter)) {
                 $this->$setter($value);
             }
         }
@@ -111,8 +112,8 @@ abstract class DataObject implements DataObjectInterface
     public function getData()
     {
         $data = [];
-        foreach($this as $property => $value) {
-            if(!is_scalar($value)) {
+        foreach ($this as $property => $value) {
+            if (!is_scalar($value)) {
                 continue;
             }
 

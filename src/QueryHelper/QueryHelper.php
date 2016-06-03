@@ -44,7 +44,7 @@ class QueryHelper implements QueryHelperInterface
      * @param array $where column => value pairs
      * @param array $orderBy of column => ASC / DESC pairs
      * @return QueryBuilder
-     * 
+     *
      * @see processWhereQuery() For details on $where
      */
     public function buildSelectQuery($table, $columns = 'main.*', array $where = [], array $orderBy = [])
@@ -53,7 +53,7 @@ class QueryHelper implements QueryHelperInterface
 
         $this->processWhereQuery($qb, $where);
 
-        foreach($orderBy as $column => $order) {
+        foreach ($orderBy as $column => $order) {
             $qb->addOrderBy($this->db->quoteIdentifier($column), $order);
         }
 
@@ -67,18 +67,18 @@ class QueryHelper implements QueryHelperInterface
      * @param array $update column => value pairs to update in SET clause
      * @param array $where column => value pairs
      * @return QueryBuilder
-     * 
+     *
      * @see processWhereQuery() For details on $where
      */
     public function buildUpdateQuery($table, array $update, array $where)
     {
         $qb = $this->db->createQueryBuilder()->update($this->db->quoteIdentifier($table), 'main');
 
-        foreach($update as $column => $value) {
+        foreach ($update as $column => $value) {
             $paramName = $this->getParameterName($column);
-            if($value === null) {
+            if ($value === null) {
                 $qb->set($this->db->quoteIdentifier($column), 'NULL');
-            } else  {
+            } else {
                 $qb->set($this->db->quoteIdentifier($column), "$paramName")
                     ->setParameter($paramName, $value);
             }
@@ -95,7 +95,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $table
      * @param array $where column => value pairs
      * @return QueryBuilder
-     * 
+     *
      * @see processWhereQuery() For details on $where
      */
     public function buildDeleteQuery($table, array $where)
@@ -112,7 +112,7 @@ class QueryHelper implements QueryHelperInterface
      * @param array $update column => value pairs to update in SET clause
      * @param array $where column => value pairs
      * @return int The number of affected rows.
-     * 
+     *
      * @see processWhereQuery() For details on $where
      */
     public function massUpdate($table, array $update, array $where)
@@ -130,7 +130,7 @@ class QueryHelper implements QueryHelperInterface
      */
     public function massInsert($table, array $rows)
     {
-        if(empty($rows)) {
+        if (empty($rows)) {
             return 0;
         }
 
@@ -155,14 +155,14 @@ class QueryHelper implements QueryHelperInterface
      */
     public function massUpsert($table, array $rows, &$lastInsertId = null)
     {
-        if(empty($rows)) {
+        if (empty($rows)) {
             return 0;
         }
 
         $rowsToInsert = [];
         $rowsToUpdate = [];
-        foreach($rows as $row) {
-            if(!empty($row['id'])) {
+        foreach ($rows as $row) {
+            if (!empty($row['id'])) {
                 $rowsToUpdate[] = $row;
             } else {
                 $rowsToInsert[] = $row;
@@ -175,13 +175,13 @@ class QueryHelper implements QueryHelperInterface
             $effected = $this->massInsert($table, $rowsToInsert);
             $lastInsertId = $this->getLastInsertId($table) - (count($rowsToInsert) - 1);
 
-            foreach($rowsToUpdate as $row) {
+            foreach ($rowsToUpdate as $row) {
                 $id = $row['id'];
                 unset($row['id']);
                 $effected += $this->db->update($this->db->quoteIdentifier($table), $this->quoteIdentifiers($row), ['id'=>$id]);
             }
             $this->db->commit();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->db->rollBack();
             throw $e;
         }
@@ -195,7 +195,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $table
      * @param array $where column => value pairs
      * @return int Number of affected rows
-     * 
+     *
      * @see processWhereQuery() For details on $where
      */
     public function massDelete($table, array $where)
@@ -212,7 +212,7 @@ class QueryHelper implements QueryHelperInterface
      */
     public function getCount(QueryBuilder $qb)
     {
-        if($qb->getType() != QueryBuilder::SELECT) {
+        if ($qb->getType() != QueryBuilder::SELECT) {
             throw new \InvalidArgumentException('Query builder must be a select query');
         }
 
@@ -251,14 +251,14 @@ class QueryHelper implements QueryHelperInterface
             if (is_array($value)) {
                 $clause = "$columnName IN($paramName)";
                 $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
-            } else if($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
+            } elseif ($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
                 $operator = $this->getOperator($wherePart);
-                if($operator == '<>' || $operator == '!=') {
+                if ($operator == '<>' || $operator == '!=') {
                     $clause = $this->db->getDatabasePlatform()->getIsNotNullExpression($columnName);
                 } else {
                     $clause = $this->db->getDatabasePlatform()->getIsNullExpression($columnName);
                 }
-            } else if($value !== null) {
+            } elseif ($value !== null) {
                 $operator = $this->getOperator($wherePart);
                 $clause = "$columnName $operator $paramName";
                 $qb->setParameter($paramName, $value);
@@ -282,10 +282,10 @@ class QueryHelper implements QueryHelperInterface
      */
     protected function acceptsNull(array $from, $column)
     {
-        foreach($from as $tableInfo) {
+        foreach ($from as $tableInfo) {
             $table = str_replace($this->db->getDatabasePlatform()->getIdentifierQuoteCharacter(), '', $tableInfo['table']);
             $columns = $this->getDbColumns($table);
-            if(!isset($columns[$column])) {
+            if (!isset($columns[$column])) {
                 continue;
             }
             return $columns[$column];
@@ -302,7 +302,7 @@ class QueryHelper implements QueryHelperInterface
     public function getDbColumns($table)
     {
         $key = 'db_columns.'.$table;
-        if($this->cache->contains($key)) {
+        if ($this->cache->contains($key)) {
             return $this->cache->fetch($key);
         } else {
             $qb = $this->db->createQueryBuilder();
@@ -310,7 +310,7 @@ class QueryHelper implements QueryHelperInterface
                 ->from('information_schema.COLUMNS')->where('TABLE_NAME = ?')->setParameter(0, $table);
             $dbColumnInfo = $qb->execute()->fetchAll(\PDO::FETCH_OBJ);
             $dbColumns = [];
-            foreach($dbColumnInfo as $column) {
+            foreach ($dbColumnInfo as $column) {
                 $dbColumns[$column->COLUMN_NAME] = $column->IS_NULLABLE == 'YES' ? true : false;
             }
             $this->cache->save($key, $dbColumns);
@@ -378,7 +378,7 @@ class QueryHelper implements QueryHelperInterface
     protected function getOperator($columnName)
     {
         $operator = trim(preg_replace(self::WHERE_COLUMN_REGEX, '$4', $columnName));
-        if($operator && in_array($operator, $this->COMPARISON_OPERATORS)) {
+        if ($operator && in_array($operator, $this->COMPARISON_OPERATORS)) {
             return $operator;
         } else {
             return '=';
@@ -440,7 +440,7 @@ class QueryHelper implements QueryHelperInterface
 
     /**
      * Creates an array with database columns, all in the same order
-     * 
+     *
      * @param string $table
      * @param array $rows
      * @return array
@@ -464,7 +464,7 @@ class QueryHelper implements QueryHelperInterface
 
     /**
      * Returns an array of parameters
-     * 
+     *
      * @param array $normalizedRows
      * @return array
      */

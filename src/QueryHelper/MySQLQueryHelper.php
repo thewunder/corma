@@ -16,7 +16,7 @@ class MySQLQueryHelper extends QueryHelper
      */
     public function massUpsert($table, array $rows, &$lastInsertId = null)
     {
-        if(empty($rows)) {
+        if (empty($rows)) {
             return 0;
         }
 
@@ -55,7 +55,7 @@ class MySQLQueryHelper extends QueryHelper
     {
         /** @var \PDOException $previous */
         $previous = $error->getPrevious();
-        if(!$previous || $previous->getCode() != 23000) {
+        if (!$previous || $previous->getCode() != 23000) {
             return false;
         }
         return isset($previous->errorInfo[1]) && $previous->errorInfo[1] == 1062;

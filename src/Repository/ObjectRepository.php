@@ -75,7 +75,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     public function create()
     {
         $class = $this->getClassName();
-        if(empty($this->objectDependencies)) {
+        if (empty($this->objectDependencies)) {
             return new $class();
         } else {
             $reflectionClass = new \ReflectionClass($class);
@@ -85,12 +85,12 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     public function find($id, $useCache = true)
     {
-        if($useCache && isset($this->objectByIdCache[$id])) {
+        if ($useCache && isset($this->objectByIdCache[$id])) {
             return $this->objectByIdCache[$id];
         }
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.id'=>$id]);
         $instance = $this->fetchOne($qb);
-        if($instance) {
+        if ($instance) {
             $this->objectByIdCache[$id] = $instance;
         }
         return $instance;
@@ -99,20 +99,20 @@ class ObjectRepository implements ObjectRepositoryInterface
     public function findByIds(array $ids, $useCache = true)
     {
         $instances = [];
-        if($useCache) {
-            foreach($ids as $i => $id) {
-                if(isset($this->objectByIdCache[$id])) {
+        if ($useCache) {
+            foreach ($ids as $i => $id) {
+                if (isset($this->objectByIdCache[$id])) {
                     $instances[] = $this->objectByIdCache[$id];
                     unset($ids[$i]);
                 }
             }
         }
 
-        if(!empty($ids)) {
+        if (!empty($ids)) {
             $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.id'=>$ids]);
             $newInstances = $this->fetchAll($qb);
             /** @var $instance DataObjectInterface */
-            foreach($newInstances as $instance) {
+            foreach ($newInstances as $instance) {
                 $this->objectByIdCache[$instance->getId()] = $instance;
             }
             $instances = array_merge($instances, $newInstances);
@@ -124,13 +124,13 @@ class ObjectRepository implements ObjectRepositoryInterface
     public function findAll()
     {
         $dbColumns = $this->queryHelper->getDbColumns($this->getTableName());
-        if(isset($dbColumns['isDeleted'])) {
+        if (isset($dbColumns['isDeleted'])) {
             $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['isDeleted'=>0]);
         } else {
             $qb = $this->queryHelper->buildSelectQuery($this->getTableName());
         }
         $all = $this->fetchAll($qb);
-        array_walk($all, function(DataObjectInterface $object){
+        array_walk($all, function (DataObjectInterface $object) {
             $this->objectByIdCache[$object->getId()] = $object;
         });
         return $all;
@@ -139,9 +139,9 @@ class ObjectRepository implements ObjectRepositoryInterface
     public function findBy(array $criteria, array $orderBy = [], $limit = null, $offset = null)
     {
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria, $orderBy);
-        if($limit) {
+        if ($limit) {
             $qb->setMaxResults($limit);
-            if($offset) {
+            if ($offset) {
                 $qb->setFirstResult($offset);
             }
         }
@@ -214,14 +214,14 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function getClassName()
     {
-        if($this->className) {
+        if ($this->className) {
             return $this->className;
         }
 
         $class = explode('\\', get_called_class());
         $objectClass = [];
-        foreach($class as $classPart) {
-            if($classPart != 'Repository') {
+        foreach ($class as $classPart) {
+            if ($classPart != 'Repository') {
                 $objectClass[] = str_replace('Repository', '', $classPart);
             }
         }
@@ -250,9 +250,9 @@ class ObjectRepository implements ObjectRepositoryInterface
     public function getTableName()
     {
         $class = $this->getClassName();
-        if(!class_exists($class)) {
+        if (!class_exists($class)) {
             throw new ClassNotFoundException("$class not found");
-        } else if(!class_implements($class, DataObjectInterface::class)) {
+        } elseif (!class_implements($class, DataObjectInterface::class)) {
             throw new InvalidClassException("$class must implement DataObjectInterface");
         }
         return $class::getTableName();
@@ -271,7 +271,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $this->dispatchEvents('beforeSave', $object);
 
-        if($object->getId()) {
+        if ($object->getId()) {
             $this->update($object);
         } else {
             $this->insert($object);
@@ -289,14 +289,14 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function saveAll(array $objects)
     {
-        if(empty($objects)) {
+        if (empty($objects)) {
             return 0;
         }
 
-        foreach($objects as $object) {
+        foreach ($objects as $object) {
             $this->checkArgument($object);
             $this->dispatchEvents('beforeSave', $object);
-            if($object->getId()) {
+            if ($object->getId()) {
                 $this->dispatchEvents('beforeUpdate', $object);
             } else {
                 $this->dispatchEvents('beforeInsert', $object);
@@ -305,10 +305,10 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $columns = $this->queryHelper->getDbColumns($objects[0]->getTableName());
         $rows = [];
-        foreach($objects as $object) {
+        foreach ($objects as $object) {
             $data = $object->getData();
-            foreach($data as $prop => $value) {
-                if(!isset($columns[$prop])) {
+            foreach ($data as $prop => $value) {
+                if (!isset($columns[$prop])) {
                     unset($data[$prop]);
                 }
             }
@@ -318,11 +318,11 @@ class ObjectRepository implements ObjectRepositoryInterface
         $lastId = null;
         $rows = $this->queryHelper->massUpsert($this->getTableName(), $rows, $lastId);
 
-        foreach($objects as $object) {
-            if($object->getId()) {
+        foreach ($objects as $object) {
+            if ($object->getId()) {
                 $this->dispatchEvents('afterUpdate', $object);
             } else {
-                if($lastId) {
+                if ($lastId) {
                     $object->setId($lastId);
                     $lastId++;
                 }
@@ -347,7 +347,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $columns = $this->queryHelper->getDbColumns($object->getTableName());
 
-        if(isset($columns['isDeleted'])) {
+        if (isset($columns['isDeleted'])) {
             $this->db->update($object->getTableName(), [$this->db->quoteIdentifier('isDeleted')=>1], ['id'=>$object->getId()]);
         } else {
             $this->db->delete($object->getTableName(), ['id'=>$object->getId()]);
@@ -366,24 +366,24 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function deleteAll(array $objects)
     {
-        if(empty($objects)) {
+        if (empty($objects)) {
             return 0;
         }
 
-        foreach($objects as $object) {
+        foreach ($objects as $object) {
             $this->checkArgument($object);
             $this->dispatchEvents('beforeDelete', $object);
         }
 
         $columns = $this->queryHelper->getDbColumns($objects[0]->getTableName());
         $ids = DataObject::getIds($objects);
-        if(isset($columns['isDeleted'])) {
+        if (isset($columns['isDeleted'])) {
             $rows = $this->queryHelper->massUpdate($this->getTableName(), ['isDeleted'=>1], ['id'=>$ids]);
         } else {
             $rows = $this->queryHelper->massDelete($this->getTableName(), ['id'=>$ids]);
         }
 
-        foreach($objects as $object) {
+        foreach ($objects as $object) {
             $object->setDeleted(true);
             $this->dispatchEvents('afterDelete', $object);
         }
@@ -487,7 +487,7 @@ class ObjectRepository implements ObjectRepositoryInterface
             if (isset($dbColumns[$column])) {
                 if ($column == 'id') {
                     continue;
-                } else if($value === null && $dbColumns[$column] === false) {
+                } elseif ($value === null && $dbColumns[$column] === false) {
                     continue;
                 } else {
                     $queryParams[$this->db->quoteIdentifier($column)] = $value;
@@ -506,7 +506,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         /** @var Statement $statement */
         $statement = $qb->execute();
         $objects = $statement->fetchAll(\PDO::FETCH_CLASS, $this->getClassName(), $this->objectDependencies);
-        foreach($objects as $object) {
+        foreach ($objects as $object) {
             $this->dispatchEvents('loaded', $object);
         }
         return $objects;
@@ -521,7 +521,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         $statement = $qb->setMaxResults(1)->execute();
         $statement->setFetchMode(\PDO::FETCH_CLASS, $this->getClassName(), $this->objectDependencies);
         $object = $statement->fetch();
-        if($object) {
+        if ($object) {
             $this->dispatchEvents('loaded', $object);
         }
         return $object;
@@ -535,7 +535,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected function dispatchEvents($eventName, DataObjectInterface $object)
     {
-        if(!$this->dispatcher) {
+        if (!$this->dispatcher) {
             return;
         }
 
@@ -552,7 +552,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected function getShortClassName()
     {
-        if($this->shortClassName) {
+        if ($this->shortClassName) {
             return $this->shortClassName;
         }
         $class = $this->getClassName();
