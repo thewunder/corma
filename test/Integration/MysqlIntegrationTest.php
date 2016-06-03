@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Test\Integration;
 
-
 use Corma\ObjectMapper;
 use Corma\QueryHelper\MySQLQueryHelper;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
@@ -37,12 +36,12 @@ class MysqlIntegrationTest extends BaseIntegrationTest
 
     protected function createDatabase()
     {
-        if(empty(getenv('MYSQL_HOST')) && file_exists(__DIR__.'/../../.env')) {
+        if (empty(getenv('MYSQL_HOST')) && file_exists(__DIR__.'/../../.env')) {
             $dotenv = new Dotenv(__DIR__.'/../../');
             $dotenv->load();
         }
 
-        if(empty(getenv('MYSQL_HOST')) || empty(getenv('MYSQL_USER'))) {
+        if (empty(getenv('MYSQL_HOST')) || empty(getenv('MYSQL_USER'))) {
             throw new \RuntimeException('Create a .env file with MYSQL_HOST, MYSQL_USER, and MYSQL_PASS to run this test.');
         }
 

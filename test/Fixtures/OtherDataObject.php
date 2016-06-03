@@ -5,7 +5,8 @@ use Corma\DataObject\DataObject;
 
 class OtherDataObject extends DataObject
 {
-    protected $name, $extendedDataObjectId;
+    protected $name;
+    protected $extendedDataObjectId;
 
     /**
      * @return mixed

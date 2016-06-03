@@ -35,14 +35,14 @@ class PostgresIntegrationTest extends BaseIntegrationTest
         $this->markTestIncomplete('Expected Exception was not thrown');
     }
     
-    protected  function createDatabase()
+    protected function createDatabase()
     {
-        if(empty(getenv('PGSQL_HOST')) && file_exists(__DIR__.'/../../.env')) {
+        if (empty(getenv('PGSQL_HOST')) && file_exists(__DIR__.'/../../.env')) {
             $dotenv = new Dotenv(__DIR__.'/../../');
             $dotenv->load();
         }
 
-        if(empty(getenv('PGSQL_HOST')) || empty(getenv('PGSQL_USER'))) {
+        if (empty(getenv('PGSQL_HOST')) || empty(getenv('PGSQL_USER'))) {
             throw new \RuntimeException('Create a .env file with PGSQL_HOST, PGSQL_USER, and PGSQL_PASS to run this test.');
         }
 

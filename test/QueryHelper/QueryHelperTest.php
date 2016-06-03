@@ -23,7 +23,7 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->connection->expects($this->any())->method('quoteIdentifier')->will($this->returnCallback(function($column){
+        $this->connection->expects($this->any())->method('quoteIdentifier')->will($this->returnCallback(function ($column) {
             return "`$column`";
         }));
 
@@ -103,8 +103,10 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
     public function testMassInsert()
     {
         $this->connection->expects($this->once())->method('executeUpdate')
-            ->with('INSERT INTO `test_table` (`column1`, `column2`) VALUES (?, ?), (?, ?)',
-                [1, 2, 3, 4])
+            ->with(
+                'INSERT INTO `test_table` (`column1`, `column2`) VALUES (?, ?), (?, ?)',
+                [1, 2, 3, 4]
+            )
             ->willReturn(2);
 
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)

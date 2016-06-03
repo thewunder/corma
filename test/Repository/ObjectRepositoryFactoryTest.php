@@ -3,7 +3,6 @@
 
 namespace Corma\Test\Repository;
 
-
 use Corma\ObjectMapper;
 use Corma\Repository\ObjectRepository;
 use Corma\Repository\ObjectRepositoryFactory;

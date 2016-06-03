@@ -34,7 +34,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->connection->expects($this->any())->method('quoteIdentifier')->will($this->returnCallback(function($column){
+        $this->connection->expects($this->any())->method('quoteIdentifier')->will($this->returnCallback(function ($column) {
             return "`$column`";
         }));
         $this->connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
@@ -224,10 +224,10 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
             'DataObject.loaded' => 0,
             'DataObject.ExtendedDataObject.loaded' => 0
         ];
-        $this->dispatcher->addListener('DataObject.loaded', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.loaded', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.loaded'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.loaded', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.loaded', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.loaded'] ++;
         });
 
@@ -256,10 +256,10 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
             'DataObject.loaded' => 0,
             'DataObject.ExtendedDataObject.loaded' => 0
         ];
-        $this->dispatcher->addListener('DataObject.loaded', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.loaded', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.loaded'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.loaded', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.loaded', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.loaded'] ++;
         });
 
@@ -299,45 +299,45 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
             'DataObject.ExtendedDataObject.afterUpdate' => 0
         ];
 
-        $this->dispatcher->addListener('DataObject.beforeSave', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.beforeSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.beforeSave'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeSave', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.beforeSave'] ++;
         });
 
-        $this->dispatcher->addListener('DataObject.afterSave', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.afterSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.afterSave'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterSave', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.afterSave'] ++;
         });
 
-        $this->dispatcher->addListener('DataObject.beforeInsert', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.beforeInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.beforeInsert'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeInsert', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.beforeInsert'] ++;
         });
 
-        $this->dispatcher->addListener('DataObject.afterInsert', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.afterInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.afterInsert'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterInsert', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.afterInsert'] ++;
         });
 
-        $this->dispatcher->addListener('DataObject.beforeUpdate', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.beforeUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.beforeUpdate'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeUpdate', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.beforeUpdate'] ++;
         });
 
-        $this->dispatcher->addListener('DataObject.afterUpdate', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.afterUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.afterUpdate'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterUpdate', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.afterUpdate'] ++;
         });
 
@@ -380,45 +380,45 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
             'DataObject.ExtendedDataObject.afterUpdate' => 0
         ];
 
-        $this->dispatcher->addListener('DataObject.beforeSave', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.beforeSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.beforeSave'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeSave', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.beforeSave'] ++;
         });
 
-        $this->dispatcher->addListener('DataObject.afterSave', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.afterSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.afterSave'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterSave', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.afterSave'] ++;
         });
 
-        $this->dispatcher->addListener('DataObject.beforeInsert', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.beforeInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.beforeInsert'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeInsert', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.beforeInsert'] ++;
         });
 
-        $this->dispatcher->addListener('DataObject.afterInsert', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.afterInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.afterInsert'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterInsert', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.afterInsert'] ++;
         });
 
-        $this->dispatcher->addListener('DataObject.beforeUpdate', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.beforeUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.beforeUpdate'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeUpdate', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.beforeUpdate'] ++;
         });
 
-        $this->dispatcher->addListener('DataObject.afterUpdate', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.afterUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.afterUpdate'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterUpdate', function(DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.afterUpdate'] ++;
         });
 
@@ -526,7 +526,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('commit');
         $test = $this;
-        $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function(array $objects) use($test) {
+        $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function (array $objects) use ($test) {
             $test->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
         }]);
     }
@@ -543,7 +543,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $this->connection->expects($this->once())->method('rollback');
         $test = $this;
-        $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function(array $objects) use($test) {
+        $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function (array $objects) use ($test) {
             throw new \Exception('Testing rollback');
         }]);
     }
@@ -558,7 +558,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('commit');
         $test = $this;
-        $saveWith->invokeArgs($repository, [[new ExtendedDataObject()], function(array $objects) use($test) {
+        $saveWith->invokeArgs($repository, [[new ExtendedDataObject()], function (array $objects) use ($test) {
             $test->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
         }]);
     }
@@ -575,7 +575,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $this->connection->expects($this->once())->method('rollback');
         $test = $this;
-        $saveWith->invokeArgs($repository, [[new ExtendedDataObject()], function(array $objects) use($test) {
+        $saveWith->invokeArgs($repository, [[new ExtendedDataObject()], function (array $objects) use ($test) {
             throw new \Exception('Testing rollback');
         }]);
     }

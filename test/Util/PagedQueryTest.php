@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Test\Util;
 
-
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Util\PagedQuery;
 use Corma\QueryHelper\QueryHelper;

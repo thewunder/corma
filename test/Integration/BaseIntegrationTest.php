@@ -44,11 +44,11 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         static::deleteDatabase();
     }
 
-    protected abstract function createDatabase();
+    abstract protected function createDatabase();
     
-    protected abstract function deleteDatabase();
+    abstract protected function deleteDatabase();
     
-    public abstract function testIsDuplicateException();
+    abstract public function testIsDuplicateException();
 
     public function testSaveAndFind()
     {
@@ -168,7 +168,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $nullObjects = $this->repository->findBy(['myNullableColumn'=>null]);
         $this->assertGreaterThan(0, $nullObjects);
 
-        foreach($nullObjects as $object) {
+        foreach ($nullObjects as $object) {
             $this->assertNull($object->getMyNullableColumn());
         }
     }
@@ -183,7 +183,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $notNullObjects = $this->repository->findBy(['myNullableColumn !='=>null]);
         $this->assertGreaterThan(0, $notNullObjects);
 
-        foreach($notNullObjects as $object) {
+        foreach ($notNullObjects as $object) {
             $this->assertNotNull($object->getMyNullableColumn());
         }
     }
@@ -246,7 +246,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $allFromDb = $this->repository->findByIds(DataObject::getIds($objects), false);
         $this->assertCount(2, $allFromDb);
         /** @var DataObjectInterface $objectFromDb */
-        foreach($allFromDb as $objectFromDb) {
+        foreach ($allFromDb as $objectFromDb) {
             $this->assertTrue($objectFromDb->isDeleted());
         }
     }
@@ -272,7 +272,8 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
     public function testLoadMany()
     {
         $object = new ExtendedDataObject();
-        $object->setMyColumn('many-to-one');;
+        $object->setMyColumn('many-to-one');
+        ;
         $this->repository->save($object);
 
         $otherObjects = [];
@@ -300,7 +301,8 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
     public function testLoadManyToMany()
     {
         $object = new ExtendedDataObject();
-        $object->setMyColumn('many-to-many');;
+        $object->setMyColumn('many-to-many');
+        ;
         $this->repository->save($object);
 
         $otherObjects = [];

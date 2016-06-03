@@ -9,7 +9,9 @@ use Corma\DataObject\DataObjectInterface;
  */
 class ExtendedDataObject extends DataObject
 {
-    protected $myColumn, $myNullableColumn, $otherDataObjectId;
+    protected $myColumn;
+    protected $myNullableColumn;
+    protected $otherDataObjectId;
 
     /** @var array */
     protected $arrayProperty;
