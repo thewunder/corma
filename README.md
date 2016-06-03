@@ -93,3 +93,7 @@ $orm->deleteAll($existingObjects);
 ```
 
 See [the wiki](https://github.com/thewunder/corma/wiki) for full documentation.
+
+## Contributing
+
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
