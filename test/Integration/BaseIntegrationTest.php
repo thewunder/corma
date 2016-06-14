@@ -71,12 +71,13 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
      */
     public function testUpdate(ExtendedDataObject $object)
     {
-        $object->setMyColumn('New Value');
+        $object->setMyColumn('New Value')->setMyNullableColumn(null);
         $this->repository->save($object);
 
         /** @var ExtendedDataObject $fromDb */
         $fromDb = $this->repository->find($object->getId(), false);
         $this->assertEquals($object->getMyColumn(), $fromDb->getMyColumn());
+        $this->assertNull($fromDb->getMyNullableColumn());
         return $object;
     }
 

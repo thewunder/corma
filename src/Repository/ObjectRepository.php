@@ -483,15 +483,14 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $queryParams = [];
         $dbColumns = $this->queryHelper->getDbColumns($object->getTableName());
-        foreach ($object->getData() as $column => $value) {
-            if (isset($dbColumns[$column])) {
-                if ($column == 'id') {
-                    continue;
-                } elseif ($value === null && $dbColumns[$column] === false) {
-                    continue;
-                } else {
-                    $queryParams[$this->db->quoteIdentifier($column)] = $value;
-                }
+        $data = $object->getData();
+        foreach ($dbColumns as $column => $acceptNull) {
+            if ($column == 'id') {
+                continue;
+            } if(isset($data[$column])) {
+                $queryParams[$this->db->quoteIdentifier($column)] = $data[$column];
+            } else if($acceptNull) {
+                $queryParams[$this->db->quoteIdentifier($column)] = null;
             }
         }
         return $queryParams;

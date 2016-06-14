@@ -37,6 +37,7 @@ class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()->getMock();
 
         $this->queryHelper->expects($this->any())->method('buildSelectQuery')->willReturn($queryBuilder);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
 
         $this->objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()

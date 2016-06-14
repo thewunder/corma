@@ -341,6 +341,8 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
             $firedEvents['DataObject.ExtendedDataObject.afterUpdate'] ++;
         });
 
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
+
         $repo = $this->getRepository();
         $dataObject = new ExtendedDataObject();
         $repo->save($dataObject);
@@ -525,6 +527,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('commit');
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
         $test = $this;
         $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function (array $objects) use ($test) {
             $test->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
@@ -542,6 +545,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $saveWith->setAccessible(true);
 
         $this->connection->expects($this->once())->method('rollback');
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
         $test = $this;
         $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function (array $objects) use ($test) {
             throw new \Exception('Testing rollback');
