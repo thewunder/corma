@@ -44,9 +44,15 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         static::deleteDatabase();
     }
 
-    abstract protected function createDatabase();
+    protected static function createDatabase()
+    {
+        
+    }
     
-    abstract protected function deleteDatabase();
+    protected static function deleteDatabase()
+    {
+        
+    }
     
     abstract public function testIsDuplicateException();
 

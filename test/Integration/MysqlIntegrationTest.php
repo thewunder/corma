@@ -34,7 +34,7 @@ class MysqlIntegrationTest extends BaseIntegrationTest
         $this->markTestIncomplete('Expected Exception was not thrown');
     }
 
-    protected function createDatabase()
+    protected static function createDatabase()
     {
         if (empty(getenv('MYSQL_HOST')) && file_exists(__DIR__.'/../../.env')) {
             $dotenv = new Dotenv(__DIR__.'/../../');
@@ -77,7 +77,7 @@ class MysqlIntegrationTest extends BaseIntegrationTest
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci');
     }
 
-    protected function deleteDatabase()
+    protected static function deleteDatabase()
     {
         self::$connection->query('DROP DATABASE corma_test');
     }

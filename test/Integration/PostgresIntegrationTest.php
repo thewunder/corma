@@ -35,7 +35,7 @@ class PostgresIntegrationTest extends BaseIntegrationTest
         $this->markTestIncomplete('Expected Exception was not thrown');
     }
     
-    protected function createDatabase()
+    protected static function createDatabase()
     {
         if (empty(getenv('PGSQL_HOST')) && file_exists(__DIR__.'/../../.env')) {
             $dotenv = new Dotenv(__DIR__.'/../../');
@@ -75,7 +75,7 @@ class PostgresIntegrationTest extends BaseIntegrationTest
         )');
     }
     
-    protected function deleteDatabase()
+    protected static function deleteDatabase()
     {
     }
 }
