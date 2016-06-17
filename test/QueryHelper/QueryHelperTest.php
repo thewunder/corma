@@ -176,4 +176,46 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
         $count = $this->queryHelper->getCount($qb);
         $this->assertEquals(9, $count);
     }
+
+    public function testGetDbColumns()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $mockStatement = $this->getMockBuilder(Statement::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockStatement->expects($this->once())->method('fetchAll')->willReturn([
+            (object) ['COLUMN_NAME'=>'column1', 'IS_NULLABLE'=>true],
+            (object) ['COLUMN_NAME'=>'column2', 'IS_NULLABLE'=>false],
+        ]);
+
+        $this->connection->expects($this->once())->method('executeQuery')->willReturn($mockStatement);
+
+        $return = $this->queryHelper->getDbColumns('asdf');
+        $this->assertArrayHasKey('column1', $return);
+        $this->assertArrayHasKey('column2', $return);
+        $this->assertTrue($return['column1']);
+        $this->assertFalse($return['column2']);
+    }
+
+    /**
+     * @expectedException \Corma\Exception\InvalidArgumentException
+     */
+    public function testMissingTableException()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $mockStatement = $this->getMockBuilder(Statement::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockStatement->expects($this->once())->method('fetchAll')->willReturn([]);
+
+        $this->connection->expects($this->once())->method('executeQuery')->willReturn($mockStatement);
+
+        $this->queryHelper->getDbColumns('asdf');
+    }
 }

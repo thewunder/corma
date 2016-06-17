@@ -51,7 +51,7 @@ class PostgresIntegrationTest extends BaseIntegrationTest
         $pdo = new \PDO('pgsql:host='.getenv('PGSQL_HOST'), getenv('PGSQL_USER'), $pass);
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-        self::$connection = DriverManager::getConnection(['driver'=>'pdo_pgsql','pdo'=>$pdo]);
+        self::$connection = DriverManager::getConnection(['driver'=>'pdo_pgsql','pdo'=>$pdo, 'dbname'=>'public']);
         self::$connection->query('drop schema public cascade');
         self::$connection->query('create schema public');
         self::$connection->query('CREATE TABLE extended_data_objects (

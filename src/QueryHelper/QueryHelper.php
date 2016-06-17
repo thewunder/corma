@@ -306,9 +306,17 @@ class QueryHelper implements QueryHelperInterface
             return $this->cache->fetch($key);
         } else {
             $qb = $this->db->createQueryBuilder();
+            $database = $this->db->getDatabase();
             $qb->select('COLUMN_NAME AS '.$this->db->quoteIdentifier('COLUMN_NAME'), 'IS_NULLABLE AS '.$this->db->quoteIdentifier('IS_NULLABLE'))
-                ->from('information_schema.COLUMNS')->where('TABLE_NAME = ?')->setParameter(0, $table);
+                ->from('information_schema.COLUMNS')
+                ->where('TABLE_SCHEMA = ?')->setParameter(0, $database)
+                ->andWhere('TABLE_NAME = ?')->setParameter(1, $table);
+
             $dbColumnInfo = $qb->execute()->fetchAll(\PDO::FETCH_OBJ);
+            if(empty($dbColumnInfo)) {
+                throw new InvalidArgumentException("The table $database.$table does not exist");
+            }
+
             $dbColumns = [];
             foreach ($dbColumnInfo as $column) {
                 $dbColumns[$column->COLUMN_NAME] = $column->IS_NULLABLE == 'YES' ? true : false;
