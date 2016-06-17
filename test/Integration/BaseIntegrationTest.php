@@ -280,7 +280,6 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('many-to-one');
-        ;
         $this->repository->save($object);
 
         $otherObjects = [];
@@ -309,7 +308,6 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('many-to-many');
-        ;
         $this->repository->save($object);
 
         $otherObjects = [];
