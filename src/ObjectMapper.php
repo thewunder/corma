@@ -62,7 +62,7 @@ class ObjectMapper
 
         $queryHelper = self::createQueryHelper($db, $cache);
         $repositoryFactory = new ObjectRepositoryFactory($namespaces);
-        $instance = new static($queryHelper, $repositoryFactory);
+        $instance = new static($queryHelper, $repositoryFactory, new Inflector());
         $dependencies = array_merge([$db, $instance, $cache, $dispatcher], $additionalDependencies);
         $repositoryFactory->setDependencies($dependencies);
         return $instance;
@@ -89,11 +89,13 @@ class ObjectMapper
      * ObjectMapper constructor.
      * @param QueryHelperInterface $queryHelper
      * @param ObjectRepositoryFactoryInterface $repositoryFactory
+     * @param Inflector $inflector
      */
-    public function __construct(QueryHelperInterface $queryHelper, ObjectRepositoryFactoryInterface $repositoryFactory)
+    public function __construct(QueryHelperInterface $queryHelper, ObjectRepositoryFactoryInterface $repositoryFactory, Inflector $inflector)
     {
         $this->queryHelper = $queryHelper;
         $this->repositoryFactory = $repositoryFactory;
+        $this->inflector = $inflector;
     }
 
     /**
@@ -316,10 +318,7 @@ class ObjectMapper
      */
     public function getInflector()
     {
-        if ($this->inflector) {
-            return $this->inflector;
-        }
-        return $this->inflector = new Inflector();
+        return $this->inflector;
     }
     
     /**

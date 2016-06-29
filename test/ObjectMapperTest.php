@@ -8,6 +8,7 @@ use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\QueryHelper\QueryHelper;
+use Corma\Util\Inflector;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
@@ -251,6 +252,6 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
         $mockFactory->expects($this->once())->method('getRepository')->with('ExtendedDataObject')->willReturn($mockRepository);
 
         /** @var ObjectRepositoryFactoryInterface $mockFactory */
-        return new ObjectMapper(new QueryHelper($connection, new ArrayCache()), $mockFactory);
+        return new ObjectMapper(new QueryHelper($connection, new ArrayCache()), $mockFactory, new Inflector());
     }
 }
