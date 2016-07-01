@@ -56,22 +56,29 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
     
     abstract public function testIsDuplicateException();
 
-    public function testSaveAndFind()
+    public function testSave()
     {
         $object = new ExtendedDataObject($this->dispatcher);
         $object->setMyColumn('My Value')->setMyNullableColumn(15);
         $this->repository->save($object);
-
-        /** @var ExtendedDataObject $fromDb */
-        $fromDb = $this->repository->find($object->getId(), false);
-        $this->assertEquals($object->getMyColumn(), $fromDb->getMyColumn());
-        $this->assertEquals($object->getMyNullableColumn(), $fromDb->getMyNullableColumn());
-
+        $this->assertNotNull($object->getId());
         return $object;
     }
 
     /**
-     * @depends testSaveAndFind
+     * @depends testSave
+     * @param ExtendedDataObject $object
+     */
+    public function testFind(ExtendedDataObject $object)
+    {
+        /** @var ExtendedDataObject $fromDb */
+        $fromDb = $this->repository->find($object->getId(), false);
+        $this->assertEquals($object->getMyColumn(), $fromDb->getMyColumn());
+        $this->assertEquals($object->getMyNullableColumn(), $fromDb->getMyNullableColumn());
+    }
+
+    /**
+     * @depends testSave
      * @param ExtendedDataObject $object
      * @return ExtendedDataObject
      */
