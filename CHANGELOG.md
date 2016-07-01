@@ -1,3 +1,19 @@
+Version 2.0.2
+=============
+
+Fixes
+------
+* Fixed bug where columns from another Database / Schema could end up in the list of columns
+
+Version 2.0.1
+=============
+
+Fixes
+------
+* Allow columns to be set from a non-null value to null
+* Code is now PSR-2 Compliant
+* Added a CONTRIBUTING.md, and other README updates
+
 Version 2.0
 ===========
 
