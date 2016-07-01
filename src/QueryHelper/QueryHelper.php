@@ -313,7 +313,7 @@ class QueryHelper implements QueryHelperInterface
                 ->andWhere('TABLE_NAME = ?')->setParameter(1, $table);
 
             $dbColumnInfo = $qb->execute()->fetchAll(\PDO::FETCH_OBJ);
-            if(empty($dbColumnInfo)) {
+            if (empty($dbColumnInfo)) {
                 throw new InvalidArgumentException("The table $database.$table does not exist");
             }
 

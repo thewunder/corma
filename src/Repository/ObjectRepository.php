@@ -487,9 +487,9 @@ class ObjectRepository implements ObjectRepositoryInterface
         foreach ($dbColumns as $column => $acceptNull) {
             if ($column == 'id') {
                 continue;
-            } if(isset($data[$column])) {
+            } if (isset($data[$column])) {
                 $queryParams[$this->db->quoteIdentifier($column)] = $data[$column];
-            } else if($acceptNull) {
+            } else if ($acceptNull) {
                 $queryParams[$this->db->quoteIdentifier($column)] = null;
             }
         }
