@@ -77,6 +77,13 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($object->getMyNullableColumn(), $fromDb->getMyNullableColumn());
     }
 
+    public function testFindNull()
+    {
+        /** @var ExtendedDataObject $fromDb */
+        $fromDb = $this->repository->find(12345678, false);
+        $this->assertNull($fromDb);
+    }
+
     /**
      * @depends testSave
      * @param ExtendedDataObject $object
