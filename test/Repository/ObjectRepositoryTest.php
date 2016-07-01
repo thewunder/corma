@@ -157,6 +157,12 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->getRepository()->saveAll([$object]);
     }
 
+    public function testSaveAllEmptyArray()
+    {
+        $inserts = $this->getRepository()->saveAll([]);
+        $this->assertEquals(0, $inserts);
+    }
+
     public function testDelete()
     {
         $object = new ExtendedDataObject();
@@ -218,6 +224,12 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $repo = $this->getRepository();
         $repo->deleteAll($objects);
         $this->assertTrue($object->isDeleted());
+    }
+
+    public function testDeleteAllEmptyArray()
+    {
+        $deletes = $this->getRepository()->deleteAll([]);
+        $this->assertEquals(0, $deletes);
     }
 
     /**
