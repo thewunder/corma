@@ -8,6 +8,8 @@ use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Test\Fixtures\Repository\InvalidClassObjectRepository;
 use Corma\Test\Fixtures\Repository\NoClassObjectRepository;
+use Corma\Test\Fixtures\Repository\WithDependenciesRepository;
+use Corma\Test\Fixtures\WithDependencies;
 use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
@@ -69,6 +71,15 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $repository = $this->getRepository();
         $object = $repository->create();
         $this->assertInstanceOf(ExtendedDataObject::class, $object);
+    }
+
+    public function testCreateWithDependencies()
+    {
+        $repository = new WithDependenciesRepository($this->connection, $this->objectMapper, new ArrayCache());
+        /** @var WithDependencies $object */
+        $object = $repository->create();
+        $this->assertInstanceOf(WithDependencies::class, $object);
+        $this->assertInstanceOf(ObjectMapper::class, $object->getOrm());
     }
 
     /**
