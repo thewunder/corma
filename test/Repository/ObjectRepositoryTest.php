@@ -102,6 +102,27 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $repository->getTableName();
     }
 
+    public function testFind()
+    {
+        $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()
+            ->setMethods(['execute'])->getMock();
+
+        $mockStatement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()
+            ->setMethods(['fetch', 'setFetchMode'])->getMock();
+
+        $object = new ExtendedDataObject();
+        $object->setId(5);
+        $mockStatement->expects($this->once())->method('fetch')->willReturn($object);
+
+        $mockQb->expects($this->once())->method('execute')->willReturn($mockStatement);
+
+        $this->queryHelper->expects($this->once())->method('buildSelectQuery')->willReturn($mockQb);
+        $repository = $this->getRepository();
+        $return = $repository->find(5);
+        $this->assertTrue($object === $return);
+        $this->assertTrue($object == $repository->find(5)); //test cache hit
+    }
+
     public function testSave()
     {
         $object = new ExtendedDataObject();
