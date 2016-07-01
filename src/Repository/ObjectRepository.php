@@ -522,8 +522,10 @@ class ObjectRepository implements ObjectRepositoryInterface
         $object = $statement->fetch();
         if ($object) {
             $this->dispatchEvents('loaded', $object);
+            return $object;
+        } else {
+            return null;
         }
-        return $object;
     }
 
     /**
