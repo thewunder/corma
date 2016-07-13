@@ -52,4 +52,32 @@ class PagedQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $pagedQuery->getPrev());
         $this->assertEquals(4, $pagedQuery->getNext());
     }
+
+    /**
+     * @expectedException \Corma\Exception\InvalidArgumentException
+     */
+    public function testGetInvalidPageSize()
+    {
+        new PagedQuery($this->qb, $this->queryHelper, ExtendedDataObject::class, [], 0);
+    }
+
+    /**
+     * @expectedException \Corma\Exception\InvalidArgumentException
+     */
+    public function testGetInvalidPage()
+    {
+        $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, ExtendedDataObject::class, [], 50);
+        $pagedQuery->getResults(0);
+    }
+
+    public function testJsonSerialize()
+    {
+        $this->queryHelper->expects($this->any())->method('getCount')->willReturn(205);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, ExtendedDataObject::class, [], 50);
+        $object = $pagedQuery->jsonSerialize();
+        $this->assertEquals(50, $object->pageSize);
+        $this->assertEquals(5, $object->pages);
+        $this->assertEquals(205, $object->resultCount);
+    }
 }
