@@ -66,6 +66,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @requires PHP 7.0
      * @expectedException \Error
      */
     public function testExecuteTransactionError()
