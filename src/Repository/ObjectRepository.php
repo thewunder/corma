@@ -436,14 +436,14 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * @param DataObjectInterface $object
      * @param callable $afterSave
-     * @throws \Exception
+     * @param callable $exceptionHandler
      */
-    protected function saveWith(DataObjectInterface $object, callable $afterSave)
+    protected function saveWith(DataObjectInterface $object, callable $afterSave, callable $exceptionHandler = null)
     {
         $this->objectMapper->unitOfWork()->executeTransaction(function() use ($object, $afterSave){
             $this->save($object);
             $afterSave([$object]);
-        });
+        }, $exceptionHandler);
     }
 
     /**
@@ -454,14 +454,14 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * @param DataObjectInterface[] $objects
      * @param callable $afterSave
-     * @throws \Exception
+     * @param callable $exceptionHandler
      */
-    protected function saveAllWith(array $objects, callable $afterSave)
+    protected function saveAllWith(array $objects, callable $afterSave, callable $exceptionHandler = null)
     {
         $this->objectMapper->unitOfWork()->executeTransaction(function() use ($objects, $afterSave){
                 $this->saveAll($objects);
                 $afterSave($objects);
-            });
+            }, $exceptionHandler);
     }
 
     /**
