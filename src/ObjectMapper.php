@@ -9,6 +9,7 @@ use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\Relationship\RelationshipLoader;
 use Corma\Util\Inflector;
+use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
@@ -341,6 +342,14 @@ class ObjectMapper
             return $this->relationshipSaver;
         }
         return $this->relationshipSaver = new RelationshipSaver($this);
+    }
+
+    /**
+     * @return UnitOfWork
+     */
+    public function unitOfWork()
+    {
+        return new UnitOfWork($this);
     }
 
     /**

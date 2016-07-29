@@ -9,6 +9,7 @@ use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\QueryHelper\QueryHelper;
 use Corma\Util\Inflector;
+use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
@@ -231,6 +232,20 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
     public function testGetQueryHelper(ObjectMapper $corma)
     {
         $this->assertInstanceOf(QueryHelper::class, $corma->getQueryHelper());
+    }
+
+    public function testUnitOfWork()
+    {
+        $connection = $this->getMockBuilder(Connection::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
+
+        $corma = ObjectMapper::withDefaults($connection, ['Corma\\Test\\Fixtures']);
+
+        $unitOfWork = $corma->unitOfWork();
+        $this->assertInstanceOf(UnitOfWork::class, $unitOfWork);
     }
 
     /**
