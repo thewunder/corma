@@ -17,12 +17,12 @@ Corma is great because:
 * Can save multiple objects in a single query (using an upsert)
 * Makes it easy to cache and avoid database queries
 * Supports soft deletes
+* Makes it easy to handle transactions in a Unit of Work
 * Allows for customization through symfony events
 
 Corma doesn't:
 
 * Autoload or lazy load relationships by default
-* Have any Unit of Work concept, everything is executed right away
 * Do migrations or code generation
 
 Works in MySql and PostgreSQL.
