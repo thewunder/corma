@@ -441,7 +441,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected function saveWith(DataObjectInterface $object, callable $afterSave, callable $exceptionHandler = null)
     {
         $this->objectMapper->unitOfWork()->executeTransaction(function () use ($object, $afterSave) {
-            $this->save($object);
+            self::save($object);
             $afterSave([$object]);
         }, $exceptionHandler);
     }
@@ -459,7 +459,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected function saveAllWith(array $objects, callable $afterSave, callable $exceptionHandler = null)
     {
         $this->objectMapper->unitOfWork()->executeTransaction(function () use ($objects, $afterSave) {
-                $this->saveAll($objects);
+                self::saveAll($objects);
                 $afterSave($objects);
         }, $exceptionHandler);
     }
