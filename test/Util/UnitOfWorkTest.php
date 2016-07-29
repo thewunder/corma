@@ -64,6 +64,20 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         });
     }
 
+    /**
+     * @expectedException \Error
+     */
+    public function testExecuteTransactionError()
+    {
+        $unitOfWork = new UnitOfWork($this->objectMapper);
+        $this->connection->expects($this->once())->method('beginTransaction');
+        $this->connection->expects($this->once())->method('rollback');
+        $unitOfWork->executeTransaction(function(){
+            $x = null;
+            $x->gonnaThrow();
+        });
+    }
+
     public function testExecuteTransactionExceptionCustomHandler()
     {
         $unitOfWork = new UnitOfWork($this->objectMapper);
