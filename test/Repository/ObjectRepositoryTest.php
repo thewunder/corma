@@ -11,6 +11,7 @@ use Corma\Test\Fixtures\Repository\NoClassObjectRepository;
 use Corma\Test\Fixtures\Repository\WithDependenciesRepository;
 use Corma\Test\Fixtures\WithDependencies;
 use Corma\QueryHelper\QueryHelper;
+use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
@@ -47,9 +48,13 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->queryHelper->expects($this->any())->method('getConnection')->willReturn($this->connection);
+
         $this->objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
             ->getMock();
+
+        $this->objectMapper->expects($this->any())->method('unitOfWork')->willReturn(new UnitOfWork($this->objectMapper));
 
         $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($this->queryHelper);
     }

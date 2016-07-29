@@ -440,15 +440,10 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected function saveWith(DataObjectInterface $object, callable $afterSave)
     {
-        $this->db->beginTransaction();
-        try {
-            self::save($object);
+        $this->objectMapper->unitOfWork()->executeTransaction(function() use ($object, $afterSave){
+            $this->save($object);
             $afterSave([$object]);
-            $this->db->commit();
-        } catch (\Exception $e) {
-            $this->db->rollBack();
-            throw $e;
-        }
+        });
     }
 
     /**
@@ -463,15 +458,10 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected function saveAllWith(array $objects, callable $afterSave)
     {
-        $this->db->beginTransaction();
-        try {
-            self::saveAll($objects);
-            $afterSave($objects);
-            $this->db->commit();
-        } catch (\Exception $e) {
-            $this->db->rollBack();
-            throw $e;
-        }
+        $this->objectMapper->unitOfWork()->executeTransaction(function() use ($objects, $afterSave){
+                $this->saveAll($objects);
+                $afterSave($objects);
+            });
     }
 
     /**
