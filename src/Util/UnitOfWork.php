@@ -32,7 +32,7 @@ class UnitOfWork
     public function save(DataObjectInterface $object)
     {
         $class = get_class($object);
-        if(isset($this->objectsToSave[$class])) {
+        if (isset($this->objectsToSave[$class])) {
             $this->objectsToSave[$class][] = $object;
         } else {
             $this->objectsToSave[$class] = [$object];
@@ -46,7 +46,7 @@ class UnitOfWork
      */
     public function saveAll(array $objects)
     {
-        foreach($objects as $object) {
+        foreach ($objects as $object) {
             $this->save($object);
         }
         return $this;
@@ -59,7 +59,7 @@ class UnitOfWork
     public function delete(DataObjectInterface $object)
     {
         $class = get_class($object);
-        if(isset($this->objectsToDelete[$class])) {
+        if (isset($this->objectsToDelete[$class])) {
             $this->objectsToDelete[$class][] = $object;
         } else {
             $this->objectsToDelete[$class] = [$object];
@@ -73,7 +73,7 @@ class UnitOfWork
      */
     public function deleteAll(array $objects)
     {
-        foreach($objects as $object) {
+        foreach ($objects as $object) {
             $this->delete($object);
         }
         return $this;
@@ -97,14 +97,14 @@ class UnitOfWork
             $run();
             $db->commit();
         } catch (\Throwable $e) {
-            if($exceptionHandler) {
+            if ($exceptionHandler) {
                 $exceptionHandler($e);
             } else {
                 $db->rollBack();
                 throw $e;
             }
         } catch (\Exception $e) {
-            if($exceptionHandler) {
+            if ($exceptionHandler) {
                 $exceptionHandler($e);
             } else {
                 $db->rollBack();
@@ -120,16 +120,16 @@ class UnitOfWork
      */
     public function flush(callable $exceptionHandler = null)
     {
-        $this->executeTransaction(function(){
-            foreach($this->objectsToSave as $objects) {
-                if(count($objects) == 1) {
+        $this->executeTransaction(function () {
+            foreach ($this->objectsToSave as $objects) {
+                if (count($objects) == 1) {
                     $this->orm->save($objects[0]);
                 } else {
                     $this->orm->saveAll($objects);
                 }
             }
-            foreach($this->objectsToDelete as $objects) {
-                if(count($objects) == 1) {
+            foreach ($this->objectsToDelete as $objects) {
+                if (count($objects) == 1) {
                     $this->orm->delete($objects[0]);
                 } else {
                     $this->orm->deleteAll($objects);

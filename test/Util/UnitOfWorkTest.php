@@ -48,7 +48,8 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('commit');
-        $unitOfWork->executeTransaction(function(){});
+        $unitOfWork->executeTransaction(function () {
+        });
     }
 
     /**
@@ -59,7 +60,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('rollback');
-        $unitOfWork->executeTransaction(function(){
+        $unitOfWork->executeTransaction(function () {
             throw new \Exception();
         });
     }
@@ -72,7 +73,7 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('rollback');
-        $unitOfWork->executeTransaction(function(){
+        $unitOfWork->executeTransaction(function () {
             $x = null;
             $x->gonnaThrow();
         });
@@ -83,9 +84,9 @@ class UnitOfWorkTest extends \PHPUnit_Framework_TestCase
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $this->connection->expects($this->once())->method('beginTransaction');
         $hasRun = false;
-        $unitOfWork->executeTransaction(function(){
+        $unitOfWork->executeTransaction(function () {
             throw new \Exception('My Message');
-        }, function(\Exception $e) use(&$hasRun){
+        }, function (\Exception $e) use (&$hasRun) {
             $hasRun = true;
             $this->assertEquals('My Message', $e->getMessage());
         });
