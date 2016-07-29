@@ -1,3 +1,15 @@
+Version 2.1
+===========
+
+New Features
+------------
+* Introduce Unit of Work class to make dealing with transactions easier
+* New AggressiveCachingObjectRepository caches the entire table while allowing saves
+
+Fixes
+------
+* When retrieving a single object null is returned instead of false
+
 Version 2.0.2
 =============
 
