@@ -1,3 +1,10 @@
+Version 2.1.1
+===========
+
+Fixes
+------
+* Fix infinite loop when saveWith() or saveAllWith() was used in save() / saveAll()
+
 Version 2.1
 ===========
 
