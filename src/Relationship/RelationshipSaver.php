@@ -154,13 +154,17 @@ class RelationshipSaver
                 $foreignIdsToDelete[] = $id;
             }
         }
-        
-        $this->objectMapper->saveAll($foreignObjectsToSave);
 
-        if ($deleteMissing) {
-            $foreignObjectsToDelete = $this->objectMapper->findByIds($className, $foreignIdsToDelete);
-            $this->objectMapper->deleteAll($foreignObjectsToDelete);
-        }
+        $this->objectMapper->unitOfWork()->executeTransaction(
+            function () use ($foreignObjectsToSave, $deleteMissing, $className, $foreignIdsToDelete) {
+                $this->objectMapper->saveAll($foreignObjectsToSave);
+
+                if ($deleteMissing) {
+                    $foreignObjectsToDelete = $this->objectMapper->findByIds($className, $foreignIdsToDelete);
+                    $this->objectMapper->deleteAll($foreignObjectsToDelete);
+                }
+            }
+        );
     }
 
     /**
@@ -213,10 +217,11 @@ class RelationshipSaver
             }
         }
 
-        $queryHelper = $this->objectMapper->getQueryHelper();
-        $queryHelper->buildDeleteQuery($linkTable, [$idColumn=>DataObject::getIds($objects)])
-            ->execute();
-        $queryHelper->massInsert($linkTable, $linkData);
+        $this->objectMapper->unitOfWork()->executeTransaction(function () use ($linkTable, $idColumn, $objects, $linkData) {
+            $queryHelper = $this->objectMapper->getQueryHelper();
+            $queryHelper->buildDeleteQuery($linkTable, [$idColumn=>DataObject::getIds($objects)])->execute();
+            $queryHelper->massInsert($linkTable, $linkData);
+        });
     }
 
     /**
@@ -260,9 +265,13 @@ class RelationshipSaver
                 }
             }
         }
-        $this->objectMapper->saveAll($foreignObjectsToSave);
-        
-        $this->saveManyToManyLinks($objects, $className, $linkTable, $foreignObjectGetter, $idColumn, $foreignIdColumn);
+
+        $this->objectMapper->unitOfWork()->executeTransaction(
+            function () use ($foreignObjectsToSave, $objects, $className, $linkTable, $foreignObjectGetter, $idColumn, $foreignIdColumn) {
+                $this->objectMapper->saveAll($foreignObjectsToSave);
+                $this->saveManyToManyLinks($objects, $className, $linkTable, $foreignObjectGetter, $idColumn, $foreignIdColumn);
+            }
+        );
     }
 
     /**
