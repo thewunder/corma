@@ -194,10 +194,6 @@ class RelationshipSaver
             $foreignIdColumn = $this->inflector->idColumnFromClass($className);
         }
 
-        $queryHelper = $this->objectMapper->getQueryHelper();
-        $queryHelper->buildDeleteQuery($linkTable, [$idColumn=>DataObject::getIds($objects)])
-            ->execute();
-        
         $linkData = [];
         foreach ($objects as $object) {
             if (!method_exists($object, $foreignObjectGetter)) {
@@ -216,6 +212,10 @@ class RelationshipSaver
                 }
             }
         }
+
+        $queryHelper = $this->objectMapper->getQueryHelper();
+        $queryHelper->buildDeleteQuery($linkTable, [$idColumn=>DataObject::getIds($objects)])
+            ->execute();
         $queryHelper->massInsert($linkTable, $linkData);
     }
 
