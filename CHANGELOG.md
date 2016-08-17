@@ -1,3 +1,10 @@
+Version 2.1.2
+===========
+
+Fixes
+------
+* Fix potential data loss issues when saving a many-to-many relationship
+
 Version 2.1.1
 ===========
 
