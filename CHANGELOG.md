@@ -1,3 +1,10 @@
+Version 2.1.3
+===========
+
+New Features
+------
+* Support NOT IN() queries
+
 Version 2.1.2
 ===========
 
