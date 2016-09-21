@@ -245,29 +245,7 @@ class QueryHelper implements QueryHelperInterface
     {
         $firstWhere = true;
         foreach ($where as $wherePart => $value) {
-            $paramName = $this->getParameterName($wherePart);
-            $column = $this->getColumnName($wherePart);
-            $columnName = $this->db->quoteIdentifier($column);
-            $operator = $this->getOperator($wherePart);
-            if (is_array($value)) {
-                if ($operator == '<>' || $operator == '!=') {
-                    $clause = "$columnName NOT IN($paramName)";
-                } else {
-                    $clause = "$columnName IN($paramName)";
-                }
-                $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
-            } elseif ($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
-                if ($operator == '<>' || $operator == '!=') {
-                    $clause = $this->db->getDatabasePlatform()->getIsNotNullExpression($columnName);
-                } else {
-                    $clause = $this->db->getDatabasePlatform()->getIsNullExpression($columnName);
-                }
-            } elseif ($value !== null) {
-                $clause = "$columnName $operator $paramName";
-                $qb->setParameter($paramName, $value);
-            } else {
-                throw new InvalidArgumentException("Value for $column is null, but null is not allowed on this column");
-            }
+            $clause = $this->processWhereField($qb, $wherePart, $value);
 
             if ($firstWhere) {
                 $qb->where($clause);
@@ -275,6 +253,43 @@ class QueryHelper implements QueryHelperInterface
             } else {
                 $qb->andWhere($clause);
             }
+        }
+    }
+
+    /**
+     * @param QueryBuilder $qb
+     * @param $wherePart
+     * @param $value
+     * @return string
+     */
+    protected function processWhereField(QueryBuilder $qb, $wherePart, $value)
+    {
+        $paramName = $this->getParameterName($wherePart);
+        $column = $this->getColumnName($wherePart);
+        $columnName = $this->db->quoteIdentifier($column);
+        $operator = $this->getOperator($wherePart);
+        if (is_array($value)) {
+            if ($operator == '<>' || $operator == '!=') {
+                $clause = "$columnName NOT IN($paramName)";
+            } else {
+                $clause = "$columnName IN($paramName)";
+            }
+            $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
+            return $clause;
+        } elseif ($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
+            if ($operator == '<>' || $operator == '!=') {
+                $clause = $this->db->getDatabasePlatform()->getIsNotNullExpression($columnName);
+                return $clause;
+            } else {
+                $clause = $this->db->getDatabasePlatform()->getIsNullExpression($columnName);
+                return $clause;
+            }
+        } elseif ($value !== null) {
+            $clause = "$columnName $operator $paramName";
+            $qb->setParameter($paramName, $value);
+            return $clause;
+        } else {
+            throw new InvalidArgumentException("Value for $column is null, but null is not allowed on this column");
         }
     }
 
