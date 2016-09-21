@@ -248,18 +248,21 @@ class QueryHelper implements QueryHelperInterface
             $paramName = $this->getParameterName($wherePart);
             $column = $this->getColumnName($wherePart);
             $columnName = $this->db->quoteIdentifier($column);
+            $operator = $this->getOperator($wherePart);
             if (is_array($value)) {
-                $clause = "$columnName IN($paramName)";
+                if ($operator == '<>' || $operator == '!=') {
+                    $clause = "$columnName NOT IN($paramName)";
+                } else {
+                    $clause = "$columnName IN($paramName)";
+                }
                 $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
             } elseif ($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
-                $operator = $this->getOperator($wherePart);
                 if ($operator == '<>' || $operator == '!=') {
                     $clause = $this->db->getDatabasePlatform()->getIsNotNullExpression($columnName);
                 } else {
                     $clause = $this->db->getDatabasePlatform()->getIsNullExpression($columnName);
                 }
             } elseif ($value !== null) {
-                $operator = $this->getOperator($wherePart);
                 $clause = "$columnName $operator $paramName";
                 $qb->setParameter($paramName, $value);
             } else {
