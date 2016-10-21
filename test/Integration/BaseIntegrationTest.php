@@ -290,6 +290,31 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
     }
 
+    public function testLoadOneWithoutId()
+    {
+        $otherObject = new OtherDataObject();
+        $otherObject->setName('Other object one-to-many');
+
+        $otherObject2 = new OtherDataObject();
+        $otherObject2->setName('Other object one-to-many 2');
+        $this->objectMapper->saveAll([$otherObject, $otherObject2]);
+
+        $object = new ExtendedDataObject();
+        $object->setOtherDataObjectId($otherObject->getId());
+        $object2 = new ExtendedDataObject();
+        $object2->setOtherDataObjectId($otherObject2->getId());
+
+        $return = $this->repository->loadOne([$object, $object2], OtherDataObject::class);
+
+        $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
+        $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
+        $this->assertInstanceOf(OtherDataObject::class, $object2->getOtherDataObject());
+        $this->assertEquals('Other object one-to-many 2', $object2->getOtherDataObject()->getName());
+        $this->assertCount(2, $return);
+        $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
+        $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject2->getId()]);
+    }
+
     public function testLoadMany()
     {
         $object = new ExtendedDataObject();

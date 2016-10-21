@@ -47,9 +47,14 @@ class RelationshipLoader
         $idToForeignId = [];
         $foreignIdColumn = ucfirst($foreignIdColumn);
         $getter = 'get' . $foreignIdColumn;
-        foreach ($objects as $object) {
+        foreach ($objects as $i => $object) {
             if (method_exists($object, $getter)) {
-                $idToForeignId[$object->getId()] = $object->$getter();
+                $id = $object->getId();
+                if(!$id) {
+                    $id = $i;
+                }
+
+                $idToForeignId[$id] = $object->$getter();
             } else {
                 throw new MethodNotImplementedException("$getter must be defined on {$object->getClassName()} to load one-to-one relationship with $className");
             }
@@ -63,10 +68,15 @@ class RelationshipLoader
         unset($foreignObjects);
 
         $setter = 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn);
-        foreach ($objects as $object) {
+        foreach ($objects as $i => $object) {
             if (method_exists($object, $setter)) {
-                if (isset($foreignObjectsById[$idToForeignId[$object->getId()]])) {
-                    $object->$setter($foreignObjectsById[$idToForeignId[$object->getId()]]);
+                $id = $object->getId();
+                if(!$id) {
+                    $id = $i;
+                }
+
+                if (isset($foreignObjectsById[$idToForeignId[$id]])) {
+                    $object->$setter($foreignObjectsById[$idToForeignId[$id]]);
                 }
             } else {
                 throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load one-to-one relationship at $className");
