@@ -1,3 +1,11 @@
+Version 2.1.4
+===========
+
+Fixes
+------
+* Fix loadOne with objects without an id
+
+
 Version 2.1.3
 ===========
 
