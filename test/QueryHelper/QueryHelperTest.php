@@ -35,8 +35,7 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
 
-        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*',
-            ['main.column'=>'value', 'inColumn'=>[1,2,3], 'notInColumn !='=>[1,2,3], 'notEqualColumn <>'=>5, 'likeColumn LIKE'=>'%whatever%'], ['column'=>'ASC']);
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['main.column'=>'value'], ['column'=>'ASC']);
 
         $this->assertEquals(QueryBuilder::SELECT, $qb->getType());
 
@@ -44,10 +43,100 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([['table'=>'`test_table`', 'alias'=>'main']], $from);
 
         $where = (string) $qb->getQueryPart('where');
-        $this->assertEquals('(`main.column` = :column) AND (`inColumn` IN(:inColumn)) AND (`notInColumn` NOT IN(:notInColumn)) AND (`notEqualColumn` <> :notEqualColumn) AND (`likeColumn` LIKE :likeColumn)', $where);
+        $this->assertEquals('`main.column` = :column', $where);
+        $this->assertEquals('value', $qb->getParameter(':column'));
 
         $orderBy = $qb->getQueryPart('orderBy');
         $this->assertEquals(['`column` ASC'], $orderBy);
+    }
+
+    public function testNotEqualsQuery()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['notEqualColumn !='=>1, 'notEqualColumn2 <>'=>2]);
+
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('(`notEqualColumn` != :notEqualColumn) AND (`notEqualColumn2` <> :notEqualColumn2)', $where);
+        $this->assertEquals(1, $qb->getParameter(':notEqualColumn'));
+        $this->assertEquals(2, $qb->getParameter(':notEqualColumn2'));
+    }
+
+    public function testLessThanQuery()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['lessThanColumn <'=>1, 'lessThanEqColumn <='=>2]);
+
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('(`lessThanColumn` < :lessThanColumn) AND (`lessThanEqColumn` <= :lessThanEqColumn)', $where);
+        $this->assertEquals(1, $qb->getParameter(':lessThanColumn'));
+        $this->assertEquals(2, $qb->getParameter(':lessThanEqColumn'));
+    }
+
+    public function testGreaterThanQuery()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['greaterThanColumn >'=>1, 'greaterThanEqColumn >='=>2]);
+
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('(`greaterThanColumn` > :greaterThanColumn) AND (`greaterThanEqColumn` >= :greaterThanEqColumn)', $where);
+        $this->assertEquals(1, $qb->getParameter(':greaterThanColumn'));
+        $this->assertEquals(2, $qb->getParameter(':greaterThanEqColumn'));
+    }
+
+    public function testLikeQuery()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['likeColumn LIKE'=>'%whatever%']);
+
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('`likeColumn` LIKE :likeColumn', $where);
+        $this->assertEquals('%whatever%', $qb->getParameter(':likeColumn'));
+    }
+
+    public function testNotLikeQuery()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['likeColumn NOT LIKE'=>'%whatever%']);
+
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('`likeColumn` NOT LIKE :likeColumn', $where);
+        $this->assertEquals('%whatever%', $qb->getParameter(':likeColumn'));
+    }
+
+    public function testInQuery()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['inColumn'=>[1,2,3]]);
+
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('`inColumn` IN(:inColumn)', $where);
+        $this->assertEquals([1,2,3], $qb->getParameter(':inColumn'));
+        $this->assertEquals(Connection::PARAM_STR_ARRAY, $qb->getParameterType(':inColumn'));
+    }
+
+    public function testNotInQuery()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['inColumn !='=>[1,2,3]]);
+
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('`inColumn` NOT IN(:inColumn)', $where);
+        $this->assertEquals([1,2,3], $qb->getParameter(':inColumn'));
+        $this->assertEquals(Connection::PARAM_STR_ARRAY, $qb->getParameterType(':inColumn'));
     }
 
     public function testBetweenQuery()
@@ -58,6 +147,20 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['column BETWEEN'=>[5, 10]]);
         $where = (string) $qb->getQueryPart('where');
         $this->assertEquals('`column` BETWEEN :columnGreaterThan AND :columnLessThan', $where);
+        $this->assertEquals(5, $qb->getParameter(':columnGreaterThan'));
+        $this->assertEquals(10, $qb->getParameter(':columnLessThan'));
+    }
+
+    public function testNotBetweenQuery()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['column NOT BETWEEN'=>[5, 10]]);
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('`column` NOT BETWEEN :columnGreaterThan AND :columnLessThan', $where);
+        $this->assertEquals(5, $qb->getParameter(':columnGreaterThan'));
+        $this->assertEquals(10, $qb->getParameter(':columnLessThan'));
     }
 
     /**
