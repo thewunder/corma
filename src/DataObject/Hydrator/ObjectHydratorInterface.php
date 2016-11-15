@@ -1,7 +1,9 @@
 <?php
 namespace Corma\DataObject\Hydrator;
 
-
+/**
+ * Manages setting data onto an object, and retrieving data from an object
+ */
 interface ObjectHydratorInterface
 {
     /**

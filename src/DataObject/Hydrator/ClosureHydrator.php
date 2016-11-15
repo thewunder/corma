@@ -1,6 +1,9 @@
 <?php
 namespace Corma\DataObject\Hydrator;
 
+/**
+ * Hydrates and extracts data via a closure bound to the object
+ */
 class ClosureHydrator implements ObjectHydratorInterface
 {
     /** @var  \Closure */
