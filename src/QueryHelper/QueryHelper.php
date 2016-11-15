@@ -16,9 +16,9 @@ class QueryHelper implements QueryHelperInterface
      * 3. column
      * 4. optional comparison operator
      */
-    const WHERE_COLUMN_REGEX = '/^(([\w]+\\.)|)([\w]+)( LIKE|([^\w]*))/';
+    const WHERE_COLUMN_REGEX = '/^(([\w]+\\.)|)([\w]+)( LIKE| NOT LIKE| BETWEEN| NOT BETWEEN|([^\w]*))/';
 
-    protected $COMPARISON_OPERATORS = ['=', '<', '>', '<=', '>=', '<>', '!=', 'LIKE'];
+    protected $COMPARISON_OPERATORS = ['=', '<', '>', '<=', '>=', '<>', '!=', 'LIKE', 'NOT LIKE', 'BETWEEN', 'NOT BETWEEN'];
 
     /**
      * @var Connection
@@ -268,15 +268,26 @@ class QueryHelper implements QueryHelperInterface
         $column = $this->getColumnName($wherePart);
         $columnName = $this->db->quoteIdentifier($column);
         $operator = $this->getOperator($wherePart);
-        if (is_array($value)) {
+        if(strpos($operator, 'BETWEEN') !== false) {
+            if (!is_array($value) || !isset($value[0]) || !isset($value[1])) {
+                throw new InvalidArgumentException('BETWEEN value must be a 2 item array with numeric keys');
+            }
+            $gtParam = $paramName . 'GreaterThan';
+            $ltParam = $paramName . 'LessThan';
+            $clause = "$columnName $operator $gtParam AND $ltParam";
+            $qb->setParameter($gtParam, $value[0])
+                ->setParameter($ltParam, $value[1]);
+            return $clause;
+        } else if (is_array($value)) {
             if ($operator == '<>' || $operator == '!=') {
                 $clause = "$columnName NOT IN($paramName)";
+                $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
             } else {
                 $clause = "$columnName IN($paramName)";
+                $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
             }
-            $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
             return $clause;
-        } elseif ($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
+        } else if ($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
             if ($operator == '<>' || $operator == '!=') {
                 $clause = $this->db->getDatabasePlatform()->getIsNotNullExpression($columnName);
                 return $clause;

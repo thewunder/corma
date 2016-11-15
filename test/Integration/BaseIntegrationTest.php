@@ -194,6 +194,35 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testFindByBetween()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('0');
+        $objects[] = $object;
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('1');
+        $objects[] = $object;
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('2');
+        $objects[] = $object;
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('3');
+        $objects[] = $object;
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('4');
+        $objects[] = $object;
+        $this->repository->saveAll($objects);
+
+        /** @var ExtendedDataObject[] $betweenObjects */
+        $betweenObjects = $this->repository->findBy(['myColumn BETWEEN'=>[1, 3]]);
+        $this->assertCount(3, $betweenObjects);
+
+        foreach ($betweenObjects as $i => $object) {
+            $this->assertEquals($i+1, $object->getMyColumn());
+        }
+    }
+
     public function testFindByIsNotNull()
     {
         $object = new ExtendedDataObject();

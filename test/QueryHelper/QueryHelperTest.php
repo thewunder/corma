@@ -50,6 +50,30 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['`column` ASC'], $orderBy);
     }
 
+    public function testBetweenQuery()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['column BETWEEN'=>[5, 10]]);
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('`column` BETWEEN :columnGreaterThan AND :columnLessThan', $where);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage BETWEEN value must be a 2 item array with numeric keys
+     */
+    public function testInvalidBetweenQuery()
+    {
+        $qb = new QueryBuilder($this->connection);
+        $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
+            ->setMethods(['acceptsNull'])->setConstructorArgs([$this->connection, new ArrayCache()])
+            ->getMock();
+
+        $this->queryHelper->processWhereQuery($qb, ['column BETWEEN'=>['asdf']]);
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */
