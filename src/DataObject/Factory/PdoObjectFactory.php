@@ -21,7 +21,7 @@ class PdoObjectFactory implements ObjectFactoryInterface
 
     public function create($class, array $dependencies, array $data = [])
     {
-        if(empty($this->dependencies)) {
+        if(empty($dependencies)) {
             $object = new $class;
         } else {
             $reflectionClass = $this->getReflectionClass($class);
