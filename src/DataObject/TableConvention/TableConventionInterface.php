@@ -1,5 +1,5 @@
 <?php
-namespace Corma\DataObject;
+namespace Corma\DataObject\TableConvention;
 
 /**
  * Infers the database table name from the class or object passed in

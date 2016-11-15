@@ -1,5 +1,5 @@
 <?php
-namespace Corma\DataObject;
+namespace Corma\DataObject\Factory;
 use Doctrine\DBAL\Driver\Statement;
 
 

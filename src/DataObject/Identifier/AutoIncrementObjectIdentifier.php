@@ -1,6 +1,7 @@
 <?php
-namespace Corma\DataObject;
+namespace Corma\DataObject\Identifier;
 
+use Corma\DataObject\TableConvention\TableConventionInterface;
 use Corma\Exception\MethodNotImplementedException;
 use Corma\QueryHelper\QueryHelper;
 use Corma\Util\Inflector;

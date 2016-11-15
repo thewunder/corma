@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Corma\DataObject;
+namespace Corma\DataObject\Hydrator;
 
 
 interface ObjectHydratorInterface

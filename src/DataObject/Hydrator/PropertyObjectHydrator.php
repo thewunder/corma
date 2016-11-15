@@ -1,5 +1,5 @@
 <?php
-namespace Corma\DataObject;
+namespace Corma\DataObject\Hydrator;
 
 class PropertyObjectHydrator implements ObjectHydratorInterface
 {

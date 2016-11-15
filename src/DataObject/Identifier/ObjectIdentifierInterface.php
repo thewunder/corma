@@ -1,5 +1,5 @@
 <?php
-namespace Corma\DataObject;
+namespace Corma\DataObject\Identifier;
 
 /**
  * Manages getting, setting, and generating id's for objects

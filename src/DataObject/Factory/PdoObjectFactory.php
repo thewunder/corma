@@ -1,6 +1,7 @@
 <?php
-namespace Corma\DataObject;
+namespace Corma\DataObject\Factory;
 
+use Corma\DataObject\Hydrator\ObjectHydratorInterface;
 use Doctrine\DBAL\Driver\Statement;
 
 class PdoObjectFactory implements ObjectFactoryInterface

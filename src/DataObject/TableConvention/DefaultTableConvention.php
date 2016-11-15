@@ -1,5 +1,5 @@
 <?php
-namespace Corma\DataObject;
+namespace Corma\DataObject\TableConvention;
 
 use Corma\Util\Inflector;
 use Minime\Annotations\Interfaces\ReaderInterface;
