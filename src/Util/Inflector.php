@@ -9,6 +9,23 @@ use Doctrine\Common\Inflector\Inflector as DoctrineInflector;
 class Inflector
 {
     /**
+     * Gets the class minus namespace
+     *
+     * @param $classOrObject
+     * @return string
+     */
+    public function getShortClass($classOrObject)
+    {
+        if(is_string($classOrObject)) {
+            $class = $classOrObject;
+        } else {
+            $class = get_class($classOrObject);
+        }
+
+        return substr($class, strrpos($class, '\\') + 1);
+    }
+
+    /**
      * @param string $columnName
      * @param bool $plural
      * @return string Partial method name to get / set object(s)
@@ -36,6 +53,24 @@ class Inflector
         } else {
             return $method;
         }
+    }
+
+    /**
+     * @param string $column
+     * @return string
+     */
+    public function getterFromColumn($column)
+    {
+        return 'get' . DoctrineInflector::classify($column);
+    }
+
+    /**
+     * @param string $column
+     * @return string
+     */
+    public function setterFromColumn($column)
+    {
+        return 'set' . DoctrineInflector::classify($column);
     }
 
     /**
