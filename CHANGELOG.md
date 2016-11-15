@@ -1,3 +1,10 @@
+Version 2.1.5
+===========
+
+New Features
+------
+* Support NOT LIKE, BETWEEN, and NOT BETWEEN queries
+
 Version 2.1.4
 ===========
 
