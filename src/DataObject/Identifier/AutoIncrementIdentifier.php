@@ -20,7 +20,7 @@ class AutoIncrementIdentifier extends AnnotationCustomizableIdentifier
      */
     private $convention;
 
-    public function __construct(Inflector $inflector, ReaderInterface $reader, QueryHelper $queryHelper, TableConventionInterface $convention)
+    public function __construct(Inflector $inflector, ReaderInterface $reader = null, QueryHelper $queryHelper, TableConventionInterface $convention)
     {
         parent::__construct($inflector, $reader);
         $this->queryHelper = $queryHelper;
