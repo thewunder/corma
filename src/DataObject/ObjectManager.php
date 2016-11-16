@@ -104,12 +104,11 @@ class ObjectManager
     }
 
     /**
-     * @param object $object
      * @return string
      */
-    public function getIdColumn($object)
+    public function getIdColumn()
     {
-        return $this->identifier->getIdColumn($object);
+        return $this->identifier->getIdColumn($this->className);
     }
 
     /**

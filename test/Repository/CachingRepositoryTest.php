@@ -1,6 +1,8 @@
 <?php
 namespace Corma\Test\Repository;
 
+use Corma\DataObject\ObjectManager;
+use Corma\DataObject\ObjectManagerFactory;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\QueryHelper;
 use Corma\Test\Fixtures\Caching;
@@ -24,6 +26,9 @@ class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     private $cache;
 
+    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    private $objectManager;
+
     public function setUp()
     {
         $this->connection = $this->getMockBuilder(Connection::class)
@@ -43,6 +48,15 @@ class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->objectManager = $objectManager = $this->getMockBuilder(ObjectManager::class)
+            ->disableOriginalConstructor()->getMock();
+        $objectManager->method('getTable')->willReturn('cachings');
+        $objectManager->method('getIdColumn')->willReturn('id');
+        $objectManager->method('extract')->willReturn([]);
+        $objectManagerFactory = $this->getMockBuilder(ObjectManagerFactory::class)->disableOriginalConstructor()->getMock();
+        $objectManagerFactory->expects($this->any())->method('getManager')->willReturn($objectManager);
+
+        $this->objectMapper->method('getObjectManagerFactory')->willReturn($objectManagerFactory);
         $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($this->queryHelper);
 
         $this->cache = $this->getMockBuilder(ArrayCache::class)
@@ -55,6 +69,9 @@ class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $repository = $this->getRepository();
 
+        $object = new Caching();
+        $object->setId(9);
+        $repository->expects($this->once())->method('create')->willReturn($object);
         $object = $repository->find(9);
         $this->assertInstanceOf(Caching::class, $object);
         $this->assertEquals(9, $object->getId());
@@ -82,6 +99,7 @@ class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
         $repository = $this->getRepository();
         $willReturn = new Caching();
         $repository->expects($this->once())->method('fetchAll')->willReturn([$willReturn->setId(10)]);
+        $repository->expects($this->once())->method('create')->willReturn((new Caching())->setId(9));
 
         $objects = $repository->findByIds([9, 10]);
         $this->assertCount(2, $objects);
@@ -147,7 +165,7 @@ class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $repository = $this->getMockBuilder(CachingRepository::class)
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
-            ->setMethods(['fetchAll', 'fetchOne'])->getMock();
+            ->setMethods(['fetchAll', 'fetchOne', 'create'])->getMock();
 
         $repository->setClassName(Caching::class);
 

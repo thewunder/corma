@@ -58,7 +58,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
     public function testSave()
     {
-        $object = new ExtendedDataObject($this->dispatcher);
+        $object = new ExtendedDataObject();
         $object->setMyColumn('My Value')->setMyNullableColumn(15);
         $this->repository->save($object);
         $this->assertNotNull($object->getId());
@@ -108,7 +108,6 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
     public function testDelete(ExtendedDataObject $object)
     {
         $this->repository->delete($object);
-        $this->assertTrue($object->isDeleted());
 
         /** @var ExtendedDataObject $fromDb */
         $fromDb = $this->repository->find($object->getId(), false);

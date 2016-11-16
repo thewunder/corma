@@ -1,8 +1,6 @@
 <?php
 namespace Corma\Repository;
 
-use Corma\DataObject\DataObjectInterface;
-
 /**
  * Repository that aggressively caches its results so that find, findByIds, and findAll operate exclusively from cache.
  *
@@ -44,7 +42,7 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
         return $objects;
     }
 
-    public function save(DataObjectInterface $object)
+    public function save($object)
     {
         parent::save($object);
         $this->cache->delete($this->getCacheKey());
@@ -58,7 +56,7 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
         return $result;
     }
 
-    public function delete(DataObjectInterface $object)
+    public function delete($object)
     {
         parent::delete($object);
         $this->cache->delete($this->getCacheKey());

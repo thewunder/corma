@@ -5,16 +5,15 @@ use Symfony\Component\EventDispatcher\Event as BaseEvent;
 
 class DataObjectEvent extends BaseEvent implements DataObjectEventInterface
 {
-    /** @var DataObjectInterface */
     protected $object;
 
-    public function __construct(DataObjectInterface $object)
+    public function __construct($object)
     {
         $this->object = $object;
     }
 
     /**
-     * @return DataObjectInterface
+     * @return object
      */
     public function getObject()
     {

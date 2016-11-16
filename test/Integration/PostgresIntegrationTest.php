@@ -1,9 +1,12 @@
 <?php
 namespace Corma\Test\Integration;
 
+use Corma\DataObject\ObjectManager;
+use Corma\DataObject\ObjectManagerFactory;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\PostgreSQLQueryHelper;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
+use Corma\Util\Inflector;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
@@ -16,9 +19,12 @@ class PostgresIntegrationTest extends BaseIntegrationTest
     {
         $cache = new ArrayCache();
         $mySQLQueryHelper = new PostgreSQLQueryHelper(self::$connection, $cache);
+
+        $objectManagerFactory = ObjectMapper::createObjectManagerFactory($mySQLQueryHelper, new Inflector());
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $objectMapper->method('getObjectManagerFactory')->willReturn($objectManagerFactory);
         $objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($mySQLQueryHelper);
         $this->repository = new ExtendedDataObjectRepository(self::$connection, $objectMapper, $cache, $this->dispatcher);
 

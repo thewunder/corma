@@ -107,7 +107,7 @@ class ObjectMapper
      * @param ReaderInterface|null $reader
      * @return ObjectManagerFactory
      */
-    protected static function createObjectManagerFactory(QueryHelperInterface $queryHelper, Inflector $inflector, ReaderInterface $reader = null)
+    public static function createObjectManagerFactory(QueryHelperInterface $queryHelper, Inflector $inflector, ReaderInterface $reader = null)
     {
         $hydrator = new ClosureHydrator();
         $factory = new PdoObjectFactory($hydrator);

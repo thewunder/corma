@@ -54,7 +54,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         foreach ($cachedData as $data) {
             $object = $this->restoreFromCache($data);
             $objects[] = $object;
-            unset($ids[array_search($object->getId(), $ids)]);
+            unset($ids[array_search($this->getObjectManger()->getId($object), $ids)]);
         }
 
         if (empty($ids)) {
@@ -66,7 +66,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         return array_merge($objects, $fromDb);
     }
 
-    public function save(DataObjectInterface $object)
+    public function save($object)
     {
         $object = parent::save($object);
         $this->storeInCache($object);
@@ -84,7 +84,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         return $result;
     }
 
-    public function delete(DataObjectInterface $object)
+    public function delete($object)
     {
         parent::delete($object);
         $this->cache->delete($this->getCacheKey($object->getId()));

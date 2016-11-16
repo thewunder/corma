@@ -1,6 +1,8 @@
 <?php
 namespace Corma\Test\Repository;
 
+use Corma\DataObject\ObjectManager;
+use Corma\DataObject\ObjectManagerFactory;
 use Corma\ObjectMapper;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\AggressiveCachingRepository;
@@ -23,6 +25,9 @@ class AggressiveCachingRepositoryTest extends \PHPUnit_Framework_TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     private $cache;
 
+    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    private $objectManager;
+
     public function setUp()
     {
         $this->connection = $this->getMockBuilder(Connection::class)
@@ -41,6 +46,15 @@ class AggressiveCachingRepositoryTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->objectManager = $objectManager = $this->getMockBuilder(ObjectManager::class)
+            ->disableOriginalConstructor()->getMock();
+        $objectManager->method('getTable')->willReturn('extended_data_objects');
+        $objectManager->method('getIdColumn')->willReturn('id');
+        $objectManager->method('extract')->willReturn([]);
+        $objectManagerFactory = $this->getMockBuilder(ObjectManagerFactory::class)->disableOriginalConstructor()->getMock();
+        $objectManagerFactory->expects($this->any())->method('getManager')->willReturn($objectManager);
+
+        $this->objectMapper->method('getObjectManagerFactory')->willReturn($objectManagerFactory);
         $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($this->queryHelper);
 
         $this->cache = $this->getMockBuilder(ArrayCache::class)
@@ -59,15 +73,15 @@ class AggressiveCachingRepositoryTest extends \PHPUnit_Framework_TestCase
         $objects = [];
         $object = new ExtendedDataObject();
         $objects[] = $object->setId(1)->setMyColumn('My Value');
-        $object = new ExtendedDataObject();
-        $objects[] = $object->setId(2)->setMyColumn('My Value 2');
+        $object2 = new ExtendedDataObject();
+        $objects[] = $object2->setId(2)->setMyColumn('My Value 2');
 
         $repository->expects($this->once())->method('fetchAll')->willReturn($objects);
-
         $objects = $repository->findAll();
         $this->assertCount(2, $objects);
         $this->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
 
+        $repository->expects($this->exactly(2))->method('create')->willReturnOnConsecutiveCalls($object, $object2);
         /** @var ExtendedDataObject[] $objects */
         $objects = $repository->findAll();
         $this->assertCount(2, $objects);
@@ -114,7 +128,7 @@ class AggressiveCachingRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $repository = $this->getMockBuilder(AggressiveCachingRepository::class)
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
-            ->setMethods(['fetchAll', 'insert'])->getMock();
+            ->setMethods(['fetchAll', 'insert', 'create'])->getMock();
 
         return $repository;
     }
