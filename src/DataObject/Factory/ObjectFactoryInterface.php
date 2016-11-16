@@ -1,7 +1,7 @@
 <?php
 namespace Corma\DataObject\Factory;
-use Doctrine\DBAL\Driver\Statement;
 
+use Doctrine\DBAL\Driver\Statement;
 
 /**
  * Manages the construction of objects
@@ -9,12 +9,14 @@ use Doctrine\DBAL\Driver\Statement;
 interface ObjectFactoryInterface
 {
     /**
+     * Retrieves a single instance of the specified object
+     *
      * @param string $class
      * @param array $dependencies
      * @param array $data
      * @return object
      */
-    public function create($class, array $dependencies, array $data = []);
+    public function create($class, array $dependencies = [], array $data = []);
 
     /**
      * Retrieves all items from select statement, hydrated, and with dependencies
@@ -22,9 +24,9 @@ interface ObjectFactoryInterface
      * @param string $class
      * @param Statement|\PDOStatement $statement
      * @param array $dependencies
-     * @return \object[]
+     * @return object[]
      */
-    public function fetchAll($class, $statement, array $dependencies);
+    public function fetchAll($class, $statement, array $dependencies = []);
 
     /**
      * Retrieves a single item from select statement, hydrated, and with dependencies
@@ -34,5 +36,5 @@ interface ObjectFactoryInterface
      * @param array $dependencies
      * @return object
      */
-    public function fetchOne($class, $statement, array $dependencies);
+    public function fetchOne($class, $statement, array $dependencies = []);
 }
