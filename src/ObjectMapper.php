@@ -2,6 +2,12 @@
 namespace Corma;
 
 use Corma\DataObject\DataObjectInterface;
+use Corma\DataObject\Factory\PdoObjectFactory;
+use Corma\DataObject\Hydrator\ClosureHydrator;
+use Corma\DataObject\Identifier\AutoIncrementIdentifier;
+use Corma\DataObject\ObjectManagerFactory;
+use Corma\DataObject\TableConvention\AnnotationCustomizableTableConvention;
+use Corma\DataObject\TableConvention\DefaultTableConvention;
 use Corma\Relationship\RelationshipSaver;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
@@ -13,6 +19,7 @@ use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
+use Minime\Annotations\Interfaces\ReaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -24,6 +31,11 @@ class ObjectMapper
      * @var ObjectRepositoryFactoryInterface
      */
     private $repositoryFactory;
+
+    /**
+     * @var ObjectManagerFactory
+     */
+    private $objectManagerFactory;
 
     /**
      * @var QueryHelperInterface
@@ -52,10 +64,11 @@ class ObjectMapper
      * @param array $namespaces Namespaces to search for data objects and repositories
      * @param CacheProvider $cache Cache for table metadata and repositories
      * @param EventDispatcherInterface $dispatcher
+     * @param ReaderInterface $reader
      * @param array $additionalDependencies Additional dependencies to inject into Repository constructors
      * @return static
      */
-    public static function withDefaults(Connection $db, array $namespaces, CacheProvider $cache = null, EventDispatcherInterface $dispatcher = null, array $additionalDependencies = [])
+    public static function withDefaults(Connection $db, array $namespaces, CacheProvider $cache = null, EventDispatcherInterface $dispatcher = null, ReaderInterface $reader = null, array $additionalDependencies = [])
     {
         if ($cache === null) {
             $cache = new ArrayCache();
@@ -63,7 +76,9 @@ class ObjectMapper
 
         $queryHelper = self::createQueryHelper($db, $cache);
         $repositoryFactory = new ObjectRepositoryFactory($namespaces);
-        $instance = new static($queryHelper, $repositoryFactory, new Inflector());
+        $inflector = new Inflector();
+        $objectManagerFactory = self::createObjectManagerFactory($queryHelper, $inflector, $reader);
+        $instance = new static($queryHelper, $repositoryFactory, $objectManagerFactory, $inflector);
         $dependencies = array_merge([$db, $instance, $cache, $dispatcher], $additionalDependencies);
         $repositoryFactory->setDependencies($dependencies);
         return $instance;
@@ -87,15 +102,36 @@ class ObjectMapper
     }
 
     /**
+     * @param QueryHelperInterface $queryHelper
+     * @param Inflector $inflector
+     * @param ReaderInterface|null $reader
+     * @return ObjectManagerFactory
+     */
+    protected static function createObjectManagerFactory(QueryHelperInterface $queryHelper, Inflector $inflector, ReaderInterface $reader = null)
+    {
+        $hydrator = new ClosureHydrator();
+        $factory = new PdoObjectFactory($hydrator);
+        if($reader) {
+            $tableConvention = new AnnotationCustomizableTableConvention($inflector, $reader);
+        } else {
+            $tableConvention = new DefaultTableConvention($inflector);
+        }
+
+        $identifier = new AutoIncrementIdentifier($inflector, $reader, $queryHelper, $tableConvention);
+        return new ObjectManagerFactory($factory, $hydrator, $tableConvention, $identifier);
+    }
+
+    /**
      * ObjectMapper constructor.
      * @param QueryHelperInterface $queryHelper
      * @param ObjectRepositoryFactoryInterface $repositoryFactory
      * @param Inflector $inflector
      */
-    public function __construct(QueryHelperInterface $queryHelper, ObjectRepositoryFactoryInterface $repositoryFactory, Inflector $inflector)
+    public function __construct(QueryHelperInterface $queryHelper, ObjectRepositoryFactoryInterface $repositoryFactory, ObjectManagerFactory $objectManagerFactory, Inflector $inflector)
     {
         $this->queryHelper = $queryHelper;
         $this->repositoryFactory = $repositoryFactory;
+        $this->objectManagerFactory = $objectManagerFactory;
         $this->inflector = $inflector;
     }
 
@@ -350,6 +386,14 @@ class ObjectMapper
     public function unitOfWork()
     {
         return new UnitOfWork($this);
+    }
+
+    /**
+     * @return ObjectManagerFactory
+     */
+    public function getObjectManagerFactory()
+    {
+        return $this->objectManagerFactory;
     }
 
     /**

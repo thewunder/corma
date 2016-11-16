@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Test;
 
+use Corma\DataObject\ObjectManagerFactory;
 use Corma\ObjectMapper;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
@@ -260,13 +261,16 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
 
-        $mockFactory = $this->getMockBuilder(ObjectRepositoryFactory::class)
+        $repositoryFactory = $this->getMockBuilder(ObjectRepositoryFactory::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockFactory->expects($this->once())->method('getRepository')->with('ExtendedDataObject')->willReturn($mockRepository);
+        $repositoryFactory->expects($this->once())->method('getRepository')->with('ExtendedDataObject')->willReturn($mockRepository);
 
-        /** @var ObjectRepositoryFactoryInterface $mockFactory */
-        return new ObjectMapper(new QueryHelper($connection, new ArrayCache()), $mockFactory, new Inflector());
+        $objectManagerFactory = $this->getMockBuilder(ObjectManagerFactory::class)
+            ->disableOriginalConstructor()->getMock();
+
+        /** @var ObjectRepositoryFactoryInterface $repositoryFactory */
+        return new ObjectMapper(new QueryHelper($connection, new ArrayCache()), $repositoryFactory, $objectManagerFactory,  new Inflector());
     }
 }
