@@ -1,37 +1,20 @@
 <?php
 namespace Corma\DataObject\Identifier;
 
-use Corma\DataObject\TableConvention\TableConventionInterface;
 use Corma\Exception\MethodNotImplementedException;
-use Corma\QueryHelper\QueryHelper;
 use Corma\Util\Inflector;
 use Minime\Annotations\Interfaces\ReaderInterface;
 
-class AutoIncrementObjectIdentifier implements ObjectIdentifierInterface
+abstract class BaseIndentifier implements ObjectIdentifierInterface
 {
     /**
      * @var Inflector
      */
-    private $inflector;
-    /**
-     * @var QueryHelper
-     */
-    private $queryHelper;
-    /**
-     * @var TableConventionInterface
-     */
-    private $convention;
-    /**
-     * @var ReaderInterface
-     */
-    private $reader;
+    protected $inflector;
 
-    public function __construct(Inflector $inflector, QueryHelper $queryHelper, TableConventionInterface $convention, ReaderInterface $reader)
+    public function __construct(Inflector $inflector)
     {
         $this->inflector = $inflector;
-        $this->queryHelper = $queryHelper;
-        $this->convention = $convention;
-        $this->reader = $reader;
     }
 
     /**
@@ -87,24 +70,12 @@ class AutoIncrementObjectIdentifier implements ObjectIdentifierInterface
         throw new MethodNotImplementedException("$setter must be implemented on ".get_class($object));
     }
 
-    public function setNewId($object)
-    {
-        $this->setId($object, $this->queryHelper->getLastInsertId($this->convention->getTable($object), $this->getIdColumn($object)));
-    }
-
     /**
      * @param string|object $objectOrClass
      * @return string Database column name containing the identifier for the object
      */
     public function getIdColumn($objectOrClass)
     {
-        $annotations = $this->reader->getClassAnnotations($objectOrClass);
-        if(isset($annotations['identifier'])) {
-            if(is_string($annotations['identifier'])) {
-                return $annotations['identifier'];
-            }
-        }
-
         return 'id';
     }
 }
