@@ -43,7 +43,7 @@ class ClosureHydrator implements ObjectHydratorInterface
      *
      * @return \Closure
      */
-    public static function getDefaultHydrate()
+    public function getDefaultHydrate()
     {
         return function (array $data) {
             foreach ($data as $name => $value) {
@@ -65,7 +65,7 @@ class ClosureHydrator implements ObjectHydratorInterface
     /**
      * @return \Closure
      */
-    public static function getDefaultExtract()
+    public function getDefaultExtract()
     {
         return function () {
             $data = [];
@@ -79,5 +79,21 @@ class ClosureHydrator implements ObjectHydratorInterface
             }
             return $data;
         };
+    }
+
+    /**
+     * @param \Closure $hydrateClosure
+     */
+    public function setHydrateClosure($hydrateClosure)
+    {
+        $this->hydrateClosure = $hydrateClosure;
+    }
+
+    /**
+     * @param \Closure $extractClosure
+     */
+    public function setExtractClosure($extractClosure)
+    {
+        $this->extractClosure = $extractClosure;
     }
 }
