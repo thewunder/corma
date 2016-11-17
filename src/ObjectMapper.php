@@ -1,13 +1,7 @@
 <?php
 namespace Corma;
 
-use Corma\DataObject\object;
-use Corma\DataObject\Factory\PdoObjectFactory;
-use Corma\DataObject\Hydrator\ClosureHydrator;
-use Corma\DataObject\Identifier\AutoIncrementIdentifier;
 use Corma\DataObject\ObjectManagerFactory;
-use Corma\DataObject\TableConvention\AnnotationCustomizableTableConvention;
-use Corma\DataObject\TableConvention\DefaultTableConvention;
 use Corma\Relationship\RelationshipSaver;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
@@ -77,7 +71,7 @@ class ObjectMapper
         $queryHelper = self::createQueryHelper($db, $cache);
         $repositoryFactory = new ObjectRepositoryFactory($namespaces);
         $inflector = new Inflector();
-        $objectManagerFactory = self::createObjectManagerFactory($queryHelper, $inflector, $reader);
+        $objectManagerFactory = ObjectManagerFactory::withDefaults($queryHelper, $inflector, $reader);
         $instance = new static($queryHelper, $repositoryFactory, $objectManagerFactory, $inflector);
         $dependencies = array_merge([$db, $instance, $cache, $dispatcher], $additionalDependencies);
         $repositoryFactory->setDependencies($dependencies);
@@ -99,26 +93,6 @@ class ObjectMapper
         }
 
         return new QueryHelper($db, $cache);
-    }
-
-    /**
-     * @param QueryHelperInterface $queryHelper
-     * @param Inflector $inflector
-     * @param ReaderInterface|null $reader
-     * @return ObjectManagerFactory
-     */
-    public static function createObjectManagerFactory(QueryHelperInterface $queryHelper, Inflector $inflector, ReaderInterface $reader = null)
-    {
-        $hydrator = new ClosureHydrator();
-        $factory = new PdoObjectFactory($hydrator);
-        if($reader) {
-            $tableConvention = new AnnotationCustomizableTableConvention($inflector, $reader);
-        } else {
-            $tableConvention = new DefaultTableConvention($inflector);
-        }
-
-        $identifier = new AutoIncrementIdentifier($inflector, $reader, $queryHelper, $tableConvention);
-        return new ObjectManagerFactory($factory, $hydrator, $tableConvention, $identifier);
     }
 
     /**

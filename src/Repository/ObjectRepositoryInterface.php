@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Repository;
 
-use Corma\DataObject\object;
 use Doctrine\Common\Persistence\ObjectRepository as DoctrineObjectRepository;
 
 /**
@@ -29,7 +28,7 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      *
      * @param array $ids
      * @param bool $useCache Use cache?
-     * @return \Corma\DataObject\object[]
+     * @return object[]
      */
     public function findByIds(array $ids, $useCache = true);
 

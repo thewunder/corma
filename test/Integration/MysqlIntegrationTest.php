@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Test\Integration;
 
+use Corma\DataObject\ObjectManagerFactory;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\MySQLQueryHelper;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
@@ -17,7 +18,7 @@ class MysqlIntegrationTest extends BaseIntegrationTest
     {
         $cache = new ArrayCache();
         $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
-        $objectManagerFactory = ObjectMapper::createObjectManagerFactory($mySQLQueryHelper, new Inflector());
+        $objectManagerFactory = ObjectManagerFactory::withDefaults($mySQLQueryHelper, new Inflector());
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
             ->getMock();
