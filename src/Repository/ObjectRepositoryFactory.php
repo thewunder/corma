@@ -54,7 +54,7 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
                 return $repository;
             } else {
                 $objectClass = "$namespace\\$objectName";
-                if (class_exists($objectClass) && is_subclass_of($objectClass, DataObjectInterface::class)) {
+                if (class_exists($objectClass)) {
                     /** @var ObjectRepository $default */
                     $default = $this->createRepository(ObjectRepository::class);
                     $default->setClassName($objectClass);

@@ -1,8 +1,6 @@
 <?php
 namespace Corma\Repository;
 
-use Corma\DataObject\DataObjectInterface;
-
 /**
  * Caches individual objects by id, by default for 24 hours
  */
@@ -74,7 +72,7 @@ abstract class CachingObjectRepository extends ObjectRepository
     }
 
     /**
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @return int
      */
     public function saveAll(array $objects)
@@ -87,15 +85,17 @@ abstract class CachingObjectRepository extends ObjectRepository
     public function delete($object)
     {
         parent::delete($object);
-        $this->cache->delete($this->getCacheKey($object->getId()));
+        $om = $this->getObjectManger();
+        $this->cache->delete($this->getCacheKey($om->getId($object)));
     }
 
     public function deleteAll(array $objects)
     {
         $result = parent::deleteAll($objects);
-        /** @var DataObjectInterface $object */
+        $om = $this->getObjectManger();
+        /** @var object $object */
         foreach ($objects as $object) {
-            $this->cache->delete($this->getCacheKey($object->getId()));
+            $this->cache->delete($this->getCacheKey($om->getId($object)));
         }
         return $result;
     }
@@ -112,21 +112,25 @@ abstract class CachingObjectRepository extends ObjectRepository
 
 
     /**
-     * @param DataObjectInterface $object
+     * @param object $object
      */
-    protected function storeInCache(DataObjectInterface $object)
+    protected function storeInCache($object)
     {
-        $this->cache->save($this->getCacheKey($object->getId()), $object->getData(), $this->getCacheLifetime());
+        $om = $this->getObjectManger();
+        $id = $om->getId($object);
+        $this->cache->save($this->getCacheKey($id), $om->extract($object), $this->getCacheLifetime());
     }
 
     /**
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      */
     protected function storeMultipleInCache(array $objects)
     {
         $data = [];
+        $om = $this->getObjectManger();
         foreach ($objects as $object) {
-            $data[$this->getCacheKey($object->getId())] = $object->getData();
+            $id = $om->getId($object);
+            $data[$this->getCacheKey($id)] = $om->extract($object);
         }
         $this->cache->saveMultiple($data, $this->getCacheLifetime());
     }

@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Util;
 
-use Corma\DataObject\DataObjectInterface;
 use Corma\ObjectMapper;
 
 /**
@@ -26,10 +25,10 @@ class UnitOfWork
     }
 
     /**
-     * @param DataObjectInterface $object
+     * @param object $object
      * @return $this
      */
-    public function save(DataObjectInterface $object)
+    public function save($object)
     {
         $class = get_class($object);
         if (isset($this->objectsToSave[$class])) {
@@ -41,7 +40,7 @@ class UnitOfWork
     }
 
     /**
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @return $this
      */
     public function saveAll(array $objects)
@@ -53,10 +52,10 @@ class UnitOfWork
     }
 
     /**
-     * @param DataObjectInterface $object
+     * @param object $object
      * @return $this
      */
-    public function delete(DataObjectInterface $object)
+    public function delete($object)
     {
         $class = get_class($object);
         if (isset($this->objectsToDelete[$class])) {
@@ -68,7 +67,7 @@ class UnitOfWork
     }
 
     /**
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @return $this
      */
     public function deleteAll(array $objects)

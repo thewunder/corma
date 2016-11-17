@@ -2,7 +2,6 @@
 namespace Corma\Relationship;
 
 use Corma\DataObject\DataObject;
-use Corma\DataObject\DataObjectInterface;
 use Corma\Exception\MethodNotImplementedException;
 use Corma\ObjectMapper;
 use Corma\Util\Inflector;
@@ -33,10 +32,10 @@ class RelationshipLoader
      *
      * Can be used to load a one-to-one relationship or the "one" side of a one-to-many relationship.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @return object[] Loaded objects keyed by id
      */
     public function loadOne(array $objects, $className, $foreignIdColumn)
     {
@@ -90,10 +89,10 @@ class RelationshipLoader
      *
      * Used to load the "many" side of a one-to-many relationship.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Property on foreign object that relates to this object id
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @return object[] Loaded objects keyed by id
      */
     public function loadMany(array $objects, $className, $foreignColumn)
     {
@@ -133,7 +132,7 @@ class RelationshipLoader
 
         $flattenedForeignObjects = [];
         foreach ($foreignObjectsById as $array) {
-            /** @var DataObjectInterface $object */
+            /** @var object $object */
             foreach ($array as $object) {
                 $flattenedForeignObjects[$object->getId()] = $object;
             }
@@ -144,12 +143,12 @@ class RelationshipLoader
     /**
      * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @return object[] Loaded objects keyed by id
      */
     public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
     {

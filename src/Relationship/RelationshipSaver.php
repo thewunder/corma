@@ -2,7 +2,6 @@
 namespace Corma\Relationship;
 
 use Corma\DataObject\DataObject;
-use Corma\DataObject\DataObjectInterface;
 use Corma\Exception\MethodNotImplementedException;
 use Corma\ObjectMapper;
 use Corma\Util\Inflector;
@@ -36,13 +35,13 @@ class RelationshipSaver
      *
      * Can be used to save a one-to-one relationship or the "one" side of a one-to-many relationship.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      */
     public function saveOne(array $objects, $foreignIdColumn)
     {
         $getter = 'get' . $this->inflector->methodNameFromColumn($foreignIdColumn);
-        /** @var DataObjectInterface[] $foreignObjectsByObjectId */
+        /** @var object[] $foreignObjectsByObjectId */
         $foreignObjectsByObjectId = [];
         foreach ($objects as $object) {
             if (!method_exists($object, $getter)) {
@@ -90,7 +89,7 @@ class RelationshipSaver
      *
      * Missing objects will be deleted by default.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignObjectGetter Name of getter to retrieve foreign objects
      * @param string $foreignColumn Property on foreign object that relates to this object id
@@ -129,7 +128,7 @@ class RelationshipSaver
                 }
             }
 
-            /** @var DataObjectInterface[] $foreignObjects */
+            /** @var object[] $foreignObjects */
             $foreignObjects = $object->{$foreignObjectGetter}();
             if (!empty($foreignObjects)) {
                 if (!is_array($foreignObjects)) {
@@ -173,7 +172,7 @@ class RelationshipSaver
      * This method does not insert or update the foreign objects.
      * Missing foreign objects will be removed from the link table.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
      * @param string $foreignObjectGetter Name of getter to retrieve foreign objects
@@ -204,7 +203,7 @@ class RelationshipSaver
                 throw new MethodNotImplementedException("$foreignObjectGetter must be defined on {$object->getClassName()} to save relationship");
             }
 
-            /** @var DataObjectInterface[] $foreignObjects */
+            /** @var object[] $foreignObjects */
             $foreignObjects = $object->{$foreignObjectGetter}();
             if (!empty($foreignObjects)) {
                 if (!is_array($foreignObjects)) {
@@ -230,7 +229,7 @@ class RelationshipSaver
      * This method inserts / updates the foreign objects.
      * Missing foreign objects will be removed from the link table, but not deleted.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
      * @param string $foreignObjectGetter Name of getter to retrieve foreign objects
@@ -253,7 +252,7 @@ class RelationshipSaver
                 throw new MethodNotImplementedException("$foreignObjectGetter must be defined on {$object->getClassName()} to save relationship");
             }
 
-            /** @var DataObjectInterface[] $foreignObjects */
+            /** @var object[] $foreignObjects */
             $foreignObjects = $object->{$foreignObjectGetter}();
             if (!empty($foreignObjects)) {
                 if (!is_array($foreignObjects)) {
@@ -277,7 +276,7 @@ class RelationshipSaver
     /**
      * Retrieve foreign ids for a one-to-many relationship
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className
      * @param string $foreignColumn
      * @return array objectId => map of foreign ids

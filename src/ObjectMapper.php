@@ -1,7 +1,7 @@
 <?php
 namespace Corma;
 
-use Corma\DataObject\DataObjectInterface;
+use Corma\DataObject\object;
 use Corma\DataObject\Factory\PdoObjectFactory;
 use Corma\DataObject\Hydrator\ClosureHydrator;
 use Corma\DataObject\Identifier\AutoIncrementIdentifier;
@@ -148,7 +148,7 @@ class ObjectMapper
      * Creates a new instance of the requested object
      *
      * @param string $objectName Object class with or without namespace
-     * @return DataObjectInterface
+     * @return object
      */
     public function create($objectName)
     {
@@ -161,7 +161,7 @@ class ObjectMapper
      * @param string $objectName Object class with or without namespace
      * @param string|int $id
      * @param bool $useCache Use cache?
-     * @return DataObjectInterface
+     * @return object
      */
     public function find($objectName, $id, $useCache = true)
     {
@@ -173,7 +173,7 @@ class ObjectMapper
      *
      * @param string $objectName Object class with or without namespace
      * @param array $ids
-     * @return DataObjectInterface[]
+     * @return object[]
      */
     public function findByIds($objectName, array $ids)
     {
@@ -184,7 +184,7 @@ class ObjectMapper
      * Find all of the specified object type
      *
      * @param string $objectName Object class with or without namespace
-     * @return DataObjectInterface[]
+     * @return object[]
      */
     public function findAll($objectName)
     {
@@ -197,7 +197,7 @@ class ObjectMapper
      * @param array $orderBy column => order pairs
      * @param int $limit Maximum results to return
      * @param int $offset First result to return
-     * @return DataObjectInterface[]
+     * @return object[]
      *
      * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
@@ -211,7 +211,7 @@ class ObjectMapper
      *
      * @param string $objectName Object class with or without namespace
      * @param array $criteria column => value pairs
-     * @return DataObjectInterface
+     * @return object
      *
      * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
@@ -228,10 +228,10 @@ class ObjectMapper
      *
      * $foreignIdColumn defaults to foreignObjectId if the $className is Namespace\\ForeignObject
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id (defaults to if the class = ForeignObject foreignObjectId)
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @return object[] Loaded objects keyed by id
      */
     public function loadOne(array $objects, $className, $foreignIdColumn = null)
     {
@@ -250,10 +250,10 @@ class ObjectMapper
      *
      * This works on objects of mixed type, although they must have exactly the same $foreignColumn, or use the default.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Column / property on foreign object that relates to this object id
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @return object[] Loaded objects keyed by id
      */
     public function loadMany(array $objects, $className, $foreignColumn = null)
     {
@@ -272,12 +272,12 @@ class ObjectMapper
      * This works theoretically on objects of mixed type, although they must have the same link table, which makes this in reality only usable.
      * by for objects of the same class.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @return object[] Loaded objects keyed by id
      */
     public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
     {
@@ -293,10 +293,10 @@ class ObjectMapper
     /**
      * Persists a single object to the database
      *
-     * @param DataObjectInterface $object
-     * @return DataObjectInterface
+     * @param object $object
+     * @return object
      */
-    public function save(DataObjectInterface $object)
+    public function save($object)
     {
         return $this->getRepository($object->getClassName())->save($object);
     }
@@ -306,7 +306,7 @@ class ObjectMapper
      *
      * This method works on objects of mixed type.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      */
     public function saveAll(array $objects)
     {
@@ -318,10 +318,9 @@ class ObjectMapper
     }
 
     /**
-     * @param DataObjectInterface $object
-     * @return void
+     * @param object $object
      */
-    public function delete(DataObjectInterface $object)
+    public function delete($object)
     {
         $this->getRepository($object->getClassName())->delete($object);
     }
@@ -331,7 +330,7 @@ class ObjectMapper
      *
      * This method works on objects of mixed type.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      */
     public function deleteAll(array $objects)
     {
@@ -397,7 +396,7 @@ class ObjectMapper
     }
 
     /**
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @return array
      */
     protected function groupByClass(array $objects)

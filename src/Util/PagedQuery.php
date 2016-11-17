@@ -63,7 +63,7 @@ class PagedQuery implements \JsonSerializable
     /**
      * @param int $page Starts at 1
      * @param bool $allResults
-     * @return DataObjectInterface[]
+     * @return object[]
      */
     public function getResults($page, $allResults = false)
     {
@@ -81,7 +81,7 @@ class PagedQuery implements \JsonSerializable
         }
 
         $statement = $this->qb->execute();
-        return $statement->fetchAll(\PDO::FETCH_CLASS, $this->class, $this->dependencies);
+        return $statement->fetchAll(\PDO::FETCH_CLASS, $this->class, $this->dependencies);  //TODO: use object manager
     }
 
     /**

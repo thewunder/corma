@@ -38,12 +38,12 @@ abstract class DataObject implements DataObjectInterface
     }
 
     /**
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @return array
      */
     public static function getIds(array $objects)
     {
-        return array_map(function (DataObjectInterface $object) {
+        return array_map(function ($object) {
             return $object->getId();
         }, $objects);
     }
