@@ -52,7 +52,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         foreach ($cachedData as $data) {
             $object = $this->restoreFromCache($data);
             $objects[] = $object;
-            unset($ids[array_search($this->getObjectManger()->getId($object), $ids)]);
+            unset($ids[array_search($this->getObjectManager()->getId($object), $ids)]);
         }
 
         if (empty($ids)) {
@@ -85,14 +85,14 @@ abstract class CachingObjectRepository extends ObjectRepository
     public function delete($object)
     {
         parent::delete($object);
-        $om = $this->getObjectManger();
+        $om = $this->getObjectManager();
         $this->cache->delete($this->getCacheKey($om->getId($object)));
     }
 
     public function deleteAll(array $objects)
     {
         $result = parent::deleteAll($objects);
-        $om = $this->getObjectManger();
+        $om = $this->getObjectManager();
         /** @var object $object */
         foreach ($objects as $object) {
             $this->cache->delete($this->getCacheKey($om->getId($object)));
@@ -116,7 +116,7 @@ abstract class CachingObjectRepository extends ObjectRepository
      */
     protected function storeInCache($object)
     {
-        $om = $this->getObjectManger();
+        $om = $this->getObjectManager();
         $id = $om->getId($object);
         $this->cache->save($this->getCacheKey($id), $om->extract($object), $this->getCacheLifetime());
     }
@@ -127,7 +127,7 @@ abstract class CachingObjectRepository extends ObjectRepository
     protected function storeMultipleInCache(array $objects)
     {
         $data = [];
-        $om = $this->getObjectManger();
+        $om = $this->getObjectManager();
         foreach ($objects as $object) {
             $id = $om->getId($object);
             $data[$this->getCacheKey($id)] = $om->extract($object);

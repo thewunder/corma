@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Repository;
 
+use Corma\DataObject\ObjectManager;
 use Doctrine\Common\Persistence\ObjectRepository as DoctrineObjectRepository;
 
 /**
@@ -105,4 +106,9 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @return object[] Loaded objects keyed by id
      */
     public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null);
+
+    /**
+     * @return ObjectManager
+     */
+    public function getObjectManager();
 }

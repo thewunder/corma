@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Util;
 
-use Corma\DataObject\DataObjectInterface;
 use Corma\Exception\InvalidArgumentException;
 use Corma\QueryHelper\QueryHelperInterface;
 use Doctrine\DBAL\Query\QueryBuilder;

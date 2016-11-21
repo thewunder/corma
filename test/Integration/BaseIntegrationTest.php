@@ -1,8 +1,7 @@
 <?php
 namespace Integration;
 
-use Corma\DataObject\DataObject;
-use Corma\DataObject\DataObjectInterface;
+use Corma\DataObject\Identifier\ObjectIdentifierInterface;
 use Corma\ObjectMapper;
 use Corma\Repository\ObjectRepositoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
@@ -22,13 +21,17 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
     /** @var ObjectMapper */
     protected $objectMapper;
 
+    /** @var  ObjectIdentifierInterface */
+    protected $identifier;
+
     /** @var Connection */
     protected static $connection;
-    
+
     public function setUp()
     {
         $this->dispatcher = new EventDispatcher();
         $this->objectMapper = ObjectMapper::withDefaults(self::$connection, ['Corma\\Test\\Fixtures']);
+        $this->identifier = $this->objectMapper->getObjectManagerFactory()->getIdentifier();
         $this->repository = $this->objectMapper->getRepository(ExtendedDataObject::class);
     }
     
@@ -116,7 +119,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testDelete
-     * @return \Corma\DataObject\DataObjectInterface[]
+     * @return object[]
      */
     public function testFindAll()
     {
@@ -145,7 +148,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $this->repository->find($object->getId());
 
-        $ids = ExtendedDataObject::getIds($objects);
+        $ids = $this->identifier->getIds($objects);
         $ids[] = $object->getId();
 
         $fromDb = $this->repository->findByIds($ids);
@@ -292,12 +295,8 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $rows = $this->repository->deleteAll($objects);
         $this->assertEquals(2, $rows);
 
-        $allFromDb = $this->repository->findByIds(DataObject::getIds($objects), false);
+        $allFromDb = $this->repository->findByIds($this->identifier->getIds($objects), false);
         $this->assertCount(2, $allFromDb);
-        /** @var DataObjectInterface $objectFromDb */
-        foreach ($allFromDb as $objectFromDb) {
-            $this->assertTrue($objectFromDb->isDeleted());
-        }
     }
 
     public function testLoadOne()

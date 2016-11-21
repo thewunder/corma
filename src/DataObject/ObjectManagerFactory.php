@@ -20,6 +20,7 @@ class ObjectManagerFactory
      * @var ObjectFactoryInterface
      */
     protected $factory;
+
     /**
      * @var ObjectHydratorInterface
      */
@@ -32,7 +33,6 @@ class ObjectManagerFactory
      * @var ObjectIdentifierInterface
      */
     protected $identifier;
-
     public function __construct(ObjectFactoryInterface $factory, ObjectHydratorInterface $hydrator, TableConventionInterface $tableConvention, ObjectIdentifierInterface $identifier)
     {
         $this->factory = $factory;
@@ -80,5 +80,37 @@ class ObjectManagerFactory
         $identifier = $identifier ? $identifier : $this->identifier;
 
         return new ObjectManager($factory, $hydrator, $tableConvention, $identifier, $className, $dependencies);
+    }
+
+    /**
+     * @return ObjectFactoryInterface
+     */
+    public function getFactory()
+    {
+        return $this->factory;
+    }
+
+    /**
+     * @return ObjectHydratorInterface
+     */
+    public function getHydrator()
+    {
+        return $this->hydrator;
+    }
+
+    /**
+     * @return TableConventionInterface
+     */
+    public function getTableConvention()
+    {
+        return $this->tableConvention;
+    }
+
+    /**
+     * @return ObjectIdentifierInterface
+     */
+    public function getIdentifier()
+    {
+        return $this->identifier;
     }
 }

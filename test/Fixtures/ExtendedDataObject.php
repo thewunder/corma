@@ -1,13 +1,10 @@
 <?php
 namespace Corma\Test\Fixtures;
 
-use Corma\DataObject\DataObject;
-use Corma\DataObject\DataObjectInterface;
-
 /**
  * A Fixture
  */
-class ExtendedDataObject extends DataObject
+class ExtendedDataObject extends BaseDataObject
 {
     protected $myColumn;
     protected $myNullableColumn;
@@ -16,7 +13,7 @@ class ExtendedDataObject extends DataObject
     /** @var array */
     protected $arrayProperty;
 
-    /** @var DataObjectInterface */
+    /** @var ExtendedDataObject */
     protected $objectProperty;
 
     /** @var OtherDataObject */
@@ -80,7 +77,7 @@ class ExtendedDataObject extends DataObject
     }
 
     /**
-     * @return DataObjectInterface
+     * @return ExtendedDataObject
      */
     public function getObjectProperty()
     {
@@ -88,7 +85,7 @@ class ExtendedDataObject extends DataObject
     }
 
     /**
-     * @param DataObjectInterface $objectProperty
+     * @param ExtendedDataObject $objectProperty
      * @return ExtendedDataObject
      */
     public function setObjectProperty($objectProperty)

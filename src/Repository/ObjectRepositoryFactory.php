@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Repository;
 
-use Corma\DataObject\DataObjectInterface;
 use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\InvalidClassException;

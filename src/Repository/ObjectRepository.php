@@ -77,7 +77,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     public function create(array $data = [])
     {
-        return $this->getObjectManger()->create($data);
+        return $this->getObjectManager()->create($data);
     }
 
     public function find($id, $useCache = true)
@@ -120,7 +120,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     public function findAll()
     {
-        $om = $this->getObjectManger();
+        $om = $this->getObjectManager();
         $table = $om->getTable();
         $dbColumns = $this->queryHelper->getDbColumns($table);
         if (isset($dbColumns['isDeleted'])) {
@@ -253,7 +253,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function getTableName()
     {
-        return $this->getObjectManger()->getTable();
+        return $this->getObjectManager()->getTable();
     }
 
     /**
@@ -269,7 +269,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $this->dispatchEvents('beforeSave', $object);
 
-        if ($this->getObjectManger()->getId($object)) {
+        if ($this->getObjectManager()->getId($object)) {
             $this->update($object);
         } else {
             $this->insert($object);
@@ -291,7 +291,7 @@ class ObjectRepository implements ObjectRepositoryInterface
             return 0;
         }
 
-        $om = $this->getObjectManger();
+        $om = $this->getObjectManager();
 
         foreach ($objects as $object) {
             $this->checkArgument($object);
@@ -345,7 +345,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->checkArgument($object);
         $this->dispatchEvents('beforeDelete', $object);
 
-        $om = $this->getObjectManger();
+        $om = $this->getObjectManager();
         $table = $om->getTable();
         $idColumn = $om->getIdColumn();
         $id = $om->getId($object);
@@ -378,7 +378,7 @@ class ObjectRepository implements ObjectRepositoryInterface
             $this->dispatchEvents('beforeDelete', $object);
         }
 
-        $om = $this->getObjectManger();
+        $om = $this->getObjectManager();
         $idColumn = $om->getIdColumn();
 
         $columns = $this->queryHelper->getDbColumns($om->getTable());
@@ -399,7 +399,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * @return ObjectManager
      */
-    protected function getObjectManger()
+    public function getObjectManager()
     {
         if($this->objectManager) {
             return $this->objectManager;
@@ -422,7 +422,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $this->db->insert($this->getTableName(), $queryParams);
 
-        $this->getObjectManger()->setNewId($object);
+        $this->getObjectManager()->setNewId($object);
 
         $this->dispatchEvents('afterInsert', $object);
         return $object;
@@ -439,7 +439,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $queryParams = $this->buildQueryParams($object);
 
-        $om = $this->getObjectManger();
+        $om = $this->getObjectManager();
         $this->db->update($this->getTableName(), $queryParams, [$om->getIdColumn()=>$om->getId($object)]);
 
         $this->dispatchEvents('afterUpdate', $object);
@@ -489,7 +489,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected function buildQueryParams($object)
     {
         $queryParams = [];
-        $om = $this->getObjectManger();
+        $om = $this->getObjectManager();
         $dbColumns = $this->queryHelper->getDbColumns($om->getTable());
         $data = $om->extract($object);
         foreach ($dbColumns as $column => $acceptNull) {
@@ -512,7 +512,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         /** @var Statement $statement */
         $statement = $qb->execute();
-        $objects = $this->getObjectManger()->fetchAll($statement);
+        $objects = $this->getObjectManager()->fetchAll($statement);
         foreach ($objects as $object) {
             $this->dispatchEvents('loaded', $object);
         }
@@ -526,7 +526,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected function fetchOne(QueryBuilder $qb)
     {
         $statement = $qb->setMaxResults(1)->execute();
-        $object = $this->getObjectManger()->fetchOne($statement);
+        $object = $this->getObjectManager()->fetchOne($statement);
         if ($object) {
             $this->dispatchEvents('loaded', $object);
             return $object;
@@ -576,7 +576,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected function restoreFromCache(array $data)
     {
         $object = $this->create($data);
-        $this->objectByIdCache[$this->getObjectManger()->getId($object)] = $object;
+        $this->objectByIdCache[$this->getObjectManager()->getId($object)] = $object;
         return $object;
     }
 
@@ -606,7 +606,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected function storeAllInCache(array $objects, $key, $lifeTime = 0)
     {
         $dataToCache = [];
-        $om = $this->getObjectManger();
+        $om = $this->getObjectManager();
         foreach ($objects as $object) {
             $dataToCache[] = $om->extract($object);
             $this->objectByIdCache[$om->getId($object)] = $object;

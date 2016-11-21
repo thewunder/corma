@@ -4,7 +4,7 @@ namespace Corma\Test\Fixtures;
 use Corma\DataObject\DataObject;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ObjectWithDependencies extends DataObject
+class ObjectWithDependencies extends BaseDataObject
 {
     /**
      * @var EventDispatcherInterface

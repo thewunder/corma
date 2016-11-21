@@ -48,7 +48,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 
         $mockRepo->expects($this->once())->method('create');
 
-        $this->getCorma($mockRepo)->create('ExtendedDataObject');
+        $this->getCorma($mockRepo)->create(ExtendedDataObject::class);
     }
 
     public function testFind()
@@ -59,7 +59,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 
         $mockRepo->expects($this->once())->method('find')->with(5);
 
-        $this->getCorma($mockRepo)->find('ExtendedDataObject', 5);
+        $this->getCorma($mockRepo)->find(ExtendedDataObject::class, 5);
     }
 
     public function testFindByIds()
@@ -70,7 +70,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 
         $mockRepo->expects($this->once())->method('findByIds')->with([5, 15]);
 
-        $this->getCorma($mockRepo)->findByIds('ExtendedDataObject', [5, 15]);
+        $this->getCorma($mockRepo)->findByIds(ExtendedDataObject::class, [5, 15]);
     }
 
     public function testFindAll()
@@ -81,7 +81,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 
         $mockRepo->expects($this->once())->method('findAll');
 
-        $this->getCorma($mockRepo)->findAll('ExtendedDataObject');
+        $this->getCorma($mockRepo)->findAll(ExtendedDataObject::class);
     }
 
     public function testFindBy()
@@ -92,7 +92,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 
         $mockRepo->expects($this->once())->method('findBy')->with(['asdf'=>'value'], ['asdf'=>'ASC'], 2, 1);
 
-        $this->getCorma($mockRepo)->findBy('ExtendedDataObject', ['asdf'=>'value'], ['asdf'=>'ASC'], 2, 1);
+        $this->getCorma($mockRepo)->findBy(ExtendedDataObject::class, ['asdf'=>'value'], ['asdf'=>'ASC'], 2, 1);
     }
 
     public function testFindOneBy()
@@ -103,7 +103,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 
         $mockRepo->expects($this->once())->method('findOneBy')->with(['asdf'=>'value']);
 
-        $this->getCorma($mockRepo)->findOneBy('ExtendedDataObject', ['asdf'=>'value']);
+        $this->getCorma($mockRepo)->findOneBy(ExtendedDataObject::class, ['asdf'=>'value']);
     }
 
     public function testLoadOneToMany()
@@ -265,7 +265,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $repositoryFactory->expects($this->once())->method('getRepository')->with('ExtendedDataObject')->willReturn($mockRepository);
+        $repositoryFactory->expects($this->once())->method('getRepository')->with(ExtendedDataObject::class)->willReturn($mockRepository);
 
         $objectManagerFactory = $this->getMockBuilder(ObjectManagerFactory::class)
             ->disableOriginalConstructor()->getMock();

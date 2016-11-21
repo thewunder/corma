@@ -272,7 +272,7 @@ class ObjectMapper
      */
     public function save($object)
     {
-        return $this->getRepository($object->getClassName())->save($object);
+        return $this->getRepository(get_class($object))->save($object);
     }
 
     /**
@@ -296,7 +296,7 @@ class ObjectMapper
      */
     public function delete($object)
     {
-        $this->getRepository($object->getClassName())->delete($object);
+        $this->getRepository(get_class($object))->delete($object);
     }
 
     /**
@@ -370,6 +370,16 @@ class ObjectMapper
     }
 
     /**
+     * @param string|object $objectOrClass
+     * @return DataObject\ObjectManager
+     */
+    public function getObjectManager($objectOrClass)
+    {
+        $class = is_string($objectOrClass) ? $objectOrClass : get_class($objectOrClass);
+        return $this->getRepository($class)->getObjectManager();
+    }
+
+    /**
      * @param object[] $objects
      * @return array
      */
@@ -377,7 +387,7 @@ class ObjectMapper
     {
         $objectsByClass = [];
         foreach ($objects as $object) {
-            $objectsByClass[$object->getClassName()][] = $object;
+            $objectsByClass[get_class($object)][] = $object;
         }
         return $objectsByClass;
     }

@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Repository;
 
-use Corma\DataObject\DataObjectInterface;
 use Corma\Exception\BadMethodCallException;
 
 /**

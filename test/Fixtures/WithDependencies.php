@@ -1,10 +1,9 @@
 <?php
 namespace Corma\Test\Fixtures;
 
-use Corma\DataObject\DataObject;
 use Corma\ObjectMapper;
 
-class WithDependencies extends DataObject
+class WithDependencies extends BaseDataObject
 {
     /**
      * @var ObjectMapper
