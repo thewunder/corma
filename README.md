@@ -31,11 +31,11 @@ Install via Composer
 --------------------
 Via the command line:
 
-    composer.phar require thewunder/corma ~2.0
+    composer.phar require thewunder/corma ~3.0
 
 Or add the following to the require section your composer.json:
 
-    "thewunder/corma": "~2.0"
+    "thewunder/corma": "~3.0"
 
 Basic Usage
 -----------
@@ -43,7 +43,9 @@ Create a DataObject
 ```php
 namespace YourNamespace\Dataobjects;
 
-class YourDataObject extends DataObject {
+class YourDataObject {
+    protected $id;
+
     //If the property name == column name on the table your_data_objects it will be saved
     protected $myColumn;
 
