@@ -11,10 +11,6 @@ abstract class DataObject implements DataObjectInterface
     protected $id;
     protected $isDeleted;
 
-    public function __construct()
-    {
-    }
-
     /**
      * Get the table this data object is persisted in
      *
