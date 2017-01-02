@@ -135,7 +135,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $all;
     }
 
-    public function findBy(array $criteria, array $orderBy = [], $limit = null, $offset = null)
+    public function findBy(array $criteria, ?array $orderBy = [], $limit = null, $offset = null)
     {
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria, $orderBy);
         if ($limit) {
