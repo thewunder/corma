@@ -22,7 +22,7 @@ interface QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where array
      */
-    public function buildSelectQuery($table, $columns = 'main.*', array $where = [], array $orderBy = []);
+    public function buildSelectQuery(string $table, $columns = 'main.*', array $where = [], array $orderBy = []);
 
     /**
      * Build an update query for the provided table
@@ -34,7 +34,7 @@ interface QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where array
      */
-    public function buildUpdateQuery($table, array $update, array $where);
+    public function buildUpdateQuery(string $table, array $update, array $where);
 
     /**
      * Build a delete query for the provided table
@@ -45,7 +45,7 @@ interface QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where array
      */
-    public function buildDeleteQuery($table, array $where);
+    public function buildDeleteQuery(string $table, array $where);
 
     /**
      * Update multiple rows
@@ -57,7 +57,7 @@ interface QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where array
      */
-    public function massUpdate($table, array $update, array $where);
+    public function massUpdate(string $table, array $update, array $where);
 
     /**
      * Insert multiple rows
@@ -66,7 +66,7 @@ interface QueryHelperInterface
      * @param array $rows array of column => value
      * @return int The number of inserted rows
      */
-    public function massInsert($table, array $rows);
+    public function massInsert(string $table, array $rows);
 
     /**
      * Insert multiple rows, if a row with a duplicate key is found will update the row, may assume that id is the primary key
@@ -76,7 +76,7 @@ interface QueryHelperInterface
      * @param null $lastInsertId Optional reference to populate with the last auto increment id
      * @return int The number of affected rows
      */
-    public function massUpsert($table, array $rows, &$lastInsertId = null);
+    public function massUpsert(string $table, array $rows, &$lastInsertId = null);
 
     /**
      * Delete multiple rows
@@ -88,7 +88,7 @@ interface QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function massDelete($table, array $where);
+    public function massDelete(string $table, array $where);
 
     /**
      * Counts the number of results that would be returned by the select query provided
@@ -124,7 +124,7 @@ interface QueryHelperInterface
      * @param string $table
      * @return array column => accepts null (bool)
      */
-    public function getDbColumns($table);
+    public function getDbColumns(string $table);
 
     /**
      * Is this exception caused by a duplicate record (i.e. unique index constraint violation)
@@ -141,7 +141,7 @@ interface QueryHelperInterface
      * @param string $column
      * @return string
      */
-    public function getLastInsertId($table, $column = 'id');
+    public function getLastInsertId(string $table, ?string $column = 'id');
 
     /**
      * @return Connection

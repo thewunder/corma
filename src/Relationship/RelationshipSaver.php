@@ -37,7 +37,7 @@ class RelationshipSaver
      * @param object[] $objects
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      */
-    public function saveOne(array $objects, $foreignIdColumn)
+    public function saveOne(array $objects, string $foreignIdColumn)
     {
         if(empty($objects)) {
             return;
@@ -106,7 +106,7 @@ class RelationshipSaver
      * @param string $foreignColumn Property on foreign object that relates to this object id
      * @param boolean $deleteMissing Set to false to leave objects alone if missing
      */
-    public function saveMany(array $objects, $className, $foreignObjectGetter = null, $foreignColumn = null, $deleteMissing = true)
+    public function saveMany(array $objects, string $className, ?string $foreignObjectGetter = null, ?string $foreignColumn = null, bool $deleteMissing = true)
     {
         if (empty($objects)) {
             return;
@@ -197,7 +197,8 @@ class RelationshipSaver
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
      */
-    public function saveManyToManyLinks(array $objects, $className, $linkTable, $foreignObjectGetter = null, $idColumn = null, $foreignIdColumn = null)
+    public function saveManyToManyLinks(array $objects, string $className, string $linkTable, ?string $foreignObjectGetter = null,
+                                        ?string $idColumn = null, ?string $foreignIdColumn = null)
     {
         if (empty($objects)) {
             return;
@@ -259,7 +260,8 @@ class RelationshipSaver
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
      */
-    public function saveManyToMany(array $objects, $className, $linkTable, $foreignObjectGetter = null, $idColumn = null, $foreignIdColumn = null)
+    public function saveManyToMany(array $objects, string $className, string $linkTable, ?string $foreignObjectGetter = null,
+                                   ?string $idColumn = null, ?string $foreignIdColumn = null)
     {
         if (empty($objects)) {
             return;
@@ -306,7 +308,7 @@ class RelationshipSaver
      * @param string $foreignColumn
      * @return array objectId => map of foreign ids
      */
-    protected function getExistingForeignIds(array $objects, $className, $foreignColumn)
+    protected function getExistingForeignIds(array $objects, string $className, string $foreignColumn)
     {
         $om = $this->objectMapper->getObjectManager($objects[0]);
         $objectIds = $om->getIds($objects);

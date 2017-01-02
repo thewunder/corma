@@ -6,7 +6,7 @@ namespace Corma\Repository;
  */
 abstract class CachingObjectRepository extends ObjectRepository
 {
-    public function find($id, $useCache = true)
+    public function find($id, bool $useCache = true)
     {
         if (!$useCache) {
             return parent::find($id, false);
@@ -25,7 +25,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         return $object;
     }
 
-    public function findByIds(array $ids, $useCache = true)
+    public function findByIds(array $ids, bool $useCache = true)
     {
         if (!$useCache) {
             return parent::findByIds($ids, false);

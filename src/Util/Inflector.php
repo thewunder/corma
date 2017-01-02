@@ -30,7 +30,7 @@ class Inflector
      * @param bool $plural
      * @return string Partial method name to get / set object(s)
      */
-    public function methodNameFromColumn($columnName, $plural = false)
+    public function methodNameFromColumn(string $columnName, bool $plural = false)
     {
         $method = ucfirst(str_replace(['Id', '_id'], '', $columnName));
         if ($plural) {
@@ -45,7 +45,7 @@ class Inflector
      * @param bool $plural
      * @return string Partial method name to get / set object(s)
      */
-    public function methodNameFromClass($className, $plural = false)
+    public function methodNameFromClass(string $className, bool $plural = false)
     {
         $method = substr($className, strrpos($className, '\\') + 1);
         if ($plural) {
@@ -59,7 +59,7 @@ class Inflector
      * @param string $column
      * @return string
      */
-    public function getterFromColumn($column)
+    public function getterFromColumn(string $column)
     {
         return 'get' . DoctrineInflector::classify($column);
     }
@@ -68,7 +68,7 @@ class Inflector
      * @param string $column
      * @return string
      */
-    public function setterFromColumn($column)
+    public function setterFromColumn(string $column)
     {
         return 'set' . DoctrineInflector::classify($column);
     }
@@ -78,7 +78,7 @@ class Inflector
      * @param string $suffix
      * @return string
      */
-    public function idColumnFromClass($className, $suffix = 'Id')
+    public function idColumnFromClass(string $className, ?string $suffix = 'Id')
     {
         return lcfirst(substr($className, strrpos($className, '\\') + 1)) . $suffix;
     }

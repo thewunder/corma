@@ -62,7 +62,7 @@ class ObjectMapper
      * @param array $additionalDependencies Additional dependencies to inject into Repository constructors
      * @return static
      */
-    public static function withDefaults(Connection $db, array $namespaces, CacheProvider $cache = null, EventDispatcherInterface $dispatcher = null, ReaderInterface $reader = null, array $additionalDependencies = [])
+    public static function withDefaults(Connection $db, array $namespaces, ?CacheProvider $cache = null, ?EventDispatcherInterface $dispatcher = null, ?ReaderInterface $reader = null, array $additionalDependencies = [])
     {
         if ($cache === null) {
             $cache = new ArrayCache();
@@ -113,7 +113,7 @@ class ObjectMapper
      * @param string $objectName Object class with or without namespace
      * @return Repository\ObjectRepositoryInterface
      */
-    public function getRepository($objectName)
+    public function getRepository(string $objectName)
     {
         return $this->repositoryFactory->getRepository($objectName);
     }
@@ -124,7 +124,7 @@ class ObjectMapper
      * @param string $objectName Object class with or without namespace
      * @return object
      */
-    public function create($objectName)
+    public function create(string $objectName)
     {
         return $this->repositoryFactory->getRepository($objectName)->create();
     }
@@ -137,7 +137,7 @@ class ObjectMapper
      * @param bool $useCache Use cache?
      * @return object
      */
-    public function find($objectName, $id, $useCache = true)
+    public function find(string $objectName, string $id, bool $useCache = true)
     {
         return $this->getRepository($objectName)->find($id, $useCache);
     }
@@ -149,7 +149,7 @@ class ObjectMapper
      * @param array $ids
      * @return object[]
      */
-    public function findByIds($objectName, array $ids)
+    public function findByIds(string $objectName, array $ids)
     {
         return $this->getRepository($objectName)->findByIds($ids);
     }
@@ -160,7 +160,7 @@ class ObjectMapper
      * @param string $objectName Object class with or without namespace
      * @return object[]
      */
-    public function findAll($objectName)
+    public function findAll(string $objectName)
     {
         return $this->getRepository($objectName)->findAll();
     }
@@ -175,7 +175,7 @@ class ObjectMapper
      *
      * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
-    public function findBy($objectName, array $criteria, array $orderBy = [], $limit = null, $offset = null)
+    public function findBy(string $objectName, array $criteria, ?array $orderBy = [], ?int $limit = null, ?int $offset = null)
     {
         return $this->getRepository($objectName)->findBy($criteria, $orderBy, $limit, $offset);
     }
@@ -189,7 +189,7 @@ class ObjectMapper
      *
      * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
-    public function findOneBy($objectName, array $criteria)
+    public function findOneBy(string $objectName, array $criteria)
     {
         return $this->getRepository($objectName)->findOneBy($criteria);
     }
@@ -207,7 +207,7 @@ class ObjectMapper
      * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id (defaults to if the class = ForeignObject foreignObjectId)
      * @return object[] Loaded objects keyed by id
      */
-    public function loadOne(array $objects, $className, $foreignIdColumn = null)
+    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null)
     {
         $objectsByClass = $this->groupByClass($objects);
 
@@ -229,7 +229,7 @@ class ObjectMapper
      * @param string $foreignColumn Column / property on foreign object that relates to this object id
      * @return object[] Loaded objects keyed by id
      */
-    public function loadMany(array $objects, $className, $foreignColumn = null)
+    public function loadMany(array $objects, string $className, ?string $foreignColumn = null)
     {
         $objectsByClass = $this->groupByClass($objects);
 
@@ -253,7 +253,7 @@ class ObjectMapper
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
      * @return object[] Loaded objects keyed by id
      */
-    public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
+    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null)
     {
         $objectsByClass = $this->groupByClass($objects);
 

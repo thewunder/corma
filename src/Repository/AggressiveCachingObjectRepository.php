@@ -10,7 +10,7 @@ namespace Corma\Repository;
  */
 abstract class AggressiveCachingObjectRepository extends ObjectRepository
 {
-    public function find($id, $useCache = true)
+    public function find($id, bool $useCache = true)
     {
         if ($useCache && empty($this->objectByIdCache)) {
             $this->findAll();
@@ -19,7 +19,7 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
         return parent::find($id, $useCache);
     }
 
-    public function findByIds(array $ids, $useCache = true)
+    public function findByIds(array $ids, bool $useCache = true)
     {
         if ($useCache && empty($this->objectByIdCache)) {
             $this->findAll();

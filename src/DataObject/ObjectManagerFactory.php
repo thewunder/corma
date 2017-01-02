@@ -47,7 +47,7 @@ class ObjectManagerFactory
      * @param ReaderInterface|null $reader
      * @return ObjectManagerFactory
      */
-    public static function withDefaults(QueryHelperInterface $queryHelper, Inflector $inflector, ReaderInterface $reader = null)
+    public static function withDefaults(QueryHelperInterface $queryHelper, Inflector $inflector, ?ReaderInterface $reader = null)
     {
         $hydrator = new ClosureHydrator();
         $factory = new PdoObjectFactory($hydrator);
@@ -72,7 +72,7 @@ class ObjectManagerFactory
      * @param ObjectIdentifierInterface|null $identifier
      * @return ObjectManager
      */
-    public function getManager($className, $dependencies = [], ObjectFactoryInterface $factory = null, ObjectHydratorInterface $hydrator = null, TableConventionInterface $tableConvention = null, ObjectIdentifierInterface $identifier = null)
+    public function getManager(string $className, array $dependencies = [], ?ObjectFactoryInterface $factory = null, ?ObjectHydratorInterface $hydrator = null, ?TableConventionInterface $tableConvention = null, ?ObjectIdentifierInterface $identifier = null)
     {
         $factory = $factory ? $factory : $this->factory;
         $hydrator = $hydrator ? $hydrator : $this->hydrator;

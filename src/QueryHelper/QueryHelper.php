@@ -47,7 +47,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function buildSelectQuery($table, $columns = 'main.*', array $where = [], array $orderBy = [])
+    public function buildSelectQuery(string $table, $columns = 'main.*', array $where = [], array $orderBy = [])
     {
         $qb = $this->db->createQueryBuilder()->select($columns)->from($this->db->quoteIdentifier($table), 'main');
 
@@ -70,7 +70,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function buildUpdateQuery($table, array $update, array $where)
+    public function buildUpdateQuery(string $table, array $update, array $where)
     {
         $qb = $this->db->createQueryBuilder()->update($this->db->quoteIdentifier($table), 'main');
 
@@ -98,7 +98,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function buildDeleteQuery($table, array $where)
+    public function buildDeleteQuery(string $table, array $where)
     {
         $qb = $this->db->createQueryBuilder()->delete($this->db->quoteIdentifier($table));
         $this->processWhereQuery($qb, $where);
@@ -115,7 +115,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function massUpdate($table, array $update, array $where)
+    public function massUpdate(string $table, array $update, array $where)
     {
         $qb = $this->buildUpdateQuery($table, $update, $where);
         return $qb->execute();
@@ -128,7 +128,7 @@ class QueryHelper implements QueryHelperInterface
      * @param array $rows array of column => value
      * @return int The number of inserted rows
      */
-    public function massInsert($table, array $rows)
+    public function massInsert(string $table, array $rows)
     {
         if (empty($rows)) {
             return 0;
@@ -153,7 +153,7 @@ class QueryHelper implements QueryHelperInterface
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws \Exception
      */
-    public function massUpsert($table, array $rows, &$lastInsertId = null)
+    public function massUpsert(string $table, array $rows, &$lastInsertId = null)
     {
         if (empty($rows)) {
             return 0;
@@ -198,7 +198,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function massDelete($table, array $where)
+    public function massDelete(string $table, array $where)
     {
         $qb = $this->buildDeleteQuery($table, $where);
         return $qb->execute();
@@ -328,7 +328,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $table
      * @return array column => accepts null (bool)
      */
-    public function getDbColumns($table)
+    public function getDbColumns(string $table)
     {
         $key = 'db_columns.'.$table;
         if ($this->cache->contains($key)) {
@@ -360,7 +360,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $column
      * @return string
      */
-    public function getLastInsertId($table, $column = 'id')
+    public function getLastInsertId(string $table, $column = 'id')
     {
         $sequence = null;
         $platform = $this->db->getDatabasePlatform();
@@ -389,7 +389,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $whereCondition
      * @return string
      */
-    protected function getParameterName($whereCondition)
+    protected function getParameterName(string $whereCondition)
     {
         // chop off table alias and operator
         return ':' . preg_replace(self::WHERE_COLUMN_REGEX, '$3', $whereCondition);
@@ -401,7 +401,7 @@ class QueryHelper implements QueryHelperInterface
      * @param $whereCondition
      * @return mixed
      */
-    protected function getColumnName($whereCondition)
+    protected function getColumnName(string $whereCondition)
     {
         return preg_replace(self::WHERE_COLUMN_REGEX, '$2$3', $whereCondition);
     }
@@ -412,7 +412,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $columnName
      * @return string
      */
-    protected function getOperator($columnName)
+    protected function getOperator(string $columnName)
     {
         $operator = trim(preg_replace(self::WHERE_COLUMN_REGEX, '$4', $columnName));
         if ($operator && in_array($operator, $this->COMPARISON_OPERATORS)) {
@@ -427,7 +427,7 @@ class QueryHelper implements QueryHelperInterface
      * @param array $normalizedRows
      * @return string INSERT SQL Query
      */
-    protected function getInsertSql($table, array $normalizedRows)
+    protected function getInsertSql(string $table, array $normalizedRows)
     {
         $tableName = $this->db->quoteIdentifier($table);
         $columns = array_keys($normalizedRows[0]);
@@ -482,7 +482,7 @@ class QueryHelper implements QueryHelperInterface
      * @param array $rows
      * @return array
      */
-    protected function normalizeRows($table, array $rows)
+    protected function normalizeRows(string $table, array $rows)
     {
         $dbColumns = $this->getDbColumns($table);
 

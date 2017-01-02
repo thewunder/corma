@@ -80,7 +80,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $this->getObjectManager()->create($data);
     }
 
-    public function find($id, $useCache = true)
+    public function find($id, bool $useCache = true)
     {
         if ($useCache && isset($this->objectByIdCache[$id])) {
             return $this->objectByIdCache[$id];
@@ -93,7 +93,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $instance;
     }
 
-    public function findByIds(array $ids, $useCache = true)
+    public function findByIds(array $ids, bool $useCache = true)
     {
         $instances = [];
         if ($useCache) {
@@ -164,7 +164,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      * @return object[] Loaded objects keyed by id
      */
-    public function loadOne(array $objects, $className, $foreignIdColumn = null)
+    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null)
     {
         $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);
 
@@ -181,7 +181,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $foreignColumn Property on foreign object that relates to this object id
      * @return object[] Loaded objects keyed by id
      */
-    public function loadMany(array $objects, $className, $foreignColumn = null)
+    public function loadMany(array $objects, string $className, ?string $foreignColumn = null)
     {
         $foreignColumn = $foreignColumn ? $foreignColumn : $this->idColumnFromClass($this->getClassName());
 
@@ -198,7 +198,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
      * @return object[] Loaded objects keyed by id
      */
-    public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
+    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null)
     {
         $idColumn = $idColumn ? $idColumn : $this->idColumnFromClass($this->getClassName());
         $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);

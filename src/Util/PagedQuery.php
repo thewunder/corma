@@ -45,7 +45,7 @@ class PagedQuery implements \JsonSerializable
      * @param array $dependencies Object dependencies
      * @param int $pageSize
      */
-    public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, $class, array $dependencies = [], $pageSize = self::DEFAULT_PAGE_SIZE)
+    public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, string $class, array $dependencies = [], $pageSize = self::DEFAULT_PAGE_SIZE)
     {
         if ($pageSize < 1) {
             throw new InvalidArgumentException('Page size must be greater than 0');
@@ -64,7 +64,7 @@ class PagedQuery implements \JsonSerializable
      * @param bool $allResults
      * @return object[]
      */
-    public function getResults($page, $allResults = false)
+    public function getResults(int $page, bool $allResults = false)
     {
         if ($page < 1 || $page > $this->getPages()) {
             throw new InvalidArgumentException("Page must be between 1 and {$this->getPages()}");

@@ -7,5 +7,5 @@ interface ObjectRepositoryFactoryInterface
      * @param string $objectName The object class with or without namespace
      * @return ObjectRepositoryInterface
      */
-    public function getRepository($objectName);
+    public function getRepository(string $objectName);
 }
