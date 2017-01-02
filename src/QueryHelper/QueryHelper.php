@@ -360,7 +360,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $column
      * @return string
      */
-    public function getLastInsertId(string $table, $column = 'id')
+    public function getLastInsertId(string $table, ?string $column = 'id')
     {
         $sequence = null;
         $platform = $this->db->getDatabasePlatform();
