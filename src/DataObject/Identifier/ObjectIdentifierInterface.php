@@ -13,6 +13,14 @@ interface ObjectIdentifierInterface
     public function getId($object);
 
     /**
+     * Returns true if this object has not yet been persisted into the database
+     *
+     * @param object $object
+     * @return bool
+     */
+    public function isNew($object): bool;
+
+    /**
      * @param object[] $objects
      * @return string[]
      */

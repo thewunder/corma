@@ -121,6 +121,17 @@ class ObjectManager
     }
 
     /**
+     * Returns true if the object has not yet been persisted into the database
+     *
+     * @param $object
+     * @return bool
+     */
+    public function isNew($object): bool
+    {
+        return $this->identifier->isNew($object);
+    }
+
+    /**
      * @param array $objects
      * @return string[]
      */

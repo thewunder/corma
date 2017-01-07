@@ -269,7 +269,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $this->dispatchEvents('beforeSave', $object);
 
-        if ($this->getObjectManager()->getId($object)) {
+        if ($this->getObjectManager()->isNew($object)) {
             $this->update($object);
         } else {
             $this->insert($object);

@@ -32,4 +32,9 @@ class AutoIncrementIdentifier extends AnnotationCustomizableIdentifier
         $table = $this->convention->getTable($object);
         $this->setId($object, $this->queryHelper->getLastInsertId($table, $this->getIdColumn($object)));
     }
+
+    public function isNew($object): bool
+    {
+        return $this->getId($object);
+    }
 }
