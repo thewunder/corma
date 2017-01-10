@@ -19,7 +19,7 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
         return parent::find($id, $useCache);
     }
 
-    public function findByIds(array $ids, bool $useCache = true)
+    public function findByIds(array $ids, bool $useCache = true): array
     {
         if ($useCache && empty($this->objectByIdCache)) {
             $this->findAll();

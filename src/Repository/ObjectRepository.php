@@ -93,7 +93,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $instance;
     }
 
-    public function findByIds(array $ids, bool $useCache = true)
+    public function findByIds(array $ids, bool $useCache = true): array
     {
         $instances = [];
         if ($useCache) {
@@ -164,7 +164,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      * @return object[] Loaded objects keyed by id
      */
-    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null)
+    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null): array
     {
         $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);
 
@@ -181,7 +181,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $foreignColumn Property on foreign object that relates to this object id
      * @return object[] Loaded objects keyed by id
      */
-    public function loadMany(array $objects, string $className, ?string $foreignColumn = null)
+    public function loadMany(array $objects, string $className, ?string $foreignColumn = null): array
     {
         $foreignColumn = $foreignColumn ? $foreignColumn : $this->idColumnFromClass($this->getClassName());
 
@@ -198,7 +198,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
      * @return object[] Loaded objects keyed by id
      */
-    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null)
+    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null): array
     {
         $idColumn = $idColumn ? $idColumn : $this->idColumnFromClass($this->getClassName());
         $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);
@@ -270,9 +270,9 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->dispatchEvents('beforeSave', $object);
 
         if ($this->getObjectManager()->isNew($object)) {
-            $this->update($object);
-        } else {
             $this->insert($object);
+        } else {
+            $this->update($object);
         }
 
         $this->dispatchEvents('afterSave', $object);
@@ -399,7 +399,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * @return ObjectManager
      */
-    public function getObjectManager()
+    public function getObjectManager(): ObjectManager
     {
         if($this->objectManager) {
             return $this->objectManager;

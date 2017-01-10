@@ -308,7 +308,7 @@ class RelationshipSaver
      * @param string $foreignColumn
      * @return array objectId => map of foreign ids
      */
-    protected function getExistingForeignIds(array $objects, string $className, string $foreignColumn)
+    protected function getExistingForeignIds(array $objects, string $className, string $foreignColumn): array
     {
         $om = $this->objectMapper->getObjectManager($objects[0]);
         $objectIds = $om->getIds($objects);

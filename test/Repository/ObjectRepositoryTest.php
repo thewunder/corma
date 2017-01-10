@@ -117,6 +117,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->connection->expects($this->once())->method('insert')->with('extended_data_objects', ['`myColumn`'=>'testValue']);
         $this->objectManager->expects($this->once())->method('extract')->willReturn(['myColumn'=>'testValue']);
         $this->objectManager->expects($this->once())->method('setNewId');
+        $this->objectManager->expects($this->once())->method('isNew')->willReturn(true);
         $repo = $this->getRepository();
         $repo->save($object);
     }
@@ -380,7 +381,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $dataObject = new ExtendedDataObject();
         $repo->save($dataObject);
         $dataObject->setId('12345');
-        $this->objectManager->expects($this->any())->method('getId')->willReturn('12345');
+        $this->objectManager->expects($this->any())->method('isNew')->willReturn(true);
         $repo->save($dataObject);
 
         $this->assertEquals(2, $firedEvents['DataObject.beforeSave']);

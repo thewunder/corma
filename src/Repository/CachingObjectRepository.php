@@ -25,7 +25,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         return $object;
     }
 
-    public function findByIds(array $ids, bool $useCache = true)
+    public function findByIds(array $ids, bool $useCache = true): array
     {
         if (!$useCache) {
             return parent::findByIds($ids, false);

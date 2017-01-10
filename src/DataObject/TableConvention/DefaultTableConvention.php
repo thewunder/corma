@@ -21,7 +21,7 @@ class DefaultTableConvention implements TableConventionInterface
      * @param string|object $classOrObject
      * @return string The database table name
      */
-    public function getTable($classOrObject)
+    public function getTable($classOrObject): string
     {
         $class = $this->inflector->getShortClass($classOrObject);
         return DoctrineInflector::tableize(DoctrineInflector::pluralize($class));

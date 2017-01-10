@@ -21,7 +21,7 @@ abstract class BaseIndentifier implements ObjectIdentifierInterface
      * @param object $object
      * @return string
      */
-    public function getId($object)
+    public function getId($object): ?string
     {
         $getter = $this->inflector->getterFromColumn($this->getIdColumn($object));
         if(!method_exists($object, $getter)) {
@@ -34,7 +34,7 @@ abstract class BaseIndentifier implements ObjectIdentifierInterface
      * @param array $objects
      * @return string[]
      */
-    public function getIds(array $objects)
+    public function getIds(array $objects): array
     {
         if(empty($objects)) {
             return [];
@@ -74,7 +74,7 @@ abstract class BaseIndentifier implements ObjectIdentifierInterface
      * @param string|object $objectOrClass
      * @return string Database column name containing the identifier for the object
      */
-    public function getIdColumn($objectOrClass)
+    public function getIdColumn($objectOrClass): string
     {
         return 'id';
     }

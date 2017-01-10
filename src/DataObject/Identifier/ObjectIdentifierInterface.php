@@ -10,7 +10,7 @@ interface ObjectIdentifierInterface
      * @param object $object
      * @return string
      */
-    public function getId($object);
+    public function getId($object): ?string;
 
     /**
      * Returns true if this object has not yet been persisted into the database
@@ -24,7 +24,7 @@ interface ObjectIdentifierInterface
      * @param object[] $objects
      * @return string[]
      */
-    public function getIds(array $objects);
+    public function getIds(array $objects): array;
 
     /**
      * @param object $object
@@ -45,5 +45,5 @@ interface ObjectIdentifierInterface
      * @param string|object $objectOrClass
      * @return string Database column name containing the identifier for the object
      */
-    public function getIdColumn($objectOrClass);
+    public function getIdColumn($objectOrClass): string;
 }

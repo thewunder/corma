@@ -10,5 +10,5 @@ interface TableConventionInterface
      * @param string|object $classOrObject
      * @return string
      */
-    public function getTable($classOrObject);
+    public function getTable($classOrObject): string;
 }

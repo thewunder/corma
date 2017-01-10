@@ -71,7 +71,7 @@ class ObjectManager
      * @param Statement|\PDOStatement $statement
      * @return object[]
      */
-    public function fetchAll($statement)
+    public function fetchAll($statement): array
     {
         return $this->factory->fetchAll($this->className, $statement, $this->dependencies);
     }
@@ -90,7 +90,7 @@ class ObjectManager
      * @param object $object
      * @return array
      */
-    public function extract($object)
+    public function extract($object): array
     {
         return $this->hydrator->extract($object);
     }
@@ -98,7 +98,7 @@ class ObjectManager
     /**
      * @return string
      */
-    public function getTable()
+    public function getTable(): string
     {
         return $this->tableConvention->getTable($this->className);
     }
@@ -106,7 +106,7 @@ class ObjectManager
     /**
      * @return string
      */
-    public function getIdColumn()
+    public function getIdColumn(): string
     {
         return $this->identifier->getIdColumn($this->className);
     }
@@ -115,7 +115,7 @@ class ObjectManager
      * @param $object
      * @return string
      */
-    public function getId($object)
+    public function getId($object): ?string
     {
         return $this->identifier->getId($object);
     }
@@ -135,7 +135,7 @@ class ObjectManager
      * @param array $objects
      * @return string[]
      */
-    public function getIds(array $objects)
+    public function getIds(array $objects): array
     {
         return $this->identifier->getIds($objects);
     }

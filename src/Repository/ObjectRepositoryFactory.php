@@ -38,7 +38,7 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
         $this->dependencies = $dependencies;
     }
 
-    public function getRepository(string $objectName)
+    public function getRepository(string $objectName): ?ObjectRepositoryInterface
     {
         $objectName = $this->getObjectName($objectName);
         if (isset($this->repositories[$objectName])) {
@@ -93,7 +93,7 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
      * @param $className
      * @return ObjectRepositoryInterface|null
      */
-    protected function createRepository(string $className)
+    protected function createRepository(string $className): ?ObjectRepositoryInterface
     {
         if (class_exists($className)) {
             if (!is_subclass_of($className, ObjectRepositoryInterface::class)) {

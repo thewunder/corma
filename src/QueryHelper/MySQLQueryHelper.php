@@ -51,7 +51,7 @@ class MySQLQueryHelper extends QueryHelper
      * @param DBALException $error
      * @return bool
      */
-    public function isDuplicateException(DBALException $error)
+    public function isDuplicateException(DBALException $error): bool
     {
         /** @var \PDOException $previous */
         $previous = $error->getPrevious();

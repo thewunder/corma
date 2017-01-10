@@ -35,6 +35,6 @@ class AutoIncrementIdentifier extends AnnotationCustomizableIdentifier
 
     public function isNew($object): bool
     {
-        return $this->getId($object);
+        return !$this->getId($object);
     }
 }

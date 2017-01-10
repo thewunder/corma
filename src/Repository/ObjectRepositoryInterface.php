@@ -31,14 +31,14 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @param bool $useCache Use cache?
      * @return object[]
      */
-    public function findByIds(array $ids, bool $useCache = true);
+    public function findByIds(array $ids, bool $useCache = true): array;
 
     /**
      * Return the database table this repository manages
      *
      * @return string
-     */
-    public function getTableName();
+     *
+    public function getTableName(): string;
 
     /**
      * Persists the object to the database
@@ -81,7 +81,7 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @param string $foreignIdColumn Column / property on objects that relates to the foreign table's id
      * @return object[] Loaded objects keyed by id
      */
-    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null);
+    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null): array;
 
     /**
      * Loads a foreign relationship where a column on another object references the id for the supplied objects.
@@ -93,7 +93,7 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @param string $foreignColumn Column / property on foreign object that relates to the objects id
      * @return object[] Loaded objects keyed by id
      */
-    public function loadMany(array $objects, string $className, ?string $foreignColumn = null);
+    public function loadMany(array $objects, string $className, ?string $foreignColumn = null): array;
 
     /**
      * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects
@@ -105,10 +105,10 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
      * @return object[] Loaded objects keyed by id
      */
-    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null);
+    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null): array;
 
     /**
      * @return ObjectManager
      */
-    public function getObjectManager();
+    public function getObjectManager(): ObjectManager ;
 }

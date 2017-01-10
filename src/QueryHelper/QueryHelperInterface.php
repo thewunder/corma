@@ -124,7 +124,7 @@ interface QueryHelperInterface
      * @param string $table
      * @return array column => accepts null (bool)
      */
-    public function getDbColumns(string $table);
+    public function getDbColumns(string $table): array;
 
     /**
      * Is this exception caused by a duplicate record (i.e. unique index constraint violation)
@@ -132,8 +132,7 @@ interface QueryHelperInterface
      * @param DBALException $error
      * @return bool
      */
-    public function isDuplicateException(DBALException $error);
-
+    public function isDuplicateException(DBALException $error): bool;
     /**
      * Retrieve the last inserted row id
      *
@@ -141,10 +140,10 @@ interface QueryHelperInterface
      * @param string $column
      * @return string
      */
-    public function getLastInsertId(string $table, ?string $column = 'id');
+    public function getLastInsertId(string $table, ?string $column = 'id'): ?string;
 
     /**
      * @return Connection
      */
-    public function getConnection();
+    public function getConnection(): Connection;
 }

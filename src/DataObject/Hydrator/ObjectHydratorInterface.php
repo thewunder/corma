@@ -21,5 +21,5 @@ interface ObjectHydratorInterface
      * @param object $object
      * @return array
      */
-    public function extract($object);
+    public function extract($object): array;
 }

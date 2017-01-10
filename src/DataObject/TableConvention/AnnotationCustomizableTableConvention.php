@@ -24,7 +24,7 @@ class AnnotationCustomizableTableConvention extends DefaultTableConvention
      * @param string|object $classOrObject
      * @return string The database table name
      */
-    public function getTable($classOrObject)
+    public function getTable($classOrObject): string
     {
         $annotations = $this->annotationReader->getClassAnnotations($classOrObject);
         if(isset($annotations['table'])) {

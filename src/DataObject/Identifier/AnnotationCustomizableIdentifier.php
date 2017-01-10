@@ -20,7 +20,7 @@ abstract class AnnotationCustomizableIdentifier extends BaseIndentifier
         $this->reader = $reader;
     }
 
-    public function getIdColumn($objectOrClass)
+    public function getIdColumn($objectOrClass): string
     {
         if($this->reader) {
             $annotations = $this->reader->getClassAnnotations($objectOrClass);

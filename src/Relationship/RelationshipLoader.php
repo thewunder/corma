@@ -36,7 +36,7 @@ class RelationshipLoader
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      * @return object[] Loaded objects keyed by id
      */
-    public function loadOne(array $objects, string $className, string $foreignIdColumn)
+    public function loadOne(array $objects, string $className, string $foreignIdColumn): array
     {
         if (empty($objects)) {
             return [];
@@ -99,7 +99,7 @@ class RelationshipLoader
      * @param string $foreignColumn Property on foreign object that relates to this object id
      * @return object[] Loaded objects keyed by id
      */
-    public function loadMany(array $objects, string $className, string $foreignColumn)
+    public function loadMany(array $objects, string $className, string $foreignColumn): array
     {
         if (empty($objects)) {
             return [];
@@ -160,7 +160,7 @@ class RelationshipLoader
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
      * @return object[] Loaded objects keyed by id
      */
-    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null)
+    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null): array
     {
         if (empty($objects)) {
             return [];

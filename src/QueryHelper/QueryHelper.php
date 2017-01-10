@@ -328,7 +328,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $table
      * @return array column => accepts null (bool)
      */
-    public function getDbColumns(string $table)
+    public function getDbColumns(string $table): array
     {
         $key = 'db_columns.'.$table;
         if ($this->cache->contains($key)) {
@@ -360,7 +360,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $column
      * @return string
      */
-    public function getLastInsertId(string $table, ?string $column = 'id')
+    public function getLastInsertId(string $table, ?string $column = 'id'): ?string
     {
         $sequence = null;
         $platform = $this->db->getDatabasePlatform();
@@ -378,7 +378,7 @@ class QueryHelper implements QueryHelperInterface
      * @param DBALException $error
      * @return bool
      */
-    public function isDuplicateException(DBALException $error)
+    public function isDuplicateException(DBALException $error): bool
     {
         throw new BadMethodCallException('This method has not been implemented for the current database type');
     }
@@ -470,7 +470,7 @@ class QueryHelper implements QueryHelperInterface
     /**
      * @return Connection
      */
-    public function getConnection()
+    public function getConnection(): Connection
     {
         return $this->db;
     }
