@@ -123,7 +123,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         $om = $this->getObjectManager();
         $table = $om->getTable();
         $dbColumns = $this->queryHelper->getDbColumns($table);
-        if (isset($dbColumns['isDeleted'])) {
+        if ($dbColumns->hasColumn('isDeleted')) {
             $qb = $this->queryHelper->buildSelectQuery($table, 'main.*', ['isDeleted' =>0]);
         } else {
             $qb = $this->queryHelper->buildSelectQuery($table);
@@ -308,7 +308,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         foreach ($objects as $object) {
             $data = $om->extract($object);
             foreach ($data as $prop => $value) {
-                if (!isset($columns[$prop])) {
+                if (!$columns->hasColumn($prop)) {
                     unset($data[$prop]);
                 }
             }
@@ -352,7 +352,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $columns = $this->queryHelper->getDbColumns($table);
 
-        if (isset($columns['isDeleted'])) {
+        if ($columns->hasColumn('isDeleted')) {
             $this->db->update($table, [$this->db->quoteIdentifier('isDeleted')=>1], [$idColumn=>$id]);
         } else {
             $this->db->delete($table, [$idColumn=>$id]);
@@ -383,7 +383,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $columns = $this->queryHelper->getDbColumns($om->getTable());
         $ids = $om->getIds($objects);
-        if (isset($columns['isDeleted'])) {
+        if ($columns->hasColumn('isDeleted')) {
             $rows = $this->queryHelper->massUpdate($this->getTableName(), ['isDeleted'=>1], [$idColumn=>$ids]);
         } else {
             $rows = $this->queryHelper->massDelete($this->getTableName(), [$idColumn=>$ids]);
@@ -490,15 +490,16 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $queryParams = [];
         $om = $this->getObjectManager();
-        $dbColumns = $this->queryHelper->getDbColumns($om->getTable());
+        $table = $this->queryHelper->getDbColumns($om->getTable());
         $data = $om->extract($object);
-        foreach ($dbColumns as $column => $acceptNull) {
-            if ($column == $om->getIdColumn()) {
+        foreach ($table->getColumns() as $column) {
+            $columnName = $column->getName();
+            if ($columnName == $om->getIdColumn()) {
                 continue;
-            } if (isset($data[$column])) {
-                $queryParams[$this->db->quoteIdentifier($column)] = $data[$column];
-            } else if ($acceptNull) {
-                $queryParams[$this->db->quoteIdentifier($column)] = null;
+            } if (isset($data[$columnName])) {
+                $queryParams[$this->db->quoteIdentifier($columnName)] = $data[$columnName];
+            } else if (!$column->getNotnull()) {
+                $queryParams[$this->db->quoteIdentifier($columnName)] = null;
             }
         }
         return $queryParams;

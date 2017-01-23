@@ -31,13 +31,14 @@ class PostgreSQLQueryHelper extends QueryHelper
 
         $dbColumns = $this->getDbColumns($table);
         $columnsToUpdate = [];
-        foreach ($dbColumns as $column => $acceptNull) {
-            if ($column == 'id') {
+        foreach ($dbColumns->getColumns() as $column) {
+            $columnName = $column->getName();
+            if ($columnName == 'id') {
                 continue;
             }
 
-            $column = $this->db->quoteIdentifier($column);
-            $columnsToUpdate[] = "$column = EXCLUDED.$column";
+            $columnName = $this->db->quoteIdentifier($columnName);
+            $columnsToUpdate[] = "$columnName = EXCLUDED.$columnName";
         }
 
         $query .= ' ON CONFLICT (id) DO UPDATE SET ' . implode(', ', $columnsToUpdate);

@@ -10,6 +10,7 @@ use Corma\Test\Fixtures\Repository\CachingRepository;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Schema\Table;
 
 class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -42,7 +43,7 @@ class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()->getMock();
 
         $this->queryHelper->expects($this->any())->method('buildSelectQuery')->willReturn($queryBuilder);
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(new Table('cachings'));
 
         $this->objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()

@@ -23,6 +23,7 @@ use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -113,7 +114,8 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('testValue');
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
+        $table = $this->getTable();
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($table);
         $this->connection->expects($this->once())->method('insert')->with('extended_data_objects', ['`myColumn`'=>'testValue']);
         $this->objectManager->expects($this->once())->method('extract')->willReturn(['myColumn'=>'testValue']);
         $this->objectManager->expects($this->once())->method('setNewId');
@@ -126,7 +128,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $object = new ExtendedDataObject();
         $object->setId('123')->setMyColumn('testValue');
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($table = $this->getTable());
         $this->objectManager->expects($this->atLeastOnce())->method('getId')->willReturn(123);
         $this->objectManager->expects($this->once())->method('extract')->willReturn(['myColumn'=>'testValue']);
         $this->connection->expects($this->once())->method('update')->with('extended_data_objects', ['`myColumn`'=>'testValue'], ['id'=>'123']);
@@ -152,7 +154,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $objects[] = $object->setMyColumn('testValue 2');
 
         $this->objectManager->expects($this->exactly(2))->method('extract')->willReturnOnConsecutiveCalls(['myColumn'=>'testValue'], ['myColumn'=>'testValue 2']);
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
         $this->queryHelper->expects($this->once())->method('massUpsert')->with('extended_data_objects', [['myColumn'=>'testValue'], ['myColumn'=>'testValue 2']])->willReturn(count($objects));
         $repo = $this->getRepository();
         $inserts = $repo->saveAll($objects);
@@ -178,8 +180,9 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $object = new ExtendedDataObject();
         $object->setId('123');
+
         $this->objectManager->expects($this->once())->method('getId')->with($object)->willReturn($object->getId());
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'myColumn'=>false]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable(false));
         $this->connection->expects($this->once())->method('delete')->with('extended_data_objects', ['id'=>$object->getId()]);
         $repo = $this->getRepository();
         $repo->delete($object);
@@ -190,7 +193,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $object = new ExtendedDataObject();
         $object->setId('123')->setMyColumn('testValue');
         $this->objectManager->expects($this->once())->method('getId')->with($object)->willReturn($object->getId());
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
         $this->connection->expects($this->once())->method('update')->with('extended_data_objects', ['`isDeleted`'=>1], ['id'=>$object->getId()]);
         $repo = $this->getRepository();
         $repo->delete($object);
@@ -215,7 +218,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $objects[] = $object->setId('234');
 
         $this->objectManager->expects($this->once())->method('getIds')->willReturn(['123', '234']);
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable(false));
         $this->queryHelper->expects($this->once())->method('massDelete')->with('extended_data_objects', ['id'=>['123', '234']]);
         $repo = $this->getRepository();
         $repo->deleteAll($objects);
@@ -231,7 +234,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $objects[] = $object->setId('234');
 
         $this->objectManager->expects($this->once())->method('getIds')->willReturn(['123', '234']);
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['isDeleted'=>false]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
         $this->queryHelper->expects($this->once())->method('massUpdate')->with('extended_data_objects', ['isDeleted'=>1], ['id'=>['123', '234']]);
         $repo = $this->getRepository();
         $repo->deleteAll($objects);
@@ -375,7 +378,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
             $firedEvents['DataObject.ExtendedDataObject.afterUpdate'] ++;
         });
 
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(new Table('test_table'));
 
         $repo = $this->getRepository();
         $dataObject = new ExtendedDataObject();
@@ -564,7 +567,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('commit');
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(new Table('test_table'));
         $test = $this;
         $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function (array $objects) use ($test) {
             $test->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
@@ -582,7 +585,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $saveWith->setAccessible(true);
 
         $this->connection->expects($this->once())->method('rollback');
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(new Table('test_table'));
         $test = $this;
         $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function (array $objects) use ($test) {
             throw new \Exception('Testing rollback');
@@ -630,5 +633,20 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $repository = new ExtendedDataObjectRepository($this->connection, $this->objectMapper, new ArrayCache(), $this->dispatcher);
         return $repository;
+    }
+
+    /**
+     * @param bool $softDelete
+     * @return Table
+     */
+    private function getTable(bool $softDelete = true): Table
+    {
+        $table = new Table('extended_data_objects');
+        $table->addColumn('id', 'integer');
+        if($softDelete) {
+            $table->addColumn('isDeleted', 'boolean');
+        }
+        $table->addColumn('myColumn', 'string');
+        return $table;
     }
 }

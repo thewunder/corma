@@ -4,6 +4,7 @@ namespace Corma\QueryHelper;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * Builds sql queries and performs other related tasks.
@@ -122,9 +123,9 @@ interface QueryHelperInterface
      * Returns table metadata for the provided table
      *
      * @param string $table
-     * @return array column => accepts null (bool)
+     * @return Table
      */
-    public function getDbColumns(string $table): array;
+    public function getDbColumns(string $table): Table;
 
     /**
      * Is this exception caused by a duplicate record (i.e. unique index constraint violation)

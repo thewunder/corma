@@ -7,7 +7,11 @@ use Corma\QueryHelper\QueryHelperInterface;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\Types\StringType;
 
 class QueryHelperTest extends \PHPUnit_Framework_TestCase
 {
@@ -242,8 +246,11 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs([$this->connection, new ArrayCache()])
             ->getMock();
 
+        $table = new Table('test_table');
+        $table->addColumn('column1', 'string', ['notNull'=>false]);
+        $table->addColumn('column2', 'string', ['notNull'=>true]);
         $this->queryHelper->expects($this->any())->method('getDbColumns')->with('test_table')
-            ->willReturn(['column1'=>true, 'column2'=>false]);
+            ->willReturn($table);
 
         $effected = $this->queryHelper->massInsert('test_table', [['column1'=>1, 'column2'=>2], ['column1'=>3, 'column2'=>4]]);
         $this->assertEquals(2, $effected);
@@ -307,25 +314,22 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDbColumns()
     {
-        $this->connection->expects($this->once())->method('createQueryBuilder')
-            ->willReturn(new QueryBuilder($this->connection));
-
-        $mockStatement = $this->getMockBuilder(Statement::class)
+        $mockSchemaManager = $this->getMockBuilder(AbstractSchemaManager::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockStatement->expects($this->once())->method('fetchAll')->willReturn([
-            (object) ['COLUMN_NAME'=>'column1', 'IS_NULLABLE'=>true],
-            (object) ['COLUMN_NAME'=>'column2', 'IS_NULLABLE'=>false],
-        ]);
+        $tableName = 'test_table';
+        $table = new Table($tableName);
+        $table->addColumn('test', 'string');
 
-        $this->connection->expects($this->once())->method('executeQuery')->willReturn($mockStatement);
+        $mockSchemaManager->expects($this->once())->method('listTableDetails')
+            ->with($tableName)->willReturn($table);
 
-        $return = $this->queryHelper->getDbColumns('asdf');
-        $this->assertArrayHasKey('column1', $return);
-        $this->assertArrayHasKey('column2', $return);
-        $this->assertTrue($return['column1']);
-        $this->assertFalse($return['column2']);
+        $this->connection->expects($this->once())->method('getSchemaManager')
+            ->willReturn($mockSchemaManager);
+
+        $return = $this->queryHelper->getDbColumns($tableName);
+        $this->assertEquals($table, $return);
     }
 
     /**
@@ -333,17 +337,19 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
      */
     public function testMissingTableException()
     {
-        $this->connection->expects($this->once())->method('createQueryBuilder')
-            ->willReturn(new QueryBuilder($this->connection));
-
-        $mockStatement = $this->getMockBuilder(Statement::class)
+        $mockSchemaManager = $this->getMockBuilder(AbstractSchemaManager::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockStatement->expects($this->once())->method('fetchAll')->willReturn([]);
+        $tableName = 'test_table';
+        $table = new Table($tableName);
 
-        $this->connection->expects($this->once())->method('executeQuery')->willReturn($mockStatement);
+        $mockSchemaManager->expects($this->once())->method('listTableDetails')
+            ->with($tableName)->willReturn($table);
 
-        $this->queryHelper->getDbColumns('asdf');
+        $this->connection->expects($this->once())->method('getSchemaManager')
+            ->willReturn($mockSchemaManager);
+
+        $this->queryHelper->getDbColumns($tableName);
     }
 }

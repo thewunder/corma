@@ -7,6 +7,7 @@ use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Schema\Table;
 
 class QueryHelper implements QueryHelperInterface
 {
@@ -309,15 +310,15 @@ class QueryHelper implements QueryHelperInterface
      * @param string $column
      * @return bool
      */
-    protected function acceptsNull(array $from, $column)
+    protected function acceptsNull(array $from, string $column)
     {
         foreach ($from as $tableInfo) {
             $table = str_replace($this->db->getDatabasePlatform()->getIdentifierQuoteCharacter(), '', $tableInfo['table']);
             $columns = $this->getDbColumns($table);
-            if (!isset($columns[$column])) {
+            if (!$columns->hasColumn($column)) {
                 continue;
             }
-            return $columns[$column];
+            return !$columns->getColumn($column)->getNotnull();
         }
         return false;
     }
@@ -326,32 +327,22 @@ class QueryHelper implements QueryHelperInterface
      * Returns table metadata for the provided table
      *
      * @param string $table
-     * @return array column => accepts null (bool)
+     * @return Table
      */
-    public function getDbColumns(string $table): array
+    public function getDbColumns(string $table): Table
     {
         $key = 'db_columns.'.$table;
         if ($this->cache->contains($key)) {
             return $this->cache->fetch($key);
         } else {
-            $qb = $this->db->createQueryBuilder();
-            $database = $this->db->getDatabase();
-            $qb->select('COLUMN_NAME AS '.$this->db->quoteIdentifier('COLUMN_NAME'), 'IS_NULLABLE AS '.$this->db->quoteIdentifier('IS_NULLABLE'))
-                ->from('information_schema.COLUMNS')
-                ->where('TABLE_SCHEMA = ?')->setParameter(0, $database)
-                ->andWhere('TABLE_NAME = ?')->setParameter(1, $table);
-
-            $dbColumnInfo = $qb->execute()->fetchAll(\PDO::FETCH_OBJ);
-            if (empty($dbColumnInfo)) {
+            $schemaManager = $this->db->getSchemaManager();
+            $tableObj = $schemaManager->listTableDetails($table);
+            if(empty($tableObj->getColumns())) {
+                $database = $this->db->getDatabase();
                 throw new InvalidArgumentException("The table $database.$table does not exist");
             }
-
-            $dbColumns = [];
-            foreach ($dbColumnInfo as $column) {
-                $dbColumns[$column->COLUMN_NAME] = $column->IS_NULLABLE == 'YES' ? true : false;
-            }
-            $this->cache->save($key, $dbColumns);
-            return $dbColumns;
+            $this->cache->save($key, $tableObj);
+            return $tableObj;
         }
     }
 
@@ -491,8 +482,9 @@ class QueryHelper implements QueryHelperInterface
         foreach ($rows as $row) {
             $normalizedRow = [];
 
-            foreach ($dbColumns as $column => $acceptNull) {
-                $normalizedRow[$column] = isset($row[$column]) ? $row[$column] : null;
+            foreach ($dbColumns->getColumns() as $column) {
+                $columnName = $column->getName();
+                $normalizedRow[$columnName] = isset($row[$columnName]) ? $row[$columnName] : null;
             }
             $normalizedRows[] = $normalizedRow;
         }

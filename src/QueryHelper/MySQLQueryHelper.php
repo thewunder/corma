@@ -26,13 +26,14 @@ class MySQLQueryHelper extends QueryHelper
 
         $dbColumns = $this->getDbColumns($table);
         $columnsToUpdate = [];
-        foreach ($dbColumns as $column => $acceptNull) {
-            if ($column == 'id') {
+        foreach ($dbColumns->getColumns() as $column) {
+            $columnName = $column->getName();
+            if ($columnName == 'id') {
                 continue;
             }
 
-            $column = $this->db->quoteIdentifier($column);
-            $columnsToUpdate[] = "$column = VALUES($column)";
+            $columnName = $this->db->quoteIdentifier($columnName);
+            $columnsToUpdate[] = "$columnName = VALUES($columnName)";
         }
 
         $query .= ' ON DUPLICATE KEY UPDATE ' . implode(', ', $columnsToUpdate);

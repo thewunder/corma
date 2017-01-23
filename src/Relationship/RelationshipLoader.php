@@ -111,7 +111,7 @@ class RelationshipLoader
 
         $where = [$foreignColumn => $ids];
         $dbColumns = $this->objectMapper->getQueryHelper()->getDbColumns($om->getTable());
-        if (isset($dbColumns['isDeleted'])) {
+        if ($dbColumns->hasColumn('isDeleted')) {
             $where['isDeleted'] = 0;
         }
         $foreignObjects = $this->objectMapper->findBy($className, $where);

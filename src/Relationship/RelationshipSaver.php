@@ -317,7 +317,7 @@ class RelationshipSaver
         $foreignColumns = $queryHelper->getDbColumns($foreignTable);
 
         $criteria = [$foreignColumn => $objectIds];
-        if (isset($foreignColumns['isDeleted'])) {
+        if ($foreignColumns->hasColumn('isDeleted')) {
             $criteria['isDeleted'] = 0;
         }
         $qb = $queryHelper->buildSelectQuery($foreignTable, ['id', $queryHelper->getConnection()->quoteIdentifier($foreignColumn)], $criteria);
