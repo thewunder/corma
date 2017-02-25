@@ -91,9 +91,10 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Column / property on foreign object that relates to the objects id
-     * @return object[] Loaded objects keyed by id
+     * @param string $setter Name of setter method on objects
+     * @return array|\object[] Loaded objects keyed by id
      */
-    public function loadMany(array $objects, string $className, ?string $foreignColumn = null): array;
+    public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array;
 
     /**
      * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects

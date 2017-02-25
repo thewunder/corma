@@ -370,6 +370,34 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($otherObject->getName(), $loadedOtherObjects[1]->getName());
     }
 
+    public function testLoadManyWithCustomSetter()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('many-to-one');
+        $this->repository->save($object);
+
+        $otherObjects = [];
+        $softDeleted = new OtherDataObject();
+        $otherObjects[] = $softDeleted->setName('Other object (soft deleted)')->setExtendedDataObjectId($object->getId());
+        $otherObject = new OtherDataObject();
+        $otherObjects[] = $otherObject->setName('Other object many-to-one 1')->setExtendedDataObjectId($object->getId());
+        $otherObject = new OtherDataObject();
+        $otherObjects[] = $otherObject->setName('Other object many-to-one 2')->setExtendedDataObjectId($object->getId());
+        $this->objectMapper->saveAll($otherObjects);
+
+        $this->objectMapper->delete($softDeleted);
+
+        /** @var OtherDataObject[] $return */
+        $return = $this->repository->loadMany([$object], OtherDataObject::class, null, 'setCustom');
+        $this->assertCount(2, $return);
+        $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
+
+        $loadedOtherObjects = $object->getCustom();
+        $this->assertCount(2, $loadedOtherObjects);
+        $this->assertEquals($otherObject->getId(), $loadedOtherObjects[1]->getId());
+        $this->assertEquals($otherObject->getName(), $loadedOtherObjects[1]->getName());
+    }
+
     public function testLoadManyToMany()
     {
         $object = new ExtendedDataObject();

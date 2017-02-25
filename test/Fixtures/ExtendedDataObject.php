@@ -22,6 +22,9 @@ class ExtendedDataObject extends BaseDataObject
     /** @var OtherDataObject[] */
     protected $otherDataObjects;
 
+    /** @var OtherDataObject[] */
+    protected $custom;
+
     /**
      * @return mixed
      */
@@ -146,5 +149,21 @@ class ExtendedDataObject extends BaseDataObject
     public function getOtherDataObjects()
     {
         return $this->otherDataObjects;
+    }
+
+    /**
+     * @return OtherDataObject[]
+     */
+    public function getCustom(): array
+    {
+        return $this->custom;
+    }
+
+    /**
+     * @param OtherDataObject[] $custom
+     */
+    public function setCustom(array $custom)
+    {
+        $this->custom = $custom;
     }
 }

@@ -227,15 +227,16 @@ class ObjectMapper
      * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Column / property on foreign object that relates to this object id
-     * @return object[] Loaded objects keyed by id
+     * @param string $setter Name of setter method on objects
+     * @return \object[] Loaded objects keyed by id
      */
-    public function loadMany(array $objects, string $className, ?string $foreignColumn = null)
+    public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null)
     {
         $objectsByClass = $this->groupByClass($objects);
 
         $loadedObjects = [];
         foreach ($objectsByClass as $class => $classObjects) {
-            $loadedObjects += $this->getRepository($class)->loadMany($classObjects, $className, $foreignColumn);
+            $loadedObjects += $this->getRepository($class)->loadMany($classObjects, $className, $foreignColumn, $setter);
         }
         return $loadedObjects;
     }

@@ -179,13 +179,14 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Property on foreign object that relates to this object id
-     * @return object[] Loaded objects keyed by id
+     * @param string $setter Name of setter method on objects
+     * @return array|\object[] Loaded objects keyed by id
      */
-    public function loadMany(array $objects, string $className, ?string $foreignColumn = null): array
+    public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array
     {
         $foreignColumn = $foreignColumn ? $foreignColumn : $this->idColumnFromClass($this->getClassName());
 
-        return $this->objectMapper->getRelationshipLoader()->loadMany($objects, $className, $foreignColumn);
+        return $this->objectMapper->getRelationshipLoader()->loadMany($objects, $className, $foreignColumn, $setter);
     }
 
     /**
