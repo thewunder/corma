@@ -12,6 +12,6 @@ env:
   - MYSQL_HOST=localhost MYSQL_USER=root PGSQL_HOST=localhost PGSQL_USER=postgres
 script:
  - mkdir -p build/logs
- - phpunit --coverage-clover build/logs/clover.xml
+ - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 after_script:
  - vendor/bin/coveralls -v
