@@ -186,7 +186,9 @@ class RelationshipLoader
                 if (isset($foreignIdsById[$object->getId()])) {
                     $foreignIds = $foreignIdsById[$object->getId()];
                     foreach ($foreignIds as $foreignId) {
-                        $foreignObjects[] = $foreignObjectsById[$foreignId];
+                        if(isset($foreignObjectsById[$foreignId])) {
+                            $foreignObjects[] = $foreignObjectsById[$foreignId];
+                        }
                     }
                 }
 
