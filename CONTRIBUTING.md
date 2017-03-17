@@ -27,6 +27,3 @@ We accept contributions via Pull Requests on [Github](https://github.com/thewund
 ``` bash
 $ composer test
 ```
-
-
-**Happy coding**!
