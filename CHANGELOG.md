@@ -1,3 +1,10 @@
+Version 2.1.6
+===========
+
+Fixes
+------
+* Fix undefined offset when many to many fails to load the foreign object
+
 Version 2.1.5
 ===========
 
