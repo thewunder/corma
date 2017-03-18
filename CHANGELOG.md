@@ -1,3 +1,10 @@
+Version 2.1.6
+===========
+
+Fixes
+------
+* Fix undefined offset when loadManyToMany fails to load the foreign object
+
 Version 2.1.5
 ===========
 
