@@ -170,6 +170,9 @@ class RelationshipLoader
         $om = $this->objectMapper->getObjectManager($objects[0]);
         $fom = $this->objectMapper->getObjectManager($className);
 
+        $idColumn = $idColumn ?? $this->inflector->idColumnFromClass(get_class($objects[0]));
+        $foreignIdColumn = $foreignIdColumn ?? $this->inflector->idColumnFromClass($className);
+
         $ids = $om->getIds($objects);
         $queryHelper = $this->objectMapper->getQueryHelper();
         $db = $queryHelper->getConnection();
