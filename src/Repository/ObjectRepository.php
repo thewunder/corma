@@ -155,59 +155,6 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
-     * Loads a foreign relationship where a property on the supplied objects references an id for another object
-     *
-     * $foreignIdColumn defaults to foreignObjectId if the $className is Namespace\\ForeignObject
-     *
-     * @param object[] $objects
-     * @param string $className Class name of foreign object to load
-     * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
-     * @return object[] Loaded objects keyed by id
-     */
-    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null): array
-    {
-        $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);
-
-        return $this->objectMapper->getRelationshipLoader()->loadOne($objects, $className, $foreignIdColumn);
-    }
-
-    /**
-     * Loads a foreign relationship where a column on another object references the id for the supplied object
-     *
-     * $foreignColumn defaults to objectId for objects of class Namespace\\Object
-     *
-     * @param object[] $objects
-     * @param string $className Class name of foreign objects to load
-     * @param string $foreignColumn Property on foreign object that relates to this object id
-     * @param string $setter Name of setter method on objects
-     * @return array|\object[] Loaded objects keyed by id
-     */
-    public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array
-    {
-        $foreignColumn = $foreignColumn ? $foreignColumn : $this->idColumnFromClass($this->getClassName());
-
-        return $this->objectMapper->getRelationshipLoader()->loadMany($objects, $className, $foreignColumn, $setter);
-    }
-
-    /**
-     * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects
-     *
-     * @param object[] $objects
-     * @param string $className Class name of foreign objects to load
-     * @param string $linkTable Table that links two objects together
-     * @param string $idColumn Column on link table = the id on this object
-     * @param string $foreignIdColumn Column on link table = the id on the foreign object table
-     * @return object[] Loaded objects keyed by id
-     */
-    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null): array
-    {
-        $idColumn = $idColumn ? $idColumn : $this->idColumnFromClass($this->getClassName());
-        $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);
-
-        return $this->objectMapper->getRelationshipLoader()->loadManyToMany($objects, $className, $linkTable, $idColumn, $foreignIdColumn);
-    }
-
-    /**
      * Returns the full class name of the object managed by the repository.
      *
      * @return string

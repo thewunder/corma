@@ -3,6 +3,7 @@ namespace Corma\Test;
 
 use Corma\DataObject\ObjectManagerFactory;
 use Corma\ObjectMapper;
+use Corma\Relationship\RelationshipLoader;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
@@ -79,7 +80,11 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockRepo->expects($this->once())->method('findAll');
+        $loader = $this->getMockBuilder(RelationshipLoader::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockRepo->expects($this->once())->method('findAll')->willReturn(new ArrayCollection([], $loader));
 
         $this->getCorma($mockRepo)->findAll(ExtendedDataObject::class);
     }
