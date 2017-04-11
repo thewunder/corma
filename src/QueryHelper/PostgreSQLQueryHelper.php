@@ -6,6 +6,11 @@ use Doctrine\DBAL\DBALException;
 class PostgreSQLQueryHelper extends QueryHelper
 {
     /**
+     * @var string
+     */
+    private $version;
+
+    /**
      * Use ON CONFLICT (id) DO UPDATE to optimize upsert in PostgreSQL > 9.5
      *
      * @param string $table
@@ -21,7 +26,7 @@ class PostgreSQLQueryHelper extends QueryHelper
         }
 
         $version = $this->getVersion();
-        if ($version < 9.5) {
+        if (version_compare($version, '9.5', '<')) {
             return parent::massUpsert($table, $rows, $lastInsertId);
         }
 
@@ -67,14 +72,14 @@ class PostgreSQLQueryHelper extends QueryHelper
         return true;
     }
 
-    /**
-     * @return float
-     */
-    protected function getVersion()
+    protected function getVersion(): string
     {
+        if($this->version) {
+            return $this->version;
+        }
         $versionString = $this->db->query('SELECT version()')->fetchColumn();
         preg_match('/^PostgreSQL ([\d\.]+).*/', $versionString, $matches);
         $version = $matches[1];
-        return (float) $version;
+        return $this->version = $version;
     }
 }
