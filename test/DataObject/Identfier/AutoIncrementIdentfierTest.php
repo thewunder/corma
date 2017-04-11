@@ -1,7 +1,7 @@
 <?php
 namespace DataObject\Identfier;
 
-use Corma\DataObject\Identifier\AutoIncrementIdentifier;
+use Corma\DataObject\Identifier\CustomizableAutoIncrementIdentifier;
 use Corma\DataObject\TableConvention\DefaultTableConvention;
 use Corma\QueryHelper\QueryHelper;
 use Corma\Test\Fixtures\AnnotatedDataObject;
@@ -87,7 +87,7 @@ class AutoIncrementIdentfierTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return AutoIncrementIdentifier
+     * @return CustomizableAutoIncrementIdentifier
      */
     protected function getIdentfier()
     {
@@ -97,6 +97,6 @@ class AutoIncrementIdentfierTest extends \PHPUnit_Framework_TestCase
         $queryHelper->method('getLastInsertId')->willReturn(42);
         $inflector = new Inflector();
         $reader = Reader::createFromDefaults();
-        return new AutoIncrementIdentifier($inflector, $reader, $queryHelper, new DefaultTableConvention($inflector, $reader));
+        return new CustomizableAutoIncrementIdentifier($inflector, $reader, $queryHelper, new DefaultTableConvention($inflector, $reader));
     }
 }

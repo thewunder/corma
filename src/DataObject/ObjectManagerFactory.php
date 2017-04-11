@@ -6,6 +6,7 @@ use Corma\DataObject\Factory\PdoObjectFactory;
 use Corma\DataObject\Hydrator\ClosureHydrator;
 use Corma\DataObject\Hydrator\ObjectHydratorInterface;
 use Corma\DataObject\Identifier\AutoIncrementIdentifier;
+use Corma\DataObject\Identifier\CustomizableAutoIncrementIdentifier;
 use Corma\DataObject\Identifier\ObjectIdentifierInterface;
 use Corma\DataObject\TableConvention\AnnotationCustomizableTableConvention;
 use Corma\DataObject\TableConvention\DefaultTableConvention;
@@ -57,7 +58,12 @@ class ObjectManagerFactory
             $tableConvention = new DefaultTableConvention($inflector);
         }
 
-        $identifier = new AutoIncrementIdentifier($inflector, $reader, $queryHelper, $tableConvention);
+        if($reader) {
+            $identifier = new CustomizableAutoIncrementIdentifier($inflector, $reader, $queryHelper, $tableConvention);
+        } else {
+            $identifier = new AutoIncrementIdentifier($inflector, $queryHelper, $tableConvention);
+        }
+
         return new static($factory, $hydrator, $tableConvention, $identifier);
     }
 

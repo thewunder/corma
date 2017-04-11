@@ -10,7 +10,7 @@ use Minime\Annotations\Interfaces\ReaderInterface;
 /**
  * Sets the id for new objects from the database sequence / auto increment id
  */
-class AutoIncrementIdentifier extends BaseIndentifier
+class CustomizableAutoIncrementIdentifier extends AnnotationCustomizableIdentifier
 {
     /**
      * @var QueryHelper
@@ -21,9 +21,9 @@ class AutoIncrementIdentifier extends BaseIndentifier
      */
     private $convention;
 
-    public function __construct(Inflector $inflector, QueryHelperInterface $queryHelper, TableConventionInterface $convention)
+    public function __construct(Inflector $inflector, ReaderInterface $reader, QueryHelperInterface $queryHelper, TableConventionInterface $convention)
     {
-        parent::__construct($inflector);
+        parent::__construct($inflector, $reader);
         $this->queryHelper = $queryHelper;
         $this->convention = $convention;
     }
