@@ -60,11 +60,18 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
     
     abstract public function testIsDuplicateException();
 
+    public function testCreate()
+    {
+        $object = $this->objectMapper->create(ExtendedDataObject::class, ['myColumn'=>'Test Value']);
+        $this->assertInstanceOf(ExtendedDataObject::class, $object);
+        $this->assertEquals('Test Value', $object->getMyColumn());
+    }
+
     public function testSave()
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('My Value')->setMyNullableColumn(15);
-        $this->repository->save($object);
+        $this->objectMapper->save($object);
         $this->assertNotNull($object->getId());
         return $object;
     }

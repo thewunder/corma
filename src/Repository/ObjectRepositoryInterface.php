@@ -53,9 +53,10 @@ interface ObjectRepositoryInterface
     /**
      * Creates a new instance of the object
      *
+     * @param array $data Optional array of data to set on object after instantiation
      * @return object
      */
-    public function create();
+    public function create(array $data = []);
 
     /**
      * @param mixed $id The Identifier

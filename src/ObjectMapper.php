@@ -122,11 +122,12 @@ class ObjectMapper
      * Creates a new instance of the requested object
      *
      * @param string $objectName Object class with or without namespace
+     * @param array $data Optional array of data to set on object after instantiation
      * @return object
      */
-    public function create(string $objectName)
+    public function create(string $objectName, array $data = [])
     {
-        return $this->repositoryFactory->getRepository($objectName)->create();
+        return $this->repositoryFactory->getRepository($objectName)->create($data);
     }
 
     /**
