@@ -29,6 +29,7 @@ Works in MySql and PostgreSQL.
 
 Install via Composer
 --------------------
+
 Via the command line:
 
     composer.phar require thewunder/corma ~3.0
@@ -36,6 +37,8 @@ Via the command line:
 Or add the following to the require section your composer.json:
 
     "thewunder/corma": "~3.0"
+
+For PHP version > 5.5 < 7.1 use Corma version ~2.0 
 
 Basic Usage
 -----------
