@@ -99,6 +99,7 @@ class ObjectMapper
      * ObjectMapper constructor.
      * @param QueryHelperInterface $queryHelper
      * @param ObjectRepositoryFactoryInterface $repositoryFactory
+     * @param ObjectManagerFactory $objectManagerFactory
      * @param Inflector $inflector
      */
     public function __construct(QueryHelperInterface $queryHelper, ObjectRepositoryFactoryInterface $repositoryFactory, ObjectManagerFactory $objectManagerFactory, Inflector $inflector)
