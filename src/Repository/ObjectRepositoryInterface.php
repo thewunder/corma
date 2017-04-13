@@ -2,14 +2,54 @@
 namespace Corma\Repository;
 
 use Corma\DataObject\ObjectManager;
-use Doctrine\Common\Persistence\ObjectRepository as DoctrineObjectRepository;
 
 /**
  * Interface for object repositories.
  * An object repository manages all creation, persistence, retrieval, deletion of objects of a particular class.
  */
-interface ObjectRepositoryInterface extends DoctrineObjectRepository
+interface ObjectRepositoryInterface
 {
+    /**
+     * Finds all objects in the repository.
+     *
+     * @return array The objects.
+     */
+    public function findAll();
+
+    /**
+     * Finds objects by a set of criteria.
+     *
+     * Optionally sorting and limiting details can be passed. An implementation may throw
+     * an UnexpectedValueException if certain values of the sorting or limiting details are
+     * not supported.
+     *
+     * @param array      $criteria
+     * @param array|null $orderBy
+     * @param int|null   $limit
+     * @param int|null   $offset
+     *
+     * @return array The objects.
+     *
+     * @throws \UnexpectedValueException
+     */
+    public function findBy(array $criteria, array $orderBy = null, ?int $limit = null, ?int $offset = null);
+
+    /**
+     * Finds a single object by a set of criteria.
+     *
+     * @param array $criteria The criteria.
+     *
+     * @return object|null The object.
+     */
+    public function findOneBy(array $criteria);
+
+    /**
+     * Returns the class name of the object managed by the repository.
+     *
+     * @return string
+     */
+    public function getClassName();
+
     /**
      * Creates a new instance of the object
      *
