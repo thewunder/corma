@@ -99,11 +99,13 @@ $orm->loadManyToMany($existingObjects, DifferentObject::class, 'link_table');
 $orm->deleteAll($existingObjects);
 ```
 
-##Documentation
+Documentation
+-------------
 
 See [the wiki](https://github.com/thewunder/corma/wiki) for full documentation.
 
-## Contributing
+Contributing
+------------
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
