@@ -31,7 +31,7 @@ class RelationshipLoader
      *
      * Can be used to load a one-to-one relationship or the "one" side of a one-to-many relationship.
      *
-     * @param object[] $objects
+     * @param object[] $objects Data objects of the same class
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      * @param string $setter Name of setter method on objects
@@ -47,7 +47,7 @@ class RelationshipLoader
         $foreignIdColumn = $foreignIdColumn ?? $this->inflector->idColumnFromClass($className);
         $foreignIdColumn = ucfirst($foreignIdColumn);
 
-        $om = $this->objectMapper->getObjectManager($objects[0]);
+        $om = $this->objectMapper->getObjectManager($objects);
         $fom = $this->objectMapper->getObjectManager($className);
 
         $getter = 'get' . $foreignIdColumn;
@@ -96,7 +96,7 @@ class RelationshipLoader
      *
      * Used to load the "many" side of a one-to-many relationship.
      *
-     * @param object[] $objects
+     * @param object[] $objects Data objects of the same class
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Property on foreign object that relates to this object id
      * @param string $setter Name of setter method on objects
@@ -108,11 +108,11 @@ class RelationshipLoader
             return [];
         }
 
-        $om = $this->objectMapper->getObjectManager($objects[0]);
+        $om = $this->objectMapper->getObjectManager($objects);
         $fom = $this->objectMapper->getObjectManager($className);
         $ids = $om->getIds($objects);
 
-        $foreignColumn = $foreignColumn ?? $this->inflector->idColumnFromClass(get_class($objects[0]));
+        $foreignColumn = $foreignColumn ?? $this->inflector->idColumnFromClass(get_class(reset($objects)));
         $where = [$foreignColumn => $ids];
         $dbColumns = $this->objectMapper->getQueryHelper()->getDbColumns($om->getTable());
         if ($dbColumns->hasColumn('isDeleted')) {
@@ -157,7 +157,7 @@ class RelationshipLoader
     /**
      * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects
      *
-     * @param object[] $objects
+     * @param object[] $objects Data objects of the same class
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
      * @param string $idColumn Column on link table = the id on this object
@@ -171,10 +171,10 @@ class RelationshipLoader
             return [];
         }
 
-        $om = $this->objectMapper->getObjectManager($objects[0]);
+        $om = $this->objectMapper->getObjectManager($objects);
         $fom = $this->objectMapper->getObjectManager($className);
 
-        $idColumn = $idColumn ?? $this->inflector->idColumnFromClass(get_class($objects[0]));
+        $idColumn = $idColumn ?? $this->inflector->idColumnFromClass(get_class(reset($objects)));
         $foreignIdColumn = $foreignIdColumn ?? $this->inflector->idColumnFromClass($className);
 
         $ids = $om->getIds($objects);

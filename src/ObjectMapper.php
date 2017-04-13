@@ -378,11 +378,14 @@ class ObjectMapper
     }
 
     /**
-     * @param string|object $objectOrClass
+     * @param string|object|array $objectOrClass
      * @return DataObject\ObjectManager
      */
     public function getObjectManager($objectOrClass)
     {
+        if(is_array($objectOrClass)) {
+            $objectOrClass = reset($objectOrClass);
+        }
         $class = is_string($objectOrClass) ? $objectOrClass : get_class($objectOrClass);
         return $this->getRepository($class)->getObjectManager();
     }
