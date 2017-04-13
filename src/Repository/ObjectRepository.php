@@ -573,14 +573,4 @@ class ObjectRepository implements ObjectRepositoryInterface
             throw new InvalidArgumentException("Object must be instance of $className");
         }
     }
-
-    /**
-     * @param string $className
-     * @param string $suffix
-     * @return string
-     */
-    protected function idColumnFromClass($className, $suffix = 'Id')
-    {
-        return $this->objectMapper->getInflector()->idColumnFromClass($className, $suffix);
-    }
 }
