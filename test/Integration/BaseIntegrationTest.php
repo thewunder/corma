@@ -1,7 +1,6 @@
 <?php
 namespace Integration;
 
-use Corma\Collection\ArrayCollection;
 use Corma\DataObject\Identifier\ObjectIdentifierInterface;
 use Corma\ObjectMapper;
 use Corma\Repository\ObjectRepositoryInterface;
@@ -317,8 +316,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $object->setMyColumn('one-to-many')->setOtherDataObjectId($otherObject->getId());
         $this->objectMapper->save($object);
 
-        $objects = new ArrayCollection([$object], $this->objectMapper->getRelationshipLoader());
-        $return = $objects->loadOne(OtherDataObject::class);
+        $return = $this->objectMapper->loadOne([$object], OtherDataObject::class);
 
         $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
@@ -340,8 +338,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $object2 = new ExtendedDataObject();
         $object2->setOtherDataObjectId($otherObject2->getId());
 
-        $objects = new ArrayCollection([$object, $object2], $this->objectMapper->getRelationshipLoader());
-        $return = $objects->loadOne(OtherDataObject::class);
+        $return = $this->objectMapper->loadOne([$object, $object2], OtherDataObject::class);
 
         $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
@@ -369,9 +366,8 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $this->objectMapper->delete($softDeleted);
 
-        $objects = new ArrayCollection([$object], $this->objectMapper->getRelationshipLoader());
         /** @var OtherDataObject[] $return */
-        $return = $objects->loadMany(OtherDataObject::class);
+        $return = $this->objectMapper->loadMany([$object], OtherDataObject::class);
         $this->assertCount(2, $return);
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
 
@@ -399,8 +395,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->objectMapper->delete($softDeleted);
 
         /** @var OtherDataObject[] $return */
-        $objects = new ArrayCollection([$object], $this->objectMapper->getRelationshipLoader());
-        $return = $objects->loadMany(OtherDataObject::class, null, 'setCustom');
+        $return = $this->objectMapper->loadMany([$object],OtherDataObject::class, null, 'setCustom');
         $this->assertCount(2, $return);
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
 
@@ -428,8 +423,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
             ['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=>$otherObject2->getId()]
         ]);
 
-        $objects = new ArrayCollection([$object], $this->objectMapper->getRelationshipLoader());
-        $return = $objects->loadManyToMany(OtherDataObject::class, 'extended_other_rel');
+        $return = $this->objectMapper->loadManyToMany([$object], OtherDataObject::class, 'extended_other_rel');
         $this->assertCount(2, $return);
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
 

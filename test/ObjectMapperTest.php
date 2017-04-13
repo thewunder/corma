@@ -5,7 +5,6 @@ use Corma\DataObject\ObjectManagerFactory;
 use Corma\ObjectMapper;
 use Corma\Relationship\RelationshipLoader;
 use Corma\Repository\ObjectRepositoryFactory;
-use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
@@ -80,11 +79,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $loader = $this->getMockBuilder(RelationshipLoader::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $mockRepo->expects($this->once())->method('findAll')->willReturn(new ArrayCollection([], $loader));
+        $mockRepo->expects($this->once())->method('findAll')->willReturn([]);
 
         $this->getCorma($mockRepo)->findAll(ExtendedDataObject::class);
     }
@@ -123,13 +118,16 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $orm = $this->getCorma($mockRepo);
+        /** @var \PHPUnit_Framework_MockObject_MockObject $mockLoader */
+        $mockLoader = $orm->getRelationshipLoader();
 
         $return = ['789' => new OtherDataObject()];
-        $mockRepo->expects($this->once())->method('loadOne')
+        $mockLoader->expects($this->once())->method('loadOne')
             ->with($objects, OtherDataObject::class, 'otherDataObjectId')
             ->willReturn($return);
 
-        $loaded = $this->getCorma($mockRepo)->loadOne($objects, OtherDataObject::class, 'otherDataObjectId');
+        $loaded = $orm->loadOne($objects, OtherDataObject::class, 'otherDataObjectId');
         $this->assertEquals($return, $loaded);
     }
 
@@ -145,13 +143,16 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $orm = $this->getCorma($mockRepo);
+        /** @var \PHPUnit_Framework_MockObject_MockObject $mockLoader */
+        $mockLoader = $orm->getRelationshipLoader();
 
         $return = ['789' => new OtherDataObject()];
-        $mockRepo->expects($this->once())->method('loadMany')
+        $mockLoader->expects($this->once())->method('loadMany')
             ->with($objects, OtherDataObject::class, 'extendedDataObjectId')
             ->willReturn($return);
 
-        $loaded = $this->getCorma($mockRepo)->loadMany($objects, OtherDataObject::class, 'extendedDataObjectId');
+        $loaded = $orm->loadMany($objects, OtherDataObject::class, 'extendedDataObjectId');
         $this->assertEquals($return, $loaded);
     }
 
@@ -167,13 +168,16 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $orm = $this->getCorma($mockRepo);
+        /** @var \PHPUnit_Framework_MockObject_MockObject $mockLoader */
+        $mockLoader = $orm->getRelationshipLoader();
 
         $return = ['789' => new OtherDataObject()];
-        $mockRepo->expects($this->once())->method('loadManyToMany')
+        $mockLoader->expects($this->once())->method('loadManyToMany')
             ->with($objects, OtherDataObject::class, 'link_table')
             ->willReturn($return);
 
-        $loaded = $this->getCorma($mockRepo)->loadManyToMany($objects, OtherDataObject::class, 'link_table');
+        $loaded = $orm->loadManyToMany($objects, OtherDataObject::class, 'link_table');
         $this->assertEquals($return, $loaded);
     }
 
@@ -270,12 +274,19 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $repositoryFactory->expects($this->once())->method('getRepository')->with(ExtendedDataObject::class)->willReturn($mockRepository);
+        $repositoryFactory->method('getRepository')->with(ExtendedDataObject::class)->willReturn($mockRepository);
 
         $objectManagerFactory = $this->getMockBuilder(ObjectManagerFactory::class)
             ->disableOriginalConstructor()->getMock();
 
-        /** @var ObjectRepositoryFactoryInterface $repositoryFactory */
-        return new ObjectMapper(new QueryHelper($connection, new ArrayCache()), $repositoryFactory, $objectManagerFactory,  new Inflector());
+        $loader = $this->getMockBuilder(RelationshipLoader::class)->disableOriginalConstructor()->getMock();
+
+        $objectMapper = $this->getMockBuilder(ObjectMapper::class)
+            ->setConstructorArgs([new QueryHelper($connection, new ArrayCache()), $repositoryFactory, $objectManagerFactory,  new Inflector()])
+            ->setMethods(['getRelationshipLoader'])->getMock();
+
+        $objectMapper->method('getRelationshipLoader')->willReturn($loader);
+
+        return $objectMapper;
     }
 }
