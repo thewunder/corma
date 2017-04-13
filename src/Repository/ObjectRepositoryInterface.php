@@ -75,11 +75,12 @@ interface ObjectRepositoryInterface
     public function findByIds(array $ids, bool $useCache = true): array;
 
     /**
-     * Return the database table this repository manages
+     * Return the database table for an object
      *
-     * @return string
+     * @param mixed $objectOrClass If omitted will return table for the object this repository manages
+     * @return string The name of the database table
      */
-    public function getTableName(): string;
+    public function getTableName($objectOrClass = null): string;
 
     /**
      * Persists the object to the database

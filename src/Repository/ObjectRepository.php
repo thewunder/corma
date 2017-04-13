@@ -194,14 +194,13 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $this;
     }
 
-    /**
-     * Return the database table this repository manages
-     *
-     * @return string
-     */
-    public function getTableName(): string
+    public function getTableName($objectOrClass = null): string
     {
-        return $this->getObjectManager()->getTable();
+        if($objectOrClass === null) {
+            return $this->getObjectManager()->getTable();
+        } else {
+            return $this->objectMapper->getObjectManager($objectOrClass)->getTable();
+        }
     }
 
     /**
