@@ -34,15 +34,17 @@ class RelationshipLoader
      * @param object[] $objects
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
+     * @param string $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
      */
-    public function loadOne(array $objects, string $className, string $foreignIdColumn): array
+    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $setter = null): array
     {
         if (empty($objects)) {
             return [];
         }
 
         $idToForeignId = [];
+        $foreignIdColumn = $foreignIdColumn ?? $this->inflector->idColumnFromClass($className);
         $foreignIdColumn = ucfirst($foreignIdColumn);
 
         $om = $this->objectMapper->getObjectManager($objects[0]);
@@ -70,7 +72,7 @@ class RelationshipLoader
         }
         unset($foreignObjects);
 
-        $setter = 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn);
+        $setter = $setter ?? 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn);
         foreach ($objects as $i => $object) {
             if (method_exists($object, $setter)) {
                 $id = $om->getId($object);
@@ -100,7 +102,7 @@ class RelationshipLoader
      * @param string $setter Name of setter method on objects
      * @return array|\object[] Loaded objects keyed by id
      */
-    public function loadMany(array $objects, string $className, string $foreignColumn, ?string $setter = null): array
+    public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array
     {
         if (empty($objects)) {
             return [];
@@ -110,6 +112,7 @@ class RelationshipLoader
         $fom = $this->objectMapper->getObjectManager($className);
         $ids = $om->getIds($objects);
 
+        $foreignColumn = $foreignColumn ?? $this->inflector->idColumnFromClass(get_class($objects[0]));
         $where = [$foreignColumn => $ids];
         $dbColumns = $this->objectMapper->getQueryHelper()->getDbColumns($om->getTable());
         if ($dbColumns->hasColumn('isDeleted')) {
@@ -159,9 +162,10 @@ class RelationshipLoader
      * @param string $linkTable Table that links two objects together
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
+     * @param string $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
      */
-    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null): array
+    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null, ?string $setter = null): array
     {
         if (empty($objects)) {
             return [];
@@ -195,7 +199,7 @@ class RelationshipLoader
         }
         unset($foreignObjects);
 
-        $setter =  'set' . $this->inflector->methodNameFromColumn($foreignIdColumn, true);
+        $setter =  $setter ?? 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn, true);
         foreach ($objects as $object) {
             if (method_exists($object, $setter)) {
                 $foreignObjects = [];

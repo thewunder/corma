@@ -207,15 +207,17 @@ class ObjectMapper
      * @param object[] $objects
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id (defaults to if the class = ForeignObject foreignObjectId)
+     * @param string $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
      */
-    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null)
+    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $setter = null): array
     {
         $objectsByClass = $this->groupByClass($objects);
 
+        $loader = $this->getRelationshipLoader();
         $loadedObjects = [];
         foreach ($objectsByClass as $class => $classObjects) {
-            $loadedObjects += $this->getRepository($class)->loadOne($classObjects, $className, $foreignIdColumn);
+            $loadedObjects += $loader->loadOne($classObjects, $className, $foreignIdColumn, $setter);
         }
         return $loadedObjects;
     }
@@ -230,15 +232,16 @@ class ObjectMapper
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Column / property on foreign object that relates to this object id
      * @param string $setter Name of setter method on objects
-     * @return \object[] Loaded objects keyed by id
+     * @return object[] Loaded objects keyed by id
      */
-    public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null)
+    public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array
     {
         $objectsByClass = $this->groupByClass($objects);
 
+        $loader = $this->getRelationshipLoader();
         $loadedObjects = [];
         foreach ($objectsByClass as $class => $classObjects) {
-            $loadedObjects += $this->getRepository($class)->loadMany($classObjects, $className, $foreignColumn, $setter);
+            $loadedObjects += $loader->loadMany($classObjects, $className, $foreignColumn, $setter);
         }
         return $loadedObjects;
     }
@@ -246,7 +249,7 @@ class ObjectMapper
     /**
      * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects.
      *
-     * This works theoretically on objects of mixed type, although they must have the same link table, which makes this in reality only usable.
+     * This works theoretically on objects of mixed type, although they must have the same link table, which makes this in reality only usable
      * by for objects of the same class.
      *
      * @param object[] $objects
@@ -254,15 +257,17 @@ class ObjectMapper
      * @param string $linkTable Table that links two objects together
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
+     * @param string $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
      */
-    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null)
+    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null, ?string $setter = null): array
     {
         $objectsByClass = $this->groupByClass($objects);
 
+        $loader = $this->getRelationshipLoader();
         $loadedObjects = [];
         foreach ($objectsByClass as $class => $classObjects) {
-            $loadedObjects += $this->getRepository($class)->loadManyToMany($classObjects, $className, $linkTable, $idColumn, $foreignIdColumn);
+            $loadedObjects += $loader->loadManyToMany($classObjects, $className, $linkTable, $idColumn, $foreignIdColumn, $setter);
         }
         return $loadedObjects;
     }
