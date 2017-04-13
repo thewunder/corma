@@ -37,7 +37,7 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
      * Return the database table this repository manages
      *
      * @return string
-     *
+     */
     public function getTableName(): string;
 
     /**
