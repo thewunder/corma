@@ -2,7 +2,6 @@
 namespace Corma\Repository;
 
 use Corma\Exception\ClassNotFoundException;
-use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\InvalidClassException;
 
 /**
@@ -18,48 +17,33 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     /**
      * @var array
      */
-    private $namespaces;
-
-    /**
-     * @var array
-     */
     private $dependencies;
 
     /**
-     * @param array $namespaces Namespaces to search for data objects and repositories
      * @param array $dependencies Repository constructor dependencies
      */
-    public function __construct(array $namespaces, array $dependencies = [])
+    public function __construct(array $dependencies = [])
     {
-        if (empty($namespaces)) {
-            throw new InvalidArgumentException('At least one data object repository namespace must be specified');
-        }
-        $this->namespaces = $namespaces;
         $this->dependencies = $dependencies;
     }
 
-    public function getRepository(string $objectName): ?ObjectRepositoryInterface
+    public function getRepository(string $class): ?ObjectRepositoryInterface
     {
-        $objectName = $this->getObjectName($objectName);
-        if (isset($this->repositories[$objectName])) {
-            return $this->repositories[$objectName];
+        if (isset($this->repositories[$class])) {
+            return $this->repositories[$class];
         }
 
-        foreach ($this->namespaces as $namespace) {
-            $className = $this->getRepositoryClass($objectName, $namespace);
-            $repository = $this->createRepository($className);
-            if ($repository) {
-                $this->repositories[$objectName] = $repository;
-                return $repository;
-            } else {
-                $objectClass = "$namespace\\$objectName";
-                if (class_exists($objectClass)) {
-                    /** @var ObjectRepository $default */
-                    $default = $this->createRepository(ObjectRepository::class);
-                    $default->setClassName($objectClass);
-                    return $this->repositories[$objectName] = $default;
-                }
-            }
+        [$namespace, $objectName] = $this->splitClassAndNamespace($class);
+        $className = $this->getRepositoryClass($objectName, $namespace);
+        $repository = $this->createRepository($className);
+        if ($repository) {
+            $this->repositories[$class] = $repository;
+            return $repository;
+        } else if (class_exists($class)) {
+            /** @var ObjectRepository $default */
+            $default = $this->createRepository(ObjectRepository::class);
+            $default->setClassName($class);
+            return $this->repositories[$class] = $default;
         }
 
         throw new ClassNotFoundException("Could not find repository class for $objectName");
@@ -69,15 +53,15 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
      * Strip namespace from fully qualified class names
      *
      * @param $objectClass
-     * @return string
+     * @return array
      */
-    protected function getObjectName($objectClass)
+    protected function splitClassAndNamespace($objectClass): array
     {
         $lastSlash = strrpos($objectClass, '\\');
         if ($lastSlash !== false) {
-            return substr($objectClass, $lastSlash+1);
+            return [substr($objectClass, 0, $lastSlash), substr($objectClass, $lastSlash+1)];
         } else {
-            return $objectClass;
+            return [$objectClass, ''];
         }
     }
 

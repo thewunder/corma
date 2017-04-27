@@ -25,7 +25,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 
         $connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
 
-        $corma = ObjectMapper::withDefaults($connection, ['Corma\\Test\\Fixtures']);
+        $corma = ObjectMapper::withDefaults($connection);
         $this->assertInstanceOf(ObjectMapper::class, $corma);
         return $corma;
     }
@@ -36,7 +36,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetRepository(ObjectMapper $corma)
     {
-        $repository = $corma->getRepository('ExtendedDataObject');
+        $repository = $corma->getRepository(ExtendedDataObject::class);
         $this->assertInstanceOf(ExtendedDataObjectRepository::class, $repository);
     }
 
@@ -252,7 +252,7 @@ class ObjectMapperTest extends \PHPUnit_Framework_TestCase
 
         $connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
 
-        $corma = ObjectMapper::withDefaults($connection, ['Corma\\Test\\Fixtures']);
+        $corma = ObjectMapper::withDefaults($connection);
 
         $unitOfWork = $corma->unitOfWork();
         $this->assertInstanceOf(UnitOfWork::class, $unitOfWork);
