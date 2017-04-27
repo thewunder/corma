@@ -7,6 +7,7 @@ use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidArgumentException;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\QueryHelperInterface;
+use Corma\Util\PagedQuery;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -426,6 +427,18 @@ class ObjectRepository implements ObjectRepositoryInterface
                 self::saveAll($objects);
                 $afterSave($objects);
         }, $exceptionHandler);
+    }
+
+    /**
+     * Creates a paged query for the proved select query builder
+     *
+     * @param QueryBuilder $qb
+     * @param int $pageSize
+     * @return PagedQuery
+     */
+    protected function pagedQuery(QueryBuilder $qb, int $pageSize = PagedQuery::DEFAULT_PAGE_SIZE)
+    {
+        return new PagedQuery($qb, $this->queryHelper, $this->getObjectManager(), $pageSize);
     }
 
     /**
