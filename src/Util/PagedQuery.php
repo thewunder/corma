@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Util;
 
+use Corma\DataObject\ObjectManager;
 use Corma\Exception\InvalidArgumentException;
 use Corma\QueryHelper\QueryHelperInterface;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -25,38 +26,33 @@ class PagedQuery implements \JsonSerializable
     /** @var int  */
     protected $next;
 
-    /** @var string */
-    private $class;
-
     /**
      * @var QueryBuilder
      */
     private $qb;
 
     /**
-     * @var array
+     * @var ObjectManager
      */
-    private $dependencies;
+    private $objectManager;
 
     /**
      * @param QueryBuilder $qb
      * @param QueryHelperInterface $queryHelper
-     * @param string $class Full class name
-     * @param array $dependencies Object dependencies
+     * @param ObjectManager $objectManager
      * @param int $pageSize
      */
-    public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, string $class, array $dependencies = [], $pageSize = self::DEFAULT_PAGE_SIZE)
+    public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, ObjectManager $objectManager, $pageSize = self::DEFAULT_PAGE_SIZE)
     {
         if ($pageSize < 1) {
             throw new InvalidArgumentException('Page size must be greater than 0');
         }
 
         $this->qb = $qb;
-        $this->class = $class;
         $this->pageSize = $pageSize;
         $this->resultCount = $queryHelper->getCount($qb);
         $this->pages = floor($this->resultCount / $this->pageSize) + 1;
-        $this->dependencies = $dependencies;
+        $this->objectManager = $objectManager;
     }
 
     /**
@@ -80,7 +76,7 @@ class PagedQuery implements \JsonSerializable
         }
 
         $statement = $this->qb->execute();
-        return $statement->fetchAll(\PDO::FETCH_CLASS, $this->class, $this->dependencies);  //TODO: use object manager
+        return $this->objectManager->fetchAll($statement);
     }
 
     /**
