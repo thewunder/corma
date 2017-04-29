@@ -6,6 +6,8 @@ use Corma\ObjectMapper;
 use Corma\Repository\ObjectRepositoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
+use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
+use Corma\Util\PagedQuery;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -618,5 +620,21 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $object2Links);
         $this->assertEquals($otherObject3->getId(), $object2Links[0]);
         $this->assertEquals($otherObject4->getId(), $object2Links[1]);
+    }
+
+    public function testPagedQuery()
+    {
+        /** @var ExtendedDataObjectRepository $repo */
+        $repo = $this->objectMapper->getRepository(ExtendedDataObject::class);
+        $pager = $repo->findAllPaged();
+        $this->assertInstanceOf(PagedQuery::class, $pager);
+
+        $this->assertGreaterThan(1, $pager->getPages());
+
+        for($i = 1; $i <= $pager->getPages(); $i++) {
+            $objects = $pager->getResults($i);
+            $this->assertLessThanOrEqual(5, count($objects));
+            $this->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
+        }
     }
 }
