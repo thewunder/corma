@@ -7,6 +7,7 @@ New Features
 * Remove requirement for data objects to implement the DataObjectInterface, this makes it possible for your business
   objects to be free of dependencies on the ORM.
 * Allow for custom object creation and hydration behavior
+* Allow for custom table and identifier conventions
 * Allow for customizing the table name via the @table annotation
 * Allow for a custom id column via the @identifier annotation
 
@@ -16,6 +17,7 @@ Breaking changes
 * Deleted the DataObject abstract class and DataObjectInterface
 * Customizing the table name is done via the @table annotation rather than overriding getTableName method
 * RelationshipSaver::saveOne method signature changed for consistency and additional flexibility
+* Removed relationship loading methods on repositories
 
 Version 2.1.5
 ===========
