@@ -35,16 +35,21 @@ class RelationshipSaver
      * Can be used to save a one-to-one relationship or the "one" side of a one-to-many relationship.
      *
      * @param object[] $objects
+     * @param string $className Class name of foreign object to load
+     * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
+     * @param string $getter Name of getter method on objects
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      */
-    public function saveOne(array $objects, string $foreignIdColumn)
+    public function saveOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $getter = null)
     {
         if(empty($objects)) {
             return;
         }
 
         $om = $this->objectMapper->getObjectManager($objects);
-        $getter = 'get' . $this->inflector->methodNameFromColumn($foreignIdColumn);
+        $foreignIdColumn = $foreignIdColumn ?? $this->inflector->idColumnFromClass($className);
+        $getter = $getter ?? 'get' . $this->inflector->methodNameFromColumn($foreignIdColumn);
+
         /** @var object[] $foreignObjectsByObjectId */
         $foreignObjectsByObjectId = [];
         foreach ($objects as $object) {

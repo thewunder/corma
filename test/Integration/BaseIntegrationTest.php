@@ -452,7 +452,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $this->repository->saveAll($objects);
         $relationshipSaver = $this->objectMapper->getRelationshipSaver();
-        $relationshipSaver->saveOne($objects, 'otherDataObjectId');
+        $relationshipSaver->saveOne($objects, OtherDataObject::class);
 
         $this->assertGreaterThan(0, $otherObject->getId());
         $this->assertGreaterThan(0, $otherObject2->getId());
