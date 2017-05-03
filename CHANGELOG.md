@@ -13,6 +13,7 @@ Breaking changes
 ----------------
 * Deleted the DataObject abstract class and DataObjectInterface
 * Customizing the table name is done via the @table annotation rather than overriding getTableName method
+* RelationshipSaver::saveOne method signature changed for consistency and additional flexibility
 
 Version 2.1.5
 ===========
