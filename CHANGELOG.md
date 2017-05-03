@@ -3,6 +3,7 @@ Version 3.0
 
 New Features
 ------
+* PHP 7.1 compatibility
 * Remove requirement for data objects to implement the DataObjectInterface, this makes it possible for your business
   objects to be free of dependencies on the ORM.
 * Allow for custom object creation and hydration behavior
@@ -11,6 +12,7 @@ New Features
 
 Breaking changes
 ----------------
+* Dropped Compatibility for PHP versions < 7.1
 * Deleted the DataObject abstract class and DataObjectInterface
 * Customizing the table name is done via the @table annotation rather than overriding getTableName method
 * RelationshipSaver::saveOne method signature changed for consistency and additional flexibility
