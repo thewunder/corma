@@ -19,7 +19,7 @@ class QueryHelper implements QueryHelperInterface
      */
     const WHERE_COLUMN_REGEX = '/^(([\w]+\\.)|)([\w]+)( LIKE| NOT LIKE| BETWEEN| NOT BETWEEN|([^\w]*))/';
 
-    protected $COMPARISON_OPERATORS = ['=', '<', '>', '<=', '>=', '<>', '!=', 'LIKE', 'NOT LIKE', 'BETWEEN', 'NOT BETWEEN'];
+    protected const COMPARISON_OPERATORS = ['=', '<', '>', '<=', '>=', '<>', '!=', 'LIKE', 'NOT LIKE', 'BETWEEN', 'NOT BETWEEN'];
 
     /**
      * @var Connection
@@ -406,7 +406,7 @@ class QueryHelper implements QueryHelperInterface
     protected function getOperator(string $columnName)
     {
         $operator = trim(preg_replace(self::WHERE_COLUMN_REGEX, '$4', $columnName));
-        if ($operator && in_array($operator, $this->COMPARISON_OPERATORS)) {
+        if ($operator && in_array($operator, self::COMPARISON_OPERATORS)) {
             return $operator;
         } else {
             return '=';
