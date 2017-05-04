@@ -12,9 +12,10 @@ interface ObjectRepositoryInterface
     /**
      * Finds all objects in the repository.
      *
+     * @param bool $includeDeleted If true also return soft-deleted objects (if there is a isDeleted column)
      * @return array The objects.
      */
-    public function findAll();
+    public function findAll(bool $includeDeleted = false);
 
     /**
      * Finds objects by a set of criteria.
