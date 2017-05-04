@@ -39,12 +39,12 @@ class ObjectManager
      */
     protected $dependencies;
 
-    public function __construct(ObjectFactoryInterface $factory, ObjectHydratorInterface $hydrator, TableConventionInterface $tableConvention, ObjectIdentifierInterface $identifier, $className, array $dependencies = [])
+    public function __construct(ObjectHydratorInterface $hydrator, ObjectIdentifierInterface $identifier, TableConventionInterface $tableConvention, ObjectFactoryInterface $factory, string $className, array $dependencies = [])
     {
-        $this->factory = $factory;
         $this->hydrator = $hydrator;
-        $this->tableConvention = $tableConvention;
         $this->identifier = $identifier;
+        $this->tableConvention = $tableConvention;
+        $this->factory = $factory;
         $this->className = $className;
         $this->dependencies = $dependencies;
     }

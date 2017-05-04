@@ -18,28 +18,28 @@ use Minime\Annotations\Interfaces\ReaderInterface;
 class ObjectManagerFactory
 {
     /**
-     * @var ObjectFactoryInterface
-     */
-    protected $factory;
-
-    /**
      * @var ObjectHydratorInterface
      */
     protected $hydrator;
     /**
-     * @var TableConventionInterface
-     */
-    protected $tableConvention;
-    /**
      * @var ObjectIdentifierInterface
      */
     protected $identifier;
-    public function __construct(ObjectFactoryInterface $factory, ObjectHydratorInterface $hydrator, TableConventionInterface $tableConvention, ObjectIdentifierInterface $identifier)
+    /**
+     * @var ObjectFactoryInterface
+     */
+    protected $factory;
+    /**
+     * @var TableConventionInterface
+     */
+    protected $tableConvention;
+
+    public function __construct(ObjectHydratorInterface $hydrator, ObjectIdentifierInterface $identifier, TableConventionInterface $tableConvention, ObjectFactoryInterface $factory)
     {
-        $this->factory = $factory;
         $this->hydrator = $hydrator;
-        $this->tableConvention = $tableConvention;
         $this->identifier = $identifier;
+        $this->tableConvention = $tableConvention;
+        $this->factory = $factory;
     }
 
     /**
@@ -64,7 +64,7 @@ class ObjectManagerFactory
             $identifier = new AutoIncrementIdentifier($inflector, $queryHelper, $tableConvention);
         }
 
-        return new static($factory, $hydrator, $tableConvention, $identifier);
+        return new static($hydrator, $identifier, $tableConvention, $factory);
     }
 
     /**
@@ -72,20 +72,21 @@ class ObjectManagerFactory
      *
      * @param $className
      * @param array $dependencies
-     * @param ObjectFactoryInterface|null $factory
-     * @param ObjectHydratorInterface|null $hydrator
-     * @param TableConventionInterface|null $tableConvention
-     * @param ObjectIdentifierInterface|null $identifier
+     * @param ObjectHydratorInterface|null $hydrator Setting a custom object hydrator can change how columns are mapped to property names and how those properties are set
+     * @param ObjectIdentifierInterface|null $identifier Setting a custom object identifier can change how your id is generated, retrieved, and set
+     * @param TableConventionInterface|null $tableConvention If you have enabled annotations (by constructing Corma with an annotation reader), you should use @table instead of injecting a custom convention here.
+     * @param ObjectFactoryInterface|null $factory Setting a custom object factory will customize how your object is instantiated
+     *
      * @return ObjectManager
      */
-    public function getManager(string $className, array $dependencies = [], ?ObjectFactoryInterface $factory = null, ?ObjectHydratorInterface $hydrator = null, ?TableConventionInterface $tableConvention = null, ?ObjectIdentifierInterface $identifier = null)
+    public function getManager(string $className, array $dependencies = [], ?ObjectHydratorInterface $hydrator = null, ?ObjectIdentifierInterface $identifier = null, ?TableConventionInterface $tableConvention = null, ?ObjectFactoryInterface $factory = null)
     {
-        $factory = $factory ? $factory : $this->factory;
         $hydrator = $hydrator ? $hydrator : $this->hydrator;
-        $tableConvention = $tableConvention ? $tableConvention : $this->tableConvention;
         $identifier = $identifier ? $identifier : $this->identifier;
+        $tableConvention = $tableConvention ? $tableConvention : $this->tableConvention;
+        $factory = $factory ? $factory : $this->factory;
 
-        return new ObjectManager($factory, $hydrator, $tableConvention, $identifier, $className, $dependencies);
+        return new ObjectManager($hydrator, $identifier, $tableConvention, $factory, $className, $dependencies);
     }
 
     /**
