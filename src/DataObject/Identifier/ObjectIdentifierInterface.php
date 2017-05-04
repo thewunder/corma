@@ -7,6 +7,8 @@ namespace Corma\DataObject\Identifier;
 interface ObjectIdentifierInterface
 {
     /**
+     * Gets the primary key for the object
+     *
      * @param object $object
      * @return string
      */
@@ -21,12 +23,16 @@ interface ObjectIdentifierInterface
     public function isNew($object): bool;
 
     /**
+     * Gets the primary key for the supplied objects
+     *
      * @param object[] $objects
      * @return string[]
      */
     public function getIds(array $objects): array;
 
     /**
+     * Sets the primary key on the object
+     *
      * @param object $object
      * @param string $id
      * @return object The object passed in

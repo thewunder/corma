@@ -50,6 +50,8 @@ class ObjectManager
     }
 
     /**
+     * Creates a new instance of object, optionally populated with the supplied data
+     *
      * @param array $data
      * @return object
      */
@@ -59,6 +61,8 @@ class ObjectManager
     }
 
     /**
+     * Retrieves a single object from the database
+     *
      * @param Statement|\PDOStatement $statement
      * @return object
      */
@@ -68,6 +72,8 @@ class ObjectManager
     }
 
     /**
+     * Retrieves multiple objects from the database
+     *
      * @param Statement|\PDOStatement $statement
      * @return object[]
      */
@@ -77,6 +83,8 @@ class ObjectManager
     }
 
     /**
+     * Sets the supplied data on to the object.
+     *
      * @param object $object
      * @param array $data
      * @return object
@@ -87,6 +95,8 @@ class ObjectManager
     }
 
     /**
+     * Extracts all scalar data from the object
+     *
      * @param object $object
      * @return array
      */
@@ -96,6 +106,8 @@ class ObjectManager
     }
 
     /**
+     * Gets the name of the database table
+     *
      * @return string
      */
     public function getTable(): string
@@ -104,7 +116,7 @@ class ObjectManager
     }
 
     /**
-     * @return string
+     * @return string Database column name containing the identifier for the object
      */
     public function getIdColumn(): string
     {
@@ -132,6 +144,8 @@ class ObjectManager
     }
 
     /**
+     * Gets the primary key for the supplied objects
+     *
      * @param array $objects
      * @return string[]
      */
@@ -141,6 +155,8 @@ class ObjectManager
     }
 
     /**
+     * Sets the primary key on the object
+     *
      * @param object $object
      * @param string $id
      * @return object

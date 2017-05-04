@@ -115,6 +115,10 @@ interface ObjectRepositoryInterface
     public function deleteAll(array $objects);
 
     /**
+     * Retrieves the object manager for the class managed by this repository.
+     *
+     * If you need to customize the hydration, id behavior, table name, or object instantiation behavior, you will override this method.
+     *
      * @return ObjectManager
      */
     public function getObjectManager(): ObjectManager;

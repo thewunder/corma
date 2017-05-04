@@ -7,6 +7,8 @@ namespace Corma\DataObject\TableConvention;
 interface TableConventionInterface
 {
     /**
+     * Gets the name of the database table for the supplied object
+     *
      * @param string|object $classOrObject
      * @return string
      */
