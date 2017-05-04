@@ -2,7 +2,7 @@ Version 3.0
 ===========
 
 New Features
-------
+------------
 * PHP 7.1 compatibility
 * Remove requirement for data objects to implement the DataObjectInterface, this makes it possible for your business
   objects to be free of dependencies on the ORM.
@@ -18,6 +18,7 @@ Breaking changes
 * Customizing the table name is done via the @table annotation rather than overriding getTableName method
 * RelationshipSaver::saveOne method signature changed for consistency and additional flexibility
 * Removed relationship loading methods on repositories
+* Corma now requires the fully qualified class name of the object in all cases
 
 Version 2.1.5
 ===========

@@ -110,7 +110,7 @@ class ObjectMapper
     }
 
     /**
-     * @param string $objectName Object class with or without namespace
+     * @param string $objectName Fully qualified object class name
      * @return Repository\ObjectRepositoryInterface
      */
     public function getRepository(string $objectName)
@@ -121,7 +121,7 @@ class ObjectMapper
     /**
      * Creates a new instance of the requested object
      *
-     * @param string $objectName Object class with or without namespace
+     * @param string $objectName Fully qualified object class name
      * @param array $data Optional array of data to set on object after instantiation
      * @return object
      */
@@ -133,7 +133,7 @@ class ObjectMapper
     /**
      * Find an object by id
      *
-     * @param string $objectName Object class with or without namespace
+     * @param string $objectName Fully qualified object class name
      * @param string|int $id
      * @param bool $useCache Use cache?
      * @return object
@@ -146,7 +146,7 @@ class ObjectMapper
     /**
      * Find objects by ids
      *
-     * @param string $objectName Object class with or without namespace
+     * @param string $objectName Fully qualified object class name
      * @param array $ids
      * @return object[]
      */
@@ -158,7 +158,7 @@ class ObjectMapper
     /**
      * Find all of the specified object type
      *
-     * @param string $objectName Object class with or without namespace
+     * @param string $objectName Fully qualified object class name
      * @param bool $includeDeleted If true also return soft-deleted objects (if there is a isDeleted column)
      * @return object[]
      */
@@ -168,7 +168,7 @@ class ObjectMapper
     }
 
     /**
-     * @param string $objectName Object class with or without namespace
+     * @param string $objectName Fully qualified object class name
      * @param array $criteria column => value pairs
      * @param array $orderBy column => order pairs
      * @param int $limit Maximum results to return
@@ -185,7 +185,7 @@ class ObjectMapper
     /**
      * Finds a single object by any criteria
      *
-     * @param string $objectName Object class with or without namespace
+     * @param string $objectName Fully qualified object class name
      * @param array $criteria column => value pairs
      * @return object
      *
