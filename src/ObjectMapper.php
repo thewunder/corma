@@ -150,7 +150,7 @@ class ObjectMapper
      * @param array $ids
      * @return object[]
      */
-    public function findByIds(string $objectName, array $ids)
+    public function findByIds(string $objectName, array $ids): array
     {
         return $this->getRepository($objectName)->findByIds($ids);
     }
@@ -162,7 +162,7 @@ class ObjectMapper
      * @param bool $includeDeleted If true also return soft-deleted objects (if there is a isDeleted column)
      * @return object[]
      */
-    public function findAll(string $objectName, bool $includeDeleted = false)
+    public function findAll(string $objectName, bool $includeDeleted = false): array
     {
         return $this->getRepository($objectName)->findAll($includeDeleted);
     }
@@ -177,7 +177,7 @@ class ObjectMapper
      *
      * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
-    public function findBy(string $objectName, array $criteria, ?array $orderBy = [], ?int $limit = null, ?int $offset = null)
+    public function findBy(string $objectName, array $criteria, ?array $orderBy = [], ?int $limit = null, ?int $offset = null): array
     {
         return $this->getRepository($objectName)->findBy($criteria, $orderBy, $limit, $offset);
     }
