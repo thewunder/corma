@@ -13,21 +13,21 @@ use Doctrine\DBAL\Statement;
 class ObjectManager
 {
     /**
-     * @var ObjectFactoryInterface
-     */
-    protected $factory;
-    /**
      * @var ObjectHydratorInterface
      */
     protected $hydrator;
+    /**
+     * @var ObjectIdentifierInterface
+     */
+    protected $identifier;
     /**
      * @var TableConventionInterface
      */
     protected $tableConvention;
     /**
-     * @var ObjectIdentifierInterface
+     * @var ObjectFactoryInterface
      */
-    protected $identifier;
+    protected $factory;
 
     /**
      * @var string
