@@ -74,7 +74,7 @@ class PostgreSQLQueryHelper extends QueryHelper
 
     protected function getVersion(): string
     {
-        if($this->version) {
+        if ($this->version) {
             return $this->version;
         }
         $versionString = $this->db->query('SELECT version()')->fetchColumn();

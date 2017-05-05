@@ -42,7 +42,7 @@ class RelationshipSaver
      */
     public function saveOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $getter = null)
     {
-        if(empty($objects)) {
+        if (empty($objects)) {
             return;
         }
 
@@ -205,9 +205,15 @@ class RelationshipSaver
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
      */
-    public function saveManyToManyLinks(array $objects, string $className, string $linkTable, ?string $foreignObjectGetter = null,
-                                        ?string $idColumn = null, ?string $foreignIdColumn = null)
-    {
+    public function saveManyToManyLinks(
+        array $objects,
+        string $className,
+        string $linkTable,
+        ?string $foreignObjectGetter = null,
+        ?string $idColumn = null,
+        ?string $foreignIdColumn = null
+    ) {
+    
         if (empty($objects)) {
             return;
         }
@@ -269,9 +275,15 @@ class RelationshipSaver
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
      */
-    public function saveManyToMany(array $objects, string $className, string $linkTable, ?string $foreignObjectGetter = null,
-                                   ?string $idColumn = null, ?string $foreignIdColumn = null)
-    {
+    public function saveManyToMany(
+        array $objects,
+        string $className,
+        string $linkTable,
+        ?string $foreignObjectGetter = null,
+        ?string $idColumn = null,
+        ?string $foreignIdColumn = null
+    ) {
+    
         if (empty($objects)) {
             return;
         }

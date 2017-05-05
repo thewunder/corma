@@ -24,7 +24,7 @@ abstract class BaseIndentifier implements ObjectIdentifierInterface
     public function getId($object): ?string
     {
         $getter = $this->inflector->getterFromColumn($this->getIdColumn($object));
-        if(!method_exists($object, $getter)) {
+        if (!method_exists($object, $getter)) {
             throw new MethodNotImplementedException("$getter must be implemented on ".get_class($object));
         }
         return $object->$getter();
@@ -36,13 +36,13 @@ abstract class BaseIndentifier implements ObjectIdentifierInterface
      */
     public function getIds(array $objects): array
     {
-        if(empty($objects)) {
+        if (empty($objects)) {
             return [];
         }
 
         $object = reset($objects);
         $getter = $this->inflector->getterFromColumn($this->getIdColumn($object));
-        if(!method_exists($object, $getter)) {
+        if (!method_exists($object, $getter)) {
             throw new MethodNotImplementedException("$getter must be implemented on ".get_class($object));
         }
 
@@ -62,7 +62,7 @@ abstract class BaseIndentifier implements ObjectIdentifierInterface
     public function setId($object, $id)
     {
         $setter = $this->inflector->setterFromColumn($this->getIdColumn($object));
-        if(method_exists($object, $setter)) {
+        if (method_exists($object, $setter)) {
             $object->$setter($id);
             return $object;
         }

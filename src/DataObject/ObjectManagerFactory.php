@@ -52,13 +52,13 @@ class ObjectManagerFactory
     {
         $hydrator = new ClosureHydrator();
         $factory = new PdoObjectFactory($hydrator);
-        if($reader) {
+        if ($reader) {
             $tableConvention = new AnnotationCustomizableTableConvention($inflector, $reader);
         } else {
             $tableConvention = new DefaultTableConvention($inflector);
         }
 
-        if($reader) {
+        if ($reader) {
             $identifier = new CustomizableAutoIncrementIdentifier($inflector, $reader, $queryHelper, $tableConvention);
         } else {
             $identifier = new AutoIncrementIdentifier($inflector, $queryHelper, $tableConvention);

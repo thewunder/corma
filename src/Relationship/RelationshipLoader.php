@@ -54,7 +54,7 @@ class RelationshipLoader
         foreach ($objects as $i => $object) {
             if (method_exists($object, $getter)) {
                 $id = $om->getId($object);
-                if(!$id) {
+                if (!$id) {
                     $id = $i;
                 }
 
@@ -76,7 +76,7 @@ class RelationshipLoader
         foreach ($objects as $i => $object) {
             if (method_exists($object, $setter)) {
                 $id = $om->getId($object);
-                if(!$id) {
+                if (!$id) {
                     $id = $i;
                 }
 
@@ -207,7 +207,7 @@ class RelationshipLoader
                 if (isset($foreignIdsById[$id])) {
                     $foreignIds = $foreignIdsById[$id];
                     foreach ($foreignIds as $foreignId) {
-                        if(isset($foreignObjectsById[$foreignId])) {
+                        if (isset($foreignObjectsById[$foreignId])) {
                             $foreignObjects[] = $foreignObjectsById[$foreignId];
                         }
                     }

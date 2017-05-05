@@ -175,7 +175,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
         $this->className = implode('\\', $objectClass);
 
-        if(!class_exists($this->className)) {
+        if (!class_exists($this->className)) {
             throw new ClassNotFoundException("$this->className not found");
         }
         return $this->className;
@@ -197,7 +197,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     public function getTableName($objectOrClass = null): string
     {
-        if($objectOrClass === null) {
+        if ($objectOrClass === null) {
             return $this->getObjectManager()->getTable();
         } else {
             return $this->objectMapper->getObjectManager($objectOrClass)->getTable();
@@ -349,7 +349,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     public function getObjectManager(): ObjectManager
     {
-        if($this->objectManager) {
+        if ($this->objectManager) {
             return $this->objectManager;
         }
         $objectManagerFactory = $this->objectMapper->getObjectManagerFactory();
@@ -458,7 +458,7 @@ class ObjectRepository implements ObjectRepositoryInterface
                 continue;
             } if (isset($data[$columnName])) {
                 $queryParams[$this->db->quoteIdentifier($columnName)] = $data[$columnName];
-            } else if (!$column->getNotnull()) {
+            } elseif (!$column->getNotnull()) {
                 $queryParams[$this->db->quoteIdentifier($columnName)] = null;
             }
         }

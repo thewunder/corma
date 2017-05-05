@@ -269,7 +269,7 @@ class QueryHelper implements QueryHelperInterface
         $column = $this->getColumnName($wherePart);
         $columnName = $this->db->quoteIdentifier($column);
         $operator = $this->getOperator($wherePart);
-        if(strpos($operator, 'BETWEEN') !== false) {
+        if (strpos($operator, 'BETWEEN') !== false) {
             if (!is_array($value) || !isset($value[0]) || !isset($value[1])) {
                 throw new InvalidArgumentException('BETWEEN value must be a 2 item array with numeric keys');
             }
@@ -279,7 +279,7 @@ class QueryHelper implements QueryHelperInterface
             $qb->setParameter($gtParam, $value[0])
                 ->setParameter($ltParam, $value[1]);
             return $clause;
-        } else if (is_array($value)) {
+        } elseif (is_array($value)) {
             if ($operator == '<>' || $operator == '!=') {
                 $clause = "$columnName NOT IN($paramName)";
                 $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
@@ -288,7 +288,7 @@ class QueryHelper implements QueryHelperInterface
                 $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
             }
             return $clause;
-        } else if ($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
+        } elseif ($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
             if ($operator == '<>' || $operator == '!=') {
                 $clause = $this->db->getDatabasePlatform()->getIsNotNullExpression($columnName);
                 return $clause;
@@ -337,7 +337,7 @@ class QueryHelper implements QueryHelperInterface
         } else {
             $schemaManager = $this->db->getSchemaManager();
             $tableObj = $schemaManager->listTableDetails($table);
-            if(empty($tableObj->getColumns())) {
+            if (empty($tableObj->getColumns())) {
                 $database = $this->db->getDatabase();
                 throw new InvalidArgumentException("The table $database.$table does not exist");
             }

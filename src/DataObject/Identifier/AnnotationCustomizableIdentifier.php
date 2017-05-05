@@ -22,10 +22,10 @@ abstract class AnnotationCustomizableIdentifier extends BaseIndentifier
 
     public function getIdColumn($objectOrClass): string
     {
-        if($this->reader) {
+        if ($this->reader) {
             $annotations = $this->reader->getClassAnnotations($objectOrClass);
-            if(isset($annotations['identifier'])) {
-                if(is_string($annotations['identifier'])) {
+            if (isset($annotations['identifier'])) {
+                if (is_string($annotations['identifier'])) {
                     return $annotations['identifier'];
                 }
             }

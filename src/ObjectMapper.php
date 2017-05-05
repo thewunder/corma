@@ -383,7 +383,7 @@ class ObjectMapper
      */
     public function getObjectManager($objectOrClass)
     {
-        if(is_array($objectOrClass)) {
+        if (is_array($objectOrClass)) {
             $objectOrClass = reset($objectOrClass);
         }
         $class = is_string($objectOrClass) ? $objectOrClass : get_class($objectOrClass);

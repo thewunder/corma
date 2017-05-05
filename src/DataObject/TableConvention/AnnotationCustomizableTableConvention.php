@@ -27,9 +27,9 @@ class AnnotationCustomizableTableConvention extends DefaultTableConvention
     public function getTable($classOrObject): string
     {
         $annotations = $this->annotationReader->getClassAnnotations($classOrObject);
-        if(isset($annotations['table'])) {
+        if (isset($annotations['table'])) {
             $table = $annotations['table'];
-            if(is_string($table)) {
+            if (is_string($table)) {
                 return $table;
             }
         }

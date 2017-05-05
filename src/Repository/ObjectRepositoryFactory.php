@@ -39,7 +39,7 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
         if ($repository) {
             $this->repositories[$class] = $repository;
             return $repository;
-        } else if (class_exists($class)) {
+        } elseif (class_exists($class)) {
             /** @var ObjectRepository $default */
             $default = $this->createRepository(ObjectRepository::class);
             $default->setClassName($class);

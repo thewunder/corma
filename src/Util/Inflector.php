@@ -16,7 +16,7 @@ class Inflector
      */
     public function getShortClass($classOrObject)
     {
-        if(is_string($classOrObject)) {
+        if (is_string($classOrObject)) {
             $class = $classOrObject;
         } else {
             $class = get_class($classOrObject);

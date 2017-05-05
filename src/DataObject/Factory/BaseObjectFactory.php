@@ -20,14 +20,14 @@ abstract class BaseObjectFactory implements ObjectFactoryInterface
 
     public function create($class, array $dependencies = [], array $data = [])
     {
-        if(empty($dependencies)) {
+        if (empty($dependencies)) {
             $object = new $class;
         } else {
             $reflectionClass = $this->getReflectionClass($class);
             $object = $reflectionClass->newInstanceArgs($dependencies);
         }
 
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->hydrator->hydrate($object, $data);
         }
         return $object;
@@ -35,7 +35,7 @@ abstract class BaseObjectFactory implements ObjectFactoryInterface
 
     protected function getReflectionClass($class)
     {
-        if(isset($this->reflectionClasses[$class])) {
+        if (isset($this->reflectionClasses[$class])) {
             return $this->reflectionClasses[$class];
         }
         return $this->reflectionClasses[$class] = new \ReflectionClass($class);
