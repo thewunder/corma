@@ -10,7 +10,7 @@ use Minime\Annotations\Interfaces\ReaderInterface;
 /**
  * Sets the id for new objects from the database sequence / auto increment id
  */
-class AutoIncrementIdentifier extends BaseIndentifier
+class AutoIncrementIdentifier extends BaseIdentifier
 {
     /**
      * @var QueryHelper

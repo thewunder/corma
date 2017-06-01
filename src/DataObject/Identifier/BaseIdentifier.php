@@ -5,7 +5,7 @@ use Corma\Exception\MethodNotImplementedException;
 use Corma\Util\Inflector;
 use Minime\Annotations\Interfaces\ReaderInterface;
 
-abstract class BaseIndentifier implements ObjectIdentifierInterface
+abstract class BaseIdentifier implements ObjectIdentifierInterface
 {
     /**
      * @var Inflector

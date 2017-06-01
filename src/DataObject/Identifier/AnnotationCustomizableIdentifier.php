@@ -7,7 +7,7 @@ use Minime\Annotations\Interfaces\ReaderInterface;
 /**
  * Allows for a customizable identifier column via the "@identifier" annotation
  */
-abstract class AnnotationCustomizableIdentifier extends BaseIndentifier
+abstract class AnnotationCustomizableIdentifier extends BaseIdentifier
 {
     /**
      * @var ReaderInterface
