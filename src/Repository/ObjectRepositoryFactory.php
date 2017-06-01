@@ -46,7 +46,7 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
             return $this->repositories[$class] = $default;
         }
 
-        throw new ClassNotFoundException("Could not find repository class for $objectName");
+        throw new ClassNotFoundException("Cannot get repository for non-existent class '$class'");
     }
 
     /**
