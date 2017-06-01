@@ -5,7 +5,10 @@ use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidClassException;
 
 /**
- * Default object repository factory, loads repositories from one or more namespaces
+ * Default object repository factory.
+ *
+ * MyNamespace\\MyClass is expected to have its' repository at MyNamespace\\Repository\\MyClassRepository.
+ * If no repository is specified an instance of the base ObjectRepository class is returned.
  */
 class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
 {
