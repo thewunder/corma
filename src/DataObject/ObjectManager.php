@@ -5,7 +5,7 @@ use Corma\DataObject\Factory\ObjectFactoryInterface;
 use Corma\DataObject\Hydrator\ObjectHydratorInterface;
 use Corma\DataObject\Identifier\ObjectIdentifierInterface;
 use Corma\DataObject\TableConvention\TableConventionInterface;
-use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\Driver\Statement;
 
 /**
  * Manages creation, hydration, and table name and id inspection for a particular class

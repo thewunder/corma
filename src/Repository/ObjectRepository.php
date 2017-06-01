@@ -11,7 +11,6 @@ use Corma\Util\PagedQuery;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Statement;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -471,7 +470,6 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected function fetchAll(QueryBuilder $qb)
     {
-        /** @var Statement $statement */
         $statement = $qb->execute();
         $objects = $this->getObjectManager()->fetchAll($statement);
         foreach ($objects as $object) {
