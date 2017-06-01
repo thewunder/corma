@@ -134,6 +134,7 @@ interface QueryHelperInterface
      * @return bool
      */
     public function isDuplicateException(DBALException $error): bool;
+    
     /**
      * Retrieve the last inserted row id
      *
