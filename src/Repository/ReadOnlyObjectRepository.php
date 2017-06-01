@@ -8,7 +8,7 @@ use Corma\Exception\BadMethodCallException;
  *
  * Not meant for large tables as the entire table is loaded into a single cache entry.
  *
- * Saving and deleting in not permitted.
+ * Saving and deleting is not permitted.
  */
 abstract class ReadOnlyObjectRepository extends AggressiveCachingObjectRepository
 {
