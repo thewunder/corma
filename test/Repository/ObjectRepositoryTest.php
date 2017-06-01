@@ -643,7 +643,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $table = new Table('extended_data_objects');
         $table->addColumn('id', 'integer');
-        if($softDelete) {
+        if ($softDelete) {
             $table->addColumn('isDeleted', 'boolean');
         }
         $table->addColumn('myColumn', 'string');

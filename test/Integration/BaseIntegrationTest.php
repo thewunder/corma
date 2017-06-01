@@ -51,12 +51,10 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
     protected static function createDatabase()
     {
-        
     }
     
     protected static function deleteDatabase()
     {
-        
     }
     
     abstract public function testIsDuplicateException();
@@ -407,7 +405,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->objectMapper->delete($softDeleted);
 
         /** @var OtherDataObject[] $return */
-        $return = $this->objectMapper->loadMany([$object],OtherDataObject::class, null, 'setCustom');
+        $return = $this->objectMapper->loadMany([$object], OtherDataObject::class, null, 'setCustom');
         $this->assertCount(2, $return);
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
 
@@ -641,7 +639,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertGreaterThan(1, $pager->getPages());
 
-        for($i = 1; $i <= $pager->getPages(); $i++) {
+        for ($i = 1; $i <= $pager->getPages(); $i++) {
             $objects = $pager->getResults($i);
             $this->assertLessThanOrEqual(5, count($objects));
             $this->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
