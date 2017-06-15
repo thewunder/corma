@@ -159,12 +159,11 @@ class ObjectMapper
      * Find all of the specified object type
      *
      * @param string $objectName Fully qualified object class name
-     * @param bool $includeDeleted If true also return soft-deleted objects (if there is a isDeleted column)
      * @return object[]
      */
-    public function findAll(string $objectName, bool $includeDeleted = false): array
+    public function findAll(string $objectName): array
     {
-        return $this->getRepository($objectName)->findAll($includeDeleted);
+        return $this->getRepository($objectName)->findAll();
     }
 
     /**

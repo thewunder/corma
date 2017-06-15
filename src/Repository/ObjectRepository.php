@@ -118,12 +118,12 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $instances;
     }
 
-    public function findAll(bool $includeDeleted = false)
+    public function findAll()
     {
         $om = $this->getObjectManager();
         $table = $om->getTable();
         $dbColumns = $this->queryHelper->getDbColumns($table);
-        if (!$includeDeleted && $dbColumns->hasColumn('isDeleted')) {
+        if ($dbColumns->hasColumn('isDeleted')) {
             $qb = $this->queryHelper->buildSelectQuery($table, 'main.*', ['isDeleted' =>0]);
         } else {
             $qb = $this->queryHelper->buildSelectQuery($table);

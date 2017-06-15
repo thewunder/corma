@@ -28,14 +28,14 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
         return parent::findByIds($ids);
     }
 
-    public function findAll(bool $includeDeleted = false)
+    public function findAll()
     {
         $key = $this->getCacheKey();
         if ($this->cache->contains($key)) {
             return $this->restoreAllFromCache($key);
         }
 
-        $objects = parent::findAll($includeDeleted);
+        $objects = parent::findAll();
 
         $this->storeAllInCache($objects, $key);
 

@@ -147,16 +147,6 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
      * @depends testFindAll
      * @param array $objects
      */
-    public function testFindAllIncludeDeleted(array $objects)
-    {
-        $withDeleted = $this->objectMapper->findAll(ExtendedDataObject::class, true);
-        $this->assertGreaterThan(count($objects), count($withDeleted));
-    }
-
-    /**
-     * @depends testFindAll
-     * @param array $objects
-     */
     public function testFindByIds(array $objects)
     {
         $object = new ExtendedDataObject();
