@@ -335,13 +335,8 @@ class RelationshipSaver
         $objectIds = $om->getIds($objects);
         $queryHelper = $this->objectMapper->getQueryHelper();
         $foreignTable = $this->objectMapper->getObjectManager($className)->getTable();
-        $foreignColumns = $queryHelper->getDbColumns($foreignTable);
 
-        $criteria = [$foreignColumn => $objectIds];
-        if ($foreignColumns->hasColumn('isDeleted')) {
-            $criteria['isDeleted'] = 0;
-        }
-        $qb = $queryHelper->buildSelectQuery($foreignTable, ['id', $queryHelper->getConnection()->quoteIdentifier($foreignColumn)], $criteria);
+        $qb = $queryHelper->buildSelectQuery($foreignTable, ['id', $queryHelper->getConnection()->quoteIdentifier($foreignColumn)], [$foreignColumn => $objectIds]);
         $existingForeignObjectIds = $qb->execute()->fetchAll(\PDO::FETCH_NUM);
 
         $existingForeignObjectsIdsByObjectId = [];

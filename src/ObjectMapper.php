@@ -2,6 +2,7 @@
 namespace Corma;
 
 use Corma\DataObject\ObjectManagerFactory;
+use Corma\QueryHelper\QueryModifier\SoftDelete;
 use Corma\Relationship\RelationshipSaver;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
@@ -68,6 +69,8 @@ class ObjectMapper
         }
 
         $queryHelper = self::createQueryHelper($db, $cache);
+        $queryHelper->addModifier(new SoftDelete($queryHelper));
+
         $repositoryFactory = new ObjectRepositoryFactory();
         $inflector = new Inflector();
         $objectManagerFactory = ObjectManagerFactory::withDefaults($queryHelper, $inflector, $reader);

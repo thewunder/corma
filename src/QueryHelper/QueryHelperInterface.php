@@ -12,6 +12,8 @@ use Doctrine\DBAL\Schema\Table;
  */
 interface QueryHelperInterface
 {
+    const TABLE_ALIAS = 'main';
+
     /**
      * Build a simple select query for table
      *

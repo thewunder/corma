@@ -120,7 +120,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->repository->delete($object);
 
         /** @var ExtendedDataObject $fromDb */
-        $fromDb = $this->repository->find($object->getId(), false);
+        $fromDb = $this->repository->findOneBy(['id'=>$object->getId(), 'isDeleted'=>1]);
         $this->assertTrue($fromDb->isDeleted());
     }
 
@@ -303,7 +303,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $rows);
 
         $allFromDb = $this->repository->findByIds($this->identifier->getIds($objects), false);
-        $this->assertCount(2, $allFromDb);
+        $this->assertCount(0, $allFromDb);
     }
 
     public function testLoadOne()
@@ -505,8 +505,8 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($object2->getId(), $otherObject3->getExtendedDataObjectId());
         $this->assertEquals($object2->getId(), $otherObject4->getExtendedDataObjectId());
 
-        $otherObjectToDelete = $this->objectMapper->find(OtherDataObject::class, $otherObjectToDelete->getId(), false);
-        $otherObjectToDelete2 = $this->objectMapper->find(OtherDataObject::class, $otherObjectToDelete2->getId(), false);
+        $otherObjectToDelete = $this->objectMapper->findOneBy(OtherDataObject::class, ['id'=>$otherObjectToDelete->getId(), 'isDeleted'=>1]);
+        $otherObjectToDelete2 = $this->objectMapper->findOneBy(OtherDataObject::class, ['id'=>$otherObjectToDelete2->getId(), 'isDeleted'=>1]);
         $this->assertTrue($otherObjectToDelete->isDeleted());
         $this->assertTrue($otherObjectToDelete2->isDeleted());
     }

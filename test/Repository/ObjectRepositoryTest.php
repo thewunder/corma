@@ -183,7 +183,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $this->objectManager->expects($this->once())->method('getId')->with($object)->willReturn($object->getId());
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable(false));
-        $this->connection->expects($this->once())->method('delete')->with('extended_data_objects', ['id'=>$object->getId()]);
+        $this->queryHelper->expects($this->once())->method('massDelete')->with('extended_data_objects', ['id'=>$object->getId()]);
         $repo = $this->getRepository();
         $repo->delete($object);
     }
@@ -194,7 +194,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $object->setId('123')->setMyColumn('testValue');
         $this->objectManager->expects($this->once())->method('getId')->with($object)->willReturn($object->getId());
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
-        $this->connection->expects($this->once())->method('update')->with('extended_data_objects', ['`isDeleted`'=>1], ['id'=>$object->getId()]);
+        $this->queryHelper->expects($this->once())->method('massDelete')->with('extended_data_objects', ['id'=>$object->getId()]);
         $repo = $this->getRepository();
         $repo->delete($object);
     }
@@ -235,7 +235,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $this->objectManager->expects($this->once())->method('getIds')->willReturn(['123', '234']);
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
-        $this->queryHelper->expects($this->once())->method('massUpdate')->with('extended_data_objects', ['isDeleted'=>1], ['id'=>['123', '234']]);
+        $this->queryHelper->expects($this->once())->method('massDelete')->with('extended_data_objects', ['id'=>['123', '234']]);
         $repo = $this->getRepository();
         $repo->deleteAll($objects);
     }

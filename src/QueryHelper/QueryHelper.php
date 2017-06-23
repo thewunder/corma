@@ -55,7 +55,7 @@ class QueryHelper implements QueryHelperInterface
      */
     public function buildSelectQuery(string $table, $columns = 'main.*', array $where = [], array $orderBy = []): QueryBuilder
     {
-        $qb = $this->db->createQueryBuilder()->select($columns)->from($this->db->quoteIdentifier($table), 'main');
+        $qb = $this->db->createQueryBuilder()->select($columns)->from($this->db->quoteIdentifier($table), self::TABLE_ALIAS);
 
         $this->processWhereQuery($qb, $where);
 
@@ -82,7 +82,7 @@ class QueryHelper implements QueryHelperInterface
      */
     public function buildUpdateQuery(string $table, array $update, array $where): QueryBuilder
     {
-        $qb = $this->db->createQueryBuilder()->update($this->db->quoteIdentifier($table), 'main');
+        $qb = $this->db->createQueryBuilder()->update($this->db->quoteIdentifier($table), self::TABLE_ALIAS);
 
         foreach ($update as $column => $value) {
             $paramName = $this->getParameterName($column);

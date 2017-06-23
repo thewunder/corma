@@ -122,12 +122,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $om = $this->getObjectManager();
         $table = $om->getTable();
-        $dbColumns = $this->queryHelper->getDbColumns($table);
-        if ($dbColumns->hasColumn('isDeleted')) {
-            $qb = $this->queryHelper->buildSelectQuery($table, 'main.*', ['isDeleted' =>0]);
-        } else {
-            $qb = $this->queryHelper->buildSelectQuery($table);
-        }
+        $qb = $this->queryHelper->buildSelectQuery($table);
         $all = $this->fetchAll($qb);
         array_walk($all, function ($object) use ($om) {
             $this->objectByIdCache[$om->getId($object)] = $object;
@@ -297,13 +292,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         $idColumn = $om->getIdColumn();
         $id = $om->getId($object);
 
-        $columns = $this->queryHelper->getDbColumns($table);
-
-        if ($columns->hasColumn('isDeleted')) {
-            $this->db->update($table, [$this->db->quoteIdentifier('isDeleted')=>1], [$idColumn=>$id]);
-        } else {
-            $this->db->delete($table, [$idColumn=>$id]);
-        }
+        $this->queryHelper->massDelete($table, [$idColumn=>$id]);
 
         $this->dispatchEvents('afterDelete', $object);
     }
@@ -327,14 +316,9 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $om = $this->getObjectManager();
         $idColumn = $om->getIdColumn();
-
-        $columns = $this->queryHelper->getDbColumns($om->getTable());
         $ids = $om->getIds($objects);
-        if ($columns->hasColumn('isDeleted')) {
-            $rows = $this->queryHelper->massUpdate($this->getTableName(), ['isDeleted'=>1], [$idColumn=>$ids]);
-        } else {
-            $rows = $this->queryHelper->massDelete($this->getTableName(), [$idColumn=>$ids]);
-        }
+
+        $rows = $this->queryHelper->massDelete($this->getTableName(), [$idColumn=>$ids]);
 
         foreach ($objects as $object) {
             $this->dispatchEvents('afterDelete', $object);
