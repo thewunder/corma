@@ -10,6 +10,7 @@ New Features
 * Allow for custom table and identifier conventions
 * Allow for customizing the table name via the @table annotation
 * Allow for a custom id column via the @identifier annotation
+* Added convenience method for paged queries to repository base class
 
 Breaking changes
 ----------------
