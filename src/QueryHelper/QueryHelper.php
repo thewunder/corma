@@ -543,21 +543,21 @@ class QueryHelper implements QueryHelperInterface
         return $updates;
     }
 
-    /**
-     * @param QueryModifier $queryModifier Query modifier to add, query modifiers are run in the order they are added
-     */
-    public function addModifier(QueryModifier $queryModifier)
+    public function addModifier(QueryModifier $queryModifier): bool
     {
-        $this->modifiers[get_class($queryModifier)] = $queryModifier;
+        if(!isset($this->modifiers[get_class($queryModifier)])) {
+            $this->modifiers[get_class($queryModifier)] = $queryModifier;
+            return true;
+        }
+        return false;
     }
 
-    /**
-     * @param string $className Full class name of the query modifier to remove
-     */
-    public function removeModifier(string $className)
+    public function removeModifier(string $className): bool
     {
         if (isset($this->modifiers[$className])) {
             unset($this->modifiers[$className]);
+            return true;
         }
+        return false;
     }
 }

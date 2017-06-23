@@ -153,11 +153,13 @@ interface QueryHelperInterface
 
     /**
      * @param QueryModifier $queryModifier Query modifier to add, query modifiers are run in the order they are added
+     * @return bool True if modifier was added
      */
-    public function addModifier(QueryModifier $queryModifier);
+    public function addModifier(QueryModifier $queryModifier): bool;
 
     /**
      * @param string $className Full class name of the query modifier to remove
+     * @return bool True if modifier was removed
      */
-    public function removeModifier(string $className);
+    public function removeModifier(string $className): bool;
 }

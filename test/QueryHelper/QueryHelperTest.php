@@ -4,6 +4,7 @@ namespace Corma\Test\QueryHelper;
 use Corma\Exception\InvalidArgumentException;
 use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
+use Corma\QueryHelper\QueryModifier\SoftDelete;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -330,6 +331,25 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
 
         $return = $this->queryHelper->getDbColumns($tableName);
         $this->assertEquals($table, $return);
+    }
+
+    public function testAddModifier()
+    {
+        $queryModifier = new SoftDelete($this->queryHelper);
+        $success = $this->queryHelper->addModifier($queryModifier);
+        $this->assertTrue($success);
+        $success = $this->queryHelper->addModifier($queryModifier);
+        $this->assertFalse($success);
+    }
+
+    public function testRemoveModifier()
+    {
+        $queryModifier = new SoftDelete($this->queryHelper);
+        $success = $this->queryHelper->removeModifier(SoftDelete::class);
+        $this->assertFalse($success);
+        $this->queryHelper->addModifier($queryModifier);
+        $success = $this->queryHelper->removeModifier(SoftDelete::class);
+        $this->assertTrue($success);
     }
 
     /**
