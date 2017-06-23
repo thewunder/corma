@@ -227,7 +227,7 @@ class QueryHelper implements QueryHelperInterface
     /**
      * Sets the where query part on the provided query builder.
      *
-     * $where Array keys are the column, plus optionally a comparison operator (=, <, >, <=, >=, <>, !=, LIKE).
+     * $where Array keys are the column, plus optionally a comparison operator (=, <, >, <=, >=, <>, !=, LIKE, NOT LIKE, BETWEEN, and NOT BETWEEN).
      * If the operator is omitted the operator is assumed to be equals.
      *
      * $where Array values may be a simple value or an array of values for an IN() clause.  Array values will ignore
