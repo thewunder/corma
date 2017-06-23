@@ -9,7 +9,8 @@ New Features
 * Allow for custom object creation and hydration behavior
 * Allow for custom table and identifier conventions
 * Allow for customizing the table name via the @table annotation
-* Allow for a custom id column via the @identifier annotation
+* Allow for a custom id column via the @identifier annotation 
+* Allow for custom query modifiers that change queries before they are executed 
 * Added convenience method for paged queries to repository base class
 
 Breaking changes
@@ -20,6 +21,7 @@ Breaking changes
 * RelationshipSaver::saveOne method signature changed for consistency and additional flexibility
 * Removed relationship loading methods on repositories
 * Corma now requires the fully qualified class name of the object in all cases
+* find and findByIds no longer retrieves soft deleted objects
 
 Version 2.1.5
 ===========
