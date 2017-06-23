@@ -148,4 +148,14 @@ interface QueryHelperInterface
      * @return Connection
      */
     public function getConnection(): Connection;
+
+    /**
+     * @param QueryModifier $queryModifier Query modifier to add, query modifiers are run in the order they are added
+     */
+    public function addModifier(QueryModifier $queryModifier);
+
+    /**
+     * @param string $className Full class name of the query modifier to remove
+     */
+    public function removeModifier(string $className);
 }

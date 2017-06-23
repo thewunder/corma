@@ -31,6 +31,11 @@ class QueryHelper implements QueryHelperInterface
      */
     protected $cache;
 
+    /**
+     * @var QueryModifier[]
+     */
+    protected $modifiers = [];
+
     public function __construct(Connection $db, CacheProvider $cache)
     {
         $this->db = $db;
@@ -56,6 +61,10 @@ class QueryHelper implements QueryHelperInterface
 
         foreach ($orderBy as $column => $order) {
             $qb->addOrderBy($this->db->quoteIdentifier($column), $order);
+        }
+
+        foreach ($this->modifiers as $modifier) {
+            $qb = $modifier->selectQuery($qb, $table, $columns, $where, $orderBy);
         }
 
         return $qb;
@@ -87,6 +96,10 @@ class QueryHelper implements QueryHelperInterface
 
         $this->processWhereQuery($qb, $where);
 
+        foreach ($this->modifiers as $modifier) {
+            $qb = $modifier->updateQuery($qb, $table, $update, $where);
+        }
+
         return $qb;
     }
 
@@ -103,6 +116,11 @@ class QueryHelper implements QueryHelperInterface
     {
         $qb = $this->db->createQueryBuilder()->delete($this->db->quoteIdentifier($table));
         $this->processWhereQuery($qb, $where);
+
+        foreach ($this->modifiers as $modifier) {
+            $qb = $modifier->deleteQuery($qb, $table, $where);
+        }
+
         return $qb;
     }
 
@@ -523,5 +541,23 @@ class QueryHelper implements QueryHelperInterface
             }
         }
         return $updates;
+    }
+
+    /**
+     * @param QueryModifier $queryModifier Query modifier to add, query modifiers are run in the order they are added
+     */
+    public function addModifier(QueryModifier $queryModifier)
+    {
+        $this->modifiers[get_class($queryModifier)] = $queryModifier;
+    }
+
+    /**
+     * @param string $className Full class name of the query modifier to remove
+     */
+    public function removeModifier(string $className)
+    {
+        if (isset($this->modifiers[$className])) {
+            unset($this->modifiers[$className]);
+        }
     }
 }
