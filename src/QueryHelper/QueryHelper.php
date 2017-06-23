@@ -48,7 +48,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function buildSelectQuery(string $table, $columns = 'main.*', array $where = [], array $orderBy = [])
+    public function buildSelectQuery(string $table, $columns = 'main.*', array $where = [], array $orderBy = []): QueryBuilder
     {
         $qb = $this->db->createQueryBuilder()->select($columns)->from($this->db->quoteIdentifier($table), 'main');
 
@@ -71,7 +71,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function buildUpdateQuery(string $table, array $update, array $where)
+    public function buildUpdateQuery(string $table, array $update, array $where): QueryBuilder
     {
         $qb = $this->db->createQueryBuilder()->update($this->db->quoteIdentifier($table), 'main');
 
@@ -99,7 +99,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function buildDeleteQuery(string $table, array $where)
+    public function buildDeleteQuery(string $table, array $where): QueryBuilder
     {
         $qb = $this->db->createQueryBuilder()->delete($this->db->quoteIdentifier($table));
         $this->processWhereQuery($qb, $where);
@@ -116,7 +116,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function massUpdate(string $table, array $update, array $where)
+    public function massUpdate(string $table, array $update, array $where): int
     {
         $qb = $this->buildUpdateQuery($table, $update, $where);
         return $qb->execute();
@@ -129,7 +129,7 @@ class QueryHelper implements QueryHelperInterface
      * @param array $rows array of column => value
      * @return int The number of inserted rows
      */
-    public function massInsert(string $table, array $rows)
+    public function massInsert(string $table, array $rows): int
     {
         if (empty($rows)) {
             return 0;
@@ -154,7 +154,7 @@ class QueryHelper implements QueryHelperInterface
      * @throws \Doctrine\DBAL\ConnectionException
      * @throws \Exception
      */
-    public function massUpsert(string $table, array $rows, &$lastInsertId = null)
+    public function massUpsert(string $table, array $rows, &$lastInsertId = null): int
     {
         if (empty($rows)) {
             return 0;
@@ -199,7 +199,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function massDelete(string $table, array $where)
+    public function massDelete(string $table, array $where): int
     {
         $qb = $this->buildDeleteQuery($table, $where);
         return $qb->execute();
@@ -211,7 +211,7 @@ class QueryHelper implements QueryHelperInterface
      * @param QueryBuilder $qb
      * @return int
      */
-    public function getCount(QueryBuilder $qb)
+    public function getCount(QueryBuilder $qb): int
     {
         if ($qb->getType() != QueryBuilder::SELECT) {
             throw new \InvalidArgumentException('Query builder must be a select query');

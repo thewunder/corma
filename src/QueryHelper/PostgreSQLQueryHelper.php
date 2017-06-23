@@ -19,7 +19,7 @@ class PostgreSQLQueryHelper extends QueryHelper
      * @return int Rows affected
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function massUpsert(string $table, array $rows, &$lastInsertId = null)
+    public function massUpsert(string $table, array $rows, &$lastInsertId = null): int
     {
         if (empty($rows)) {
             return 0;
