@@ -7,34 +7,46 @@ use Corma\QueryHelper\QueryModifier;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 /**
- * Enables soft deletes for any database table containing the 'isDeleted' column
+ * Enables soft deletes for any database table containing the specified column.
+ *
+ * This does two things
+ *
+ * 1. It transforms delete queries for the table into updates that set the deleted column to true.
+ *
+ * 2. Any select query that runs through buildSelectQuery will include deletedColumn = false in the where clause.
+ * To override this behavior add the deleted column to your where criteria.
+ *
  */
 class SoftDelete extends QueryModifier
 {
-    const DB_COLUMN = 'isDeleted';
-
     /**
      * @var QueryHelperInterface
      */
-    private $queryHelper;
+    protected $queryHelper;
 
     /**
      * @var \Doctrine\DBAL\Connection
      */
-    private $connection;
+    protected $connection;
 
-    public function __construct(QueryHelperInterface $queryHelper)
+    /**
+     * @var string
+     */
+    protected $column;
+
+    public function __construct(QueryHelperInterface $queryHelper, string $column = 'isDeleted')
     {
         $this->queryHelper = $queryHelper;
         $this->connection = $queryHelper->getConnection();
+        $this->column = $column;
     }
 
     public function selectQuery(QueryBuilder $qb, string $table, $columns, array $where, array $orderBy): QueryBuilder
     {
         $columns = $this->queryHelper->getDbColumns($table);
-        if ($columns->hasColumn(self::DB_COLUMN) && !$this->hasSoftDeleteColumn($where)) {
+        if ($columns->hasColumn($this->column) && !$this->hasSoftDeleteColumn($where)) {
             $qb->andWhere($this->connection->quoteIdentifier(QueryHelperInterface::TABLE_ALIAS) . '.' .
-                $this->connection->quoteIdentifier(self::DB_COLUMN) . ' = FALSE');
+                $this->connection->quoteIdentifier($this->column) . ' = FALSE');
             return $qb;
         } else {
             return $qb;
@@ -44,23 +56,39 @@ class SoftDelete extends QueryModifier
     public function deleteQuery(QueryBuilder $qb, string $table, array $where): QueryBuilder
     {
         $columns = $this->queryHelper->getDbColumns($table);
-        if ($columns->hasColumn(self::DB_COLUMN) && !$this->hasSoftDeleteColumn($where)) {
-            $qb->update($table, 'main');
-            $qb->set($this->connection->quoteIdentifier(self::DB_COLUMN), 'TRUE');
+        if ($columns->hasColumn($this->column) && !$this->hasSoftDeleteColumn($where)) {
+            $qb->update($table, $this->queryHelper::TABLE_ALIAS);
+            $qb->set($this->connection->quoteIdentifier($this->column), 'TRUE');
             return $qb;
         } else {
             return $qb;
         }
     }
 
+    /**
+     * @return string
+     */
+    public function getColumn(): string
+    {
+        return $this->column;
+    }
+
+    /**
+     * @param string $column
+     */
+    public function setColumn(string $column)
+    {
+        $this->column = $column;
+    }
+
     protected function hasSoftDeleteColumn(array $where): bool
     {
-        if (isset($where[self::DB_COLUMN])) {
+        if (isset($where[$this->column])) {
             return true;
         }
 
         foreach (array_keys($where) as $column) {
-            if(strpos($column, self::DB_COLUMN)) {
+            if(strpos($column, $this->column)) {
                 return true;
             }
         }
