@@ -303,7 +303,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $rows);
 
         $allFromDb = $this->repository->findByIds($this->identifier->getIds($objects), false);
-        $this->assertCount(0, $allFromDb);
+        $this->assertCount(2, $allFromDb);
     }
 
     public function testLoadOne()

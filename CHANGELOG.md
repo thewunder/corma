@@ -21,7 +21,6 @@ Breaking changes
 * RelationshipSaver::saveOne method signature changed for consistency and additional flexibility
 * Removed relationship loading methods on repositories
 * Corma now requires the fully qualified class name of the object in all cases
-* find and findByIds no longer retrieves soft deleted objects
 
 Version 2.1.5
 ===========
