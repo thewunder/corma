@@ -26,7 +26,7 @@ interface ObjectFactoryInterface
      * @param array $dependencies
      * @return object[]
      */
-    public function fetchAll($class, $statement, array $dependencies = []);
+    public function fetchAll($class, $statement, array $dependencies = []): array;
 
     /**
      * Retrieves a single item from select statement, hydrated, and with dependencies

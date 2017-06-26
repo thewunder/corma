@@ -7,7 +7,7 @@ namespace Corma\DataObject\Factory;
  */
 class PdoObjectFactory extends BaseObjectFactory
 {
-    public function fetchAll($class, $statement, array $dependencies = [])
+    public function fetchAll($class, $statement, array $dependencies = []): array
     {
         return $statement->fetchAll(\PDO::FETCH_CLASS, $class, $dependencies);
     }
