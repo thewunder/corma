@@ -85,7 +85,9 @@ class ObjectRepository implements ObjectRepositoryInterface
         if ($useCache && isset($this->objectByIdCache[$id])) {
             return $this->objectByIdCache[$id];
         }
-        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.id'=>$id]);
+
+        $identifier = $this->getObjectManager()->getIdColumn();
+        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.'.$identifier => $id]);
         $instance = $this->fetchOne($qb);
         if ($instance) {
             $this->objectByIdCache[$id] = $instance;
@@ -106,7 +108,8 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
 
         if (!empty($ids)) {
-            $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.id'=>$ids]);
+            $identifier = $this->getObjectManager()->getIdColumn();
+            $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.'.$identifier => $ids]);
             $newInstances = $this->fetchAll($qb);
             /** @var $instance object */
             foreach ($newInstances as $instance) {
