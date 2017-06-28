@@ -25,10 +25,11 @@ class MySQLQueryHelper extends QueryHelper
         $query = $this->getInsertSql($table, $normalizedRows);
 
         $dbColumns = $this->getDbColumns($table);
+        $primaryKeys = $dbColumns->getPrimaryKeyColumns();
         $columnsToUpdate = [];
         foreach ($dbColumns->getColumns() as $column) {
             $columnName = $column->getName();
-            if ($columnName == 'id') {
+            if (in_array($column, $primaryKeys)) {
                 continue;
             }
 

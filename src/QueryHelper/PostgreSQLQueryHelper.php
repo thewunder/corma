@@ -35,10 +35,11 @@ class PostgreSQLQueryHelper extends QueryHelper
         $query = $this->getInsertSql($table, $normalizedRows);
 
         $dbColumns = $this->getDbColumns($table);
+        $primaryKeys = $dbColumns->getPrimaryKeyColumns();
         $columnsToUpdate = [];
         foreach ($dbColumns->getColumns() as $column) {
             $columnName = $column->getName();
-            if ($columnName == 'id') {
+            if (in_array($column, $primaryKeys)) {
                 continue;
             }
 
@@ -46,7 +47,7 @@ class PostgreSQLQueryHelper extends QueryHelper
             $columnsToUpdate[] = "$columnName = EXCLUDED.$columnName";
         }
 
-        $query .= ' ON CONFLICT (id) DO UPDATE SET ' . implode(', ', $columnsToUpdate);
+        $query .= ' ON CONFLICT (' . implode(',', $primaryKeys) . ') DO UPDATE SET ' . implode(', ', $columnsToUpdate);
 
         $params = $this->getParams($normalizedRows);
 
