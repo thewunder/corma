@@ -203,7 +203,7 @@ class QueryHelper implements QueryHelperInterface
 
         try {
             $effected = $this->massInsert($table, $rowsToInsert);
-            $lastInsertId = $this->getLastInsertId($table) - (count($rowsToInsert) - 1);
+            $lastInsertId = $this->getLastInsertId($table, $primaryKey) - (count($rowsToInsert) - 1);
 
             foreach ($rowsToUpdate as $row) {
                 $id = $row[$primaryKey];
@@ -380,7 +380,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $column
      * @return string
      */
-    public function getLastInsertId(string $table, ?string $column = 'id'): ?string
+    public function getLastInsertId(string $table, string $column): ?string
     {
         $sequence = null;
         $platform = $this->db->getDatabasePlatform();

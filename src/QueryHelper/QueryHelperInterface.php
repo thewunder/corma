@@ -144,7 +144,7 @@ interface QueryHelperInterface
      * @param string $column
      * @return string
      */
-    public function getLastInsertId(string $table, ?string $column = 'id'): ?string;
+    public function getLastInsertId(string $table, string $column): ?string;
 
     /**
      * @return Connection
