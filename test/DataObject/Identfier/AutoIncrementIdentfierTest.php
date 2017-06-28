@@ -79,6 +79,15 @@ class AutoIncrementIdentfierTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([42, 43], $this->getIdentfier()->getIds($objects));
     }
 
+    /**
+     * @expectedException \Corma\Exception\MethodNotImplementedException
+     */
+    public function testGetIdsMissingGetter()
+    {
+        $object = new MissingIdGettersAndSetters();
+        $this->getIdentfier()->getIds([$object]);
+    }
+
     public function testSetNewId()
     {
         $object = new ExtendedDataObject();
