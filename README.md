@@ -18,7 +18,7 @@ Corma is great because:
 * Makes it easy to cache and avoid database queries
 * Supports soft deletes
 * Makes it easy to handle transactions in a Unit of Work
-* Allows for customization through symfony events
+* Highly customizable
 
 Corma doesn't:
 
