@@ -158,6 +158,12 @@ interface QueryHelperInterface
     public function addModifier(QueryModifier $queryModifier): bool;
 
     /**
+     * @param string $className
+     * @return QueryModifier|null
+     */
+    public function getModifier(string $className): ?QueryModifier;
+
+    /**
      * @param string $className Full class name of the query modifier to remove
      * @return bool True if modifier was removed
      */

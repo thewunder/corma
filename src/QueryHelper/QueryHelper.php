@@ -574,6 +574,11 @@ class QueryHelper implements QueryHelperInterface
         return false;
     }
 
+    public function getModifier(string $className): ?QueryModifier
+    {
+        return $this->modifiers[$className] ?? null;
+    }
+
     public function removeModifier(string $className): bool
     {
         if (isset($this->modifiers[$className])) {
