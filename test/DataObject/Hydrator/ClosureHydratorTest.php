@@ -25,4 +25,27 @@ class ClosureHydratorTest extends \PHPUnit_Framework_TestCase
         $data = $hydrator->extract($object);
         $this->assertEquals(4, $data['myColumn']);
     }
+
+    public function testSetHydrate()
+    {
+        $hydrator = new ClosureHydrator();
+        $closure = function (){};
+        $hydrator->setHydrateClosure($closure);
+
+        $object = new ExtendedDataObject();
+        $hydrator->hydrate($object, ['myColumn'=>4]);
+        $this->assertEmpty($object->getMyColumn());
+    }
+
+    public function testSetExtract()
+    {
+        $hydrator = new ClosureHydrator();
+        $closure = function (){return [];};
+        $hydrator->setExtractClosure($closure);
+
+        $object = new ExtendedDataObject();
+        $object->setMyColumn(4);
+        $data = $hydrator->extract($object);
+        $this->assertEmpty($data);
+    }
 }
