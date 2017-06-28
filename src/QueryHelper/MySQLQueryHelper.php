@@ -20,16 +20,21 @@ class MySQLQueryHelper extends QueryHelper
             return 0;
         }
 
-        $updates = $this->countUpdates($rows);
+        foreach ($this->modifiers as $modifier) {
+            $modifier->upsertQuery($table, $rows);
+        }
+
+        $primaryKey = $this->getPrimaryKey($table);
+        $updates = $this->countUpdates($primaryKey, $rows);
         $normalizedRows = $this->normalizeRows($table, $rows);
         $query = $this->getInsertSql($table, $normalizedRows);
 
         $dbColumns = $this->getDbColumns($table);
-        $primaryKeys = $dbColumns->getPrimaryKeyColumns();
+
         $columnsToUpdate = [];
         foreach ($dbColumns->getColumns() as $column) {
             $columnName = $column->getName();
-            if (in_array($column, $primaryKeys)) {
+            if ($column == $primaryKey) {
                 continue;
             }
 

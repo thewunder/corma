@@ -30,16 +30,20 @@ class PostgreSQLQueryHelper extends QueryHelper
             return parent::massUpsert($table, $rows, $lastInsertId);
         }
 
-        $updates = $this->countUpdates($rows);
+        foreach ($this->modifiers as $modifier) {
+            $modifier->upsertQuery($table, $rows);
+        }
+
+        $primaryKey = $this->getPrimaryKey($table);
+        $updates = $this->countUpdates($primaryKey, $rows);
         $normalizedRows = $this->normalizeRows($table, $rows);
         $query = $this->getInsertSql($table, $normalizedRows);
 
         $dbColumns = $this->getDbColumns($table);
-        $primaryKeys = $dbColumns->getPrimaryKeyColumns();
         $columnsToUpdate = [];
         foreach ($dbColumns->getColumns() as $column) {
             $columnName = $column->getName();
-            if (in_array($column, $primaryKeys)) {
+            if ($column == $primaryKey) {
                 continue;
             }
 
@@ -47,7 +51,7 @@ class PostgreSQLQueryHelper extends QueryHelper
             $columnsToUpdate[] = "$columnName = EXCLUDED.$columnName";
         }
 
-        $query .= ' ON CONFLICT (' . implode(',', $primaryKeys) . ') DO UPDATE SET ' . implode(', ', $columnsToUpdate);
+        $query .= ' ON CONFLICT (' . $primaryKey . ') DO UPDATE SET ' . implode(', ', $columnsToUpdate);
 
         $params = $this->getParams($normalizedRows);
 

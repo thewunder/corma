@@ -3,6 +3,7 @@ namespace Corma\QueryHelper;
 
 use Corma\Exception\BadMethodCallException;
 use Corma\Exception\InvalidArgumentException;
+use Corma\Exception\MissingPrimaryKeyException;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
@@ -153,6 +154,10 @@ class QueryHelper implements QueryHelperInterface
             return 0;
         }
 
+        foreach ($this->modifiers as $modifier) {
+            $modifier->insertQuery($table, $rows);
+        }
+
         $normalizedRows = $this->normalizeRows($table, $rows);
         $query = $this->getInsertSql($table, $normalizedRows);
         $params = $this->getParams($normalizedRows);
@@ -162,7 +167,7 @@ class QueryHelper implements QueryHelperInterface
 
     /**
      * Insert multiple rows, if a row with a duplicate key is found will update the row
-     * This function assumes that 'id' is the primary key, and is used as a fallback for databases that don't support real upserts
+     * This method is used as a fallback for databases that don't support real upserts
      *
      * @param string $table
      * @param array $rows array of column => value
@@ -178,10 +183,16 @@ class QueryHelper implements QueryHelperInterface
             return 0;
         }
 
+        foreach ($this->modifiers as $modifier) {
+            $modifier->upsertQuery($table, $rows);
+        }
+
         $rowsToInsert = [];
         $rowsToUpdate = [];
+
+        $primaryKey = $this->getPrimaryKey($table);
         foreach ($rows as $row) {
-            if (!empty($row['id'])) {
+            if (!empty($row[$primaryKey])) {
                 $rowsToUpdate[] = $row;
             } else {
                 $rowsToInsert[] = $row;
@@ -195,9 +206,9 @@ class QueryHelper implements QueryHelperInterface
             $lastInsertId = $this->getLastInsertId($table) - (count($rowsToInsert) - 1);
 
             foreach ($rowsToUpdate as $row) {
-                $id = $row['id'];
-                unset($row['id']);
-                $effected += $this->db->update($this->db->quoteIdentifier($table), $this->quoteIdentifiers($row), ['id'=>$id]);
+                $id = $row[$primaryKey];
+                unset($row[$primaryKey]);
+                $effected += $this->db->update($this->db->quoteIdentifier($table), $this->quoteIdentifiers($row), [$this->db->quoteIdentifier($primaryKey)=>$id]);
             }
             $this->db->commit();
         } catch (\Exception $e) {
@@ -392,6 +403,16 @@ class QueryHelper implements QueryHelperInterface
         throw new BadMethodCallException('This method has not been implemented for the current database type');
     }
 
+    protected function getPrimaryKey(string $table): string
+    {
+        $schema = $this->getDbColumns($table);
+        $primaryKeys = $schema->getPrimaryKeyColumns();
+        if(empty($primaryKeys)) {
+            throw new MissingPrimaryKeyException("$table must have a primary key to complete this operation");
+        }
+        return $primaryKeys[0];
+    }
+
     /**
      * Get the parameter name for a where condition part
      *
@@ -529,14 +550,15 @@ class QueryHelper implements QueryHelperInterface
     }
 
     /**
+     * @param string $primaryKey
      * @param array $rows
      * @return int
      */
-    protected function countUpdates(array $rows)
+    protected function countUpdates(string $primaryKey, array $rows): int
     {
         $updates = 0;
         foreach ($rows as $row) {
-            if (!empty($row['id'])) {
+            if (!empty($row[$primaryKey])) {
                 $updates++;
             }
         }

@@ -352,9 +352,8 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $this->dispatchEvents('beforeInsert', $object);
 
-        $queryParams = $this->buildQueryParams($object);
-
-        $this->db->insert($this->getTableName(), $queryParams);
+        $data = $this->buildQueryParams($object);
+        $this->queryHelper->massInsert($this->getTableName(), [$data]);
 
         $this->getObjectManager()->setNewId($object);
 
@@ -371,10 +370,9 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $this->dispatchEvents('beforeUpdate', $object);
 
-        $queryParams = $this->buildQueryParams($object);
-
         $om = $this->getObjectManager();
-        $this->db->update($this->getTableName(), $queryParams, [$om->getIdColumn()=>$om->getId($object)]);
+        $data = $this->buildQueryParams($object);
+        $this->queryHelper->massUpdate($this->getTableName(), $data, [$om->getIdColumn() =>$om->getId($object)]);
 
         $this->dispatchEvents('afterUpdate', $object);
     }
@@ -443,9 +441,9 @@ class ObjectRepository implements ObjectRepositoryInterface
             if ($columnName == $om->getIdColumn()) {
                 continue;
             } if (isset($data[$columnName])) {
-                $queryParams[$this->db->quoteIdentifier($columnName)] = $data[$columnName];
+                $queryParams[$columnName] = $data[$columnName];
             } elseif (!$column->getNotnull()) {
-                $queryParams[$this->db->quoteIdentifier($columnName)] = null;
+                $queryParams[$columnName] = null;
             }
         }
         return $queryParams;

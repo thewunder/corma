@@ -2,7 +2,9 @@
 namespace Corma\DataObject\Identifier;
 
 /**
- * Manages getting, setting, and generating id's for objects
+ * Manages getting, setting, and generating id's for objects.
+ *
+ * The id column must be the primary key on the table.  Compound primary keys are not supported.
  */
 interface ObjectIdentifierInterface
 {

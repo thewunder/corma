@@ -27,6 +27,26 @@ abstract class QueryModifier
     }
 
     /**
+     * Modify an insert query before executing
+     *
+     * @param string $table
+     * @param array $rows column => value pairs for each database row
+     */
+    public function insertQuery(string $table, array &$rows): void
+    {
+    }
+
+    /**
+     * Modify an upsert query before executing
+     *
+     * @param string $table
+     * @param array $rows column => value pairs for each database row
+     */
+    public function upsertQuery(string $table, array &$rows): void
+    {
+    }
+
+    /**
      * Modify a select update before executing
      *
      * @param QueryBuilder $qb

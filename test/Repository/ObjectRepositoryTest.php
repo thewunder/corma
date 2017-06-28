@@ -116,7 +116,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $object->setMyColumn('testValue');
         $table = $this->getTable();
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($table);
-        $this->connection->expects($this->once())->method('insert')->with('extended_data_objects', ['`myColumn`'=>'testValue']);
+        $this->queryHelper->expects($this->once())->method('massInsert')->with('extended_data_objects', [['myColumn'=>'testValue']]);
         $this->objectManager->expects($this->once())->method('extract')->willReturn(['myColumn'=>'testValue']);
         $this->objectManager->expects($this->once())->method('setNewId');
         $this->objectManager->expects($this->once())->method('isNew')->willReturn(true);
@@ -131,7 +131,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($table = $this->getTable());
         $this->objectManager->expects($this->atLeastOnce())->method('getId')->willReturn(123);
         $this->objectManager->expects($this->once())->method('extract')->willReturn(['myColumn'=>'testValue']);
-        $this->connection->expects($this->once())->method('update')->with('extended_data_objects', ['`myColumn`'=>'testValue'], ['id'=>'123']);
+        $this->queryHelper->expects($this->once())->method('massUpdate')->with('extended_data_objects', ['myColumn'=>'testValue'], ['id'=>'123']);
         $repo = $this->getRepository();
         $repo->save($object);
     }
