@@ -338,6 +338,7 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
         $queryModifier = new SoftDelete($this->queryHelper);
         $success = $this->queryHelper->addModifier($queryModifier);
         $this->assertTrue($success);
+        $this->assertNotNull($this->queryHelper->getModifier(SoftDelete::class));
         $success = $this->queryHelper->addModifier($queryModifier);
         $this->assertFalse($success);
     }
@@ -350,6 +351,7 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
         $this->queryHelper->addModifier($queryModifier);
         $success = $this->queryHelper->removeModifier(SoftDelete::class);
         $this->assertTrue($success);
+        $this->assertNull($this->queryHelper->getModifier(SoftDelete::class));
     }
 
     /**
