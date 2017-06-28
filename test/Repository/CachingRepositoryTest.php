@@ -93,6 +93,19 @@ class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(9, $object->getId());
     }
 
+    public function testFindNoCache()
+    {
+        $this->cache->expects($this->never())->method('fetch');
+
+        $repository = $this->getRepository();
+        $willReturn = new Caching();
+        $repository->expects($this->once())->method('fetchOne')->willReturn($willReturn->setId(9));
+
+        $object = $repository->find(9, false);
+        $this->assertInstanceOf(Caching::class, $object);
+        $this->assertEquals(9, $object->getId());
+    }
+
     public function testFindByIds()
     {
         $this->cache->expects($this->once())->method('fetchMultiple')->with(['cachings[9]', 'cachings[10]'])->willReturn(['cachings[9]'=>['id'=>9]]);
@@ -106,6 +119,21 @@ class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->objectManager->expects($this->exactly(3))->method('getId')->willReturnOnConsecutiveCalls(9, 10, 10);
         $this->objectManager->expects($this->once())->method('extract')->willReturnOnConsecutiveCalls(['id'=>10]);
         $objects = $repository->findByIds([9, 10]);
+        $this->assertCount(2, $objects);
+        $this->assertEquals(9, $objects[0]->getId());
+        $this->assertEquals(10, $objects[1]->getId());
+    }
+
+    public function testFindByIdsNoCache()
+    {
+        $this->cache->expects($this->never())->method('fetchMultiple');
+
+        $repository = $this->getRepository();
+        $willReturn = new Caching();
+        $willReturn2 = new Caching();
+        $repository->expects($this->once())->method('fetchAll')->willReturn([$willReturn->setId(9), $willReturn2->setId(10)]);
+
+        $objects = $repository->findByIds([9, 10], false);
         $this->assertCount(2, $objects);
         $this->assertEquals(9, $objects[0]->getId());
         $this->assertEquals(10, $objects[1]->getId());
