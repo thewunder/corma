@@ -334,9 +334,13 @@ class RelationshipSaver
         $om = $this->objectMapper->getObjectManager($objects);
         $objectIds = $om->getIds($objects);
         $queryHelper = $this->objectMapper->getQueryHelper();
-        $foreignTable = $this->objectMapper->getObjectManager($className)->getTable();
 
-        $qb = $queryHelper->buildSelectQuery($foreignTable, ['id', $queryHelper->getConnection()->quoteIdentifier($foreignColumn)], [$foreignColumn => $objectIds]);
+        $fom = $this->objectMapper->getObjectManager($className);
+        $foreignTable = $fom->getTable();
+        $idColumn = $fom->getIdColumn();
+
+        $connection = $queryHelper->getConnection();
+        $qb = $queryHelper->buildSelectQuery($foreignTable, [$connection->quoteIdentifier($idColumn), $connection->quoteIdentifier($foreignColumn)], [$foreignColumn => $objectIds]);
         $existingForeignObjectIds = $qb->execute()->fetchAll(\PDO::FETCH_NUM);
 
         $existingForeignObjectsIdsByObjectId = [];
