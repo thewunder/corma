@@ -64,6 +64,44 @@ class AggressiveCachingRepositoryTest extends \PHPUnit_Framework_TestCase
             ->getMock();
     }
 
+    public function testFind()
+    {
+        $repository = $this->getMockBuilder(AggressiveCachingRepository::class)
+            ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
+            ->setMethods(['findAll', 'fetchOne'])->getMock();
+
+
+        $object = new ExtendedDataObject();
+        $object->setId(1)->setMyColumn('My Value');
+
+        $repository->expects($this->once())->method('findAll');
+        $repository->expects($this->any())->method('fetchOne')->willReturn($object);
+        $object = $repository->find(1);
+        $this->assertInstanceOf(ExtendedDataObject::class, $object);
+        $this->assertEquals('My Value', $object->getMyColumn());
+    }
+
+    public function testFindByIds()
+    {
+        $repository = $this->getMockBuilder(AggressiveCachingRepository::class)
+            ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
+            ->setMethods(['findAll', 'fetchAll'])->getMock();
+
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setId(1)->setMyColumn('My Value');
+        $object2 = new ExtendedDataObject();
+        $objects[] = $object2->setId(2)->setMyColumn('My Value 2');
+
+        $repository->expects($this->once())->method('findAll');
+        $repository->expects($this->any())->method('fetchAll')->willReturn($objects);
+        /** @var ExtendedDataObject[] $objects */
+        $objects = $repository->findByIds([1]);
+        $this->assertCount(2, $objects);
+        $this->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
+        $this->assertEquals('My Value', $objects[0]->getMyColumn());
+    }
+
     public function testFindAll()
     {
         $this->cache->expects($this->exactly(2))->method('contains')->will($this->onConsecutiveCalls(false, true));
