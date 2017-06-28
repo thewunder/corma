@@ -293,9 +293,11 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
             'DataObject.ExtendedDataObject.loaded' => 0
         ];
         $this->dispatcher->addListener('DataObject.loaded', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.loaded'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.loaded', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.loaded'] ++;
         });
 
@@ -337,44 +339,56 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         ];
 
         $this->dispatcher->addListener('DataObject.beforeSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeSave'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeSave'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.afterSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterSave'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterSave'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.beforeInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeInsert'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeInsert'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.afterInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterInsert'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterInsert'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.beforeUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeUpdate'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeUpdate'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.afterUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterUpdate'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterUpdate'] ++;
         });
 
@@ -421,44 +435,56 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         ];
 
         $this->dispatcher->addListener('DataObject.beforeSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeSave'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeSave'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.afterSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterSave'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterSave'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.beforeInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeInsert'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeInsert'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.afterInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterInsert'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterInsert'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.beforeUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeUpdate'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeUpdate'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.afterUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterUpdate'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterUpdate'] ++;
         });
 
@@ -495,16 +521,20 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         ];
 
         $this->dispatcher->addListener('DataObject.beforeDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeDelete']++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeDelete']++;
         });
 
         $this->dispatcher->addListener('DataObject.afterDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterDelete']++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterDelete']++;
         });
 
@@ -530,16 +560,20 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         ];
 
         $this->dispatcher->addListener('DataObject.beforeDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeDelete']++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeDelete']++;
         });
 
         $this->dispatcher->addListener('DataObject.afterDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterDelete']++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterDelete']++;
         });
 
