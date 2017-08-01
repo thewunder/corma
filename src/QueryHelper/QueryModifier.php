@@ -47,7 +47,7 @@ abstract class QueryModifier
     }
 
     /**
-     * Modify a select update before executing
+     * Modify a update query before executing
      *
      * @param QueryBuilder $qb
      * @param string $table
@@ -61,7 +61,7 @@ abstract class QueryModifier
     }
 
     /**
-     * Modify a select update before executing
+     * Modify a delete query before executing
      *
      * @param QueryBuilder $qb
      * @param string $table
