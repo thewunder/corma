@@ -52,7 +52,7 @@ class MysqlIntegrationTest extends BaseIntegrationTest
         $return = $this->objectMapper->getQueryHelper()
             ->massUpsert('extended_other_rel', [['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=>$otherObject->getId()]]);
 
-
+        $this->assertEquals(1, $return);
     }
 
     protected static function createDatabase()
