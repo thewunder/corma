@@ -14,25 +14,32 @@ class MySQLQueryHelper extends QueryHelper
      * @return int Rows affected
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function massUpsert($table, array $rows, &$lastInsertId = null)
+    public function massUpsert(string $table, array $rows, &$lastInsertId = null): int
     {
         if (empty($rows)) {
             return 0;
         }
 
-        $updates = $this->countUpdates($rows);
+        foreach ($this->modifiers as $modifier) {
+            $modifier->upsertQuery($table, $rows);
+        }
+
+        $primaryKey = $this->getPrimaryKey($table);
+        $updates = $this->countUpdates($rows, $primaryKey);
         $normalizedRows = $this->normalizeRows($table, $rows);
         $query = $this->getInsertSql($table, $normalizedRows);
 
         $dbColumns = $this->getDbColumns($table);
+
         $columnsToUpdate = [];
-        foreach ($dbColumns as $column => $acceptNull) {
-            if ($column == 'id') {
+        foreach ($dbColumns->getColumns() as $column) {
+            $columnName = $column->getName();
+            if ($primaryKey && $column == $primaryKey) {
                 continue;
             }
 
-            $column = $this->db->quoteIdentifier($column);
-            $columnsToUpdate[] = "$column = VALUES($column)";
+            $columnName = $this->db->quoteIdentifier($columnName);
+            $columnsToUpdate[] = "$columnName = VALUES($columnName)";
         }
 
         $query .= ' ON DUPLICATE KEY UPDATE ' . implode(', ', $columnsToUpdate);
@@ -51,7 +58,7 @@ class MySQLQueryHelper extends QueryHelper
      * @param DBALException $error
      * @return bool
      */
-    public function isDuplicateException(DBALException $error)
+    public function isDuplicateException(DBALException $error): bool
     {
         /** @var \PDOException $previous */
         $previous = $error->getPrevious();

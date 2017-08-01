@@ -18,7 +18,7 @@ Corma is great because:
 * Makes it easy to cache and avoid database queries
 * Supports soft deletes
 * Makes it easy to handle transactions in a Unit of Work
-* Allows for customization through symfony events
+* Highly customizable
 
 Corma doesn't:
 
@@ -29,13 +29,16 @@ Works in MySql and PostgreSQL.
 
 Install via Composer
 --------------------
+
 Via the command line:
 
-    composer.phar require thewunder/corma ~2.0
+    composer.phar require thewunder/corma ~3.0
 
 Or add the following to the require section your composer.json:
 
-    "thewunder/corma": "~2.0"
+    "thewunder/corma": "~3.0"
+
+For PHP version > 5.5 < 7.1 use Corma version ~2.0 
 
 Basic Usage
 -----------
@@ -43,7 +46,9 @@ Create a DataObject
 ```php
 namespace YourNamespace\Dataobjects;
 
-class YourDataObject extends DataObject {
+class YourDataObject {
+    protected $id;
+
     //If the property name == column name on the table your_data_objects it will be saved
     protected $myColumn;
 
@@ -63,7 +68,7 @@ class YourDataObjectRepository extends DataObjectRepository {
 Create the orm and use it
 ```php
 $db = DriverManager::getConnection(...); //see Doctrine DBAL docs
-$orm = ObjectMapper::withDefaults($db, ['YourNamespace\\Dataobjects']);
+$orm = ObjectMapper::withDefaults($db);
 
 $object = $orm->create(YourDataObject::class);
 //Call setters...
@@ -94,11 +99,13 @@ $orm->loadManyToMany($existingObjects, DifferentObject::class, 'link_table');
 $orm->deleteAll($existingObjects);
 ```
 
-##Documentation
+Documentation
+-------------
 
 See [the wiki](https://github.com/thewunder/corma/wiki) for full documentation.
 
-## Contributing
+Contributing
+------------
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 

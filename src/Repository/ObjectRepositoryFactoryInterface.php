@@ -4,8 +4,8 @@ namespace Corma\Repository;
 interface ObjectRepositoryFactoryInterface
 {
     /**
-     * @param string $objectName The object class with or without namespace
+     * @param string $objectName The fully qualified object class name
      * @return ObjectRepositoryInterface
      */
-    public function getRepository($objectName);
+    public function getRepository(string $objectName): ?ObjectRepositoryInterface;
 }

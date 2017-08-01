@@ -1,7 +1,8 @@
 <?php
 namespace Corma;
 
-use Corma\DataObject\DataObjectInterface;
+use Corma\DataObject\ObjectManagerFactory;
+use Corma\QueryHelper\QueryModifier\SoftDelete;
 use Corma\Relationship\RelationshipSaver;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
@@ -13,6 +14,7 @@ use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
+use Minime\Annotations\Interfaces\ReaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -24,6 +26,11 @@ class ObjectMapper
      * @var ObjectRepositoryFactoryInterface
      */
     private $repositoryFactory;
+
+    /**
+     * @var ObjectManagerFactory
+     */
+    private $objectManagerFactory;
 
     /**
      * @var QueryHelperInterface
@@ -49,21 +56,25 @@ class ObjectMapper
      * Creates a ObjectMapper instance using the default QueryHelper and ObjectRepositoryFactory
      *
      * @param Connection $db Database connection
-     * @param array $namespaces Namespaces to search for data objects and repositories
      * @param CacheProvider $cache Cache for table metadata and repositories
      * @param EventDispatcherInterface $dispatcher
+     * @param ReaderInterface $reader
      * @param array $additionalDependencies Additional dependencies to inject into Repository constructors
      * @return static
      */
-    public static function withDefaults(Connection $db, array $namespaces, CacheProvider $cache = null, EventDispatcherInterface $dispatcher = null, array $additionalDependencies = [])
+    public static function withDefaults(Connection $db, ?CacheProvider $cache = null, ?EventDispatcherInterface $dispatcher = null, ?ReaderInterface $reader = null, array $additionalDependencies = [])
     {
         if ($cache === null) {
             $cache = new ArrayCache();
         }
 
         $queryHelper = self::createQueryHelper($db, $cache);
-        $repositoryFactory = new ObjectRepositoryFactory($namespaces);
-        $instance = new static($queryHelper, $repositoryFactory, new Inflector());
+        $queryHelper->addModifier(new SoftDelete($queryHelper));
+
+        $repositoryFactory = new ObjectRepositoryFactory();
+        $inflector = new Inflector();
+        $objectManagerFactory = ObjectManagerFactory::withDefaults($queryHelper, $inflector, $reader);
+        $instance = new static($queryHelper, $repositoryFactory, $objectManagerFactory, $inflector);
         $dependencies = array_merge([$db, $instance, $cache, $dispatcher], $additionalDependencies);
         $repositoryFactory->setDependencies($dependencies);
         return $instance;
@@ -90,20 +101,22 @@ class ObjectMapper
      * ObjectMapper constructor.
      * @param QueryHelperInterface $queryHelper
      * @param ObjectRepositoryFactoryInterface $repositoryFactory
+     * @param ObjectManagerFactory $objectManagerFactory
      * @param Inflector $inflector
      */
-    public function __construct(QueryHelperInterface $queryHelper, ObjectRepositoryFactoryInterface $repositoryFactory, Inflector $inflector)
+    public function __construct(QueryHelperInterface $queryHelper, ObjectRepositoryFactoryInterface $repositoryFactory, ObjectManagerFactory $objectManagerFactory, Inflector $inflector)
     {
         $this->queryHelper = $queryHelper;
         $this->repositoryFactory = $repositoryFactory;
+        $this->objectManagerFactory = $objectManagerFactory;
         $this->inflector = $inflector;
     }
 
     /**
-     * @param string $objectName Object class with or without namespace
+     * @param string $objectName Fully qualified object class name
      * @return Repository\ObjectRepositoryInterface
      */
-    public function getRepository($objectName)
+    public function getRepository(string $objectName)
     {
         return $this->repositoryFactory->getRepository($objectName);
     }
@@ -111,23 +124,24 @@ class ObjectMapper
     /**
      * Creates a new instance of the requested object
      *
-     * @param string $objectName Object class with or without namespace
-     * @return DataObjectInterface
+     * @param string $objectName Fully qualified object class name
+     * @param array $data Optional array of data to set on object after instantiation
+     * @return object
      */
-    public function create($objectName)
+    public function create(string $objectName, array $data = [])
     {
-        return $this->repositoryFactory->getRepository($objectName)->create();
+        return $this->repositoryFactory->getRepository($objectName)->create($data);
     }
 
     /**
      * Find an object by id
      *
-     * @param string $objectName Object class with or without namespace
+     * @param string $objectName Fully qualified object class name
      * @param string|int $id
      * @param bool $useCache Use cache?
-     * @return DataObjectInterface
+     * @return object
      */
-    public function find($objectName, $id, $useCache = true)
+    public function find(string $objectName, string $id, bool $useCache = true)
     {
         return $this->getRepository($objectName)->find($id, $useCache);
     }
@@ -135,11 +149,11 @@ class ObjectMapper
     /**
      * Find objects by ids
      *
-     * @param string $objectName Object class with or without namespace
+     * @param string $objectName Fully qualified object class name
      * @param array $ids
-     * @return DataObjectInterface[]
+     * @return object[]
      */
-    public function findByIds($objectName, array $ids)
+    public function findByIds(string $objectName, array $ids): array
     {
         return $this->getRepository($objectName)->findByIds($ids);
     }
@@ -147,25 +161,25 @@ class ObjectMapper
     /**
      * Find all of the specified object type
      *
-     * @param string $objectName Object class with or without namespace
-     * @return DataObjectInterface[]
+     * @param string $objectName Fully qualified object class name
+     * @return object[]
      */
-    public function findAll($objectName)
+    public function findAll(string $objectName): array
     {
         return $this->getRepository($objectName)->findAll();
     }
 
     /**
-     * @param string $objectName Object class with or without namespace
+     * @param string $objectName Fully qualified object class name
      * @param array $criteria column => value pairs
      * @param array $orderBy column => order pairs
      * @param int $limit Maximum results to return
      * @param int $offset First result to return
-     * @return DataObjectInterface[]
+     * @return object[]
      *
      * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
-    public function findBy($objectName, array $criteria, array $orderBy = [], $limit = null, $offset = null)
+    public function findBy(string $objectName, array $criteria, ?array $orderBy = [], ?int $limit = null, ?int $offset = null): array
     {
         return $this->getRepository($objectName)->findBy($criteria, $orderBy, $limit, $offset);
     }
@@ -173,13 +187,13 @@ class ObjectMapper
     /**
      * Finds a single object by any criteria
      *
-     * @param string $objectName Object class with or without namespace
+     * @param string $objectName Fully qualified object class name
      * @param array $criteria column => value pairs
-     * @return DataObjectInterface
+     * @return object
      *
      * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
-    public function findOneBy($objectName, array $criteria)
+    public function findOneBy(string $objectName, array $criteria)
     {
         return $this->getRepository($objectName)->findOneBy($criteria);
     }
@@ -192,18 +206,20 @@ class ObjectMapper
      *
      * $foreignIdColumn defaults to foreignObjectId if the $className is Namespace\\ForeignObject
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id (defaults to if the class = ForeignObject foreignObjectId)
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @param string $setter Name of setter method on objects
+     * @return object[] Loaded objects keyed by id
      */
-    public function loadOne(array $objects, $className, $foreignIdColumn = null)
+    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $setter = null): array
     {
         $objectsByClass = $this->groupByClass($objects);
 
+        $loader = $this->getRelationshipLoader();
         $loadedObjects = [];
         foreach ($objectsByClass as $class => $classObjects) {
-            $loadedObjects += $this->getRepository($class)->loadOne($classObjects, $className, $foreignIdColumn);
+            $loadedObjects += $loader->loadOne($classObjects, $className, $foreignIdColumn, $setter);
         }
         return $loadedObjects;
     }
@@ -214,18 +230,20 @@ class ObjectMapper
      *
      * This works on objects of mixed type, although they must have exactly the same $foreignColumn, or use the default.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Column / property on foreign object that relates to this object id
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @param string $setter Name of setter method on objects
+     * @return object[] Loaded objects keyed by id
      */
-    public function loadMany(array $objects, $className, $foreignColumn = null)
+    public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array
     {
         $objectsByClass = $this->groupByClass($objects);
 
+        $loader = $this->getRelationshipLoader();
         $loadedObjects = [];
         foreach ($objectsByClass as $class => $classObjects) {
-            $loadedObjects += $this->getRepository($class)->loadMany($classObjects, $className, $foreignColumn);
+            $loadedObjects += $loader->loadMany($classObjects, $className, $foreignColumn, $setter);
         }
         return $loadedObjects;
     }
@@ -233,23 +251,25 @@ class ObjectMapper
     /**
      * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects.
      *
-     * This works theoretically on objects of mixed type, although they must have the same link table, which makes this in reality only usable.
+     * This works theoretically on objects of mixed type, although they must have the same link table, which makes this in reality only usable
      * by for objects of the same class.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @param string $setter Name of setter method on objects
+     * @return object[] Loaded objects keyed by id
      */
-    public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
+    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null, ?string $setter = null): array
     {
         $objectsByClass = $this->groupByClass($objects);
 
+        $loader = $this->getRelationshipLoader();
         $loadedObjects = [];
         foreach ($objectsByClass as $class => $classObjects) {
-            $loadedObjects += $this->getRepository($class)->loadManyToMany($classObjects, $className, $linkTable, $idColumn, $foreignIdColumn);
+            $loadedObjects += $loader->loadManyToMany($classObjects, $className, $linkTable, $idColumn, $foreignIdColumn, $setter);
         }
         return $loadedObjects;
     }
@@ -257,12 +277,12 @@ class ObjectMapper
     /**
      * Persists a single object to the database
      *
-     * @param DataObjectInterface $object
-     * @return DataObjectInterface
+     * @param object $object
+     * @return object
      */
-    public function save(DataObjectInterface $object)
+    public function save($object)
     {
-        return $this->getRepository($object->getClassName())->save($object);
+        return $this->getRepository(get_class($object))->save($object);
     }
 
     /**
@@ -270,7 +290,7 @@ class ObjectMapper
      *
      * This method works on objects of mixed type.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      */
     public function saveAll(array $objects)
     {
@@ -282,12 +302,11 @@ class ObjectMapper
     }
 
     /**
-     * @param DataObjectInterface $object
-     * @return void
+     * @param object $object
      */
-    public function delete(DataObjectInterface $object)
+    public function delete($object)
     {
-        $this->getRepository($object->getClassName())->delete($object);
+        $this->getRepository(get_class($object))->delete($object);
     }
 
     /**
@@ -295,7 +314,7 @@ class ObjectMapper
      *
      * This method works on objects of mixed type.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      */
     public function deleteAll(array $objects)
     {
@@ -353,14 +372,35 @@ class ObjectMapper
     }
 
     /**
-     * @param DataObjectInterface[] $objects
+     * @return ObjectManagerFactory
+     */
+    public function getObjectManagerFactory()
+    {
+        return $this->objectManagerFactory;
+    }
+
+    /**
+     * @param string|object|array $objectOrClass
+     * @return DataObject\ObjectManager
+     */
+    public function getObjectManager($objectOrClass)
+    {
+        if (is_array($objectOrClass)) {
+            $objectOrClass = reset($objectOrClass);
+        }
+        $class = is_string($objectOrClass) ? $objectOrClass : get_class($objectOrClass);
+        return $this->getRepository($class)->getObjectManager();
+    }
+
+    /**
+     * @param object[] $objects
      * @return array
      */
     protected function groupByClass(array $objects)
     {
         $objectsByClass = [];
         foreach ($objects as $object) {
-            $objectsByClass[$object->getClassName()][] = $object;
+            $objectsByClass[get_class($object)][] = $object;
         }
         return $objectsByClass;
     }

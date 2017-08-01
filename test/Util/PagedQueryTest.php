@@ -1,7 +1,7 @@
 <?php
 namespace Corma\Test\Util;
 
-use Corma\Test\Fixtures\ExtendedDataObject;
+use Corma\DataObject\ObjectManager;
 use Corma\Util\PagedQuery;
 use Corma\QueryHelper\QueryHelper;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -13,6 +13,9 @@ class PagedQueryTest extends \PHPUnit_Framework_TestCase
     private $qb;
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     private $queryHelper;
+    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    private $objectMapper;
+
 
     public function setUp()
     {
@@ -23,13 +26,17 @@ class PagedQueryTest extends \PHPUnit_Framework_TestCase
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
             ->disableOriginalConstructor()
             ->getMock();
+
+        $this->objectMapper = $this->getMockBuilder(ObjectManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     public function testConstructor()
     {
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
 
-        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, ExtendedDataObject::class, [], 50);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 50);
 
         $this->assertEquals(50, $pagedQuery->getPageSize());
         $this->assertEquals(5, $pagedQuery->getPages());
@@ -38,7 +45,6 @@ class PagedQueryTest extends \PHPUnit_Framework_TestCase
     public function testGetResults()
     {
         $statement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()->getMock();
-        $statement->expects($this->once())->method('fetchAll')->with(\PDO::FETCH_CLASS, ExtendedDataObject::class);
 
         $this->qb->expects($this->once())->method('setMaxResults')->with(50)->will($this->returnSelf());
         $this->qb->expects($this->once())->method('setFirstResult')->with(100);
@@ -46,7 +52,9 @@ class PagedQueryTest extends \PHPUnit_Framework_TestCase
 
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
 
-        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, ExtendedDataObject::class, [], 50);
+        $this->objectMapper->expects($this->once())->method('fetchAll')->with($statement);
+
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 50);
         $pagedQuery->getResults(3);
         $this->assertEquals(3, $pagedQuery->getPage());
         $this->assertEquals(2, $pagedQuery->getPrev());
@@ -58,7 +66,7 @@ class PagedQueryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetInvalidPageSize()
     {
-        new PagedQuery($this->qb, $this->queryHelper, ExtendedDataObject::class, [], 0);
+        new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 0);
     }
 
     /**
@@ -67,14 +75,14 @@ class PagedQueryTest extends \PHPUnit_Framework_TestCase
     public function testGetInvalidPage()
     {
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
-        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, ExtendedDataObject::class, [], 50);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 50);
         $pagedQuery->getResults(0);
     }
 
     public function testJsonSerialize()
     {
         $this->queryHelper->expects($this->any())->method('getCount')->willReturn(205);
-        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, ExtendedDataObject::class, [], 50);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 50);
         $object = $pagedQuery->jsonSerialize();
         $this->assertEquals(50, $object->pageSize);
         $this->assertEquals(5, $object->pages);

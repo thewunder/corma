@@ -4,7 +4,7 @@ namespace Corma\DataObject;
 interface DataObjectEventInterface
 {
     /**
-     * @return DataObjectInterface
+     * @return object
      */
     public function getObject();
 }

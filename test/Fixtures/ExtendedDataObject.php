@@ -1,13 +1,10 @@
 <?php
 namespace Corma\Test\Fixtures;
 
-use Corma\DataObject\DataObject;
-use Corma\DataObject\DataObjectInterface;
-
 /**
  * A Fixture
  */
-class ExtendedDataObject extends DataObject
+class ExtendedDataObject extends BaseDataObject
 {
     protected $myColumn;
     protected $myNullableColumn;
@@ -16,7 +13,7 @@ class ExtendedDataObject extends DataObject
     /** @var array */
     protected $arrayProperty;
 
-    /** @var DataObjectInterface */
+    /** @var ExtendedDataObject */
     protected $objectProperty;
 
     /** @var OtherDataObject */
@@ -24,6 +21,9 @@ class ExtendedDataObject extends DataObject
 
     /** @var OtherDataObject[] */
     protected $otherDataObjects;
+
+    /** @var OtherDataObject[] */
+    protected $custom;
 
     /**
      * @return mixed
@@ -80,7 +80,7 @@ class ExtendedDataObject extends DataObject
     }
 
     /**
-     * @return DataObjectInterface
+     * @return ExtendedDataObject
      */
     public function getObjectProperty()
     {
@@ -88,7 +88,7 @@ class ExtendedDataObject extends DataObject
     }
 
     /**
-     * @param DataObjectInterface $objectProperty
+     * @param ExtendedDataObject $objectProperty
      * @return ExtendedDataObject
      */
     public function setObjectProperty($objectProperty)
@@ -149,5 +149,21 @@ class ExtendedDataObject extends DataObject
     public function getOtherDataObjects()
     {
         return $this->otherDataObjects;
+    }
+
+    /**
+     * @return OtherDataObject[]
+     */
+    public function getCustom(): array
+    {
+        return $this->custom;
+    }
+
+    /**
+     * @param OtherDataObject[] $custom
+     */
+    public function setCustom(array $custom)
+    {
+        $this->custom = $custom;
     }
 }

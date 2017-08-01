@@ -4,6 +4,7 @@ namespace Corma\QueryHelper;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * Builds sql queries and performs other related tasks.
@@ -11,6 +12,8 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 interface QueryHelperInterface
 {
+    const TABLE_ALIAS = 'main';
+
     /**
      * Build a simple select query for table
      *
@@ -22,10 +25,10 @@ interface QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where array
      */
-    public function buildSelectQuery($table, $columns = 'main.*', array $where = [], array $orderBy = []);
+    public function buildSelectQuery(string $table, $columns = 'main.*', array $where = [], array $orderBy = []): QueryBuilder;
 
     /**
-     * Build an update query for the provided table
+     * Build an update query for the provided tablestring $table, array $where
      *
      * @param string $table
      * @param array $update column => value pairs to update in SET clause
@@ -34,7 +37,7 @@ interface QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where array
      */
-    public function buildUpdateQuery($table, array $update, array $where);
+    public function buildUpdateQuery(string $table, array $update, array $where): QueryBuilder;
 
     /**
      * Build a delete query for the provided table
@@ -45,7 +48,7 @@ interface QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where array
      */
-    public function buildDeleteQuery($table, array $where);
+    public function buildDeleteQuery(string $table, array $where): QueryBuilder;
 
     /**
      * Update multiple rows
@@ -57,7 +60,7 @@ interface QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where array
      */
-    public function massUpdate($table, array $update, array $where);
+    public function massUpdate(string $table, array $update, array $where): int;
 
     /**
      * Insert multiple rows
@@ -66,7 +69,7 @@ interface QueryHelperInterface
      * @param array $rows array of column => value
      * @return int The number of inserted rows
      */
-    public function massInsert($table, array $rows);
+    public function massInsert(string $table, array $rows): int;
 
     /**
      * Insert multiple rows, if a row with a duplicate key is found will update the row, may assume that id is the primary key
@@ -76,7 +79,7 @@ interface QueryHelperInterface
      * @param null $lastInsertId Optional reference to populate with the last auto increment id
      * @return int The number of affected rows
      */
-    public function massUpsert($table, array $rows, &$lastInsertId = null);
+    public function massUpsert(string $table, array $rows, &$lastInsertId = null): int;
 
     /**
      * Delete multiple rows
@@ -88,7 +91,7 @@ interface QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function massDelete($table, array $where);
+    public function massDelete(string $table, array $where): int;
 
     /**
      * Counts the number of results that would be returned by the select query provided
@@ -96,7 +99,7 @@ interface QueryHelperInterface
      * @param QueryBuilder $qb
      * @return int
      */
-    public function getCount(QueryBuilder $qb);
+    public function getCount(QueryBuilder $qb): int;
 
     /**
      * Sets the where query part on the provided query builder.
@@ -122,9 +125,9 @@ interface QueryHelperInterface
      * Returns table metadata for the provided table
      *
      * @param string $table
-     * @return array column => accepts null (bool)
+     * @return Table
      */
-    public function getDbColumns($table);
+    public function getDbColumns(string $table): Table;
 
     /**
      * Is this exception caused by a duplicate record (i.e. unique index constraint violation)
@@ -132,8 +135,8 @@ interface QueryHelperInterface
      * @param DBALException $error
      * @return bool
      */
-    public function isDuplicateException(DBALException $error);
-
+    public function isDuplicateException(DBALException $error): bool;
+    
     /**
      * Retrieve the last inserted row id
      *
@@ -141,10 +144,28 @@ interface QueryHelperInterface
      * @param string $column
      * @return string
      */
-    public function getLastInsertId($table, $column = 'id');
+    public function getLastInsertId(string $table, string $column): ?string;
 
     /**
      * @return Connection
      */
-    public function getConnection();
+    public function getConnection(): Connection;
+
+    /**
+     * @param QueryModifier $queryModifier Query modifier to add, query modifiers are run in the order they are added
+     * @return bool True if modifier was added
+     */
+    public function addModifier(QueryModifier $queryModifier): bool;
+
+    /**
+     * @param string $className
+     * @return QueryModifier|null
+     */
+    public function getModifier(string $className): ?QueryModifier;
+
+    /**
+     * @param string $className Full class name of the query modifier to remove
+     * @return bool True if modifier was removed
+     */
+    public function removeModifier(string $className): bool;
 }

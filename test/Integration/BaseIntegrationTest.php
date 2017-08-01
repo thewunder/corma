@@ -1,12 +1,13 @@
 <?php
 namespace Integration;
 
-use Corma\DataObject\DataObject;
-use Corma\DataObject\DataObjectInterface;
+use Corma\DataObject\Identifier\ObjectIdentifierInterface;
 use Corma\ObjectMapper;
 use Corma\Repository\ObjectRepositoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
+use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
+use Corma\Util\PagedQuery;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -22,13 +23,17 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
     /** @var ObjectMapper */
     protected $objectMapper;
 
+    /** @var  ObjectIdentifierInterface */
+    protected $identifier;
+
     /** @var Connection */
     protected static $connection;
-    
+
     public function setUp()
     {
         $this->dispatcher = new EventDispatcher();
-        $this->objectMapper = ObjectMapper::withDefaults(self::$connection, ['Corma\\Test\\Fixtures']);
+        $this->objectMapper = ObjectMapper::withDefaults(self::$connection);
+        $this->identifier = $this->objectMapper->getObjectManagerFactory()->getIdentifier();
         $this->repository = $this->objectMapper->getRepository(ExtendedDataObject::class);
     }
     
@@ -46,21 +51,26 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
     protected static function createDatabase()
     {
-        
     }
     
     protected static function deleteDatabase()
     {
-        
     }
     
     abstract public function testIsDuplicateException();
 
+    public function testCreate()
+    {
+        $object = $this->objectMapper->create(ExtendedDataObject::class, ['myColumn'=>'Test Value']);
+        $this->assertInstanceOf(ExtendedDataObject::class, $object);
+        $this->assertEquals('Test Value', $object->getMyColumn());
+    }
+
     public function testSave()
     {
-        $object = new ExtendedDataObject($this->dispatcher);
+        $object = new ExtendedDataObject();
         $object->setMyColumn('My Value')->setMyNullableColumn(15);
-        $this->repository->save($object);
+        $this->objectMapper->save($object);
         $this->assertNotNull($object->getId());
         return $object;
     }
@@ -108,16 +118,15 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
     public function testDelete(ExtendedDataObject $object)
     {
         $this->repository->delete($object);
-        $this->assertTrue($object->isDeleted());
 
         /** @var ExtendedDataObject $fromDb */
-        $fromDb = $this->repository->find($object->getId(), false);
+        $fromDb = $this->repository->findOneBy(['id'=>$object->getId(), 'isDeleted'=>1]);
         $this->assertTrue($fromDb->isDeleted());
     }
 
     /**
      * @depends testDelete
-     * @return \Corma\DataObject\DataObjectInterface[]
+     * @return object[]
      */
     public function testFindAll()
     {
@@ -146,7 +155,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $this->repository->find($object->getId());
 
-        $ids = ExtendedDataObject::getIds($objects);
+        $ids = $this->identifier->getIds($objects);
         $ids[] = $object->getId();
 
         $fromDb = $this->repository->findByIds($ids);
@@ -293,12 +302,8 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $rows = $this->repository->deleteAll($objects);
         $this->assertEquals(2, $rows);
 
-        $allFromDb = $this->repository->findByIds(DataObject::getIds($objects), false);
+        $allFromDb = $this->repository->findByIds($this->identifier->getIds($objects), false);
         $this->assertCount(2, $allFromDb);
-        /** @var DataObjectInterface $objectFromDb */
-        foreach ($allFromDb as $objectFromDb) {
-            $this->assertTrue($objectFromDb->isDeleted());
-        }
     }
 
     public function testLoadOne()
@@ -309,9 +314,9 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $object = new ExtendedDataObject();
         $object->setMyColumn('one-to-many')->setOtherDataObjectId($otherObject->getId());
-        $this->repository->save($object);
+        $this->objectMapper->save($object);
 
-        $return = $this->repository->loadOne([$object], OtherDataObject::class);
+        $return = $this->objectMapper->loadOne([$object], OtherDataObject::class);
 
         $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
@@ -333,7 +338,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $object2 = new ExtendedDataObject();
         $object2->setOtherDataObjectId($otherObject2->getId());
 
-        $return = $this->repository->loadOne([$object, $object2], OtherDataObject::class);
+        $return = $this->objectMapper->loadOne([$object, $object2], OtherDataObject::class);
 
         $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
@@ -362,11 +367,39 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->objectMapper->delete($softDeleted);
 
         /** @var OtherDataObject[] $return */
-        $return = $this->repository->loadMany([$object], OtherDataObject::class);
+        $return = $this->objectMapper->loadMany([$object], OtherDataObject::class);
         $this->assertCount(2, $return);
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
 
         $loadedOtherObjects = $object->getOtherDataObjects();
+        $this->assertCount(2, $loadedOtherObjects);
+        $this->assertEquals($otherObject->getId(), $loadedOtherObjects[1]->getId());
+        $this->assertEquals($otherObject->getName(), $loadedOtherObjects[1]->getName());
+    }
+
+    public function testLoadManyWithCustomSetter()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('many-to-one');
+        $this->repository->save($object);
+
+        $otherObjects = [];
+        $softDeleted = new OtherDataObject();
+        $otherObjects[] = $softDeleted->setName('Other object (soft deleted)')->setExtendedDataObjectId($object->getId());
+        $otherObject = new OtherDataObject();
+        $otherObjects[] = $otherObject->setName('Other object many-to-one 1')->setExtendedDataObjectId($object->getId());
+        $otherObject = new OtherDataObject();
+        $otherObjects[] = $otherObject->setName('Other object many-to-one 2')->setExtendedDataObjectId($object->getId());
+        $this->objectMapper->saveAll($otherObjects);
+
+        $this->objectMapper->delete($softDeleted);
+
+        /** @var OtherDataObject[] $return */
+        $return = $this->objectMapper->loadMany([$object], OtherDataObject::class, null, 'setCustom');
+        $this->assertCount(2, $return);
+        $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
+
+        $loadedOtherObjects = $object->getCustom();
         $this->assertCount(2, $loadedOtherObjects);
         $this->assertEquals($otherObject->getId(), $loadedOtherObjects[1]->getId());
         $this->assertEquals($otherObject->getName(), $loadedOtherObjects[1]->getName());
@@ -390,7 +423,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
             ['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=>$otherObject2->getId()]
         ]);
 
-        $return = $this->repository->loadManyToMany([$object], OtherDataObject::class, 'extended_other_rel');
+        $return = $this->objectMapper->loadManyToMany([$object], OtherDataObject::class, 'extended_other_rel');
         $this->assertCount(2, $return);
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
 
@@ -417,7 +450,7 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $this->repository->saveAll($objects);
         $relationshipSaver = $this->objectMapper->getRelationshipSaver();
-        $relationshipSaver->saveOne($objects, 'otherDataObjectId');
+        $relationshipSaver->saveOne($objects, OtherDataObject::class);
 
         $this->assertGreaterThan(0, $otherObject->getId());
         $this->assertGreaterThan(0, $otherObject2->getId());
@@ -472,8 +505,8 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($object2->getId(), $otherObject3->getExtendedDataObjectId());
         $this->assertEquals($object2->getId(), $otherObject4->getExtendedDataObjectId());
 
-        $otherObjectToDelete = $this->objectMapper->find(OtherDataObject::class, $otherObjectToDelete->getId(), false);
-        $otherObjectToDelete2 = $this->objectMapper->find(OtherDataObject::class, $otherObjectToDelete2->getId(), false);
+        $otherObjectToDelete = $this->objectMapper->findOneBy(OtherDataObject::class, ['id'=>$otherObjectToDelete->getId(), 'isDeleted'=>1]);
+        $otherObjectToDelete2 = $this->objectMapper->findOneBy(OtherDataObject::class, ['id'=>$otherObjectToDelete2->getId(), 'isDeleted'=>1]);
         $this->assertTrue($otherObjectToDelete->isDeleted());
         $this->assertTrue($otherObjectToDelete2->isDeleted());
     }
@@ -585,5 +618,21 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $object2Links);
         $this->assertEquals($otherObject3->getId(), $object2Links[0]);
         $this->assertEquals($otherObject4->getId(), $object2Links[1]);
+    }
+
+    public function testPagedQuery()
+    {
+        /** @var ExtendedDataObjectRepository $repo */
+        $repo = $this->objectMapper->getRepository(ExtendedDataObject::class);
+        $pager = $repo->findAllPaged();
+        $this->assertInstanceOf(PagedQuery::class, $pager);
+
+        $this->assertGreaterThan(1, $pager->getPages());
+
+        for ($i = 1; $i <= $pager->getPages(); $i++) {
+            $objects = $pager->getResults($i);
+            $this->assertLessThanOrEqual(5, count($objects));
+            $this->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
+        }
     }
 }

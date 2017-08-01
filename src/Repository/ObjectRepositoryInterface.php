@@ -1,57 +1,99 @@
 <?php
 namespace Corma\Repository;
 
-use Corma\DataObject\DataObjectInterface;
-use Doctrine\Common\Persistence\ObjectRepository as DoctrineObjectRepository;
+use Corma\DataObject\ObjectManager;
 
 /**
  * Interface for object repositories.
  * An object repository manages all creation, persistence, retrieval, deletion of objects of a particular class.
  */
-interface ObjectRepositoryInterface extends DoctrineObjectRepository
+interface ObjectRepositoryInterface
 {
+    /**
+     * Finds all objects in the repository.
+     *
+     * @return array The objects.
+     */
+    public function findAll();
+
+    /**
+     * Finds objects by a set of criteria.
+     *
+     * Optionally sorting and limiting details can be passed. An implementation may throw
+     * an UnexpectedValueException if certain values of the sorting or limiting details are
+     * not supported.
+     *
+     * @param array      $criteria
+     * @param array|null $orderBy
+     * @param int|null   $limit
+     * @param int|null   $offset
+     *
+     * @return array The objects.
+     *
+     * @throws \UnexpectedValueException
+     */
+    public function findBy(array $criteria, array $orderBy = null, ?int $limit = null, ?int $offset = null);
+
+    /**
+     * Finds a single object by a set of criteria.
+     *
+     * @param array $criteria The criteria.
+     *
+     * @return object|null The object.
+     */
+    public function findOneBy(array $criteria);
+
+    /**
+     * Returns the class name of the object managed by the repository.
+     *
+     * @return string
+     */
+    public function getClassName();
+
     /**
      * Creates a new instance of the object
      *
-     * @return DataObjectInterface
+     * @param array $data Optional array of data to set on object after instantiation
+     * @return object
      */
-    public function create();
+    public function create(array $data = []);
 
     /**
      * @param mixed $id The Identifier
      * @param bool $useCache Use cache?
      * @return mixed
      */
-    public function find($id, $useCache = true);
+    public function find($id, bool $useCache = true);
 
     /**
      * Find one or more data objects by id
      *
      * @param array $ids
      * @param bool $useCache Use cache?
-     * @return \Corma\DataObject\DataObjectInterface[]
+     * @return object[]
      */
-    public function findByIds(array $ids, $useCache = true);
+    public function findByIds(array $ids, bool $useCache = true): array;
 
     /**
-     * Return the database table this repository manages
+     * Return the database table for an object
      *
-     * @return string
+     * @param mixed $objectOrClass If omitted will return table for the object this repository manages
+     * @return string The name of the database table
      */
-    public function getTableName();
+    public function getTableName($objectOrClass = null): string;
 
     /**
      * Persists the object to the database
      *
-     * @param DataObjectInterface $object
-     * @return DataObjectInterface
+     * @param object $object
+     * @return object
      */
-    public function save(DataObjectInterface $object);
+    public function save($object);
 
     /**
      * Persists all supplied objects into the database
      **
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @return int The number of effected rows
      */
     public function saveAll(array $objects);
@@ -59,51 +101,24 @@ interface ObjectRepositoryInterface extends DoctrineObjectRepository
     /**
      * Removes the object from the database
      *
-     * @param DataObjectInterface $object
+     * @param object $object
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
      */
-    public function delete(DataObjectInterface $object);
+    public function delete($object);
 
     /**
      * Deletes all objects by id
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      */
     public function deleteAll(array $objects);
 
     /**
-     * Loads a foreign relationship where a property on the supplied objects references an id for another object.
+     * Retrieves the object manager for the class managed by this repository.
      *
-     * Can be used to load a one-to-one relationship or the "one" side of a one-to-many relationship.
+     * If you need to customize the hydration, id behavior, table name, or object instantiation behavior, you will override this method.
      *
-     * @param DataObjectInterface[] $objects
-     * @param string $className Class name of foreign object to load
-     * @param string $foreignIdColumn Column / property on objects that relates to the foreign table's id
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @return ObjectManager
      */
-    public function loadOne(array $objects, $className, $foreignIdColumn = null);
-
-    /**
-     * Loads a foreign relationship where a column on another object references the id for the supplied objects.
-     *
-     * Used to load the "many" side of a one-to-many relationship.
-     *
-     * @param DataObjectInterface[] $objects
-     * @param string $className Class name of foreign objects to load
-     * @param string $foreignColumn Column / property on foreign object that relates to the objects id
-     * @return DataObjectInterface[] Loaded objects keyed by id
-     */
-    public function loadMany(array $objects, $className, $foreignColumn = null);
-
-    /**
-     * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects
-     *
-     * @param DataObjectInterface[] $objects
-     * @param string $className Class name of foreign objects to load
-     * @param string $linkTable Table that links two objects together
-     * @param string $idColumn Column on link table = the id on this object
-     * @param string $foreignIdColumn Column on link table = the id on the foreign object table
-     * @return DataObjectInterface[] Loaded objects keyed by id
-     */
-    public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null);
+    public function getObjectManager(): ObjectManager;
 }

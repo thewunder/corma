@@ -1,8 +1,6 @@
 <?php
 namespace Corma\Relationship;
 
-use Corma\DataObject\DataObject;
-use Corma\DataObject\DataObjectInterface;
 use Corma\Exception\MethodNotImplementedException;
 use Corma\ObjectMapper;
 use Corma\Util\Inflector;
@@ -33,45 +31,52 @@ class RelationshipLoader
      *
      * Can be used to load a one-to-one relationship or the "one" side of a one-to-many relationship.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects Data objects of the same class
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @param string $setter Name of setter method on objects
+     * @return object[] Loaded objects keyed by id
      */
-    public function loadOne(array $objects, $className, $foreignIdColumn)
+    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $setter = null): array
     {
         if (empty($objects)) {
             return [];
         }
 
         $idToForeignId = [];
+        $foreignIdColumn = $foreignIdColumn ?? $this->inflector->idColumnFromClass($className);
         $foreignIdColumn = ucfirst($foreignIdColumn);
+
+        $om = $this->objectMapper->getObjectManager($objects);
+        $fom = $this->objectMapper->getObjectManager($className);
+
         $getter = 'get' . $foreignIdColumn;
         foreach ($objects as $i => $object) {
             if (method_exists($object, $getter)) {
-                $id = $object->getId();
-                if(!$id) {
+                $id = $om->getId($object);
+                if (!$id) {
                     $id = $i;
                 }
 
                 $idToForeignId[$id] = $object->$getter();
             } else {
-                throw new MethodNotImplementedException("$getter must be defined on {$object->getClassName()} to load one-to-one relationship with $className");
+                $shortClass = $this->inflector->getShortClass($object);
+                throw new MethodNotImplementedException("$getter must be defined on {$shortClass} to load one-to-one relationship with $className");
             }
         }
 
         $foreignObjects = $this->objectMapper->findByIds($className, array_unique(array_values($idToForeignId)));
         $foreignObjectsById = [];
         foreach ($foreignObjects as $foreignObject) {
-            $foreignObjectsById[$foreignObject->getId()] = $foreignObject;
+            $foreignObjectsById[$fom->getId($foreignObject)] = $foreignObject;
         }
         unset($foreignObjects);
 
-        $setter = 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn);
+        $setter = $setter ?? 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn);
         foreach ($objects as $i => $object) {
             if (method_exists($object, $setter)) {
-                $id = $object->getId();
-                if(!$id) {
+                $id = $om->getId($object);
+                if (!$id) {
                     $id = $i;
                 }
 
@@ -79,7 +84,8 @@ class RelationshipLoader
                     $object->$setter($foreignObjectsById[$idToForeignId[$id]]);
                 }
             } else {
-                throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load one-to-one relationship at $className");
+                $shortClass = $this->inflector->getShortClass($object);
+                throw new MethodNotImplementedException("$setter must be defined on {$shortClass} to load one-to-one relationship at $className");
             }
         }
         return $foreignObjectsById;
@@ -90,25 +96,25 @@ class RelationshipLoader
      *
      * Used to load the "many" side of a one-to-many relationship.
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects Data objects of the same class
      * @param string $className Class name of foreign objects to load
      * @param string $foreignColumn Property on foreign object that relates to this object id
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @param string $setter Name of setter method on objects
+     * @return array|\object[] Loaded objects keyed by id
      */
-    public function loadMany(array $objects, $className, $foreignColumn)
+    public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array
     {
         if (empty($objects)) {
             return [];
         }
 
-        $ids = DataObject::getIds($objects);
+        $om = $this->objectMapper->getObjectManager($objects);
+        $fom = $this->objectMapper->getObjectManager($className);
+        $ids = $om->getIds($objects);
 
-        $where = [$foreignColumn => $ids];
-        $dbColumns = $this->objectMapper->getQueryHelper()->getDbColumns($className::getTableName());
-        if (isset($dbColumns['isDeleted'])) {
-            $where['isDeleted'] = 0;
-        }
-        $foreignObjects = $this->objectMapper->findBy($className, $where);
+        $foreignColumn = $foreignColumn ?? $this->inflector->idColumnFromClass(get_class(reset($objects)));
+
+        $foreignObjects = $this->objectMapper->findBy($className, [$foreignColumn => $ids]);
         $foreignObjectsById = [];
         $getter = 'get' . ucfirst($foreignColumn);
         foreach ($foreignObjects as $foreignObject) {
@@ -116,26 +122,29 @@ class RelationshipLoader
                 $id = $foreignObject->$getter();
                 $foreignObjectsById[$id][] = $foreignObject;
             } else {
-                throw new MethodNotImplementedException("$getter must be defined on $className to load one-to-many relationship with {$foreignObject->getClassName()}");
+                $foreignShortClass = $this->inflector->getShortClass($foreignObject);
+                throw new MethodNotImplementedException("$getter must be defined on $className to load one-to-many relationship with {$foreignShortClass}");
             }
         }
 
-        $setter = 'set' . $this->inflector->methodNameFromClass($className, true);
+        $setter = $setter ?? 'set' . $this->inflector->methodNameFromClass($className, true);
         foreach ($objects as $object) {
             if (method_exists($object, $setter)) {
-                if (isset($foreignObjectsById[$object->getId()])) {
-                    $object->$setter($foreignObjectsById[$object->getId()]);
+                $id = $om->getId($object);
+                if (isset($foreignObjectsById[$id])) {
+                    $object->$setter($foreignObjectsById[$id]);
                 }
             } else {
-                throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load one-to-many relationship with $className");
+                $shortClass = $this->inflector->getShortClass($object);
+                throw new MethodNotImplementedException("$setter must be defined on {$shortClass} to load one-to-many relationship with $className");
             }
         }
 
         $flattenedForeignObjects = [];
         foreach ($foreignObjectsById as $array) {
-            /** @var DataObjectInterface $object */
+            /** @var object $object */
             foreach ($array as $object) {
-                $flattenedForeignObjects[$object->getId()] = $object;
+                $flattenedForeignObjects[$fom->getId($object)] = $object;
             }
         }
         return $flattenedForeignObjects;
@@ -144,20 +153,27 @@ class RelationshipLoader
     /**
      * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects Data objects of the same class
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
      * @param string $idColumn Column on link table = the id on this object
      * @param string $foreignIdColumn Column on link table = the id on the foreign object table
-     * @return DataObjectInterface[] Loaded objects keyed by id
+     * @param string $setter Name of setter method on objects
+     * @return object[] Loaded objects keyed by id
      */
-    public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
+    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null, ?string $setter = null): array
     {
         if (empty($objects)) {
             return [];
         }
 
-        $ids = DataObject::getIds($objects);
+        $om = $this->objectMapper->getObjectManager($objects);
+        $fom = $this->objectMapper->getObjectManager($className);
+
+        $idColumn = $idColumn ?? $this->inflector->idColumnFromClass(get_class(reset($objects)));
+        $foreignIdColumn = $foreignIdColumn ?? $this->inflector->idColumnFromClass($className);
+
+        $ids = $om->getIds($objects);
         $queryHelper = $this->objectMapper->getQueryHelper();
         $db = $queryHelper->getConnection();
         $qb = $queryHelper->buildSelectQuery($linkTable, [$db->quoteIdentifier($idColumn).' AS id', $db->quoteIdentifier($foreignIdColumn).' AS '. $db->quoteIdentifier('foreignId')], [$idColumn=>$ids]);
@@ -175,18 +191,19 @@ class RelationshipLoader
 
         $foreignObjectsById = [];
         foreach ($foreignObjects as $foreignObject) {
-            $foreignObjectsById[$foreignObject->getId()] = $foreignObject;
+            $foreignObjectsById[$fom->getId($foreignObject)] = $foreignObject;
         }
         unset($foreignObjects);
 
-        $setter =  'set' . $this->inflector->methodNameFromColumn($foreignIdColumn, true);
+        $setter =  $setter ?? 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn, true);
         foreach ($objects as $object) {
             if (method_exists($object, $setter)) {
                 $foreignObjects = [];
-                if (isset($foreignIdsById[$object->getId()])) {
-                    $foreignIds = $foreignIdsById[$object->getId()];
+                $id = $om->getId($object);
+                if (isset($foreignIdsById[$id])) {
+                    $foreignIds = $foreignIdsById[$id];
                     foreach ($foreignIds as $foreignId) {
-                        if(isset($foreignObjectsById[$foreignId])) {
+                        if (isset($foreignObjectsById[$foreignId])) {
                             $foreignObjects[] = $foreignObjectsById[$foreignId];
                         }
                     }
@@ -194,7 +211,8 @@ class RelationshipLoader
 
                 $object->$setter($foreignObjects);
             } else {
-                throw new MethodNotImplementedException("$setter must be defined on {$object->getClassName()} to load many-to-many relationship with $className");
+                $shortClass = $this->inflector->getShortClass($object);
+                throw new MethodNotImplementedException("$setter must be defined on {$shortClass} to load many-to-many relationship with $className");
             }
         }
         return $foreignObjectsById;

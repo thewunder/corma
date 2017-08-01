@@ -19,12 +19,6 @@ class ObjectRepositoryFactoryTest extends \PHPUnit_Framework_TestCase
     /** @var ObjectRepositoryFactoryInterface */
     private $repositoryFactory;
 
-    public function testGetRepository()
-    {
-        $repository = $this->repositoryFactory->getRepository('ExtendedDataObject');
-        $this->assertInstanceOf(ExtendedDataObjectRepository::class, $repository);
-    }
-
     public function testGetRepositoryFullClass()
     {
         $repository = $this->repositoryFactory->getRepository(ExtendedDataObject::class);
@@ -33,8 +27,8 @@ class ObjectRepositoryFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testGetRepositoryCaching()
     {
-        $repository = $this->repositoryFactory->getRepository('ExtendedDataObject');
-        $repository2 = $this->repositoryFactory->getRepository('ExtendedDataObject');
+        $repository = $this->repositoryFactory->getRepository(ExtendedDataObject::class);
+        $repository2 = $this->repositoryFactory->getRepository(ExtendedDataObject::class);
         $this->assertTrue($repository === $repository2);
     }
 
@@ -54,22 +48,6 @@ class ObjectRepositoryFactoryTest extends \PHPUnit_Framework_TestCase
         $this->repositoryFactory->getRepository('Nope');
     }
 
-    /**
-     * @expectedException \Corma\Exception\InvalidClassException
-     */
-    public function testInvalidClass()
-    {
-        $this->repositoryFactory->getRepository('Invalid');
-    }
-
-    /**
-     * @expectedException \Corma\Exception\InvalidArgumentException
-     */
-    public function testNoNamespaces()
-    {
-        $this->repositoryFactory = new ObjectRepositoryFactory([], []);
-    }
-
     public function setUp()
     {
         /** @var Connection $connection */
@@ -83,6 +61,6 @@ class ObjectRepositoryFactoryTest extends \PHPUnit_Framework_TestCase
 
         $dispatcher = new EventDispatcher();
 
-        $this->repositoryFactory = new ObjectRepositoryFactory(['Corma\\Test\\Fixtures'], [$connection, $objectMapper, new ArrayCache(), $dispatcher]);
+        $this->repositoryFactory = new ObjectRepositoryFactory([$connection, $objectMapper, new ArrayCache(), $dispatcher]);
     }
 }

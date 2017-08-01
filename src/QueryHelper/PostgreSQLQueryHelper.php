@@ -1,10 +1,16 @@
 <?php
 namespace Corma\QueryHelper;
 
+use Corma\Exception\MissingPrimaryKeyException;
 use Doctrine\DBAL\DBALException;
 
 class PostgreSQLQueryHelper extends QueryHelper
 {
+    /**
+     * @var string
+     */
+    private $version;
+
     /**
      * Use ON CONFLICT (id) DO UPDATE to optimize upsert in PostgreSQL > 9.5
      *
@@ -14,38 +20,48 @@ class PostgreSQLQueryHelper extends QueryHelper
      * @return int Rows affected
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function massUpsert($table, array $rows, &$lastInsertId = null)
+    public function massUpsert(string $table, array $rows, &$lastInsertId = null): int
     {
         if (empty($rows)) {
             return 0;
         }
 
         $version = $this->getVersion();
-        if ($version < 9.5) {
+        if (version_compare($version, '9.5', '<')) {
             return parent::massUpsert($table, $rows, $lastInsertId);
         }
 
-        $updates = $this->countUpdates($rows);
+        foreach ($this->modifiers as $modifier) {
+            $modifier->upsertQuery($table, $rows);
+        }
+
+        $primaryKey = $this->getPrimaryKey($table);
+        if (!$primaryKey) {
+            throw new MissingPrimaryKeyException("$table must have a primary key to complete this operation");
+        }
+
+        $updates = $this->countUpdates($rows, $primaryKey);
         $normalizedRows = $this->normalizeRows($table, $rows);
         $query = $this->getInsertSql($table, $normalizedRows);
 
         $dbColumns = $this->getDbColumns($table);
         $columnsToUpdate = [];
-        foreach ($dbColumns as $column => $acceptNull) {
-            if ($column == 'id') {
+        foreach ($dbColumns->getColumns() as $column) {
+            $columnName = $column->getName();
+            if ($column == $primaryKey) {
                 continue;
             }
 
-            $column = $this->db->quoteIdentifier($column);
-            $columnsToUpdate[] = "$column = EXCLUDED.$column";
+            $columnName = $this->db->quoteIdentifier($columnName);
+            $columnsToUpdate[] = "$columnName = EXCLUDED.$columnName";
         }
 
-        $query .= ' ON CONFLICT (id) DO UPDATE SET ' . implode(', ', $columnsToUpdate);
+        $query .= ' ON CONFLICT (' . $primaryKey . ') DO UPDATE SET ' . implode(', ', $columnsToUpdate);
 
         $params = $this->getParams($normalizedRows);
 
         $effected = $this->db->executeUpdate($query, $params);
-        $lastInsertId = $this->getLastInsertId($table) - ($effected - $updates - 1);
+        $lastInsertId = $this->getLastInsertId($table, $primaryKey) - ($effected - $updates - 1);
 
         return $effected;
     }
@@ -56,7 +72,7 @@ class PostgreSQLQueryHelper extends QueryHelper
      * @param DBALException $error
      * @return bool
      */
-    public function isDuplicateException(DBALException $error)
+    public function isDuplicateException(DBALException $error): bool
     {
         /** @var \PDOException $previous */
         $previous = $error->getPrevious();
@@ -66,14 +82,14 @@ class PostgreSQLQueryHelper extends QueryHelper
         return true;
     }
 
-    /**
-     * @return float
-     */
-    protected function getVersion()
+    protected function getVersion(): string
     {
+        if ($this->version) {
+            return $this->version;
+        }
         $versionString = $this->db->query('SELECT version()')->fetchColumn();
         preg_match('/^PostgreSQL ([\d\.]+).*/', $versionString, $matches);
         $version = $matches[1];
-        return (float) $version;
+        return $this->version = $version;
     }
 }

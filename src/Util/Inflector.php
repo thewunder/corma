@@ -9,11 +9,28 @@ use Doctrine\Common\Inflector\Inflector as DoctrineInflector;
 class Inflector
 {
     /**
+     * Gets the class minus namespace
+     *
+     * @param $classOrObject
+     * @return string
+     */
+    public function getShortClass($classOrObject)
+    {
+        if (is_string($classOrObject)) {
+            $class = $classOrObject;
+        } else {
+            $class = get_class($classOrObject);
+        }
+
+        return substr($class, strrpos($class, '\\') + 1);
+    }
+
+    /**
      * @param string $columnName
      * @param bool $plural
      * @return string Partial method name to get / set object(s)
      */
-    public function methodNameFromColumn($columnName, $plural = false)
+    public function methodNameFromColumn(string $columnName, bool $plural = false)
     {
         $method = ucfirst(str_replace(['Id', '_id'], '', $columnName));
         if ($plural) {
@@ -28,7 +45,7 @@ class Inflector
      * @param bool $plural
      * @return string Partial method name to get / set object(s)
      */
-    public function methodNameFromClass($className, $plural = false)
+    public function methodNameFromClass(string $className, bool $plural = false)
     {
         $method = substr($className, strrpos($className, '\\') + 1);
         if ($plural) {
@@ -39,11 +56,29 @@ class Inflector
     }
 
     /**
+     * @param string $column
+     * @return string
+     */
+    public function getterFromColumn(string $column)
+    {
+        return 'get' . DoctrineInflector::classify($column);
+    }
+
+    /**
+     * @param string $column
+     * @return string
+     */
+    public function setterFromColumn(string $column)
+    {
+        return 'set' . DoctrineInflector::classify($column);
+    }
+
+    /**
      * @param string $className With or without namespace
      * @param string $suffix
      * @return string
      */
-    public function idColumnFromClass($className, $suffix = 'Id')
+    public function idColumnFromClass(string $className, ?string $suffix = 'Id')
     {
         return lcfirst(substr($className, strrpos($className, '\\') + 1)) . $suffix;
     }

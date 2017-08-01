@@ -1,9 +1,13 @@
 <?php
 namespace Corma\Test\Integration;
 
+use Corma\DataObject\ObjectManagerFactory;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\MySQLQueryHelper;
+use Corma\Test\Fixtures\ExtendedDataObject;
+use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
+use Corma\Util\Inflector;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
@@ -16,10 +20,11 @@ class MysqlIntegrationTest extends BaseIntegrationTest
     {
         $cache = new ArrayCache();
         $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
+        $objectManagerFactory = ObjectManagerFactory::withDefaults($mySQLQueryHelper, new Inflector());
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($mySQLQueryHelper);
+        $objectMapper->method('getObjectManagerFactory')->willReturn($objectManagerFactory);
         $this->repository = new ExtendedDataObjectRepository(self::$connection, $objectMapper, $cache, $this->dispatcher);
 
         $this->assertFalse($mySQLQueryHelper->isDuplicateException(new DBALException()));
@@ -32,6 +37,22 @@ class MysqlIntegrationTest extends BaseIntegrationTest
         }
 
         $this->markTestIncomplete('Expected Exception was not thrown');
+    }
+
+    public function testUpsertWithoutPrimaryKey()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('Upsert EDO');
+        $this->objectMapper->save($object);
+
+        $otherObject = new OtherDataObject();
+        $otherObject->setName('Upsert ODO');
+        $this->objectMapper->save($otherObject);
+
+        $return = $this->objectMapper->getQueryHelper()
+            ->massUpsert('extended_other_rel', [['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=>$otherObject->getId()]]);
+
+
     }
 
     protected static function createDatabase()

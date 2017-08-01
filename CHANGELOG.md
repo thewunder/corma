@@ -1,3 +1,27 @@
+Version 3.0
+===========
+
+New Features
+------------
+* PHP 7.1 compatibility
+* Remove requirement for data objects to implement the DataObjectInterface, this makes it possible for your business
+  objects to be free of dependencies on the ORM.
+* Allow for custom object creation and hydration behavior
+* Allow for custom table and identifier conventions
+* Allow for customizing the table name via the @table annotation
+* Allow for a custom id column via the @identifier annotation 
+* Allow for custom query modifiers that change queries before they are executed 
+* Added convenience method for paged queries to repository base class
+
+Breaking changes
+----------------
+* Dropped Compatibility for PHP versions < 7.1
+* Deleted the DataObject abstract class and DataObjectInterface
+* Customizing the table name is done via the @table annotation rather than overriding getTableName method
+* RelationshipSaver::saveOne method signature changed for consistency and additional flexibility
+* Removed relationship loading methods on repositories
+* Corma now requires the fully qualified class name of the object in all cases
+
 Version 2.1.6
 ===========
 

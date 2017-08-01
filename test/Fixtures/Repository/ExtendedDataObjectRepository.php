@@ -2,6 +2,7 @@
 namespace Corma\Test\Fixtures\Repository;
 
 use Corma\Repository\ObjectRepository;
+use Corma\Util\PagedQuery;
 
 class ExtendedDataObjectRepository extends ObjectRepository
 {
@@ -9,5 +10,11 @@ class ExtendedDataObjectRepository extends ObjectRepository
     {
         $this->db->insert($this->getTableName(), ['id'=>999, $this->db->quoteIdentifier('myColumn')=>'value']);
         $this->db->insert($this->getTableName(), ['id'=>999, $this->db->quoteIdentifier('myColumn')=>'value']);
+    }
+
+    public function findAllPaged(): PagedQuery
+    {
+        $qb = $this->queryHelper->buildSelectQuery($this->getTableName());
+        return $this->pagedQuery($qb, 5);
     }
 }

@@ -2,6 +2,12 @@
 namespace Corma\Test\Repository;
 
 use Corma\DataObject\DataObjectEventInterface;
+use Corma\DataObject\Factory\PdoObjectFactory;
+use Corma\DataObject\Hydrator\ClosureHydrator;
+use Corma\DataObject\Identifier\AutoIncrementIdentifier;
+use Corma\DataObject\ObjectManager;
+use Corma\DataObject\ObjectManagerFactory;
+use Corma\DataObject\TableConvention\DefaultTableConvention;
 use Corma\ObjectMapper;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
@@ -11,11 +17,13 @@ use Corma\Test\Fixtures\Repository\NoClassObjectRepository;
 use Corma\Test\Fixtures\Repository\WithDependenciesRepository;
 use Corma\Test\Fixtures\WithDependencies;
 use Corma\QueryHelper\QueryHelper;
+use Corma\Util\Inflector;
 use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -31,6 +39,9 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     private $queryHelper;
+
+    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    private $objectManager;
 
     public function setUp()
     {
@@ -54,8 +65,15 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->objectMapper->expects($this->any())->method('unitOfWork')->willReturn(new UnitOfWork($this->objectMapper));
+        $this->objectManager = $objectManager = $this->getMockBuilder(ObjectManager::class)
+            ->disableOriginalConstructor()->getMock();
+        $objectManager->expects($this->any())->method('getTable')->willReturn('extended_data_objects');
+        $objectManager->expects($this->any())->method('getIdColumn')->willReturn('id');
+        $objectManagerFactory = $this->getMockBuilder(ObjectManagerFactory::class)->disableOriginalConstructor()->getMock();
+        $objectManagerFactory->expects($this->any())->method('getManager')->willReturn($objectManager);
 
+        $this->objectMapper->expects($this->any())->method('unitOfWork')->willReturn(new UnitOfWork($this->objectMapper));
+        $this->objectMapper->expects($this->any())->method('getObjectManagerFactory')->willReturn($objectManagerFactory);
         $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($this->queryHelper);
     }
 
@@ -65,28 +83,6 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(ExtendedDataObject::class, $repository->getClassName());
     }
 
-    public function testGetTableName()
-    {
-        $repository = $this->getRepository();
-        $this->assertEquals(ExtendedDataObject::getTableName(), $repository->getTableName());
-    }
-
-    public function testCreate()
-    {
-        $repository = $this->getRepository();
-        $object = $repository->create();
-        $this->assertInstanceOf(ExtendedDataObject::class, $object);
-    }
-
-    public function testCreateWithDependencies()
-    {
-        $repository = new WithDependenciesRepository($this->connection, $this->objectMapper, new ArrayCache());
-        /** @var WithDependencies $object */
-        $object = $repository->create();
-        $this->assertInstanceOf(WithDependencies::class, $object);
-        $this->assertInstanceOf(ObjectMapper::class, $object->getOrm());
-    }
-
     /**
      * @expectedException \Corma\Exception\ClassNotFoundException
      */
@@ -94,17 +90,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         /** @noinspection PhpParamsInspection */
         $repository = new NoClassObjectRepository($this->connection, $this->objectMapper, new ArrayCache());
-        $repository->getTableName();
-    }
-
-    /**
-     * @expectedException \Corma\Exception\InvalidClassException
-     */
-    public function testInvalidClass()
-    {
-        /** @noinspection PhpParamsInspection */
-        $repository = new InvalidClassObjectRepository($this->connection, $this->objectMapper, new ArrayCache());
-        $repository->getTableName();
+        $repository->getClassName();
     }
 
     public function testFind()
@@ -112,14 +98,10 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()
             ->setMethods(['execute'])->getMock();
 
-        $mockStatement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()
-            ->setMethods(['fetch', 'setFetchMode'])->getMock();
-
         $object = new ExtendedDataObject();
         $object->setId(5);
-        $mockStatement->expects($this->once())->method('fetch')->willReturn($object);
 
-        $mockQb->expects($this->once())->method('execute')->willReturn($mockStatement);
+        $this->objectManager->expects($this->once())->method('fetchOne')->willReturn($object);
 
         $this->queryHelper->expects($this->once())->method('buildSelectQuery')->willReturn($mockQb);
         $repository = $this->getRepository();
@@ -132,20 +114,24 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('testValue');
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
-        $this->connection->expects($this->once())->method('insert')->with($object->getTableName(), ['`myColumn`'=>'testValue']);
-        $this->queryHelper->expects($this->any())->method('getLastInsertId')->willReturn('123');
+        $table = $this->getTable();
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($table);
+        $this->queryHelper->expects($this->once())->method('massInsert')->with('extended_data_objects', [['myColumn'=>'testValue']]);
+        $this->objectManager->expects($this->once())->method('extract')->willReturn(['myColumn'=>'testValue']);
+        $this->objectManager->expects($this->once())->method('setNewId');
+        $this->objectManager->expects($this->once())->method('isNew')->willReturn(true);
         $repo = $this->getRepository();
         $repo->save($object);
-        $this->assertEquals('123', $object->getId());
     }
 
     public function testSaveExisting()
     {
         $object = new ExtendedDataObject();
         $object->setId('123')->setMyColumn('testValue');
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
-        $this->connection->expects($this->once())->method('update')->with($object->getTableName(), ['`myColumn`'=>'testValue'], ['id'=>'123']);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($table = $this->getTable());
+        $this->objectManager->expects($this->atLeastOnce())->method('getId')->willReturn(123);
+        $this->objectManager->expects($this->once())->method('extract')->willReturn(['myColumn'=>'testValue']);
+        $this->queryHelper->expects($this->once())->method('massUpdate')->with('extended_data_objects', ['myColumn'=>'testValue'], ['id'=>'123']);
         $repo = $this->getRepository();
         $repo->save($object);
     }
@@ -167,7 +153,8 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $object = new ExtendedDataObject();
         $objects[] = $object->setMyColumn('testValue 2');
 
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
+        $this->objectManager->expects($this->exactly(2))->method('extract')->willReturnOnConsecutiveCalls(['myColumn'=>'testValue'], ['myColumn'=>'testValue 2']);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
         $this->queryHelper->expects($this->once())->method('massUpsert')->with('extended_data_objects', [['myColumn'=>'testValue'], ['myColumn'=>'testValue 2']])->willReturn(count($objects));
         $repo = $this->getRepository();
         $inserts = $repo->saveAll($objects);
@@ -193,22 +180,23 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $object = new ExtendedDataObject();
         $object->setId('123');
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'myColumn'=>false]);
-        $this->connection->expects($this->once())->method('delete')->with($object->getTableName(), ['id'=>'123']);
+
+        $this->objectManager->expects($this->once())->method('getId')->with($object)->willReturn($object->getId());
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable(false));
+        $this->queryHelper->expects($this->once())->method('massDelete')->with('extended_data_objects', ['id'=>$object->getId()]);
         $repo = $this->getRepository();
         $repo->delete($object);
-        $this->assertTrue($object->isDeleted());
     }
 
     public function testSoftDelete()
     {
         $object = new ExtendedDataObject();
         $object->setId('123')->setMyColumn('testValue');
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['id'=>false, 'isDeleted'=>false, 'myColumn'=>false]);
-        $this->connection->expects($this->once())->method('update')->with($object->getTableName(), ['`isDeleted`'=>1], ['id'=>'123']);
+        $this->objectManager->expects($this->once())->method('getId')->with($object)->willReturn($object->getId());
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
+        $this->queryHelper->expects($this->once())->method('massDelete')->with('extended_data_objects', ['id'=>$object->getId()]);
         $repo = $this->getRepository();
         $repo->delete($object);
-        $this->assertTrue($object->isDeleted());
     }
 
     /**
@@ -229,11 +217,11 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $object = new ExtendedDataObject();
         $objects[] = $object->setId('234');
 
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
-        $this->queryHelper->expects($this->once())->method('massDelete')->with($object->getTableName(), ['id'=>['123', '234']]);
+        $this->objectManager->expects($this->once())->method('getIds')->willReturn(['123', '234']);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable(false));
+        $this->queryHelper->expects($this->once())->method('massDelete')->with('extended_data_objects', ['id'=>['123', '234']]);
         $repo = $this->getRepository();
         $repo->deleteAll($objects);
-        $this->assertTrue($object->isDeleted());
     }
 
     public function testDeleteAllSoft()
@@ -245,11 +233,11 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $object = new ExtendedDataObject();
         $objects[] = $object->setId('234');
 
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(['isDeleted'=>false]);
-        $this->queryHelper->expects($this->once())->method('massUpdate')->with($object->getTableName(), ['isDeleted'=>1], ['id'=>['123', '234']]);
+        $this->objectManager->expects($this->once())->method('getIds')->willReturn(['123', '234']);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
+        $this->queryHelper->expects($this->once())->method('massDelete')->with('extended_data_objects', ['id'=>['123', '234']]);
         $repo = $this->getRepository();
         $repo->deleteAll($objects);
-        $this->assertTrue($object->isDeleted());
     }
 
     public function testDeleteAllEmptyArray()
@@ -286,10 +274,9 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $mockStatement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()
             ->setMethods(['fetch', 'setFetchMode'])->getMock();
 
-        $mockStatement->expects($this->once())->method('fetch')->willReturn(new ExtendedDataObject());
-
         $mockQb->expects($this->once())->method('execute')->willReturn($mockStatement);
 
+        $this->objectManager->expects($this->once())->method('fetchOne')->willReturn(new ExtendedDataObject());
         $this->queryHelper->expects($this->once())->method('buildSelectQuery')->willReturn($mockQb);
 
         $repo = $this->getRepository();
@@ -306,9 +293,11 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
             'DataObject.ExtendedDataObject.loaded' => 0
         ];
         $this->dispatcher->addListener('DataObject.loaded', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.loaded'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.loaded', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.loaded'] ++;
         });
 
@@ -318,13 +307,14 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $mockStatement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()
             ->setMethods(['fetchAll'])->getMock();
 
-        $mockStatement->expects($this->once())->method('fetchAll')->willReturn([new ExtendedDataObject(), new ExtendedDataObject()]);
+        $objects = [new ExtendedDataObject(), new ExtendedDataObject()];
 
         $mockQb->expects($this->once())->method('execute')->willReturn($mockStatement);
 
         $this->queryHelper->expects($this->once())->method('buildSelectQuery')->willReturn($mockQb);
 
         $repo = $this->getRepository();
+        $this->objectManager->expects($this->any())->method('fetchAll')->willReturn($objects);
         $repo->findAll();
 
         $this->assertEquals(2, $firedEvents['DataObject.loaded']);
@@ -349,53 +339,66 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         ];
 
         $this->dispatcher->addListener('DataObject.beforeSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeSave'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeSave'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.afterSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterSave'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterSave'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.beforeInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeInsert'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeInsert'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.afterInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterInsert'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterInsert'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.beforeUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeUpdate'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeUpdate'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.afterUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterUpdate'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterUpdate'] ++;
         });
 
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(new Table('test_table'));
 
         $repo = $this->getRepository();
         $dataObject = new ExtendedDataObject();
         $repo->save($dataObject);
         $dataObject->setId('12345');
+        $this->objectManager->expects($this->any())->method('isNew')->willReturn(true);
         $repo->save($dataObject);
 
         $this->assertEquals(2, $firedEvents['DataObject.beforeSave']);
@@ -432,50 +435,64 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         ];
 
         $this->dispatcher->addListener('DataObject.beforeSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeSave'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeSave'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.afterSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterSave'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterSave', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterSave'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.beforeInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeInsert'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeInsert'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.afterInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterInsert'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterInsert', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterInsert'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.beforeUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeUpdate'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeUpdate'] ++;
         });
 
         $this->dispatcher->addListener('DataObject.afterUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterUpdate'] ++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterUpdate', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterUpdate'] ++;
         });
 
         $repo = $this->getRepository();
         $dataObject = new ExtendedDataObject();
         $dataObject->setId('12345');
+        $this->objectManager->expects($this->any())->method('getId')->willReturnOnConsecutiveCalls(null, '12345', null, '12345');
+        $this->objectManager->expects($this->any())->method('extract')->willReturn([]);
         $repo->saveAll([$dataObject, new ExtendedDataObject()]);
 
         $this->assertEquals(2, $firedEvents['DataObject.beforeSave']);
@@ -504,16 +521,20 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         ];
 
         $this->dispatcher->addListener('DataObject.beforeDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeDelete']++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeDelete']++;
         });
 
         $this->dispatcher->addListener('DataObject.afterDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterDelete']++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterDelete']++;
         });
 
@@ -539,16 +560,20 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         ];
 
         $this->dispatcher->addListener('DataObject.beforeDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.beforeDelete']++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.beforeDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.beforeDelete']++;
         });
 
         $this->dispatcher->addListener('DataObject.afterDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.afterDelete']++;
         });
         $this->dispatcher->addListener('DataObject.ExtendedDataObject.afterDelete', function (DataObjectEventInterface $event) use (&$firedEvents) {
+            $this->assertInstanceOf(ExtendedDataObject::class, $event->getObject());
             $firedEvents['DataObject.ExtendedDataObject.afterDelete']++;
         });
 
@@ -576,7 +601,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('commit');
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(new Table('test_table'));
         $test = $this;
         $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function (array $objects) use ($test) {
             $test->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
@@ -594,7 +619,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $saveWith->setAccessible(true);
 
         $this->connection->expects($this->once())->method('rollback');
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn([]);
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(new Table('test_table'));
         $test = $this;
         $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function (array $objects) use ($test) {
             throw new \Exception('Testing rollback');
@@ -608,6 +633,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $saveWith = $reflectionObj->getMethod('saveAllWith');
         $saveWith->setAccessible(true);
 
+        $this->objectManager->expects($this->once())->method('extract')->willReturn([]);
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('commit');
         $test = $this;
@@ -626,6 +652,7 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
         $saveWith = $reflectionObj->getMethod('saveAllWith');
         $saveWith->setAccessible(true);
 
+        $this->objectManager->expects($this->any())->method('extract')->willReturn([]);
         $this->connection->expects($this->once())->method('rollback');
         $test = $this;
         $saveWith->invokeArgs($repository, [[new ExtendedDataObject()], function (array $objects) use ($test) {
@@ -640,5 +667,20 @@ class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $repository = new ExtendedDataObjectRepository($this->connection, $this->objectMapper, new ArrayCache(), $this->dispatcher);
         return $repository;
+    }
+
+    /**
+     * @param bool $softDelete
+     * @return Table
+     */
+    private function getTable(bool $softDelete = true): Table
+    {
+        $table = new Table('extended_data_objects');
+        $table->addColumn('id', 'integer');
+        if ($softDelete) {
+            $table->addColumn('isDeleted', 'boolean');
+        }
+        $table->addColumn('myColumn', 'string');
+        return $table;
     }
 }

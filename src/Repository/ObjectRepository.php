@@ -1,18 +1,16 @@
 <?php
 namespace Corma\Repository;
 
-use Corma\DataObject\DataObject;
-use Corma\DataObject\DataObjectInterface;
 use Corma\DataObject\DataObjectEvent;
+use Corma\DataObject\ObjectManager;
 use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidArgumentException;
-use Corma\Exception\InvalidClassException;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\QueryHelperInterface;
+use Corma\Util\PagedQuery;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Statement;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -56,6 +54,11 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected $objectMapper;
 
+    /**
+     * @var ObjectManager
+     */
+    protected $objectManager;
+
     protected $objectByIdCache;
 
     /**
@@ -72,23 +75,19 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->dispatcher = $dispatcher;
     }
 
-    public function create()
+    public function create(array $data = [])
     {
-        $class = $this->getClassName();
-        if (empty($this->objectDependencies)) {
-            return new $class();
-        } else {
-            $reflectionClass = new \ReflectionClass($class);
-            return $reflectionClass->newInstanceArgs($this->objectDependencies);
-        }
+        return $this->getObjectManager()->create($data);
     }
 
-    public function find($id, $useCache = true)
+    public function find($id, bool $useCache = true)
     {
         if ($useCache && isset($this->objectByIdCache[$id])) {
             return $this->objectByIdCache[$id];
         }
-        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.id'=>$id]);
+
+        $identifier = $this->getObjectManager()->getIdColumn();
+        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.'.$identifier => $id]);
         $instance = $this->fetchOne($qb);
         if ($instance) {
             $this->objectByIdCache[$id] = $instance;
@@ -96,7 +95,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $instance;
     }
 
-    public function findByIds(array $ids, $useCache = true)
+    public function findByIds(array $ids, bool $useCache = true): array
     {
         $instances = [];
         if ($useCache) {
@@ -109,9 +108,10 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
 
         if (!empty($ids)) {
-            $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.id'=>$ids]);
+            $identifier = $this->getObjectManager()->getIdColumn();
+            $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.'.$identifier => $ids]);
             $newInstances = $this->fetchAll($qb);
-            /** @var $instance DataObjectInterface */
+            /** @var $instance object */
             foreach ($newInstances as $instance) {
                 $this->objectByIdCache[$instance->getId()] = $instance;
             }
@@ -123,20 +123,17 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     public function findAll()
     {
-        $dbColumns = $this->queryHelper->getDbColumns($this->getTableName());
-        if (isset($dbColumns['isDeleted'])) {
-            $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['isDeleted'=>0]);
-        } else {
-            $qb = $this->queryHelper->buildSelectQuery($this->getTableName());
-        }
+        $om = $this->getObjectManager();
+        $table = $om->getTable();
+        $qb = $this->queryHelper->buildSelectQuery($table);
         $all = $this->fetchAll($qb);
-        array_walk($all, function (DataObjectInterface $object) {
-            $this->objectByIdCache[$object->getId()] = $object;
+        array_walk($all, function ($object) use ($om) {
+            $this->objectByIdCache[$om->getId($object)] = $object;
         });
         return $all;
     }
 
-    public function findBy(array $criteria, array $orderBy = [], $limit = null, $offset = null)
+    public function findBy(array $criteria, ?array $orderBy = [], ?int $limit = null, ?int $offset = null)
     {
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria, $orderBy);
         if ($limit) {
@@ -153,58 +150,6 @@ class ObjectRepository implements ObjectRepositoryInterface
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria);
         $qb->setMaxResults(1);
         return $this->fetchOne($qb);
-    }
-
-    /**
-     * Loads a foreign relationship where a property on the supplied objects references an id for another object
-     *
-     * $foreignIdColumn defaults to foreignObjectId if the $className is Namespace\\ForeignObject
-     *
-     * @param DataObjectInterface[] $objects
-     * @param string $className Class name of foreign object to load
-     * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
-     * @return DataObjectInterface[] Loaded objects keyed by id
-     */
-    public function loadOne(array $objects, $className, $foreignIdColumn = null)
-    {
-        $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);
-
-        return $this->objectMapper->getRelationshipLoader()->loadOne($objects, $className, $foreignIdColumn);
-    }
-
-    /**
-     * Loads a foreign relationship where a column on another object references the id for the supplied object
-     *
-     * $foreignColumn defaults to objectId for objects of class Namespace\\Object
-     *
-     * @param DataObjectInterface[] $objects
-     * @param string $className Class name of foreign objects to load
-     * @param string $foreignColumn Property on foreign object that relates to this object id
-     * @return DataObjectInterface[] Loaded objects keyed by id
-     */
-    public function loadMany(array $objects, $className, $foreignColumn = null)
-    {
-        $foreignColumn = $foreignColumn ? $foreignColumn : $this->idColumnFromClass($this->getClassName());
-
-        return $this->objectMapper->getRelationshipLoader()->loadMany($objects, $className, $foreignColumn);
-    }
-
-    /**
-     * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects
-     *
-     * @param DataObjectInterface[] $objects
-     * @param string $className Class name of foreign objects to load
-     * @param string $linkTable Table that links two objects together
-     * @param string $idColumn Column on link table = the id on this object
-     * @param string $foreignIdColumn Column on link table = the id on the foreign object table
-     * @return DataObjectInterface[] Loaded objects keyed by id
-     */
-    public function loadManyToMany(array $objects, $className, $linkTable, $idColumn = null, $foreignIdColumn = null)
-    {
-        $idColumn = $idColumn ? $idColumn : $this->idColumnFromClass($this->getClassName());
-        $foreignIdColumn = $foreignIdColumn ? $foreignIdColumn : $this->idColumnFromClass($className);
-
-        return $this->objectMapper->getRelationshipLoader()->loadManyToMany($objects, $className, $linkTable, $idColumn, $foreignIdColumn);
     }
 
     /**
@@ -225,7 +170,12 @@ class ObjectRepository implements ObjectRepositoryInterface
                 $objectClass[] = str_replace('Repository', '', $classPart);
             }
         }
-        return $this->className = implode('\\', $objectClass);
+        $this->className = implode('\\', $objectClass);
+
+        if (!class_exists($this->className)) {
+            throw new ClassNotFoundException("$this->className not found");
+        }
+        return $this->className;
     }
 
     /**
@@ -242,39 +192,32 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $this;
     }
 
-    /**
-     * Return the database table this repository manages
-     *
-     * @return string
-     */
-    public function getTableName()
+    public function getTableName($objectOrClass = null): string
     {
-        $class = $this->getClassName();
-        if (!class_exists($class)) {
-            throw new ClassNotFoundException("$class not found");
-        } elseif (!class_implements($class, DataObjectInterface::class)) {
-            throw new InvalidClassException("$class must implement DataObjectInterface");
+        if ($objectOrClass === null) {
+            return $this->getObjectManager()->getTable();
+        } else {
+            return $this->objectMapper->getObjectManager($objectOrClass)->getTable();
         }
-        return $class::getTableName();
     }
 
     /**
      * Persists the object to the database
      *
-     * @param DataObjectInterface $object
-     * @return DataObjectInterface
+     * @param object $object
+     * @return object
      * @throws \Exception
      */
-    public function save(DataObjectInterface $object)
+    public function save($object)
     {
         $this->checkArgument($object);
 
         $this->dispatchEvents('beforeSave', $object);
 
-        if ($object->getId()) {
-            $this->update($object);
-        } else {
+        if ($this->getObjectManager()->isNew($object)) {
             $this->insert($object);
+        } else {
+            $this->update($object);
         }
 
         $this->dispatchEvents('afterSave', $object);
@@ -284,7 +227,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * Persists all supplied objects into the database
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @return int
      */
     public function saveAll(array $objects)
@@ -293,22 +236,24 @@ class ObjectRepository implements ObjectRepositoryInterface
             return 0;
         }
 
+        $om = $this->getObjectManager();
+
         foreach ($objects as $object) {
             $this->checkArgument($object);
             $this->dispatchEvents('beforeSave', $object);
-            if ($object->getId()) {
+            if ($om->getId($object)) {
                 $this->dispatchEvents('beforeUpdate', $object);
             } else {
                 $this->dispatchEvents('beforeInsert', $object);
             }
         }
 
-        $columns = $this->queryHelper->getDbColumns($objects[0]->getTableName());
+        $columns = $this->queryHelper->getDbColumns($this->getTableName());
         $rows = [];
         foreach ($objects as $object) {
-            $data = $object->getData();
+            $data = $om->extract($object);
             foreach ($data as $prop => $value) {
-                if (!isset($columns[$prop])) {
+                if (!$columns->hasColumn($prop)) {
                     unset($data[$prop]);
                 }
             }
@@ -319,11 +264,11 @@ class ObjectRepository implements ObjectRepositoryInterface
         $rows = $this->queryHelper->massUpsert($this->getTableName(), $rows, $lastId);
 
         foreach ($objects as $object) {
-            if ($object->getId()) {
+            if ($om->getId($object)) {
                 $this->dispatchEvents('afterUpdate', $object);
             } else {
                 if ($lastId) {
-                    $object->setId($lastId);
+                    $om->setId($object, $lastId);
                     $lastId++;
                 }
                 $this->dispatchEvents('afterInsert', $object);
@@ -337,23 +282,20 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * Removes the object from the database
      *
-     * @param DataObjectInterface $object
+     * @param object $object
      * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
      */
-    public function delete(DataObjectInterface $object)
+    public function delete($object)
     {
         $this->checkArgument($object);
         $this->dispatchEvents('beforeDelete', $object);
 
-        $columns = $this->queryHelper->getDbColumns($object->getTableName());
+        $om = $this->getObjectManager();
+        $table = $om->getTable();
+        $idColumn = $om->getIdColumn();
+        $id = $om->getId($object);
 
-        if (isset($columns['isDeleted'])) {
-            $this->db->update($object->getTableName(), [$this->db->quoteIdentifier('isDeleted')=>1], ['id'=>$object->getId()]);
-        } else {
-            $this->db->delete($object->getTableName(), ['id'=>$object->getId()]);
-        }
-
-        $object->setDeleted(true);
+        $this->queryHelper->massDelete($table, [$idColumn=>$id]);
 
         $this->dispatchEvents('afterDelete', $object);
     }
@@ -361,7 +303,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * Deletes all objects by id
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @return int Number of db rows effected
      */
     public function deleteAll(array $objects)
@@ -375,16 +317,13 @@ class ObjectRepository implements ObjectRepositoryInterface
             $this->dispatchEvents('beforeDelete', $object);
         }
 
-        $columns = $this->queryHelper->getDbColumns($objects[0]->getTableName());
-        $ids = DataObject::getIds($objects);
-        if (isset($columns['isDeleted'])) {
-            $rows = $this->queryHelper->massUpdate($this->getTableName(), ['isDeleted'=>1], ['id'=>$ids]);
-        } else {
-            $rows = $this->queryHelper->massDelete($this->getTableName(), ['id'=>$ids]);
-        }
+        $om = $this->getObjectManager();
+        $idColumn = $om->getIdColumn();
+        $ids = $om->getIds($objects);
+
+        $rows = $this->queryHelper->massDelete($this->getTableName(), [$idColumn=>$ids]);
 
         foreach ($objects as $object) {
-            $object->setDeleted(true);
             $this->dispatchEvents('afterDelete', $object);
         }
 
@@ -392,21 +331,31 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
+     * @return ObjectManager
+     */
+    public function getObjectManager(): ObjectManager
+    {
+        if ($this->objectManager) {
+            return $this->objectManager;
+        }
+        $objectManagerFactory = $this->objectMapper->getObjectManagerFactory();
+        return $this->objectManager = $objectManagerFactory->getManager($this->getClassName(), $this->objectDependencies);
+    }
+
+    /**
      * Inserts this DataObject into the database
      *
-     * @param DataObjectInterface $object
-     * @return DataObjectInterface The newly persisted object with id set
+     * @param object $object
+     * @return object The newly persisted object with id set
      */
-    protected function insert(DataObjectInterface $object)
+    protected function insert($object)
     {
         $this->dispatchEvents('beforeInsert', $object);
 
-        $queryParams = $this->buildQueryParams($object);
+        $data = $this->buildQueryParams($object);
+        $this->queryHelper->massInsert($this->getTableName(), [$data]);
 
-        $this->db->insert($object->getTableName(), $queryParams);
-
-        $id = $this->queryHelper->getLastInsertId($object->getTableName());
-        $object->setId($id);
+        $this->getObjectManager()->setNewId($object);
 
         $this->dispatchEvents('afterInsert', $object);
         return $object;
@@ -415,15 +364,15 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      *  Update this DataObject's table row
      *
-     * @param DataObjectInterface $object
+     * @param object $object
      */
-    protected function update(DataObjectInterface $object)
+    protected function update($object)
     {
         $this->dispatchEvents('beforeUpdate', $object);
 
-        $queryParams = $this->buildQueryParams($object);
-
-        $this->db->update($object->getTableName(), $queryParams, ['id'=>$object->getId()]);
+        $om = $this->getObjectManager();
+        $data = $this->buildQueryParams($object);
+        $this->queryHelper->massUpdate($this->getTableName(), $data, [$om->getIdColumn() =>$om->getId($object)]);
 
         $this->dispatchEvents('afterUpdate', $object);
     }
@@ -434,11 +383,11 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * Functions will receive an array parameter with the object that has just been saved
      *
-     * @param DataObjectInterface $object
+     * @param object $object
      * @param callable $afterSave
      * @param callable $exceptionHandler
      */
-    protected function saveWith(DataObjectInterface $object, callable $afterSave, callable $exceptionHandler = null)
+    protected function saveWith($object, callable $afterSave, callable $exceptionHandler = null)
     {
         $this->objectMapper->unitOfWork()->executeTransaction(function () use ($object, $afterSave) {
             self::save($object);
@@ -452,7 +401,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * Functions will receive an array parameter with the objects that have just been saved
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param callable $afterSave
      * @param callable $exceptionHandler
      */
@@ -465,22 +414,36 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
+     * Creates a paged query for the proved select query builder
+     *
+     * @param QueryBuilder $qb
+     * @param int $pageSize
+     * @return PagedQuery
+     */
+    protected function pagedQuery(QueryBuilder $qb, int $pageSize = PagedQuery::DEFAULT_PAGE_SIZE)
+    {
+        return new PagedQuery($qb, $this->queryHelper, $this->getObjectManager(), $pageSize);
+    }
+
+    /**
      * Build parameters for insert or update
-     * @param DataObjectInterface $object
+     * @param object $object
      * @return array
      */
-    protected function buildQueryParams(DataObjectInterface $object)
+    protected function buildQueryParams($object)
     {
         $queryParams = [];
-        $dbColumns = $this->queryHelper->getDbColumns($object->getTableName());
-        $data = $object->getData();
-        foreach ($dbColumns as $column => $acceptNull) {
-            if ($column == 'id') {
+        $om = $this->getObjectManager();
+        $table = $this->queryHelper->getDbColumns($om->getTable());
+        $data = $om->extract($object);
+        foreach ($table->getColumns() as $column) {
+            $columnName = $column->getName();
+            if ($columnName == $om->getIdColumn()) {
                 continue;
-            } if (isset($data[$column])) {
-                $queryParams[$this->db->quoteIdentifier($column)] = $data[$column];
-            } else if ($acceptNull) {
-                $queryParams[$this->db->quoteIdentifier($column)] = null;
+            } if (isset($data[$columnName])) {
+                $queryParams[$columnName] = $data[$columnName];
+            } elseif (!$column->getNotnull()) {
+                $queryParams[$columnName] = null;
             }
         }
         return $queryParams;
@@ -488,13 +451,12 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     /**
      * @param QueryBuilder $qb
-     * @return DataObjectInterface[]
+     * @return object[]
      */
     protected function fetchAll(QueryBuilder $qb)
     {
-        /** @var Statement $statement */
         $statement = $qb->execute();
-        $objects = $statement->fetchAll(\PDO::FETCH_CLASS, $this->getClassName(), $this->objectDependencies);
+        $objects = $this->getObjectManager()->fetchAll($statement);
         foreach ($objects as $object) {
             $this->dispatchEvents('loaded', $object);
         }
@@ -503,13 +465,12 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     /**
      * @param QueryBuilder $qb
-     * @return DataObjectInterface
+     * @return object
      */
     protected function fetchOne(QueryBuilder $qb)
     {
         $statement = $qb->setMaxResults(1)->execute();
-        $statement->setFetchMode(\PDO::FETCH_CLASS, $this->getClassName(), $this->objectDependencies);
-        $object = $statement->fetch();
+        $object = $this->getObjectManager()->fetchOne($statement);
         if ($object) {
             $this->dispatchEvents('loaded', $object);
             return $object;
@@ -522,9 +483,9 @@ class ObjectRepository implements ObjectRepositoryInterface
      * Dispatches two events one generic DataObject one and a class specific event
      *
      * @param string $eventName
-     * @param DataObjectInterface $object
+     * @param object $object
      */
-    protected function dispatchEvents($eventName, DataObjectInterface $object)
+    protected function dispatchEvents($eventName, $object)
     {
         if (!$this->dispatcher) {
             return;
@@ -554,13 +515,12 @@ class ObjectRepository implements ObjectRepositoryInterface
      * Restores a single DataObject from cached data
      *
      * @param array $data
-     * @return DataObjectInterface
+     * @return object
      */
     protected function restoreFromCache(array $data)
     {
-        $object = $this->create();
-        $object->setData($data);
-        $this->objectByIdCache[$object->getId()] = $object;
+        $object = $this->create($data);
+        $this->objectByIdCache[$this->getObjectManager()->getId($object)] = $object;
         return $object;
     }
 
@@ -568,7 +528,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * Restores DataObjects from the cache at the key specified
      *
      * @param string $key Cache key
-     * @return DataObjectInterface[]
+     * @return object[]
      */
     protected function restoreAllFromCache($key)
     {
@@ -583,38 +543,29 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * Stores DataObjects in cache at the key specified
      *
-     * @param DataObjectInterface[] $objects
+     * @param object[] $objects
      * @param string $key
      * @param int $lifeTime
      */
     protected function storeAllInCache(array $objects, $key, $lifeTime = 0)
     {
         $dataToCache = [];
+        $om = $this->getObjectManager();
         foreach ($objects as $object) {
-            $dataToCache[] = $object->getData();
-            $this->objectByIdCache[$object->getId()] = $object;
+            $dataToCache[] = $om->extract($object);
+            $this->objectByIdCache[$om->getId($object)] = $object;
         }
         $this->cache->save($key, $dataToCache, $lifeTime);
     }
 
     /**
-     * @param DataObjectInterface $object
+     * @param object $object
      */
-    protected function checkArgument(DataObjectInterface $object)
+    protected function checkArgument($object)
     {
         $className = $this->getClassName();
         if (!($object instanceof $className)) {
             throw new InvalidArgumentException("Object must be instance of $className");
         }
-    }
-
-    /**
-     * @param string $className
-     * @param string $suffix
-     * @return string
-     */
-    protected function idColumnFromClass($className, $suffix = 'Id')
-    {
-        return $this->objectMapper->getInflector()->idColumnFromClass($className, $suffix);
     }
 }

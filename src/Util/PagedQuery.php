@@ -1,7 +1,7 @@
 <?php
 namespace Corma\Util;
 
-use Corma\DataObject\DataObjectInterface;
+use Corma\DataObject\ObjectManager;
 use Corma\Exception\InvalidArgumentException;
 use Corma\QueryHelper\QueryHelperInterface;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -26,46 +26,44 @@ class PagedQuery implements \JsonSerializable
     /** @var int  */
     protected $next;
 
-    /** @var string */
-    private $class;
-
     /**
      * @var QueryBuilder
      */
     private $qb;
 
     /**
-     * @var array
+     * @var ObjectManager
      */
-    private $dependencies;
+    private $objectManager;
 
     /**
      * @param QueryBuilder $qb
      * @param QueryHelperInterface $queryHelper
-     * @param string $class Full class name
-     * @param array $dependencies Object dependencies
+     * @param ObjectManager $objectManager
      * @param int $pageSize
      */
-    public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, $class, array $dependencies = [], $pageSize = self::DEFAULT_PAGE_SIZE)
+    public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, ObjectManager $objectManager, $pageSize = self::DEFAULT_PAGE_SIZE)
     {
         if ($pageSize < 1) {
             throw new InvalidArgumentException('Page size must be greater than 0');
         }
 
         $this->qb = $qb;
-        $this->class = $class;
         $this->pageSize = $pageSize;
         $this->resultCount = $queryHelper->getCount($qb);
-        $this->pages = floor($this->resultCount / $this->pageSize) + 1;
-        $this->dependencies = $dependencies;
+        $this->pages = floor($this->resultCount / $this->pageSize);
+        if($this->resultCount % $this->pageSize > 0) {
+            $this->pages++;
+        }
+        $this->objectManager = $objectManager;
     }
 
     /**
      * @param int $page Starts at 1
      * @param bool $allResults
-     * @return DataObjectInterface[]
+     * @return object[]
      */
-    public function getResults($page, $allResults = false)
+    public function getResults(int $page, bool $allResults = false)
     {
         if ($page < 1 || $page > $this->getPages()) {
             throw new InvalidArgumentException("Page must be between 1 and {$this->getPages()}");
@@ -81,7 +79,7 @@ class PagedQuery implements \JsonSerializable
         }
 
         $statement = $this->qb->execute();
-        return $statement->fetchAll(\PDO::FETCH_CLASS, $this->class, $this->dependencies);
+        return $this->objectManager->fetchAll($statement);
     }
 
     /**

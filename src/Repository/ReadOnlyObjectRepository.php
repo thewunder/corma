@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Repository;
 
-use Corma\DataObject\DataObjectInterface;
 use Corma\Exception\BadMethodCallException;
 
 /**
@@ -9,11 +8,11 @@ use Corma\Exception\BadMethodCallException;
  *
  * Not meant for large tables as the entire table is loaded into a single cache entry.
  *
- * Saving and deleting in not permitted.
+ * Saving and deleting is not permitted.
  */
 abstract class ReadOnlyObjectRepository extends AggressiveCachingObjectRepository
 {
-    public function save(DataObjectInterface $object)
+    public function save($object)
     {
         throw new BadMethodCallException('Cannot save in a read only repository');
     }
@@ -23,7 +22,7 @@ abstract class ReadOnlyObjectRepository extends AggressiveCachingObjectRepositor
         throw new BadMethodCallException('Cannot save in a read only repository');
     }
 
-    public function delete(DataObjectInterface $object)
+    public function delete($object)
     {
         throw new BadMethodCallException('Cannot delete in a read only repository');
     }
