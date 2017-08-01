@@ -51,7 +51,10 @@ class PagedQuery implements \JsonSerializable
         $this->qb = $qb;
         $this->pageSize = $pageSize;
         $this->resultCount = $queryHelper->getCount($qb);
-        $this->pages = floor($this->resultCount / $this->pageSize) + 1;
+        $this->pages = floor($this->resultCount / $this->pageSize);
+        if($this->resultCount % $this->pageSize > 0) {
+            $this->pages++;
+        }
         $this->objectManager = $objectManager;
     }
 
