@@ -1,6 +1,7 @@
 <?php
 namespace Corma\QueryHelper;
 
+use Corma\Exception\MissingPrimaryKeyException;
 use Doctrine\DBAL\DBALException;
 
 class PostgreSQLQueryHelper extends QueryHelper
@@ -35,7 +36,11 @@ class PostgreSQLQueryHelper extends QueryHelper
         }
 
         $primaryKey = $this->getPrimaryKey($table);
-        $updates = $this->countUpdates($primaryKey, $rows);
+        if (!$primaryKey) {
+            throw new MissingPrimaryKeyException("$table must have a primary key to complete this operation");
+        }
+
+        $updates = $this->countUpdates($rows, $primaryKey);
         $normalizedRows = $this->normalizeRows($table, $rows);
         $query = $this->getInsertSql($table, $normalizedRows);
 

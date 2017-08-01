@@ -191,6 +191,10 @@ class QueryHelper implements QueryHelperInterface
         $rowsToUpdate = [];
 
         $primaryKey = $this->getPrimaryKey($table);
+        if (!$primaryKey) {
+            throw new MissingPrimaryKeyException("$table must have a primary key to complete this operation");
+        }
+
         foreach ($rows as $row) {
             if (!empty($row[$primaryKey])) {
                 $rowsToUpdate[] = $row;
@@ -403,14 +407,21 @@ class QueryHelper implements QueryHelperInterface
         throw new BadMethodCallException('This method has not been implemented for the current database type');
     }
 
-    protected function getPrimaryKey(string $table): string
+    /**
+     * Returns the primary key of the table
+     *
+     * @param string $table
+     * @return null|string
+     */
+    protected function getPrimaryKey(string $table): ?string
     {
         $schema = $this->getDbColumns($table);
-        $primaryKeys = $schema->getPrimaryKeyColumns();
-        if(empty($primaryKeys)) {
-            throw new MissingPrimaryKeyException("$table must have a primary key to complete this operation");
+        try {
+            $primaryKeys = $schema->getPrimaryKeyColumns();
+            return $primaryKeys[0];
+        } catch (DBALException $e) {
+            return null;
         }
-        return $primaryKeys[0];
     }
 
     /**
@@ -550,12 +561,22 @@ class QueryHelper implements QueryHelperInterface
     }
 
     /**
-     * @param string $primaryKey
+     * Counts the number of rows that would be an update (as opposed to insert)
+     *
+     * If primary key is null this simply returns zero, since this is only used to count
+     * the number of effected rows, this potential inaccuracy is preferable to throwing an error.
+     *
      * @param array $rows
+     * @param string $primaryKey
+     *
      * @return int
      */
-    protected function countUpdates(string $primaryKey, array $rows): int
+    protected function countUpdates(array $rows, ?string $primaryKey): int
     {
+        if (!$primaryKey) {
+            return 0;
+        }
+
         $updates = 0;
         foreach ($rows as $row) {
             if (!empty($row[$primaryKey])) {

@@ -25,7 +25,7 @@ class MySQLQueryHelper extends QueryHelper
         }
 
         $primaryKey = $this->getPrimaryKey($table);
-        $updates = $this->countUpdates($primaryKey, $rows);
+        $updates = $this->countUpdates($rows, $primaryKey);
         $normalizedRows = $this->normalizeRows($table, $rows);
         $query = $this->getInsertSql($table, $normalizedRows);
 
@@ -34,7 +34,7 @@ class MySQLQueryHelper extends QueryHelper
         $columnsToUpdate = [];
         foreach ($dbColumns->getColumns() as $column) {
             $columnName = $column->getName();
-            if ($column == $primaryKey) {
+            if ($primaryKey && $column == $primaryKey) {
                 continue;
             }
 
