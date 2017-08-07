@@ -63,7 +63,7 @@ class PagedQuery implements \JsonSerializable
      * @param bool $allResults
      * @return object[]
      */
-    public function getResults(int $page, bool $allResults = false)
+    public function getResults(int $page, bool $allResults = false): array
     {
         if ($page < 1 || $page > $this->getPages()) {
             throw new InvalidArgumentException("Page must be between 1 and {$this->getPages()}");
@@ -87,7 +87,7 @@ class PagedQuery implements \JsonSerializable
      *
      * @return int
      */
-    public function getPages()
+    public function getPages(): int
     {
         return $this->pages;
     }
@@ -97,7 +97,7 @@ class PagedQuery implements \JsonSerializable
      *
      * @return int
      */
-    public function getPage()
+    public function getPage(): int
     {
         return $this->page;
     }
@@ -107,7 +107,7 @@ class PagedQuery implements \JsonSerializable
      *
      * @return int
      */
-    public function getPrev()
+    public function getPrev(): int
     {
         return $this->prev;
     }
@@ -117,7 +117,7 @@ class PagedQuery implements \JsonSerializable
      *
      * @return int
      */
-    public function getNext()
+    public function getNext(): int
     {
         return $this->next;
     }
@@ -125,7 +125,7 @@ class PagedQuery implements \JsonSerializable
     /**
      * @return int
      */
-    public function getPageSize()
+    public function getPageSize(): int
     {
         return $this->pageSize;
     }
