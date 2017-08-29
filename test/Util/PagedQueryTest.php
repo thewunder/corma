@@ -61,6 +61,17 @@ class PagedQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(4, $pagedQuery->getNext());
     }
 
+    public function testGetEmpty()
+    {
+        $this->queryHelper->expects($this->once())->method('getCount')->willReturn(0);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 50);
+        $results = $pagedQuery->getResults(1);
+        $this->assertEmpty($results);
+        $this->assertEquals(1, $pagedQuery->getPage());
+        $this->assertEquals(0, $pagedQuery->getPrev());
+        $this->assertEquals(0, $pagedQuery->getNext());
+    }
+
     /**
      * @expectedException \Corma\Exception\InvalidArgumentException
      */

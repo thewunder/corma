@@ -65,7 +65,7 @@ class PagedQuery implements \JsonSerializable
      */
     public function getResults(int $page, bool $allResults = false): array
     {
-        if ($page < 1 || $page > $this->getPages()) {
+        if ($page < 1 || ($page > $this->getPages() && $this->getPages() > 0)) {
             throw new InvalidArgumentException("Page must be between 1 and {$this->getPages()}");
         }
 
@@ -73,6 +73,10 @@ class PagedQuery implements \JsonSerializable
             $this->page = $page;
             $this->prev = $page > 1 ? $page - 1: 0;
             $this->next = $page < $this->pages ? $page + 1 : 0;
+
+            if ($this->getPages() === 0) {
+                return [];
+            }
 
             $this->qb->setMaxResults($this->pageSize)
                 ->setFirstResult(($page-1) * $this->pageSize);
