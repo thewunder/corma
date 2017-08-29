@@ -1,3 +1,11 @@
+Version 3.0.1
+=============
+
+Fixes
+-----
+
+* Fixed handling of empty paged result sets
+
 Version 3.0
 ===========
 
