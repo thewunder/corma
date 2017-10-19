@@ -116,7 +116,7 @@ class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
         $repository->expects($this->once())->method('fetchAll')->willReturn([$willReturn->setId(10)]);
         $repository->expects($this->once())->method('create')->willReturn((new Caching())->setId(9));
 
-        $this->objectManager->expects($this->exactly(3))->method('getId')->willReturnOnConsecutiveCalls(9, 10, 10);
+        $this->objectManager->expects($this->exactly(4))->method('getId')->willReturnOnConsecutiveCalls(9, 10, 10, 10);
         $this->objectManager->expects($this->once())->method('extract')->willReturnOnConsecutiveCalls(['id'=>10]);
         $objects = $repository->findByIds([9, 10]);
         $this->assertCount(2, $objects);

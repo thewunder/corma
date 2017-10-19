@@ -108,12 +108,13 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
 
         if (!empty($ids)) {
-            $identifier = $this->getObjectManager()->getIdColumn();
+            $om = $this->getObjectManager();
+            $identifier = $om->getIdColumn();
             $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.'.$identifier => $ids]);
             $newInstances = $this->fetchAll($qb);
             /** @var $instance object */
             foreach ($newInstances as $instance) {
-                $this->objectByIdCache[$instance->getId()] = $instance;
+                $this->objectByIdCache[$om->getId($instance)] = $instance;
             }
             $instances = array_merge($instances, $newInstances);
         }
