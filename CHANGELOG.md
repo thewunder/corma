@@ -1,3 +1,11 @@
+Version 3.0.2
+=============
+
+Fixes
+-----
+
+* Fixes exception when using findByIds with a custom id column
+
 Version 3.0.1
 =============
 
