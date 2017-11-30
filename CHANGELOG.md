@@ -1,3 +1,12 @@
+Version 3.1.0
+=============
+
+New Features
+------------
+
+* Allow Symfony 4 components
+* Tested in PHP 7.2
+
 Version 3.0.2
 =============
 
