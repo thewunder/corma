@@ -1,3 +1,10 @@
+Version 3.1.1
+=============
+
+Fixes
+-----
+* Set an empty array when loading one-to-many relationship without any foreign objects
+
 Version 3.1.0
 =============
 
