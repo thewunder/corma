@@ -133,6 +133,8 @@ class RelationshipLoader
                 $id = $om->getId($object);
                 if (isset($foreignObjectsById[$id])) {
                     $object->$setter($foreignObjectsById[$id]);
+                } else {
+                    $object->$setter([]);
                 }
             } else {
                 $shortClass = $this->inflector->getShortClass($object);

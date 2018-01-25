@@ -404,6 +404,21 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($otherObject->getId(), $loadedOtherObjects[1]->getId());
         $this->assertEquals($otherObject->getName(), $loadedOtherObjects[1]->getName());
     }
+    
+    public function testLoadManyWithoutObjects()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('many-to-one');
+        $this->repository->save($object);
+
+        /** @var OtherDataObject[] $return */
+        $return = $this->objectMapper->loadMany([$object], OtherDataObject::class);
+        $this->assertCount(0, $return);
+
+        $loadedOtherObjects = $object->getOtherDataObjects();
+        $this->assertTrue(is_array($loadedOtherObjects));
+        $this->assertCount(0, $loadedOtherObjects);
+    }
 
     public function testLoadManyToMany()
     {
