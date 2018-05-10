@@ -86,7 +86,7 @@ class QueryHelper implements QueryHelperInterface
         $qb = $this->db->createQueryBuilder()->update($this->db->quoteIdentifier($table), self::TABLE_ALIAS);
 
         foreach ($update as $column => $value) {
-            $paramName = $this->getParameterName($column);
+            $paramName = $this->getParameterName($column, $qb);
             if ($value === null) {
                 $qb->set($this->db->quoteIdentifier($column), 'NULL');
             } else {
@@ -298,7 +298,7 @@ class QueryHelper implements QueryHelperInterface
      */
     protected function processWhereField(QueryBuilder $qb, $wherePart, $value)
     {
-        $paramName = $this->getParameterName($wherePart);
+        $paramName = $this->getParameterName($wherePart, $qb);
         $column = $this->getColumnName($wherePart);
         $columnName = $this->db->quoteIdentifier($column);
         $operator = $this->getOperator($wherePart);
@@ -428,12 +428,22 @@ class QueryHelper implements QueryHelperInterface
      * Get the parameter name for a where condition part
      *
      * @param string $whereCondition
+     * @param QueryBuilder $qb
      * @return string
      */
-    protected function getParameterName(string $whereCondition)
+    protected function getParameterName(string $whereCondition, QueryBuilder $qb)
     {
-        // chop off table alias and operator
-        return ':' . preg_replace(self::WHERE_COLUMN_REGEX, '$3', $whereCondition);
+        //chop off table alias and operator
+        $base = ':' . preg_replace(self::WHERE_COLUMN_REGEX, '$3', $whereCondition);
+
+        //check for collisions
+        $parameterName = $base;
+        $i = 2;
+        while ($qb->getParameter($parameterName)) {
+            $parameterName = $base.$i;
+            $i++;
+        }
+        return $parameterName;
     }
 
     /**

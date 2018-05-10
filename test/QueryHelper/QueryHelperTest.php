@@ -195,6 +195,18 @@ class QueryHelperTest extends \PHPUnit_Framework_TestCase
         $this->queryHelper->processWhereQuery($qb, ['main.column'=>null]);
     }
 
+    public function testMultipleWhereSameColumn()
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['column >'=>5, 'column <'=>10]);
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('(`column` > :column) AND (`column` < :column2)', $where);
+        $this->assertEquals(5, $qb->getParameter(':column'));
+        $this->assertEquals(10, $qb->getParameter(':column2'));
+    }
+
     public function testBuildUpdateQuery()
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
