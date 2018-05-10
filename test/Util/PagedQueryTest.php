@@ -61,6 +61,23 @@ class PagedQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(4, $pagedQuery->getNext());
     }
 
+    public function testUsageAsIterator()
+    {
+        $statement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()->getMock();
+
+        $this->qb->expects($this->any())->method('setMaxResults')->will($this->returnSelf());
+        $this->qb->expects($this->any())->method('execute')->willReturn($statement);
+
+        $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
+
+        $this->objectMapper->expects($this->exactly(5))->method('fetchAll')->with($statement)->willReturnOnConsecutiveCalls([1], [2], [3], [4], [5]);
+
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 50);
+        foreach ($pagedQuery as $i => $results) {
+            $this->assertEquals($i, $results[0]);
+        }
+    }
+
     public function testGetEmpty()
     {
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(0);

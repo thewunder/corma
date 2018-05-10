@@ -9,7 +9,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 /**
  * Class representing a paged query
  */
-class PagedQuery implements \JsonSerializable
+class PagedQuery implements \JsonSerializable, \Iterator
 {
     const DEFAULT_PAGE_SIZE = 100;
 
@@ -132,6 +132,35 @@ class PagedQuery implements \JsonSerializable
     public function getPageSize(): int
     {
         return $this->pageSize;
+    }
+
+    public function current()
+    {
+        if($this->page === null) {
+            $this->page = 1;
+        }
+
+        return $this->getResults($this->page);
+    }
+
+    public function next()
+    {
+        $this->page++;
+    }
+
+    public function key()
+    {
+        return $this->page;
+    }
+
+    public function valid()
+    {
+        return $this->page >= 1 && ($this->pages == 0 || $this->page <= $this->pages);
+    }
+
+    public function rewind()
+    {
+        $this->page = 1;
     }
 
     public function jsonSerialize()
