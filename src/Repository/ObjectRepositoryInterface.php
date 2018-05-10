@@ -23,8 +23,8 @@ interface ObjectRepositoryInterface
      * an UnexpectedValueException if certain values of the sorting or limiting details are
      * not supported.
      *
-     * @param array      $criteria
-     * @param array|null $orderBy
+     * @param array      $criteria column => value pairs to be used to build where clause
+     * @param array      $orderBy column => ASC / DESC pairs
      * @param int|null   $limit
      * @param int|null   $offset
      *
@@ -32,16 +32,17 @@ interface ObjectRepositoryInterface
      *
      * @throws \UnexpectedValueException
      */
-    public function findBy(array $criteria, array $orderBy = null, ?int $limit = null, ?int $offset = null);
+    public function findBy(array $criteria, array $orderBy = [], ?int $limit = null, ?int $offset = null);
 
     /**
      * Finds a single object by a set of criteria.
      *
-     * @param array $criteria The criteria.
+     * @param array $criteria column => value pairs to be used to build where clause
+     * @param array $orderBy column => ASC / DESC pairs
      *
      * @return object|null The object.
      */
-    public function findOneBy(array $criteria);
+    public function findOneBy(array $criteria, array $orderBy = []);
 
     /**
      * Returns the class name of the object managed by the repository.

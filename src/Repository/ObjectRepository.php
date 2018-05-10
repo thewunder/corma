@@ -134,7 +134,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $all;
     }
 
-    public function findBy(array $criteria, ?array $orderBy = [], ?int $limit = null, ?int $offset = null)
+    public function findBy(array $criteria, array $orderBy = [], ?int $limit = null, ?int $offset = null)
     {
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria, $orderBy);
         if ($limit) {
@@ -146,9 +146,9 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $this->fetchAll($qb);
     }
 
-    public function findOneBy(array $criteria)
+    public function findOneBy(array $criteria, array $orderBy = [])
     {
-        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria);
+        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria, $orderBy);
         $qb->setMaxResults(1);
         return $this->fetchOne($qb);
     }
