@@ -562,7 +562,9 @@ class QueryHelper implements QueryHelperInterface
         $params = [];
         foreach ($normalizedRows as $normalizedRow) {
             foreach ($normalizedRow as $value) {
-                if ($value !== null) {
+                if(is_bool($value)) {
+                    $params[] = $this->db->getDatabasePlatform()->convertBooleans($value);
+                } else if ($value !== null) {
                     $params[] = $value;
                 }
             }
