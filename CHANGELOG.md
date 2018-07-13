@@ -12,6 +12,8 @@ Fixes
 -----
 * Saving one-to-many relationships where a child moved from one parent to another would result in the moved object being deleted
 * Fixed parameter type consistency for orderBy parameter to findBy
+* Fixed handling of boolean values for PostgreSQL
+* Fixed inflector dependency for newer doctrine DBAL versions
 
 Version 3.1.1
 =============
