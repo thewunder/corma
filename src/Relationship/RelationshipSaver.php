@@ -169,23 +169,22 @@ class RelationshipSaver
                     $foreignObject->{$objectIdSetter}($id);
                     $foreignObjectsToSave[] = $foreignObject;
 
-                    if ($deleteMissing && $fom->getId($foreignObject)) {
-                        unset($existingForeignIds[$fom->getId($foreignObject)]);
+                    $foreignId = $fom->getId($foreignObject);
+                    if ($deleteMissing && $foreignId) {
+                        unset($existingForeignIds[$foreignId], $foreignIdsToDelete[$foreignId]);
                     }
                 }
             }
             
-            foreach ($existingForeignIds as $id => $true) {
-                $foreignIdsToDelete[] = $id;
-            }
+            $foreignIdsToDelete += $existingForeignIds;
         }
 
         $this->objectMapper->unitOfWork()->executeTransaction(
             function () use ($foreignObjectsToSave, $deleteMissing, $className, $foreignIdsToDelete) {
                 $this->objectMapper->saveAll($foreignObjectsToSave);
 
-                if ($deleteMissing) {
-                    $foreignObjectsToDelete = $this->objectMapper->findByIds($className, $foreignIdsToDelete);
+                if ($deleteMissing && !empty($foreignIdsToDelete)) {
+                    $foreignObjectsToDelete = $this->objectMapper->findByIds($className, array_keys($foreignIdsToDelete));
                     $this->objectMapper->deleteAll($foreignObjectsToDelete);
                 }
             }

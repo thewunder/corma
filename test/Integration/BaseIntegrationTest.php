@@ -526,6 +526,46 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($otherObjectToDelete2->isDeleted());
     }
 
+    public function testSaveManyMove()
+    {
+        $otherObject = new OtherDataObject();
+        $otherObject->setName('Other object one-to-many 1-1');
+        $otherObject2 = new OtherDataObject();
+        $otherObject2->setName('Other object one-to-many 1-2');
+
+        $otherObject3 = new OtherDataObject();
+        $otherObject3->setName('Other object one-to-many 2-1');
+        $otherObject4 = new OtherDataObject();
+        $otherObject4->setName('Other object one-to-many 2-2');
+
+        $otherObjectToMove = new OtherDataObject();
+        $otherObjectToMove->setName('Other object one-to-many move');
+
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $object2 = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('Save one-to-many 1')->setOtherDataObjects([$otherObject, $otherObject2, $otherObjectToMove]);
+        $objects[] = $object2->setMyColumn('Save one-to-many 2')->setOtherDataObjects([$otherObject3, $otherObject4]);
+
+        $this->repository->saveAll($objects);
+
+        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
+        $relationshipSaver->saveMany($objects, OtherDataObject::class);
+
+        $this->assertEquals($object->getId(), $otherObjectToMove->getExtendedDataObjectId());
+        $others1 = $object->getOtherDataObjects();
+        unset($others1[2]);
+        $object->setOtherDataObjects($others1);
+        $others2 = $object2->getOtherDataObjects();
+        $others2[] = $otherObjectToMove;
+        $object2->setOtherDataObjects($others2);
+
+        $relationshipSaver->saveMany($objects, OtherDataObject::class);
+
+        $this->assertEquals($object2->getId(), $otherObjectToMove->getExtendedDataObjectId());
+        $this->assertFalse($otherObjectToMove->isDeleted());
+    }
+
     public function testSaveManyToManyLinks()
     {
         $otherObjects = [];
