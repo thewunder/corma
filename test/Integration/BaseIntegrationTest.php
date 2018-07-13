@@ -203,6 +203,22 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testFindByBool()
+    {
+        $object = new ExtendedDataObject();
+        $object->setDeleted(true);
+        $object->setMyColumn('Deleted');
+        $this->repository->save($object);
+
+        /** @var ExtendedDataObject[] $deletedObjects */
+        $deletedObjects = $this->repository->findBy(['isDeleted'=>true]);
+        $this->assertGreaterThan(0, $deletedObjects);
+
+        foreach ($deletedObjects as $object) {
+            $this->assertTrue($object->isDeleted());
+        }
+    }
+
     public function testFindByBetween()
     {
         $object = new ExtendedDataObject();

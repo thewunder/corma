@@ -90,6 +90,10 @@ class QueryHelper implements QueryHelperInterface
             if ($value === null) {
                 $qb->set($this->db->quoteIdentifier($column), 'NULL');
             } else {
+                if(is_bool($value)) {
+                    $value = $this->db->getDatabasePlatform()->convertBooleans($value);
+                }
+
                 $qb->set($this->db->quoteIdentifier($column), "$paramName")
                     ->setParameter($paramName, $value);
             }
@@ -212,7 +216,7 @@ class QueryHelper implements QueryHelperInterface
             foreach ($rowsToUpdate as $row) {
                 $id = $row[$primaryKey];
                 unset($row[$primaryKey]);
-                $effected += $this->db->update($this->db->quoteIdentifier($table), $this->quoteIdentifiers($row), [$this->db->quoteIdentifier($primaryKey)=>$id]);
+                $effected += $this->buildUpdateQuery($table, $row, [$primaryKey=>$id])->execute();
             }
             $this->db->commit();
         } catch (\Exception $e) {
@@ -503,19 +507,6 @@ class QueryHelper implements QueryHelperInterface
 
         $query .= implode(', ', $values);
         return $query;
-    }
-
-    /**
-     * @param array $where column => value pairs
-     * @return array `column` => value pairs
-     */
-    protected function quoteIdentifiers(array $where)
-    {
-        $columns = array_map(function ($column) {
-            return $this->db->quoteIdentifier($column);
-        }, array_keys($where));
-        $identifier = array_combine($columns, array_values($where));
-        return $identifier;
     }
 
     /**
