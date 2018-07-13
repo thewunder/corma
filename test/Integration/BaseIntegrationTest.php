@@ -562,7 +562,19 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
 
         $relationshipSaver->saveMany($objects, OtherDataObject::class);
 
+        $otherObjectToMove = $this->objectMapper->find(OtherDataObject::class, $otherObjectToMove->getId(), false);
         $this->assertEquals($object2->getId(), $otherObjectToMove->getExtendedDataObjectId());
+        $this->assertFalse($otherObjectToMove->isDeleted());
+
+        $others1[] = $otherObjectToMove;
+        $object->setOtherDataObjects($others1);
+        unset($others2[2]);
+        $object2->setOtherDataObjects($others2);
+
+        $relationshipSaver->saveMany($objects, OtherDataObject::class);
+
+        $otherObjectToMove = $this->objectMapper->find(OtherDataObject::class, $otherObjectToMove->getId(), false);
+        $this->assertEquals($object->getId(), $otherObjectToMove->getExtendedDataObjectId());
         $this->assertFalse($otherObjectToMove->isDeleted());
     }
 

@@ -167,17 +167,21 @@ class RelationshipSaver
                     }
 
                     $foreignObject->{$objectIdSetter}($id);
-                    $foreignObjectsToSave[] = $foreignObject;
-
                     $foreignId = $fom->getId($foreignObject);
+
                     if ($deleteMissing && $foreignId) {
+                        $foreignObjectsToSave[$foreignId] = $foreignObject;
                         unset($existingForeignIds[$foreignId], $foreignIdsToDelete[$foreignId]);
+                    } else {
+                        $foreignObjectsToSave[] = $foreignObject;
                     }
                 }
             }
-            
+
             $foreignIdsToDelete += $existingForeignIds;
         }
+
+        $foreignIdsToDelete = array_diff_key($foreignIdsToDelete, $foreignObjectsToSave);
 
         $this->objectMapper->unitOfWork()->executeTransaction(
             function () use ($foreignObjectsToSave, $deleteMissing, $className, $foreignIdsToDelete) {
