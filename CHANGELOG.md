@@ -1,3 +1,18 @@
+Version 3.2.0
+=============
+
+New Features
+------------
+
+* Allow more than one condition on the same column
+* Paged Query now implements Iterator for easier iteration over pages of data
+* Added optional orderBy parameter for findOneBy
+
+Fixes
+-----
+* Saving one-to-many relationships where a child moved from one parent to another would result in the moved object being deleted
+* Fixed parameter type consistency for orderBy parameter to findBy
+
 Version 3.1.1
 =============
 
