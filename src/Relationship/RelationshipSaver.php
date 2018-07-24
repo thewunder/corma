@@ -137,7 +137,7 @@ class RelationshipSaver
 
         $foreignObjectsToSave = [];
         $foreignIdsToDelete = [];
-        foreach ($objects as $object) {
+        foreach ($objects as $i => $object) {
 
             if (!method_exists($object, $foreignObjectGetter)) {
                 $shortClass = $this->inflector->getShortClass($object);
@@ -160,7 +160,7 @@ class RelationshipSaver
                     throw new MethodNotImplementedException("$foreignObjectGetter on {$shortClass} must return an array to save relationship");
                 }
 
-                foreach ($foreignObjects as $foreignObject) {
+                foreach ($foreignObjects as $j => $foreignObject) {
                     if (!method_exists($foreignObject, $objectIdSetter)) {
                         $foreignShortClass = $this->inflector->getShortClass($foreignObject);
                         throw new MethodNotImplementedException("$objectIdSetter must be defined on {$foreignShortClass} to save relationship");
@@ -169,11 +169,11 @@ class RelationshipSaver
                     $foreignObject->{$objectIdSetter}($id);
                     $foreignId = $fom->getId($foreignObject);
 
-                    if ($deleteMissing && $foreignId) {
+                    if ($foreignId) {
                         $foreignObjectsToSave[$foreignId] = $foreignObject;
                         unset($existingForeignIds[$foreignId], $foreignIdsToDelete[$foreignId]);
                     } else {
-                        $foreignObjectsToSave[] = $foreignObject;
+                        $foreignObjectsToSave["new_$i-$j"] = $foreignObject;
                     }
                 }
             }

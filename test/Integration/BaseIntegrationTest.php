@@ -594,6 +594,36 @@ abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($otherObjectToMove->isDeleted());
     }
 
+    public function testSaveManyInsertion()
+    {
+        $otherObject = new OtherDataObject();
+        $otherObject->setName('Other object one-to-many 1-1');
+        $otherObject2 = new OtherDataObject();
+        $otherObject2->setName('Other object one-to-many 1-2');
+
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('Save one-to-many 1')->setOtherDataObjects([$otherObject, $otherObject2]);
+
+        $this->repository->saveAll($objects);
+
+        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
+        $relationshipSaver->saveMany($objects, OtherDataObject::class);
+
+        $this->assertGreaterThan(0, $otherObject->getId());
+        $this->assertGreaterThan(0, $otherObject2->getId());
+        $this->assertEquals($object->getId(), $otherObject->getExtendedDataObjectId());
+        $this->assertEquals($object->getId(), $otherObject2->getExtendedDataObjectId());
+
+        $newOtherObject = new OtherDataObject();
+        $newOtherObject->setName('New other Object');
+        $otherObjects = $object->getOtherDataObjects();
+        array_splice($otherObjects, 1, 0, [$newOtherObject]);
+        $object->setOtherDataObjects($otherObjects);
+        $relationshipSaver->saveMany([$object], OtherDataObject::class);
+        $this->assertGreaterThan(0, $newOtherObject->getId());
+    }
+
     public function testSaveManyToManyLinks()
     {
         $otherObjects = [];
