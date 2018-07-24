@@ -1,3 +1,11 @@
+Version 3.2.1
+=============
+
+Fixes
+-----
+* Fix exception when saving one-to-many relationships in Postgres < 9.5
+* Fix regression when inserting a new object in the middle of existing objects beings saved in a one-to-many relationship
+
 Version 3.2.0
 =============
 
