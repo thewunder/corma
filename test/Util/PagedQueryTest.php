@@ -15,7 +15,7 @@ class PagedQueryTest extends TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     private $queryHelper;
     /** @var \PHPUnit_Framework_MockObject_MockObject */
-    private $objectMapper;
+    private $objectManager;
 
 
     public function setUp()
@@ -28,7 +28,7 @@ class PagedQueryTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->objectMapper = $this->getMockBuilder(ObjectManager::class)
+        $this->objectManager = $this->getMockBuilder(ObjectManager::class)
             ->disableOriginalConstructor()
             ->getMock();
     }
@@ -37,10 +37,18 @@ class PagedQueryTest extends TestCase
     {
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
 
-        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 50);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
 
         $this->assertEquals(50, $pagedQuery->getPageSize());
         $this->assertEquals(5, $pagedQuery->getPages());
+    }
+
+    public function testCustomId()
+    {
+        $this->objectManager->expects($this->once())->method('getIdColumn')->willReturn('custom_id');
+        $this->queryHelper->expects($this->once())->method('getCount')->with($this->qb, 'custom_id');
+
+        new PagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
     }
 
     public function testGetResults()
@@ -53,9 +61,9 @@ class PagedQueryTest extends TestCase
 
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
 
-        $this->objectMapper->expects($this->once())->method('fetchAll')->with($statement);
+        $this->objectManager->expects($this->once())->method('fetchAll')->with($statement);
 
-        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 50);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
         $pagedQuery->getResults(3);
         $this->assertEquals(3, $pagedQuery->getPage());
         $this->assertEquals(2, $pagedQuery->getPrev());
@@ -71,9 +79,9 @@ class PagedQueryTest extends TestCase
 
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
 
-        $this->objectMapper->expects($this->exactly(5))->method('fetchAll')->with($statement)->willReturnOnConsecutiveCalls([1], [2], [3], [4], [5]);
+        $this->objectManager->expects($this->exactly(5))->method('fetchAll')->with($statement)->willReturnOnConsecutiveCalls([1], [2], [3], [4], [5]);
 
-        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 50);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
         foreach ($pagedQuery as $i => $results) {
             $this->assertEquals($i, $results[0]);
         }
@@ -82,7 +90,7 @@ class PagedQueryTest extends TestCase
     public function testGetEmpty()
     {
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(0);
-        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 50);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
         $results = $pagedQuery->getResults(1);
         $this->assertEmpty($results);
         $this->assertEquals(1, $pagedQuery->getPage());
@@ -95,7 +103,7 @@ class PagedQueryTest extends TestCase
      */
     public function testGetInvalidPageSize()
     {
-        new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 0);
+        new PagedQuery($this->qb, $this->queryHelper, $this->objectManager, 0);
     }
 
     /**
@@ -104,14 +112,14 @@ class PagedQueryTest extends TestCase
     public function testGetInvalidPage()
     {
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
-        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 50);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
         $pagedQuery->getResults(0);
     }
 
     public function testJsonSerialize()
     {
         $this->queryHelper->expects($this->any())->method('getCount')->willReturn(205);
-        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectMapper, 50);
+        $pagedQuery = new PagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
         $object = $pagedQuery->jsonSerialize();
         $this->assertEquals(50, $object->pageSize);
         $this->assertEquals(5, $object->pages);

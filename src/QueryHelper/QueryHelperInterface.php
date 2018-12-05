@@ -97,9 +97,10 @@ interface QueryHelperInterface
      * Counts the number of results that would be returned by the select query provided
      *
      * @param QueryBuilder $qb
+     * @param string $idColumn
      * @return int
      */
-    public function getCount(QueryBuilder $qb): int;
+    public function getCount(QueryBuilder $qb, string $idColumn = 'id'): int;
 
     /**
      * Sets the where query part on the provided query builder.

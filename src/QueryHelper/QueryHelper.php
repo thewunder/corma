@@ -246,9 +246,10 @@ class QueryHelper implements QueryHelperInterface
      * Counts the number of results that would be returned by the select query provided
      *
      * @param QueryBuilder $qb
+     * @param string $idColumn
      * @return int
      */
-    public function getCount(QueryBuilder $qb): int
+    public function getCount(QueryBuilder $qb, string $idColumn = 'id'): int
     {
         if ($qb->getType() != QueryBuilder::SELECT) {
             throw new \InvalidArgumentException('Query builder must be a select query');
