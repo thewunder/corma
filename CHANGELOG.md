@@ -1,3 +1,17 @@
+Version 3.2.2
+=============
+
+Fixes
+-----
+* Fix PagedQuery ignoring customized id column
+* Optimize getting the id column name, speeds up relationship loading 5-10% when annotations are enabled
+
+Updates
+-------
+* Update to phpunit 6
+* Run tests on php 7.3
+* Add phpstan
+
 Version 3.2.1
 =============
 
