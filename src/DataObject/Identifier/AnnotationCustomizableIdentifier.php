@@ -14,6 +14,11 @@ abstract class AnnotationCustomizableIdentifier extends BaseIdentifier
      */
     protected $reader;
 
+    /**
+     * @var string
+     */
+    private $idColumn;
+
     public function __construct(Inflector $inflector, ReaderInterface $reader = null)
     {
         parent::__construct($inflector);
@@ -22,15 +27,19 @@ abstract class AnnotationCustomizableIdentifier extends BaseIdentifier
 
     public function getIdColumn($objectOrClass): string
     {
+        if ($this->idColumn) {
+            return $this->idColumn;
+        }
+
         if ($this->reader) {
             $annotations = $this->reader->getClassAnnotations($objectOrClass);
             if (isset($annotations['identifier'])) {
                 if (is_string($annotations['identifier'])) {
-                    return $annotations['identifier'];
+                    return $this->idColumn = $annotations['identifier'];
                 }
             }
         }
 
-        return parent::getIdColumn($objectOrClass);
+        return $this->idColumn = parent::getIdColumn($objectOrClass);
     }
 }
