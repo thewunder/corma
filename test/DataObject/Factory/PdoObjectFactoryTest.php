@@ -6,9 +6,10 @@ use Corma\DataObject\Hydrator\ClosureHydrator;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\ObjectWithDependencies;
 use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class PdoObjectFactoryTest extends \PHPUnit_Framework_TestCase
+class PdoObjectFactoryTest extends TestCase
 {
     public function testCreate()
     {

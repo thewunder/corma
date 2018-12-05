@@ -9,8 +9,9 @@ use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\MissingIdGettersAndSetters;
 use Corma\Util\Inflector;
 use Minime\Annotations\Reader;
+use PHPStan\Testing\TestCase;
 
-class AutoIncrementIdentfierTest extends \PHPUnit_Framework_TestCase
+class AutoIncrementIdentfierTest extends TestCase
 {
     public function testGetIdColumn()
     {

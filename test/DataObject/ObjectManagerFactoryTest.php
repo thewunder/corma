@@ -14,8 +14,9 @@ use Corma\QueryHelper\MySQLQueryHelper;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Util\Inflector;
 use Minime\Annotations\Reader;
+use PHPUnit\Framework\TestCase;
 
-class ObjectManagerFactoryTest extends \PHPUnit_Framework_TestCase
+class ObjectManagerFactoryTest extends TestCase
 {
     private $queryHelper;
     private $annotationReader;

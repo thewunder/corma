@@ -11,8 +11,9 @@ use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
+use PHPUnit\Framework\TestCase;
 
-class CachingRepositoryTest extends \PHPUnit_Framework_TestCase
+class CachingRepositoryTest extends TestCase
 {
 
     /** @var \PHPUnit_Framework_MockObject_MockObject */

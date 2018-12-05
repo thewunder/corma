@@ -25,10 +25,11 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ObjectRepositoryTest extends \PHPUnit_Framework_TestCase
+class ObjectRepositoryTest extends TestCase
 {
     private $objectMapper;
     /** @var \PHPUnit_Framework_MockObject_MockObject */

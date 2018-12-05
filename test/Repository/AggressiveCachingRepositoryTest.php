@@ -11,8 +11,9 @@ use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
+use PHPUnit\Framework\TestCase;
 
-class AggressiveCachingRepositoryTest extends \PHPUnit_Framework_TestCase
+class AggressiveCachingRepositoryTest extends TestCase
 {
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     protected $objectMapper;

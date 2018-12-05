@@ -6,8 +6,9 @@ use Corma\Test\Fixtures\AnnotatedDataObject;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Util\Inflector;
 use Minime\Annotations\Reader;
+use PHPStan\Testing\TestCase;
 
-class AnnotationCustomizableTableConventionTest extends \PHPUnit_Framework_TestCase
+class AnnotationCustomizableTableConventionTest extends TestCase
 {
     public function testGetTableWithAnnotation()
     {

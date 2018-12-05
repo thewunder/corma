@@ -14,8 +14,9 @@ use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use PHPUnit\Framework\TestCase;
 
-class ObjectMapperTest extends \PHPUnit_Framework_TestCase
+class ObjectMapperTest extends TestCase
 {
     public function testCreate()
     {

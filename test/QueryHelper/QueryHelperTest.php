@@ -13,8 +13,9 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use Doctrine\DBAL\Types\StringType;
+use PHPUnit\Framework\TestCase;
 
-class QueryHelperTest extends \PHPUnit_Framework_TestCase
+class QueryHelperTest extends TestCase
 {
     /** @var  QueryHelperInterface */
     private $queryHelper;

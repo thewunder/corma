@@ -7,8 +7,9 @@ use Corma\Test\Fixtures\Repository\ReadOnlyRepository;
 use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 
-class ReadOnlyRepositoryTest extends \PHPUnit_Framework_TestCase
+class ReadOnlyRepositoryTest extends TestCase
 {
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     protected $objectMapper;

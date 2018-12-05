@@ -6,8 +6,9 @@ use Corma\Util\PagedQuery;
 use Corma\QueryHelper\QueryHelper;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\TestCase;
 
-class PagedQueryTest extends \PHPUnit_Framework_TestCase
+class PagedQueryTest extends TestCase
 {
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     private $qb;

@@ -12,9 +12,10 @@ use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class ObjectRepositoryFactoryTest extends \PHPUnit_Framework_TestCase
+class ObjectRepositoryFactoryTest extends TestCase
 {
     /** @var ObjectRepositoryFactoryInterface */
     private $repositoryFactory;

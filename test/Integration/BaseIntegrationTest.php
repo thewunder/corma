@@ -9,10 +9,11 @@ use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Util\PagedQuery;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-abstract class BaseIntegrationTest extends \PHPUnit_Framework_TestCase
+abstract class BaseIntegrationTest extends TestCase
 {
     /** @var  ObjectRepositoryInterface */
     protected $repository;
