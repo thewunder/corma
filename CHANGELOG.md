@@ -1,3 +1,10 @@
+Version 3.2.3
+=============
+
+Fixes
+-----
+* Fixed regression where shared state in identifier broke reading of custom identifier column
+
 Version 3.2.2
 =============
 
