@@ -1,3 +1,10 @@
+Version 3.2.4
+=============
+
+Fixes
+-----
+* Move phpunit dependency to dev
+
 Version 3.2.3
 =============
 
