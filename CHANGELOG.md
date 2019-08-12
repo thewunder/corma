@@ -1,3 +1,10 @@
+Version 3.2.5
+=============
+
+Fixes
+-----
+* Fix infinite loop when using of paged query as an iterator with empty results
+
 Version 3.2.4
 =============
 
