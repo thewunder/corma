@@ -155,7 +155,7 @@ class PagedQuery implements \JsonSerializable, \Iterator
 
     public function valid()
     {
-        return $this->page >= 1 && ($this->pages == 0 || $this->page <= $this->pages);
+        return $this->page >= 1 && $this->page <= $this->pages;
     }
 
     public function rewind()

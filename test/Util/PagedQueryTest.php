@@ -96,6 +96,7 @@ class PagedQueryTest extends TestCase
         $this->assertEquals(1, $pagedQuery->getPage());
         $this->assertEquals(0, $pagedQuery->getPrev());
         $this->assertEquals(0, $pagedQuery->getNext());
+        $this->assertFalse($pagedQuery->valid());
     }
 
     /**
