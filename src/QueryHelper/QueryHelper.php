@@ -256,9 +256,16 @@ class QueryHelper implements QueryHelperInterface
         }
 
         $select = $qb->getQueryPart('select');
-        $count = (int) $qb->select('COUNT(main.id)')
+        $orderBy = $qb->getQueryPart('orderBy');
+
+        $count = (int) $qb->select("COUNT(main.$idColumn)")
+            ->resetQueryPart('orderBy')
             ->execute()->fetchColumn();
+
         $qb->select($select);
+        foreach($orderBy as $orderByPart) {
+            $qb->orderBy($orderByPart);
+        }
         return $count;
     }
 
