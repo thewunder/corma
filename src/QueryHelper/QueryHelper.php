@@ -282,16 +282,9 @@ class QueryHelper implements QueryHelperInterface
      */
     public function processWhereQuery(QueryBuilder $qb, array $where)
     {
-        $firstWhere = true;
         foreach ($where as $wherePart => $value) {
             $clause = $this->processWhereField($qb, $wherePart, $value);
-
-            if ($firstWhere) {
-                $qb->where($clause);
-                $firstWhere = false;
-            } else {
-                $qb->andWhere($clause);
-            }
+            $qb->andWhere($clause);
         }
     }
 
