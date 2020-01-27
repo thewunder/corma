@@ -763,8 +763,10 @@ abstract class BaseIntegrationTest extends TestCase
 
         $i = 0;
         $ids = [];
+        $keys = [];
         /** @var ExtendedDataObject[] $objects */
-        foreach ($pager as $objects) {
+        foreach ($pager as $key => $objects) {
+            $keys[] = $key;
             $this->assertNotEmpty($objects);
             $this->assertLessThanOrEqual(5, count($objects));
             $this->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
@@ -776,5 +778,11 @@ abstract class BaseIntegrationTest extends TestCase
         }
         $this->assertEquals($pages, $i);
         $this->assertEquals($pager->getResultCount(), count($ids));
+
+        // Test as if the key was being send from request
+        $pager = $repo->findAllSeekPaged();
+        $results = $pager->getResults($keys[$i-2]);
+        $this->assertNotEmpty($results);
+        $this->assertLessThanOrEqual(5, count($objects));
     }
 }
