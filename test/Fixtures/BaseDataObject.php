@@ -6,38 +6,25 @@ class BaseDataObject
     protected $id;
 
     /** @var bool */
-    protected $isDeleted;
+    protected $isDeleted = false;
 
-    /**
-     * @return string
-     */
     public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * @param string $id
-     * @return $this
-     */
     public function setId($id)
     {
         $this->id = $id;
         return $this;
     }
 
-    /**
-     * @return boolean
-     */
     public function isDeleted()
     {
         return (bool) $this->isDeleted;
     }
 
-    /**
-     * @param boolean $isDeleted
-     */
-    public function setDeleted($isDeleted)
+    public function setDeleted(bool $isDeleted)
     {
         $this->isDeleted = $isDeleted;
     }
