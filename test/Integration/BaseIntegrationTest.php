@@ -761,7 +761,7 @@ abstract class BaseIntegrationTest extends TestCase
         $pages = $pager->getPages();
         $this->assertGreaterThan(1, $pages);
 
-        $i = 1;
+        $i = 0;
         $ids = [];
         /** @var ExtendedDataObject[] $objects */
         foreach ($pager as $objects) {
@@ -775,5 +775,6 @@ abstract class BaseIntegrationTest extends TestCase
             $i++;
         }
         $this->assertEquals($pages, $i);
+        $this->assertEquals($pager->getResultCount(), count($ids));
     }
 }

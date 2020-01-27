@@ -88,4 +88,9 @@ abstract class PagedQuery implements \JsonSerializable, \Iterator
         unset($vars['qb'], $vars['class'], $vars['dependencies']);
         return (object) $vars;
     }
+
+    public function getResultCount(): int
+    {
+        return $this->resultCount;
+    }
 }

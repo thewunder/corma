@@ -38,10 +38,11 @@ class SeekPagedQuery extends PagedQuery
     public function valid()
     {
         if(empty($this->lastResults) && $this->page == 1) {
-            return true;
+            return $this->resultCount > 0;
         }
+
         return isset($this->lastResults[$this->page - 2])
-            && $this->page > 0 && $this->page < $this->pages;
+            && $this->page > 0 && $this->page <= $this->pages;
     }
 
     public function rewind()
@@ -74,7 +75,7 @@ class SeekPagedQuery extends PagedQuery
         $results = $this->objectManager->fetchAll($statement);
 
         if (!$allResults) {
-            if(!empty($results) && $this->page < $this->pages) {
+            if(!empty($results) && $this->page <= $this->pages) {
                 $this->lastResults[] = $this->encodeLastResultData(end($results));
                 $this->page++;
             }
