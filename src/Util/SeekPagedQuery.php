@@ -175,4 +175,11 @@ class SeekPagedQuery extends PagedQuery
         }
         return json_encode($lastResultData);
     }
+
+    public function jsonSerialize()
+    {
+        $data = parent::jsonSerialize();
+        $data->lastResult = $this->key();
+        return $data;
+    }
 }

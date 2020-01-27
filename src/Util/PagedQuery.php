@@ -58,7 +58,7 @@ abstract class PagedQuery implements \JsonSerializable, \Iterator
     }
 
     /**
-     * @param int $page Starts at 1
+     * @param mixed $page Starts at 1
      * @param bool $allResults
      * @return object[]
      */
@@ -75,6 +75,8 @@ abstract class PagedQuery implements \JsonSerializable, \Iterator
     }
 
     /**
+     * Get the number of results per page
+     *
      * @return int
      */
     public function getPageSize(): int
@@ -82,15 +84,20 @@ abstract class PagedQuery implements \JsonSerializable, \Iterator
         return $this->pageSize;
     }
 
-    public function jsonSerialize()
-    {
-        $vars = get_object_vars($this);
-        unset($vars['qb'], $vars['class'], $vars['dependencies']);
-        return (object) $vars;
-    }
-
+    /**
+     * Get the total number of results
+     *
+     * @return int
+     */
     public function getResultCount(): int
     {
         return $this->resultCount;
+    }
+
+    public function jsonSerialize()
+    {
+        $vars = get_object_vars($this);
+        unset($vars['qb'], $vars['objectManager'], $vars['queryHelper']);
+        return (object) $vars;
     }
 }

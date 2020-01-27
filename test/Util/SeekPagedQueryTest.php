@@ -3,7 +3,6 @@ namespace Corma\Test\Util;
 
 use Corma\DataObject\ObjectManager;
 use Corma\Test\Fixtures\ExtendedDataObject;
-use Corma\Util\OffsetPagedQuery;
 use Corma\QueryHelper\QueryHelper;
 use Corma\Util\SeekPagedQuery;
 use Doctrine\DBAL\Connection;
@@ -139,26 +138,17 @@ class SeekPagedQueryTest extends TestCase
      */
     public function testGetInvalidPageSize()
     {
-        new OffsetPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 0);
-    }
-
-    /**
-     * @expectedException \Corma\Exception\InvalidArgumentException
-     */
-    public function testGetInvalidPage()
-    {
-        $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
-        $pagedQuery = new OffsetPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
-        $pagedQuery->getResults(0);
+        new SeekPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 0);
     }
 
     public function testJsonSerialize()
     {
         $this->queryHelper->expects($this->any())->method('getCount')->willReturn(205);
-        $pagedQuery = new OffsetPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
+        $pagedQuery = new SeekPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
         $object = $pagedQuery->jsonSerialize();
         $this->assertEquals(50, $object->pageSize);
         $this->assertEquals(5, $object->pages);
         $this->assertEquals(205, $object->resultCount);
+        $this->assertObjectHasAttribute('lastResult', $object);
     }
 }
