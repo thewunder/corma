@@ -7,7 +7,8 @@ use Corma\Repository\ObjectRepositoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
-use Corma\Util\PagedQuery;
+use Corma\Util\OffsetPagedQuery;
+use Corma\Util\SeekPagedQuery;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -37,13 +38,13 @@ abstract class BaseIntegrationTest extends TestCase
         $this->identifier = $this->objectMapper->getObjectManagerFactory()->getIdentifier();
         $this->repository = $this->objectMapper->getRepository(ExtendedDataObject::class);
     }
-    
+
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
         static::createDatabase();
     }
-    
+
     public static function tearDownAfterClass()
     {
         parent::tearDownAfterClass();
@@ -53,11 +54,11 @@ abstract class BaseIntegrationTest extends TestCase
     protected static function createDatabase()
     {
     }
-    
+
     protected static function deleteDatabase()
     {
     }
-    
+
     abstract public function testIsDuplicateException();
 
     public function testCreate()
@@ -421,7 +422,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals($otherObject->getId(), $loadedOtherObjects[1]->getId());
         $this->assertEquals($otherObject->getName(), $loadedOtherObjects[1]->getName());
     }
-    
+
     public function testLoadManyWithoutObjects()
     {
         $object = new ExtendedDataObject();
@@ -520,7 +521,7 @@ abstract class BaseIntegrationTest extends TestCase
         $objects[] = $object2->setMyColumn('Save one-to-many 2')->setOtherDataObjects([$otherObject3, $otherObject4]);
 
         $this->repository->saveAll($objects);
-        
+
         $otherObjectToDelete->setExtendedDataObjectId($object->getId());
         $otherObjectToDelete2->setExtendedDataObjectId($object2->getId());
         $this->objectMapper->saveAll([$otherObjectToDelete, $otherObjectToDelete2]);
@@ -734,12 +735,12 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals($otherObject4->getId(), $object2Links[1]);
     }
 
-    public function testPagedQuery()
+    public function testOffsetPagedQuery()
     {
         /** @var ExtendedDataObjectRepository $repo */
         $repo = $this->objectMapper->getRepository(ExtendedDataObject::class);
         $pager = $repo->findAllPaged();
-        $this->assertInstanceOf(PagedQuery::class, $pager);
+        $this->assertInstanceOf(OffsetPagedQuery::class, $pager);
 
         $this->assertGreaterThan(1, $pager->getPages());
 
@@ -748,5 +749,31 @@ abstract class BaseIntegrationTest extends TestCase
             $this->assertLessThanOrEqual(5, count($objects));
             $this->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
         }
+    }
+
+    public function testSeekPagedQuery()
+    {
+        /** @var ExtendedDataObjectRepository $repo */
+        $repo = $this->objectMapper->getRepository(ExtendedDataObject::class);
+        $pager = $repo->findAllSeekPaged();
+        $this->assertInstanceOf(SeekPagedQuery::class, $pager);
+
+        $pages = $pager->getPages();
+        $this->assertGreaterThan(1, $pages);
+
+        $i = 1;
+        $ids = [];
+        /** @var ExtendedDataObject[] $objects */
+        foreach ($pager as $objects) {
+            $this->assertNotEmpty($objects);
+            $this->assertLessThanOrEqual(5, count($objects));
+            $this->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
+            foreach($objects as $object) {
+                $this->assertArrayNotHasKey($object->getId(), $ids, 'Overlapping objects between pages!');
+                $ids[$object->getId()] = true;
+            }
+            $i++;
+        }
+        $this->assertEquals($pages, $i);
     }
 }

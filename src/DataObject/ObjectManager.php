@@ -174,4 +174,9 @@ class ObjectManager
     {
         return $this->identifier->setNewId($object);
     }
+
+    public function getClassName(): string
+    {
+        return $this->className;
+    }
 }

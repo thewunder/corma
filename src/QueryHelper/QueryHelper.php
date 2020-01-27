@@ -264,7 +264,8 @@ class QueryHelper implements QueryHelperInterface
 
         $qb->select($select);
         foreach($orderBy as $orderByPart) {
-            $qb->orderBy($orderByPart);
+            [$column, $dir] = explode(' ', $orderByPart);
+            $qb->addOrderBy($column, $dir);
         }
         return $count;
     }

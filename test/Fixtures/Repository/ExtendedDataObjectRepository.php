@@ -17,4 +17,10 @@ class ExtendedDataObjectRepository extends ObjectRepository
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName());
         return $this->pagedQuery($qb, 5);
     }
+
+    public function findAllSeekPaged(): PagedQuery
+    {
+        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', [], ['myColumn'=>'ASC']);
+        return $this->pagedQuery($qb, 5, 'seek');
+    }
 }

@@ -9,7 +9,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 /**
  * Class representing a paged query
  */
-class PagedQuery implements \JsonSerializable, \Iterator
+abstract class PagedQuery implements \JsonSerializable, \Iterator
 {
     const DEFAULT_PAGE_SIZE = 100;
 
@@ -19,22 +19,20 @@ class PagedQuery implements \JsonSerializable, \Iterator
     protected $resultCount;
     /** @var int  */
     protected $pages;
-    /** @var int  */
-    protected $page;
-    /** @var int  */
-    protected $prev;
-    /** @var int  */
-    protected $next;
 
     /**
      * @var QueryBuilder
      */
-    private $qb;
+    protected $qb;
 
     /**
      * @var ObjectManager
      */
-    private $objectManager;
+    protected $objectManager;
+    /**
+     * @var QueryHelperInterface
+     */
+    protected $queryHelper;
 
     /**
      * @param QueryBuilder $qb
@@ -51,6 +49,7 @@ class PagedQuery implements \JsonSerializable, \Iterator
         $this->qb = $qb;
         $this->pageSize = $pageSize;
         $this->resultCount = $queryHelper->getCount($qb, $objectManager->getIdColumn());
+        $this->queryHelper = $queryHelper;
         $this->pages = floor($this->resultCount / $this->pageSize);
         if($this->resultCount % $this->pageSize > 0) {
             $this->pages++;
@@ -63,28 +62,7 @@ class PagedQuery implements \JsonSerializable, \Iterator
      * @param bool $allResults
      * @return object[]
      */
-    public function getResults(int $page, bool $allResults = false): array
-    {
-        if ($page < 1 || ($page > $this->getPages() && $this->getPages() > 0)) {
-            throw new InvalidArgumentException("Page must be between 1 and {$this->getPages()}");
-        }
-
-        if (!$allResults) {
-            $this->page = $page;
-            $this->prev = $page > 1 ? $page - 1: 0;
-            $this->next = $page < $this->pages ? $page + 1 : 0;
-
-            if ($this->getPages() === 0) {
-                return [];
-            }
-
-            $this->qb->setMaxResults($this->pageSize)
-                ->setFirstResult(($page-1) * $this->pageSize);
-        }
-
-        $statement = $this->qb->execute();
-        return $this->objectManager->fetchAll($statement);
-    }
+    abstract public function getResults($page, bool $allResults = false): array;
 
     /**
      * Get the total number of result pages
@@ -97,70 +75,11 @@ class PagedQuery implements \JsonSerializable, \Iterator
     }
 
     /**
-     * Get the current page number
-     *
-     * @return int
-     */
-    public function getPage(): int
-    {
-        return $this->page;
-    }
-
-    /**
-     * Get the previous page number
-     *
-     * @return int
-     */
-    public function getPrev(): int
-    {
-        return $this->prev;
-    }
-
-    /**
-     * Get the next page number
-     *
-     * @return int
-     */
-    public function getNext(): int
-    {
-        return $this->next;
-    }
-
-    /**
      * @return int
      */
     public function getPageSize(): int
     {
         return $this->pageSize;
-    }
-
-    public function current()
-    {
-        if($this->page === null) {
-            $this->page = 1;
-        }
-
-        return $this->getResults($this->page);
-    }
-
-    public function next()
-    {
-        $this->page++;
-    }
-
-    public function key()
-    {
-        return $this->page;
-    }
-
-    public function valid()
-    {
-        return $this->page >= 1 && $this->page <= $this->pages;
-    }
-
-    public function rewind()
-    {
-        $this->page = 1;
     }
 
     public function jsonSerialize()

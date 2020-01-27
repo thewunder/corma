@@ -7,7 +7,9 @@ use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidArgumentException;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\QueryHelperInterface;
+use Corma\Util\OffsetPagedQuery;
 use Corma\Util\PagedQuery;
+use Corma\Util\SeekPagedQuery;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -419,11 +421,16 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * @param QueryBuilder $qb
      * @param int $pageSize
+     * @param string $strategy
      * @return PagedQuery
      */
-    protected function pagedQuery(QueryBuilder $qb, int $pageSize = PagedQuery::DEFAULT_PAGE_SIZE)
+    protected function pagedQuery(QueryBuilder $qb, int $pageSize = PagedQuery::DEFAULT_PAGE_SIZE, string $strategy = 'offset'): PagedQuery
     {
-        return new PagedQuery($qb, $this->queryHelper, $this->getObjectManager(), $pageSize);
+        if ($strategy == 'offset') {
+            return new OffsetPagedQuery($qb, $this->queryHelper, $this->getObjectManager(), $pageSize);
+        } else {
+            return new SeekPagedQuery($qb, $this->queryHelper, $this->getObjectManager(), $pageSize);
+        }
     }
 
     /**
