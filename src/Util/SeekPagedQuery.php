@@ -15,6 +15,9 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 class SeekPagedQuery extends PagedQuery
 {
+    /**
+     * @var int internal counter used to know when to stop when using as iterator, not necessarily accurate
+     */
     protected $page = 1;
     protected $lastResults = [];
 
@@ -180,6 +183,7 @@ class SeekPagedQuery extends PagedQuery
     {
         $data = parent::jsonSerialize();
         $data->lastResult = $this->key();
+        unset($data->lastResults, $data->page);
         return $data;
     }
 }
