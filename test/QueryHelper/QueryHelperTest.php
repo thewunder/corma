@@ -321,6 +321,8 @@ class QueryHelperTest extends TestCase
         $qb->expects($this->exactly(2))->method('select')
             ->withConsecutive(['COUNT(main.id)'], [null])->will($this->returnSelf());
         $qb->expects($this->once())->method('execute')->willReturn($mockStatement);
+        $qb->method('getQueryPart')->willReturnOnConsecutiveCalls(null, []);
+        $qb->expects($this->once())->method('resetQueryPart')->will($this->returnSelf());
 
         $count = $this->queryHelper->getCount($qb);
         $this->assertEquals(9, $count);
