@@ -1,3 +1,10 @@
+Version 3.3.1
+=============
+
+Fixes
+-----
+* Fix table aliases and explicit sort by id in seek paged query
+
 Version 3.3.0
 =============
 
