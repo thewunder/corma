@@ -8,8 +8,8 @@ class ExtendedDataObjectRepository extends ObjectRepository
 {
     public function causeUniqueConstraintViolation()
     {
-        $this->db->insert($this->getTableName(), ['id'=>999, $this->db->quoteIdentifier('myColumn')=>'value']);
-        $this->db->insert($this->getTableName(), ['id'=>999, $this->db->quoteIdentifier('myColumn')=>'value']);
+        $this->db->insert($this->getTableName(), ['id'=>999, $this->db->quoteIdentifier('myColumn')=>'value', $this->db->quoteIdentifier('isDeleted')=>0]);
+        $this->db->insert($this->getTableName(), ['id'=>999, $this->db->quoteIdentifier('myColumn')=>'value', $this->db->quoteIdentifier('isDeleted')=>0]);
     }
 
     public function findAllPaged(): PagedQuery
