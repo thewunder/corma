@@ -86,6 +86,14 @@ class SeekPagedQuery extends PagedQuery
         return $results;
     }
 
+    public function jsonSerialize()
+    {
+        $data = parent::jsonSerialize();
+        $data->lastResult = $this->key();
+        unset($data->lastResults, $data->page);
+        return $data;
+    }
+
     private function getSortColumns(): array
     {
         if ($this->sortColumns) {
@@ -114,9 +122,9 @@ class SeekPagedQuery extends PagedQuery
         $columns = $this->getSortColumns();
         $connection = $this->queryHelper->getConnection();
         $identifier = $this->objectManager->getIdColumn();
-        if (!isset($columns[$identifier])) {
+        if (!isset($columns[$identifier]) && !isset($columns['main.'.$identifier])) {
             $this->sortColumns[$identifier] = 'ASC';
-            $this->qb->addOrderBy($connection->quoteIdentifier($identifier), 'ASC');
+            $this->qb->addOrderBy('main.' . $connection->quoteIdentifier($identifier), 'ASC');
         }
     }
 
@@ -128,32 +136,26 @@ class SeekPagedQuery extends PagedQuery
         $tieBreakerEqualities = [];
 
         foreach ($sortColumns as $column => $direction) {
-            if (!isset($lastResultData[$column])) {
-                throw new InvalidArgumentException('All columns in the order by must be passed');
-            }
-
-            $value = $lastResultData[$column];
+            $value = $this->getLastResultValue($column, $lastResultData);
 
             $quotedColumn = $this->qb->getConnection()->quoteIdentifier($column);
-            if ($column == $identifier) {
-                $qb->setParameter(":$identifier", $value);
-                $tieBreakerEqualities[] = "$quotedColumn > :$identifier";
-            } else if ($direction == 'ASC') {
-                $this->queryHelper->processWhereQuery($qb, ["$column >=" => $value]);
-                $tieBreakerInequalities[] = "$quotedColumn > :$column";
-                $tieBreakerEqualities[] = "$quotedColumn = :$column";
-            } else {
-                $this->queryHelper->processWhereQuery($qb, ["$column <=" => $value]);
-                $tieBreakerInequalities[] = "$quotedColumn < :$column";
-                $tieBreakerEqualities[] = "$quotedColumn = :$column";
-            }
+            $param = ':' . $this->removeTableAlias($column);
+            $comparison = $direction == 'ASC' ? '>' : '<';
 
+            if ($column == $identifier || $column == "main.$identifier") {
+                $qb->setParameter($param, $value);
+                $tieBreakerEqualities[] = "$quotedColumn $comparison $param";
+            } else {
+                $this->queryHelper->processWhereQuery($qb, ["$column $comparison=" => $value]);
+                $tieBreakerInequalities[] = "$quotedColumn $comparison $param";
+                $tieBreakerEqualities[] = "$quotedColumn = $param";
+            }
         }
 
         $qb->andWhere($qb->expr()->orX(
-                new CompositeExpression(CompositeExpression::TYPE_AND, $tieBreakerInequalities),
-                new CompositeExpression(CompositeExpression::TYPE_AND, $tieBreakerEqualities)
-            )
+            new CompositeExpression(CompositeExpression::TYPE_AND, $tieBreakerInequalities),
+            new CompositeExpression(CompositeExpression::TYPE_AND, $tieBreakerEqualities)
+        )
         );
     }
 
@@ -174,16 +176,27 @@ class SeekPagedQuery extends PagedQuery
         $data = $this->objectManager->extract($object);
         $lastResultData = [];
         foreach ($this->getSortColumns() as $column => $dir) {
+            $column = $this->removeTableAlias($column);
             $lastResultData[$column] = $data[$column];
         }
         return json_encode($lastResultData);
     }
 
-    public function jsonSerialize()
+    private function getLastResultValue(string $column, array $lastResultData)
     {
-        $data = parent::jsonSerialize();
-        $data->lastResult = $this->key();
-        unset($data->lastResults, $data->page);
-        return $data;
+        $column = $this->removeTableAlias($column);
+        if (!isset($lastResultData[$column])) {
+            throw new InvalidArgumentException('All columns in the order by must be passed');
+        }
+
+        return $lastResultData[$column];
+    }
+
+    private function removeTableAlias(string $column): string
+    {
+        if (strpos($column, '.') !== false) {
+            $column = substr($column, strpos($column, '.') + 1);
+        }
+        return $column;
     }
 }
