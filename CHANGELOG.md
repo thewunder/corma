@@ -1,3 +1,15 @@
+Version 3.3.0
+=============
+
+New Features
+------------
+* Add a new Seek / Cursor based implementation of Paged Query
+
+Updates
+-------
+* Update to phpunit 7
+* Run tests against PHP 7.4
+
 Version 3.2.5
 =============
 
