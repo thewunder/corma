@@ -682,6 +682,14 @@ class ObjectRepositoryTest extends TestCase
     }
 
     /**
+     * @expectedException \Corma\Exception\InvalidArgumentException
+     */
+    public function testInvalidPagingStrategy()
+    {
+        $this->getRepository()->findAllInvalidPaged();
+    }
+
+    /**
      * @return ExtendedDataObjectRepository
      */
     protected function getRepository()

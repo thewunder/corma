@@ -424,13 +424,17 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $strategy
      * @return PagedQuery
      */
-    protected function pagedQuery(QueryBuilder $qb, int $pageSize = PagedQuery::DEFAULT_PAGE_SIZE, string $strategy = 'offset'): PagedQuery
+    protected function pagedQuery(QueryBuilder $qb, int $pageSize = PagedQuery::DEFAULT_PAGE_SIZE, string $strategy = PagedQuery::STRATEGY_OFFSET): PagedQuery
     {
-        if ($strategy == 'offset') {
+        if ($strategy == PagedQuery::STRATEGY_OFFSET) {
             return new OffsetPagedQuery($qb, $this->queryHelper, $this->getObjectManager(), $pageSize);
-        } else {
+        }
+
+        if ($strategy == PagedQuery::STRATEGY_SEEK) {
             return new SeekPagedQuery($qb, $this->queryHelper, $this->getObjectManager(), $pageSize);
         }
+
+        throw new InvalidArgumentException('Invalid paging strategy');
     }
 
     /**

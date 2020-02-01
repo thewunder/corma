@@ -13,6 +13,9 @@ abstract class PagedQuery implements \JsonSerializable, \Iterator
 {
     const DEFAULT_PAGE_SIZE = 100;
 
+    const STRATEGY_OFFSET = 'offset';
+    const STRATEGY_SEEK = 'seek';
+
     /** @var int  */
     protected $pageSize;
     /** @var int  */

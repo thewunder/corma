@@ -23,4 +23,10 @@ class ExtendedDataObjectRepository extends ObjectRepository
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', [], ['myColumn'=>'ASC']);
         return $this->pagedQuery($qb, 5, 'seek');
     }
+
+    public function findAllInvalidPaged(): PagedQuery
+    {
+        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', [], ['myColumn'=>'ASC']);
+        return $this->pagedQuery($qb, 5, 'invalid');
+    }
 }
