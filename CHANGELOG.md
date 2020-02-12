@@ -1,3 +1,11 @@
+Version 3.3.2
+=============
+
+Fixes
+-----
+* Prevent excessive memory usage in long running scripts by having a cache lifetime in the repository identity map
+* Add constants for paged query strategy, throw if an invalid strategy is provided
+
 Version 3.3.1
 =============
 
