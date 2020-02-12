@@ -63,7 +63,7 @@ class CachingRepositoryTest extends TestCase
         $this->cache = $this->getMockBuilder(ArrayCache::class)
             ->getMock();
     }
-    
+
     public function testFindHit()
     {
         $this->cache->expects($this->once())->method('fetch')->with('cachings[9]')->willReturn(['id'=>9]);
@@ -73,6 +73,7 @@ class CachingRepositoryTest extends TestCase
         $object = new Caching();
         $object->setId(9);
         $repository->expects($this->once())->method('create')->willReturn($object);
+        $this->objectManager->expects($this->once())->method('getId')->willReturn(9);
         $object = $repository->find(9);
         $this->assertInstanceOf(Caching::class, $object);
         $this->assertEquals(9, $object->getId());

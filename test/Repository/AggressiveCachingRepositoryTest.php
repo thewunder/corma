@@ -71,7 +71,6 @@ class AggressiveCachingRepositoryTest extends TestCase
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
             ->setMethods(['findAll', 'fetchOne'])->getMock();
 
-
         $object = new ExtendedDataObject();
         $object->setId(1)->setMyColumn('My Value');
 
@@ -123,6 +122,8 @@ class AggressiveCachingRepositoryTest extends TestCase
         $this->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
 
         $repository->expects($this->exactly(2))->method('create')->willReturnOnConsecutiveCalls($object, $object2);
+        $this->objectManager->expects($this->exactly(2))->method('getId')->willReturnOnConsecutiveCalls(1, 2);
+
         /** @var ExtendedDataObject[] $objects */
         $objects = $repository->findAll();
         $this->assertCount(2, $objects);

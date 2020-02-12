@@ -11,8 +11,8 @@ abstract class CachingObjectRepository extends ObjectRepository
         if (!$useCache) {
             return parent::find($id, false);
         }
-        
-        if (!isset($this->objectByIdCache[$id])) {
+
+        if (!$this->objectByIdCache->contains($id)) {
             $dataFromCache = $this->cache->fetch($this->getCacheKey($id));
             if ($dataFromCache) {
                 return $this->restoreFromCache($dataFromCache);
@@ -31,13 +31,13 @@ abstract class CachingObjectRepository extends ObjectRepository
             return parent::findByIds($ids, false);
         }
 
-        $objects = [];
-        foreach ($ids as $i => $id) {
-            if (isset($this->objectByIdCache[$id])) {
-                $objects[] = $this->objectByIdCache[$id];
-                unset($ids[$i]);
-            }
+        $om = $this->getObjectManager();
+        $objects = $this->objectByIdCache->fetchMultiple($ids);
+        $cachedIds = [];
+        foreach ($objects as $object) {
+            $cachedIds[] = $om->getId($object);
         }
+        $ids = array_diff($ids, $cachedIds);
 
         if (empty($ids)) {
             return $objects;
@@ -52,13 +52,13 @@ abstract class CachingObjectRepository extends ObjectRepository
         foreach ($cachedData as $data) {
             $object = $this->restoreFromCache($data);
             $objects[] = $object;
-            unset($ids[array_search($this->getObjectManager()->getId($object), $ids)]);
+            unset($ids[array_search($om->getId($object), $ids)]);
         }
 
         if (empty($ids)) {
             return $objects;
         }
-        
+
         $fromDb = parent::findByIds($ids, false);
         $this->storeMultipleInCache($fromDb);
         return array_merge($objects, $fromDb);

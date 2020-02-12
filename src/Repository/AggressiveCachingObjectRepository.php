@@ -12,7 +12,7 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
 {
     public function find($id, bool $useCache = true)
     {
-        if ($useCache && empty($this->objectByIdCache)) {
+        if ($useCache) {
             $this->findAll();
         }
 
@@ -21,7 +21,7 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
 
     public function findByIds(array $ids, bool $useCache = true): array
     {
-        if ($useCache && empty($this->objectByIdCache)) {
+        if ($useCache) {
             $this->findAll();
         }
 
