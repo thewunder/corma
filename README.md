@@ -60,7 +60,7 @@ And a Repository (optional)
 ```php
 namespace YourNamespace\Dataobjects\Repository;
 
-class YourDataObjectRepository extends DataObjectRepository {
+class YourDataObjectRepository extends ObjectRepository {
     //Override default behavior and add custom methods...
 }
 ```
