@@ -1,3 +1,10 @@
+Version 3.3.3
+=============
+
+Fixes
+-----
+* Further work on limiting memory usage
+
 Version 3.3.2
 =============
 
