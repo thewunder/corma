@@ -18,6 +18,7 @@ use Corma\Test\Fixtures\Repository\WithDependenciesRepository;
 use Corma\Test\Fixtures\WithDependencies;
 use Corma\QueryHelper\QueryHelper;
 use Corma\Util\Inflector;
+use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
@@ -76,6 +77,7 @@ class ObjectRepositoryTest extends TestCase
         $this->objectMapper->expects($this->any())->method('unitOfWork')->willReturn(new UnitOfWork($this->objectMapper));
         $this->objectMapper->expects($this->any())->method('getObjectManagerFactory')->willReturn($objectManagerFactory);
         $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($this->queryHelper);
+        $this->objectMapper->expects($this->any())->method('getIdentityMap')->willReturn(new LimitedArrayCache());
     }
 
     public function testGetClassName()

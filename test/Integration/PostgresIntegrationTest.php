@@ -8,6 +8,7 @@ use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Util\Inflector;
+use Corma\Util\LimitedArrayCache;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
@@ -27,6 +28,7 @@ class PostgresIntegrationTest extends BaseIntegrationTest
             ->getMock();
         $objectMapper->method('getObjectManagerFactory')->willReturn($objectManagerFactory);
         $objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($mySQLQueryHelper);
+        $objectMapper->expects($this->any())->method('getIdentityMap')->willReturn(new LimitedArrayCache());
         $this->repository = new ExtendedDataObjectRepository(self::$connection, $objectMapper, $cache, $this->dispatcher);
 
         $this->assertFalse($mySQLQueryHelper->isDuplicateException(new DBALException()));
@@ -59,7 +61,7 @@ class PostgresIntegrationTest extends BaseIntegrationTest
         $this->objectMapper->getQueryHelper()
             ->massUpsert('extended_other_rel', [['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=>$otherObject->getId()]]);
     }
-    
+
     protected static function createDatabase()
     {
         if (empty(getenv('PGSQL_HOST')) && file_exists(__DIR__.'/../../.env')) {
@@ -99,7 +101,7 @@ class PostgresIntegrationTest extends BaseIntegrationTest
           "otherDataObjectId" INT NOT NULL REFERENCES other_data_objects (id)
         )');
     }
-    
+
     protected static function deleteDatabase()
     {
     }

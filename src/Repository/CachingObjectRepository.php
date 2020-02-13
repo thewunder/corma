@@ -12,7 +12,7 @@ abstract class CachingObjectRepository extends ObjectRepository
             return parent::find($id, false);
         }
 
-        if (!$this->objectByIdCache->contains($id)) {
+        if (!$this->getIdentityMap()->contains($id)) {
             $dataFromCache = $this->cache->fetch($this->getCacheKey($id));
             if ($dataFromCache) {
                 return $this->restoreFromCache($dataFromCache);
@@ -32,7 +32,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         }
 
         $om = $this->getObjectManager();
-        $objects = $this->objectByIdCache->fetchMultiple($ids);
+        $objects = $this->getIdentityMap()->fetchMultiple($ids);
         $cachedIds = [];
         foreach ($objects as $object) {
             $cachedIds[] = $om->getId($object);

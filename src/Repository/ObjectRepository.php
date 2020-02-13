@@ -10,7 +10,6 @@ use Corma\QueryHelper\QueryHelperInterface;
 use Corma\Util\OffsetPagedQuery;
 use Corma\Util\PagedQuery;
 use Corma\Util\SeekPagedQuery;
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -23,8 +22,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class ObjectRepository implements ObjectRepositoryInterface
 {
-    protected const IDENTITY_MAP_LIFETIME = 300;
-
     /**
      * @var Connection
      */
@@ -67,7 +64,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * @var CacheProvider
      */
-    protected $objectByIdCache;
+    protected $identityMap;
 
     /**
      * @var array Array of dependencies passed as constructor parameters to the data objects
@@ -81,7 +78,6 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->queryHelper = $objectMapper->getQueryHelper();
         $this->cache = $cache;
         $this->dispatcher = $dispatcher;
-        $this->objectByIdCache = new ArrayCache();
     }
 
     public function create(array $data = [])
@@ -91,15 +87,16 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     public function find($id, bool $useCache = true)
     {
-        if ($useCache && $this->objectByIdCache->contains($id)) {
-            return $this->objectByIdCache->fetch($id);
+        $identityMap = $this->getIdentityMap();
+        if ($useCache && $identityMap->contains($id)) {
+            return $identityMap->fetch($id);
         }
 
         $identifier = $this->getObjectManager()->getIdColumn();
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['main.'.$identifier => $id]);
         $instance = $this->fetchOne($qb);
         if ($instance) {
-            $this->objectByIdCache->save($id, $instance, self::IDENTITY_MAP_LIFETIME);
+            $identityMap->save($id, $instance);
         }
         return $instance;
     }
@@ -108,7 +105,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $om = $this->getObjectManager();
         if ($useCache) {
-            $instances = $this->objectByIdCache->fetchMultiple($ids);
+            $instances = $this->getIdentityMap()->fetchMultiple($ids);
             $cachedIds = [];
             foreach ($instances as $instance) {
                 $cachedIds[] = $om->getId($instance);
@@ -352,6 +349,15 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $this->objectManager = $objectManagerFactory->getManager($this->getClassName(), $this->objectDependencies);
     }
 
+    protected function getIdentityMap(): CacheProvider
+    {
+        if ($this->identityMap) {
+            return $this->identityMap;
+        }
+
+        return $this->identityMap = $this->objectMapper->getIdentityMap();
+    }
+
     protected function storeInIdentityMap(array $objects): bool
     {
         $om = $this->getObjectManager();
@@ -359,7 +365,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         foreach ($objects as $object) {
             $toCache[$om->getId($object)] = $object;
         }
-        return $this->objectByIdCache->saveMultiple($toCache, self::IDENTITY_MAP_LIFETIME);
+        return $this->getIdentityMap()->saveMultiple($toCache);
     }
 
     /**
@@ -550,7 +556,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $object = $this->create($data);
         $om = $this->getObjectManager();
-        $this->objectByIdCache->save($om->getId($object), $object, self::IDENTITY_MAP_LIFETIME);
+        $this->getIdentityMap()->save($om->getId($object), $object);
         return $object;
     }
 

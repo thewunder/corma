@@ -12,8 +12,8 @@ use Corma\QueryHelper\QueryHelperInterface;
 use Corma\Relationship\RelationshipLoader;
 use Corma\Repository\ObjectRepositoryInterface;
 use Corma\Util\Inflector;
+use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Minime\Annotations\Interfaces\ReaderInterface;
@@ -67,7 +67,7 @@ class ObjectMapper
     public static function withDefaults(Connection $db, ?CacheProvider $cache = null, ?EventDispatcherInterface $dispatcher = null, ?ReaderInterface $reader = null, array $additionalDependencies = []): self
     {
         if ($cache === null) {
-            $cache = new ArrayCache();
+            $cache = new LimitedArrayCache(10000);
         }
 
         $queryHelper = self::createQueryHelper($db, $cache);
@@ -79,6 +79,7 @@ class ObjectMapper
         $instance = new static($queryHelper, $repositoryFactory, $objectManagerFactory, $inflector);
         $dependencies = array_merge([$db, $instance, $cache, $dispatcher], $additionalDependencies);
         $repositoryFactory->setDependencies($dependencies);
+
         return $instance;
     }
 
@@ -100,6 +101,7 @@ class ObjectMapper
      * @param ObjectRepositoryFactoryInterface $repositoryFactory
      * @param ObjectManagerFactory $objectManagerFactory
      * @param Inflector $inflector
+     * @param CacheProvider $identityMap
      */
     public function __construct(QueryHelperInterface $queryHelper, ObjectRepositoryFactoryInterface $repositoryFactory, ObjectManagerFactory $objectManagerFactory, Inflector $inflector)
     {
@@ -356,6 +358,11 @@ class ObjectMapper
     public function getObjectManagerFactory(): ObjectManagerFactory
     {
         return $this->objectManagerFactory;
+    }
+
+    public function getIdentityMap(): CacheProvider
+    {
+        return new LimitedArrayCache();
     }
 
     /**

@@ -7,6 +7,7 @@ use Corma\ObjectMapper;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\AggressiveCachingRepository;
 use Corma\QueryHelper\QueryHelper;
+use Corma\Util\LimitedArrayCache;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -59,6 +60,7 @@ class AggressiveCachingRepositoryTest extends TestCase
 
         $this->objectMapper->method('getObjectManagerFactory')->willReturn($objectManagerFactory);
         $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($this->queryHelper);
+        $this->objectMapper->expects($this->any())->method('getIdentityMap')->willReturn(new LimitedArrayCache());
 
         $this->cache = $this->getMockBuilder(ArrayCache::class)
             ->disableOriginalConstructor()
