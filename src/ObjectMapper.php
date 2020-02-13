@@ -1,6 +1,7 @@
 <?php
 namespace Corma;
 
+use Corma\DataObject\ObjectManager;
 use Corma\DataObject\ObjectManagerFactory;
 use Corma\QueryHelper\QueryModifier\SoftDelete;
 use Corma\Relationship\RelationshipSaver;
@@ -9,6 +10,7 @@ use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\Relationship\RelationshipLoader;
+use Corma\Repository\ObjectRepositoryInterface;
 use Corma\Util\Inflector;
 use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\ArrayCache;
@@ -60,9 +62,9 @@ class ObjectMapper
      * @param EventDispatcherInterface $dispatcher
      * @param ReaderInterface $reader
      * @param array $additionalDependencies Additional dependencies to inject into Repository constructors
-     * @return static
+     * @return self
      */
-    public static function withDefaults(Connection $db, ?CacheProvider $cache = null, ?EventDispatcherInterface $dispatcher = null, ?ReaderInterface $reader = null, array $additionalDependencies = [])
+    public static function withDefaults(Connection $db, ?CacheProvider $cache = null, ?EventDispatcherInterface $dispatcher = null, ?ReaderInterface $reader = null, array $additionalDependencies = []): self
     {
         if ($cache === null) {
             $cache = new ArrayCache();
@@ -80,12 +82,7 @@ class ObjectMapper
         return $instance;
     }
 
-    /**
-     * @param Connection $db
-     * @param CacheProvider $cache
-     * @return QueryHelperInterface
-     */
-    protected static function createQueryHelper(Connection $db, CacheProvider $cache)
+    protected static function createQueryHelper(Connection $db, CacheProvider $cache): QueryHelperInterface
     {
         $database = $db->getDatabasePlatform()->getReservedKeywordsList()->getName();
         $database = preg_replace('/[^A-Za-z]/', '', $database); //strip version
@@ -116,7 +113,7 @@ class ObjectMapper
      * @param string $objectName Fully qualified object class name
      * @return Repository\ObjectRepositoryInterface
      */
-    public function getRepository(string $objectName)
+    public function getRepository(string $objectName): ObjectRepositoryInterface
     {
         return $this->repositoryFactory->getRepository($objectName);
     }
@@ -325,26 +322,17 @@ class ObjectMapper
         }
     }
 
-    /**
-     * @return QueryHelperInterface
-     */
-    public function getQueryHelper()
+    public function getQueryHelper(): QueryHelperInterface
     {
         return $this->queryHelper;
     }
 
-    /**
-     * @return Inflector
-     */
-    public function getInflector()
+    public function getInflector(): Inflector
     {
         return $this->inflector;
     }
-    
-    /**
-     * @return RelationshipLoader
-     */
-    public function getRelationshipLoader()
+
+    public function getRelationshipLoader(): RelationshipLoader
     {
         if ($this->relationshipLoader) {
             return $this->relationshipLoader;
@@ -352,10 +340,7 @@ class ObjectMapper
         return $this->relationshipLoader = new RelationshipLoader($this);
     }
 
-    /**
-     * @return RelationshipSaver
-     */
-    public function getRelationshipSaver()
+    public function getRelationshipSaver(): RelationshipSaver
     {
         if ($this->relationshipSaver) {
             return $this->relationshipSaver;
@@ -363,18 +348,12 @@ class ObjectMapper
         return $this->relationshipSaver = new RelationshipSaver($this);
     }
 
-    /**
-     * @return UnitOfWork
-     */
-    public function unitOfWork()
+    public function unitOfWork(): UnitOfWork
     {
         return new UnitOfWork($this);
     }
 
-    /**
-     * @return ObjectManagerFactory
-     */
-    public function getObjectManagerFactory()
+    public function getObjectManagerFactory(): ObjectManagerFactory
     {
         return $this->objectManagerFactory;
     }
@@ -383,7 +362,7 @@ class ObjectMapper
      * @param string|object|array $objectOrClass
      * @return DataObject\ObjectManager
      */
-    public function getObjectManager($objectOrClass)
+    public function getObjectManager($objectOrClass): ObjectManager
     {
         if (is_array($objectOrClass)) {
             $objectOrClass = reset($objectOrClass);
@@ -396,7 +375,7 @@ class ObjectMapper
      * @param object[] $objects
      * @return array
      */
-    protected function groupByClass(array $objects)
+    protected function groupByClass(array $objects): array
     {
         $objectsByClass = [];
         foreach ($objects as $object) {
