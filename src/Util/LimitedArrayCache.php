@@ -5,7 +5,7 @@ namespace Corma\Util;
 use Doctrine\Common\Cache\CacheProvider;
 
 /**
- * An Array backed cache that evicts based on a maximum size rather than expiration
+ * An Array backed cache that evicts based on a maximum size
  */
 class LimitedArrayCache extends CacheProvider
 {
@@ -18,6 +18,9 @@ class LimitedArrayCache extends CacheProvider
 
     /** @var array  */
     private $data = [];
+
+    /** @var array  */
+    private $expirations = [];
 
     /** @var int  */
     private $hits = 0;
@@ -42,7 +45,7 @@ class LimitedArrayCache extends CacheProvider
      */
     protected function doFetch($id)
     {
-        if (isset($this->data[$id])) {
+        if ($this->doContains($id)) {
             $this->hits++;
             return $this->data[$id];
         }
@@ -55,18 +58,31 @@ class LimitedArrayCache extends CacheProvider
      */
     protected function doContains($id)
     {
-        return isset($this->data[$id]);
+        if (!isset($this->data[$id])) {
+            return false;
+        }
+
+        $expiration = $this->expirations[$id] ?? false;
+
+        if ($expiration && $expiration < time()) {
+            $this->doDelete($id);
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
-     * @param string $id
-     * @param mixed $data
-     * @param int $lifeTime Ignored
-     * @return bool|void
+     * @inheritDoc
      */
     protected function doSave($id, $data, $lifeTime = 0)
     {
         $this->data[$id] = $data;
+
+        if ($lifeTime > 0) {
+            $this->expirations[$id] = time() + $lifeTime;
+        }
 
         if (count($this->data) > $this->limit) {
             $this->evictKeys();
@@ -83,7 +99,7 @@ class LimitedArrayCache extends CacheProvider
         $evicted = 0;
         $toEvict = $this->limit / 2;
         foreach ($this->data as $key => $value) {
-            unset($this->data[$key]);
+            unset($this->data[$key], $this->expirations[$key]);
             $evicted++;
             if ($evicted >= $toEvict) {
                 break;
@@ -97,6 +113,7 @@ class LimitedArrayCache extends CacheProvider
     protected function doDelete($id)
     {
         unset($this->data[$id]);
+        unset($this->expirations[$id]);
         return true;
     }
 
@@ -106,6 +123,7 @@ class LimitedArrayCache extends CacheProvider
     protected function doFlush()
     {
         $this->data = [];
+        $this->expirations = [];
     }
 
     /**

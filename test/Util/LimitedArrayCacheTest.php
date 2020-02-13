@@ -38,10 +38,28 @@ class LimitedArrayCacheTest extends TestCase
             $data['key'.$i] = 'value'.$i;
         }
         $cache->saveMultiple($data);
-        $this->assertEquals(11, $cache->getStats()[LimitedArrayCache::STATS_KEYS]);
+        $this->assertEquals(11, $cache->getStats()[$cache::STATS_KEYS]);
         $cache->save('key12', 'value12');
-        $this->assertEquals(6, $cache->getStats()[LimitedArrayCache::STATS_KEYS]);
+        $this->assertEquals(6, $cache->getStats()[$cache::STATS_KEYS]);
         $this->assertFalse($cache->contains('key6'));
         $this->assertTrue($cache->contains('key7'));
+    }
+
+    public function testExpiration()
+    {
+        $cache = new LimitedArrayCache();
+        $cache->save('test_key', 'value', 0.5);
+        $this->assertTrue($cache->contains('test_key'));
+        sleep(1);
+        $this->assertFalse($cache->contains('test_key'));
+    }
+
+    public function testFlushAll()
+    {
+        $cache = new LimitedArrayCache();
+        $cache->save('test_key', 'value');
+        $cache->flushAll();
+        $this->assertFalse($cache->contains('test_key'));
+        $this->assertEquals(0, $cache->getStats()[$cache::STATS_KEYS]);
     }
 }
