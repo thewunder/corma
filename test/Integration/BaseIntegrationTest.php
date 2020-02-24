@@ -367,6 +367,26 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject2->getId()]);
     }
 
+    public function testLoadOneWithNull()
+    {
+        $otherObject = new OtherDataObject();
+        $otherObject->setName('Other object one-to-many');
+        $this->objectMapper->save($otherObject);
+
+        $object = new ExtendedDataObject();
+        $object->setOtherDataObjectId($otherObject->getId());
+        $object2 = new ExtendedDataObject();
+        $this->objectMapper->saveAll([$object, $object2]);
+
+        $return = $this->objectMapper->loadOne([$object, $object2], OtherDataObject::class);
+
+        $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
+        $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
+        $this->assertNull($object2->getOtherDataObject());
+        $this->assertCount(1, $return);
+        $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
+    }
+
     public function testLoadMany()
     {
         $object = new ExtendedDataObject();

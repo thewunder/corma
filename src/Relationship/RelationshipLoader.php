@@ -58,7 +58,10 @@ class RelationshipLoader
                     $id = $i;
                 }
 
-                $idToForeignId[$id] = $object->$getter();
+                $foreignId = $object->$getter();
+                if ($foreignId) {
+                    $idToForeignId[$id] = $foreignId;
+                }
             } else {
                 $shortClass = $this->inflector->getShortClass($object);
                 throw new MethodNotImplementedException("$getter must be defined on {$shortClass} to load one-to-one relationship with $className");
@@ -80,7 +83,7 @@ class RelationshipLoader
                     $id = $i;
                 }
 
-                if (isset($foreignObjectsById[$idToForeignId[$id]])) {
+                if (isset($idToForeignId[$id]) && isset($foreignObjectsById[$idToForeignId[$id]])) {
                     $object->$setter($foreignObjectsById[$idToForeignId[$id]]);
                 }
             } else {

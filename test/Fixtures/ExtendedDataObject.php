@@ -6,7 +6,7 @@ namespace Corma\Test\Fixtures;
  */
 class ExtendedDataObject extends BaseDataObject
 {
-    protected $myColumn;
+    protected $myColumn = '';
     protected $myNullableColumn;
     protected $otherDataObjectId;
 
