@@ -1,3 +1,10 @@
+Version 3.3.4
+=============
+
+Fixes
+-----
+* Fix error on loading nullable one-to-one relationships (regression in 3.3.2)
+
 Version 3.3.3
 =============
 
