@@ -16,6 +16,7 @@ use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Minime\Annotations\Interfaces\ReaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -63,6 +64,8 @@ class ObjectMapper
      * @param ReaderInterface $reader
      * @param array $additionalDependencies Additional dependencies to inject into Repository constructors
      * @return self
+     *
+     * @throws DBALException When the database platform is not supported by Doctrine DBAL
      */
     public static function withDefaults(Connection $db, ?CacheProvider $cache = null, ?EventDispatcherInterface $dispatcher = null, ?ReaderInterface $reader = null, array $additionalDependencies = []): self
     {
@@ -83,6 +86,12 @@ class ObjectMapper
         return $instance;
     }
 
+    /**
+     * @param Connection $db
+     * @param CacheProvider $cache
+     * @return QueryHelperInterface
+     * @throws DBALException When the database platform is not supported by Doctrine DBAL
+     */
     protected static function createQueryHelper(Connection $db, CacheProvider $cache): QueryHelperInterface
     {
         $database = $db->getDatabasePlatform()->getReservedKeywordsList()->getName();

@@ -103,7 +103,6 @@ interface ObjectRepositoryInterface
      * Removes the object from the database
      *
      * @param object $object
-     * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
      */
     public function delete($object);
 
