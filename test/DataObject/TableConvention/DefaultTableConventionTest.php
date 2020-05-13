@@ -10,7 +10,7 @@ class DefaultTableConventionTest extends TestCase
 {
     public function testGetTable()
     {
-        $convention = new DefaultTableConvention(new Inflector());
+        $convention = new DefaultTableConvention(Inflector::build());
         $this->assertEquals('extended_data_objects', $convention->getTable(ExtendedDataObject::class));
     }
 }

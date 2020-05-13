@@ -105,7 +105,7 @@ class AutoIncrementIdentfierTest extends TestCase
             ->disableOriginalConstructor()->setMethods(['getLastInsertId'])
             ->getMock();
         $queryHelper->method('getLastInsertId')->willReturn(42);
-        $inflector = new Inflector();
+        $inflector = Inflector::build();
         $reader = Reader::createFromDefaults();
         return new CustomizableAutoIncrementIdentifier($inflector, $reader, $queryHelper, new DefaultTableConvention($inflector, $reader));
     }

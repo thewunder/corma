@@ -20,7 +20,7 @@ class MysqlIntegrationTest extends BaseIntegrationTest
     {
         $cache = new ArrayCache();
         $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
-        $objectManagerFactory = ObjectManagerFactory::withDefaults($mySQLQueryHelper, new Inflector());
+        $objectManagerFactory = ObjectManagerFactory::withDefaults($mySQLQueryHelper, Inflector::build());
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
             ->getMock();

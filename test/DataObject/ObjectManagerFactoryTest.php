@@ -30,7 +30,7 @@ class ObjectManagerFactoryTest extends TestCase
 
     public function testWithDefaults()
     {
-        $omf = ObjectManagerFactory::withDefaults($this->queryHelper, new Inflector());
+        $omf = ObjectManagerFactory::withDefaults($this->queryHelper, Inflector::build());
         $this->assertInstanceOf(PdoObjectFactory::class, $omf->getFactory());
         $this->assertInstanceOf(DefaultTableConvention::class, $omf->getTableConvention());
         $this->assertInstanceOf(ClosureHydrator::class, $omf->getHydrator());
@@ -39,7 +39,7 @@ class ObjectManagerFactoryTest extends TestCase
 
     public function testWithDefaultsWithReader()
     {
-        $omf = ObjectManagerFactory::withDefaults($this->queryHelper, new Inflector(), $this->annotationReader);
+        $omf = ObjectManagerFactory::withDefaults($this->queryHelper, Inflector::build(), $this->annotationReader);
         $this->assertInstanceOf(PdoObjectFactory::class, $omf->getFactory());
         $this->assertInstanceOf(AnnotationCustomizableTableConvention::class, $omf->getTableConvention());
         $this->assertInstanceOf(ClosureHydrator::class, $omf->getHydrator());
@@ -48,7 +48,7 @@ class ObjectManagerFactoryTest extends TestCase
 
     public function testGetManager()
     {
-        $omf = ObjectManagerFactory::withDefaults($this->queryHelper, new Inflector());
+        $omf = ObjectManagerFactory::withDefaults($this->queryHelper, Inflector::build());
         $objectManager = $omf->getManager(ExtendedDataObject::class);
         $this->assertInstanceOf(ObjectManager::class, $objectManager);
     }

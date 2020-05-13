@@ -12,13 +12,13 @@ class AnnotationCustomizableTableConventionTest extends TestCase
 {
     public function testGetTableWithAnnotation()
     {
-        $convention = new AnnotationCustomizableTableConvention(new Inflector(), Reader::createFromDefaults());
+        $convention = new AnnotationCustomizableTableConvention(Inflector::build(), Reader::createFromDefaults());
         $this->assertEquals('custom_table', $convention->getTable(AnnotatedDataObject::class));
     }
 
     public function testGetTableWithOutAnnotation()
     {
-        $convention = new AnnotationCustomizableTableConvention(new Inflector(), Reader::createFromDefaults());
+        $convention = new AnnotationCustomizableTableConvention(Inflector::build(), Reader::createFromDefaults());
         $this->assertEquals('extended_data_objects', $convention->getTable(ExtendedDataObject::class));
     }
 }

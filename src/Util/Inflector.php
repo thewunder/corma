@@ -1,20 +1,31 @@
 <?php
 namespace Corma\Util;
 
-use Doctrine\Common\Inflector\Inflector as DoctrineInflector;
+use Doctrine\Inflector\CachedWordInflector;
+use Doctrine\Inflector\Inflector as DoctrineInflector;
+use Doctrine\Inflector\Rules\English\Rules;
+use Doctrine\Inflector\RulesetInflector;
 
 /**
  * Utility class to get method names from column names and class names and vice versa
  */
-class Inflector
+class Inflector extends DoctrineInflector
 {
+    public static function build(): self
+    {
+        return new self(
+            new CachedWordInflector(new RulesetInflector(Rules::getSingularRuleset())),
+            new CachedWordInflector(new RulesetInflector(Rules::getPluralRuleset()))
+        );
+    }
+
     /**
      * Gets the class minus namespace
      *
      * @param $classOrObject
      * @return string
      */
-    public function getShortClass($classOrObject)
+    public function getShortClass($classOrObject): string
     {
         if (is_string($classOrObject)) {
             $class = $classOrObject;
@@ -30,11 +41,11 @@ class Inflector
      * @param bool $plural
      * @return string Partial method name to get / set object(s)
      */
-    public function methodNameFromColumn(string $columnName, bool $plural = false)
+    public function methodNameFromColumn(string $columnName, bool $plural = false): string
     {
         $method = ucfirst(str_replace(['Id', '_id'], '', $columnName));
         if ($plural) {
-            return DoctrineInflector::pluralize($method);
+            return $this->pluralize($method);
         } else {
             return $method;
         }
@@ -45,11 +56,11 @@ class Inflector
      * @param bool $plural
      * @return string Partial method name to get / set object(s)
      */
-    public function methodNameFromClass(string $className, bool $plural = false)
+    public function methodNameFromClass(string $className, bool $plural = false): string
     {
         $method = substr($className, strrpos($className, '\\') + 1);
         if ($plural) {
-            return DoctrineInflector::pluralize($method);
+            return $this->pluralize($method);
         } else {
             return $method;
         }
@@ -59,18 +70,18 @@ class Inflector
      * @param string $column
      * @return string
      */
-    public function getterFromColumn(string $column)
+    public function getterFromColumn(string $column): string
     {
-        return 'get' . DoctrineInflector::classify($column);
+        return 'get' . $this->classify($column);
     }
 
     /**
      * @param string $column
      * @return string
      */
-    public function setterFromColumn(string $column)
+    public function setterFromColumn(string $column): string
     {
-        return 'set' . DoctrineInflector::classify($column);
+        return 'set' . $this->classify($column);
     }
 
     /**
@@ -78,7 +89,7 @@ class Inflector
      * @param string $suffix
      * @return string
      */
-    public function idColumnFromClass(string $className, ?string $suffix = 'Id')
+    public function idColumnFromClass(string $className, ?string $suffix = 'Id'): string
     {
         return lcfirst(substr($className, strrpos($className, '\\') + 1)) . $suffix;
     }

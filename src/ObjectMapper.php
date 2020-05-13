@@ -77,7 +77,7 @@ class ObjectMapper
         $queryHelper->addModifier(new SoftDelete($queryHelper));
 
         $repositoryFactory = new ObjectRepositoryFactory();
-        $inflector = new Inflector();
+        $inflector = Inflector::build();
         $objectManagerFactory = ObjectManagerFactory::withDefaults($queryHelper, $inflector, $reader);
         $instance = new static($queryHelper, $repositoryFactory, $objectManagerFactory, $inflector);
         $dependencies = array_merge([$db, $instance, $cache, $dispatcher], $additionalDependencies);

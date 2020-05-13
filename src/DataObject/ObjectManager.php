@@ -89,7 +89,7 @@ class ObjectManager
      * @param array $data
      * @return object
      */
-    public function hydrate($object, array $data)
+    public function hydrate(object $object, array $data)
     {
         return $this->hydrator->hydrate($object, $data);
     }
@@ -100,7 +100,7 @@ class ObjectManager
      * @param object $object
      * @return array
      */
-    public function extract($object): array
+    public function extract(object $object): array
     {
         return $this->hydrator->extract($object);
     }
@@ -124,10 +124,10 @@ class ObjectManager
     }
 
     /**
-     * @param $object
+     * @param object $object
      * @return string
      */
-    public function getId($object): ?string
+    public function getId(object $object): ?string
     {
         return $this->identifier->getId($object);
     }
@@ -135,10 +135,10 @@ class ObjectManager
     /**
      * Returns true if the object has not yet been persisted into the database
      *
-     * @param $object
+     * @param object $object
      * @return bool
      */
-    public function isNew($object): bool
+    public function isNew(object $object): bool
     {
         return $this->identifier->isNew($object);
     }
@@ -161,7 +161,7 @@ class ObjectManager
      * @param string $id
      * @return object
      */
-    public function setId($object, $id)
+    public function setId($object, $id): object
     {
         return $this->identifier->setId($object, $id);
     }
@@ -170,7 +170,7 @@ class ObjectManager
      * @param object $object
      * @return object
      */
-    public function setNewId($object)
+    public function setNewId(object $object): object
     {
         return $this->identifier->setNewId($object);
     }

@@ -283,7 +283,7 @@ class ObjectMapperTest extends TestCase
         $loader = $this->getMockBuilder(RelationshipLoader::class)->disableOriginalConstructor()->getMock();
 
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
-            ->setConstructorArgs([new QueryHelper($connection, new ArrayCache()), $repositoryFactory, $objectManagerFactory,  new Inflector()])
+            ->setConstructorArgs([new QueryHelper($connection, new ArrayCache()), $repositoryFactory, $objectManagerFactory,  Inflector::build()])
             ->setMethods(['getRelationshipLoader'])->getMock();
 
         $objectMapper->method('getRelationshipLoader')->willReturn($loader);

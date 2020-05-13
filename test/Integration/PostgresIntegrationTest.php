@@ -23,7 +23,7 @@ class PostgresIntegrationTest extends BaseIntegrationTest
         $cache = new ArrayCache();
         $mySQLQueryHelper = new PostgreSQLQueryHelper(self::$connection, $cache);
 
-        $objectManagerFactory = ObjectManagerFactory::withDefaults($mySQLQueryHelper, new Inflector());
+        $objectManagerFactory = ObjectManagerFactory::withDefaults($mySQLQueryHelper, Inflector::build());
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
             ->getMock();
