@@ -28,7 +28,7 @@ interface QueryHelperInterface
     public function buildSelectQuery(string $table, $columns = 'main.*', array $where = [], array $orderBy = []): QueryBuilder;
 
     /**
-     * Build an update query for the provided tablestring $table, array $where
+     * Build an update query for the provided table
      *
      * @param string $table
      * @param array $update column => value pairs to update in SET clause
