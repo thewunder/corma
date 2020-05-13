@@ -1,5 +1,5 @@
 <?php
-namespace DataObject\Identfier;
+namespace Corma\Test\DataObject\Identifier;
 
 use Corma\DataObject\Identifier\CustomizableAutoIncrementIdentifier;
 use Corma\DataObject\TableConvention\DefaultTableConvention;
@@ -9,9 +9,9 @@ use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\MissingIdGettersAndSetters;
 use Corma\Util\Inflector;
 use Minime\Annotations\Reader;
-use PHPStan\Testing\TestCase;
+use PHPUnit\Framework\TestCase;
 
-class AutoIncrementIdentfierTest extends TestCase
+class AutoIncrementIdentifierTest extends TestCase
 {
     public function testGetIdColumn()
     {
