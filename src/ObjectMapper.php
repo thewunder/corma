@@ -101,7 +101,6 @@ class ObjectMapper
      * @param ObjectRepositoryFactoryInterface $repositoryFactory
      * @param ObjectManagerFactory $objectManagerFactory
      * @param Inflector $inflector
-     * @param CacheProvider $identityMap
      */
     public function __construct(QueryHelperInterface $queryHelper, ObjectRepositoryFactoryInterface $repositoryFactory, ObjectManagerFactory $objectManagerFactory, Inflector $inflector)
     {
