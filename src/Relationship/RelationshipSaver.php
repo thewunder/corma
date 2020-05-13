@@ -38,7 +38,6 @@ class RelationshipSaver
      * @param string $className Class name of foreign object to load
      * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      * @param string $getter Name of getter method on objects
-     * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
      */
     public function saveOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $getter = null)
     {
