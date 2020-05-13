@@ -3,7 +3,6 @@ namespace Corma\DataObject\Identifier;
 
 use Corma\Exception\MethodNotImplementedException;
 use Corma\Util\Inflector;
-use Minime\Annotations\Interfaces\ReaderInterface;
 
 abstract class BaseIdentifier implements ObjectIdentifierInterface
 {

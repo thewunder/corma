@@ -5,7 +5,6 @@ use Corma\DataObject\TableConvention\TableConventionInterface;
 use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\Util\Inflector;
-use Minime\Annotations\Interfaces\ReaderInterface;
 
 /**
  * Sets the id for new objects from the database sequence / auto increment id
