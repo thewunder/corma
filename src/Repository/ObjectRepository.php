@@ -527,9 +527,9 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
 
         $event = new DataObjectEvent($object);
-        $this->dispatcher->dispatch('DataObject.'.$eventName, $event);
+        $this->dispatcher->dispatch($event, 'DataObject.'.$eventName);
         $class = $this->getShortClassName();
-        $this->dispatcher->dispatch('DataObject.'.$class.'.'.$eventName, $event);
+        $this->dispatcher->dispatch($event, 'DataObject.'.$class.'.'.$eventName);
     }
 
     /**
