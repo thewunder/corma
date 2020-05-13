@@ -4,6 +4,7 @@ namespace Corma\QueryHelper\QueryModifier;
 
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\QueryHelper\QueryModifier;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
 
@@ -26,7 +27,7 @@ class SoftDelete extends QueryModifier
     protected $queryHelper;
 
     /**
-     * @var \Doctrine\DBAL\Connection
+     * @var Connection
      */
     protected $connection;
 
