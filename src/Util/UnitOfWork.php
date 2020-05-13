@@ -85,7 +85,6 @@ class UnitOfWork
      *
      * @param callable $run
      * @param callable|null $exceptionHandler
-     * @throws \Exception
      * @throws \Throwable
      */
     public function executeTransaction(callable $run, callable $exceptionHandler = null)
@@ -102,13 +101,6 @@ class UnitOfWork
                 $db->rollBack();
                 throw $e;
             }
-        } catch (\Exception $e) {
-            if ($exceptionHandler) {
-                $exceptionHandler($e);
-            } else {
-                $db->rollBack();
-                throw $e;
-            }
         }
     }
 
@@ -116,6 +108,7 @@ class UnitOfWork
      * Executes all operations
      *
      * @param callable $exceptionHandler
+     * @throws \Throwable
      */
     public function flush(callable $exceptionHandler = null)
     {
