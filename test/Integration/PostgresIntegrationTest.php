@@ -2,6 +2,7 @@
 namespace Corma\Test\Integration;
 
 use Corma\DataObject\ObjectManagerFactory;
+use Corma\Exception\MissingPrimaryKeyException;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\PostgreSQLQueryHelper;
 use Corma\Test\Fixtures\ExtendedDataObject;
@@ -45,11 +46,10 @@ class PostgresIntegrationTest extends BaseIntegrationTest
     }
 
 
-    /**
-     * @expectedException \Corma\Exception\MissingPrimaryKeyException
-     */
     public function testUpsertWithoutPrimaryKey()
     {
+        $this->expectException(MissingPrimaryKeyException::class);
+
         $object = new ExtendedDataObject();
         $object->setMyColumn('Upsert EDO');
         $this->objectMapper->save($object);
@@ -79,8 +79,12 @@ class PostgresIntegrationTest extends BaseIntegrationTest
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
         self::$connection = DriverManager::getConnection(['driver'=>'pdo_pgsql','pdo'=>$pdo, 'dbname'=>'public']);
-        self::$connection->query('drop schema public cascade');
-        self::$connection->query('create schema public');
+        try {
+            self::$connection->query('drop schema cormatest cascade');
+        } catch (DBALException $e) {
+        }
+
+        self::$connection->query('create schema cormatest');
         self::$connection->query('CREATE TABLE extended_data_objects (
           id SERIAL PRIMARY KEY,
           "isDeleted" BOOLEAN NOT NULL DEFAULT FALSE,
