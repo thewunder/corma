@@ -87,7 +87,6 @@ interface QueryHelperInterface
      * @param string $table
      * @param array $where column => value pairs,
      * @return int Number of affected rows
-     * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
      *
      * @see processWhereQuery() For details on $where
      */
