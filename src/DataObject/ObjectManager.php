@@ -5,7 +5,7 @@ use Corma\DataObject\Factory\ObjectFactoryInterface;
 use Corma\DataObject\Hydrator\ObjectHydratorInterface;
 use Corma\DataObject\Identifier\ObjectIdentifierInterface;
 use Corma\DataObject\TableConvention\TableConventionInterface;
-use Doctrine\DBAL\Driver\Statement;
+use Doctrine\DBAL\Driver\ResultStatement;
 
 /**
  * Manages creation, hydration, and table name and id inspection for a particular class
@@ -63,7 +63,7 @@ class ObjectManager
     /**
      * Retrieves a single object from the database
      *
-     * @param Statement|\PDOStatement $statement
+     * @param ResultStatement|\PDOStatement $statement
      * @return object
      */
     public function fetchOne($statement)
@@ -74,7 +74,7 @@ class ObjectManager
     /**
      * Retrieves multiple objects from the database
      *
-     * @param Statement|\PDOStatement $statement
+     * @param ResultStatement|\PDOStatement $statement
      * @return object[]
      */
     public function fetchAll($statement): array
