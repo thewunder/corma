@@ -6,5 +6,5 @@ interface DataObjectEventInterface
     /**
      * @return object
      */
-    public function getObject();
+    public function getObject(): object;
 }

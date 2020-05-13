@@ -18,7 +18,7 @@ class ClosureHydrator implements ObjectHydratorInterface
         $this->extractClosure = $extract;
     }
 
-    public function hydrate($object, array $data)
+    public function hydrate(object $object, array $data)
     {
         if (!$this->hydrateClosure) {
             $this->hydrateClosure = self::getDefaultHydrate();
@@ -29,7 +29,7 @@ class ClosureHydrator implements ObjectHydratorInterface
         return $object;
     }
 
-    public function extract($object): array
+    public function extract(object $object): array
     {
         if (!$this->extractClosure) {
             $this->extractClosure = self::getDefaultExtract();

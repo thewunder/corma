@@ -12,7 +12,7 @@ class MySQLQueryHelper extends QueryHelper
      * @param array $rows
      * @param null $lastInsertId Optional reference to populate with the last auto increment id
      * @return int Rows affected
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function massUpsert(string $table, array $rows, &$lastInsertId = null): int
     {

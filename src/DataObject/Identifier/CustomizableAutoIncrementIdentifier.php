@@ -28,13 +28,13 @@ class CustomizableAutoIncrementIdentifier extends AnnotationCustomizableIdentifi
         $this->convention = $convention;
     }
 
-    public function setNewId($object)
+    public function setNewId(object $object): object
     {
         $table = $this->convention->getTable($object);
-        $this->setId($object, $this->queryHelper->getLastInsertId($table, $this->getIdColumn($object)));
+        return $this->setId($object, $this->queryHelper->getLastInsertId($table, $this->getIdColumn($object)));
     }
 
-    public function isNew($object): bool
+    public function isNew(object $object): bool
     {
         return !$this->getId($object);
     }

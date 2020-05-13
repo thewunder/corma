@@ -18,7 +18,7 @@ abstract class BaseObjectFactory implements ObjectFactoryInterface
         $this->hydrator = $hydrator;
     }
 
-    public function create($class, array $dependencies = [], array $data = [])
+    public function create(string $class, array $dependencies = [], array $data = []): object
     {
         if (empty($dependencies)) {
             $object = new $class;
@@ -33,7 +33,7 @@ abstract class BaseObjectFactory implements ObjectFactoryInterface
         return $object;
     }
 
-    protected function getReflectionClass($class)
+    protected function getReflectionClass(string $class)
     {
         if (isset($this->reflectionClasses[$class])) {
             return $this->reflectionClasses[$class];

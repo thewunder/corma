@@ -15,7 +15,7 @@ class DataObjectEvent extends Event implements DataObjectEventInterface
     /**
      * @return object
      */
-    public function getObject()
+    public function getObject(): object
     {
         return $this->object;
     }

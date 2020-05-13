@@ -20,7 +20,7 @@ abstract class BaseIdentifier implements ObjectIdentifierInterface
      * @param object $object
      * @return string
      */
-    public function getId($object): ?string
+    public function getId(object $object): ?string
     {
         $getter = $this->inflector->getterFromColumn($this->getIdColumn($object));
         if (!method_exists($object, $getter)) {
@@ -58,7 +58,7 @@ abstract class BaseIdentifier implements ObjectIdentifierInterface
      * @param string $id
      * @return object
      */
-    public function setId($object, $id)
+    public function setId(object $object, $id): object
     {
         $setter = $this->inflector->setterFromColumn($this->getIdColumn($object));
         if (method_exists($object, $setter)) {

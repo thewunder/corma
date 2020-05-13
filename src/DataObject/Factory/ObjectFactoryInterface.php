@@ -16,7 +16,7 @@ interface ObjectFactoryInterface
      * @param array $data
      * @return object
      */
-    public function create($class, array $dependencies = [], array $data = []);
+    public function create(string $class, array $dependencies = [], array $data = []): object;
 
     /**
      * Retrieves all items from select statement, hydrated, and with dependencies
@@ -26,7 +26,7 @@ interface ObjectFactoryInterface
      * @param array $dependencies
      * @return object[]
      */
-    public function fetchAll($class, $statement, array $dependencies = []): array;
+    public function fetchAll(string $class, $statement, array $dependencies = []): array;
 
     /**
      * Retrieves a single item from select statement, hydrated, and with dependencies
@@ -34,7 +34,7 @@ interface ObjectFactoryInterface
      * @param string $class
      * @param ResultStatement $statement
      * @param array $dependencies
-     * @return object
+     * @return object|null
      */
-    public function fetchOne($class, $statement, array $dependencies = []);
+    public function fetchOne(string $class, $statement, array $dependencies = []): ?object;
 }

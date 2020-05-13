@@ -6,6 +6,7 @@ use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\MissingPrimaryKeyException;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
@@ -178,7 +179,7 @@ class QueryHelper implements QueryHelperInterface
      * @param null $lastInsertId Optional reference to populate with the last auto increment id
      * @return int The number of affected rows
      *
-     * @throws \Doctrine\DBAL\ConnectionException
+     * @throws ConnectionException
      * @throws \Exception
      */
     public function massUpsert(string $table, array $rows, &$lastInsertId = null): int
@@ -389,6 +390,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $table
      * @param string $column
      * @return string
+     * @throws DBALException
      */
     public function getLastInsertId(string $table, string $column): ?string
     {

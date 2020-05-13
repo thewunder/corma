@@ -2,7 +2,6 @@
 namespace Corma\DataObject\TableConvention;
 
 use Corma\Util\Inflector;
-use Doctrine\Common\Inflector\Inflector as DoctrineInflector;
 
 class DefaultTableConvention implements TableConventionInterface
 {
@@ -24,6 +23,6 @@ class DefaultTableConvention implements TableConventionInterface
     public function getTable($classOrObject): string
     {
         $class = $this->inflector->getShortClass($classOrObject);
-        return DoctrineInflector::tableize(DoctrineInflector::pluralize($class));
+        return $this->inflector->tableize($this->inflector->pluralize($class));
     }
 }

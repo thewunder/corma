@@ -13,7 +13,7 @@ interface ObjectHydratorInterface
      * @param array $data
      * @return object
      */
-    public function hydrate($object, array $data);
+    public function hydrate(object $object, array $data);
 
     /**
      * Extracts all scalar data from the object
@@ -21,5 +21,5 @@ interface ObjectHydratorInterface
      * @param object $object
      * @return array
      */
-    public function extract($object): array;
+    public function extract(object $object): array;
 }
