@@ -1,3 +1,13 @@
+Version 3.4.0
+=============
+
+Updates
+-----
+* Require symfony event dispatcher 5.x
+* Require php 7.2 and use object type hints where appropriate
+* Stop using deprecated Doctrine Inflector class
+* Various minor code cleanup type 
+
 Version 3.3.4
 =============
 
