@@ -1,5 +1,5 @@
 <?php
-namespace Integration;
+namespace Corma\Test\Integration;
 
 use Corma\DataObject\Identifier\ObjectIdentifierInterface;
 use Corma\ObjectMapper;

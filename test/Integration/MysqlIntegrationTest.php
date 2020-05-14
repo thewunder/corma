@@ -12,7 +12,6 @@ use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use Dotenv\Dotenv;
-use Integration\BaseIntegrationTest;
 
 class MysqlIntegrationTest extends BaseIntegrationTest
 {
