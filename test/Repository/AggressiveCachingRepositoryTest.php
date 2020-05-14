@@ -12,26 +12,27 @@ use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class AggressiveCachingRepositoryTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     protected $objectMapper;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $connection;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $queryHelper;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $cache;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $objectManager;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
@@ -71,7 +72,7 @@ class AggressiveCachingRepositoryTest extends TestCase
     {
         $repository = $this->getMockBuilder(AggressiveCachingRepository::class)
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
-            ->setMethods(['findAll', 'fetchOne'])->getMock();
+            ->onlyMethods(['findAll', 'fetchOne'])->getMock();
 
         $object = new ExtendedDataObject();
         $object->setId(1)->setMyColumn('My Value');
@@ -87,7 +88,7 @@ class AggressiveCachingRepositoryTest extends TestCase
     {
         $repository = $this->getMockBuilder(AggressiveCachingRepository::class)
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
-            ->setMethods(['findAll', 'fetchAll'])->getMock();
+            ->onlyMethods(['findAll', 'fetchAll'])->getMock();
 
         $objects = [];
         $object = new ExtendedDataObject();
@@ -124,7 +125,7 @@ class AggressiveCachingRepositoryTest extends TestCase
         $this->assertInstanceOf(ExtendedDataObject::class, $objects[0]);
 
         $repository->expects($this->exactly(2))->method('create')->willReturnOnConsecutiveCalls($object, $object2);
-        $this->objectManager->expects($this->exactly(2))->method('getId')->willReturnOnConsecutiveCalls(1, 2);
+        $this->objectManager->expects($this->exactly(2))->method('getId')->willReturnOnConsecutiveCalls('1', '2');
 
         /** @var ExtendedDataObject[] $objects */
         $objects = $repository->findAll();
@@ -172,7 +173,7 @@ class AggressiveCachingRepositoryTest extends TestCase
     {
         $repository = $this->getMockBuilder(AggressiveCachingRepository::class)
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
-            ->setMethods(['fetchAll', 'insert', 'create'])->getMock();
+            ->onlyMethods(['fetchAll', 'insert', 'create'])->getMock();
 
         return $repository;
     }

@@ -9,10 +9,9 @@ use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
-use Doctrine\DBAL\Types\StringType;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class QueryHelperTest extends TestCase
@@ -20,10 +19,10 @@ class QueryHelperTest extends TestCase
     /** @var  QueryHelperInterface */
     private $queryHelper;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $connection;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
@@ -169,28 +168,25 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(10, $qb->getParameter(':columnLessThan'));
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage BETWEEN value must be a 2 item array with numeric keys
-     */
     public function testInvalidBetweenQuery()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('BETWEEN value must be a 2 item array with numeric keys');
         $qb = new QueryBuilder($this->connection);
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
-            ->setMethods(['acceptsNull'])->setConstructorArgs([$this->connection, new ArrayCache()])
+            ->onlyMethods(['acceptsNull'])->setConstructorArgs([$this->connection, new ArrayCache()])
             ->getMock();
 
         $this->queryHelper->processWhereQuery($qb, ['column BETWEEN'=>['asdf']]);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testProcessWhereInvalidArgument()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $qb = new QueryBuilder($this->connection);
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
-            ->setMethods(['acceptsNull'])->setConstructorArgs([$this->connection, new ArrayCache()])
+            ->onlyMethods(['acceptsNull'])->setConstructorArgs([$this->connection, new ArrayCache()])
             ->getMock();
 
         $this->queryHelper->processWhereQuery($qb, ['main.column'=>null]);
@@ -230,7 +226,7 @@ class QueryHelperTest extends TestCase
     public function testMassUpdate()
     {
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
-            ->setMethods(['buildUpdateQuery'])
+            ->onlyMethods(['buildUpdateQuery'])
             ->setConstructorArgs([$this->connection, new ArrayCache()])
             ->getMock();
 
@@ -256,7 +252,7 @@ class QueryHelperTest extends TestCase
             ->willReturn(2);
 
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
-            ->setMethods(['getDbColumns'])
+            ->onlyMethods(['getDbColumns'])
             ->setConstructorArgs([$this->connection, new ArrayCache()])
             ->getMock();
 
@@ -289,7 +285,7 @@ class QueryHelperTest extends TestCase
     public function testMassDelete()
     {
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
-            ->setMethods(['buildDeleteQuery'])
+            ->onlyMethods(['buildDeleteQuery'])
             ->setConstructorArgs([$this->connection, new ArrayCache()])
             ->getMock();
 
@@ -369,11 +365,10 @@ class QueryHelperTest extends TestCase
         $this->assertNull($this->queryHelper->getModifier(SoftDelete::class));
     }
 
-    /**
-     * @expectedException \Corma\Exception\InvalidArgumentException
-     */
     public function testMissingTableException()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $mockSchemaManager = $this->getMockBuilder(AbstractSchemaManager::class)
             ->disableOriginalConstructor()
             ->getMock();

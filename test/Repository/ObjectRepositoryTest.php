@@ -2,22 +2,16 @@
 namespace Corma\Test\Repository;
 
 use Corma\DataObject\DataObjectEventInterface;
-use Corma\DataObject\Factory\PdoObjectFactory;
-use Corma\DataObject\Hydrator\ClosureHydrator;
-use Corma\DataObject\Identifier\AutoIncrementIdentifier;
 use Corma\DataObject\ObjectManager;
 use Corma\DataObject\ObjectManagerFactory;
-use Corma\DataObject\TableConvention\DefaultTableConvention;
+use Corma\Exception\ClassNotFoundException;
+use Corma\Exception\InvalidArgumentException;
 use Corma\ObjectMapper;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
-use Corma\Test\Fixtures\Repository\InvalidClassObjectRepository;
 use Corma\Test\Fixtures\Repository\NoClassObjectRepository;
-use Corma\Test\Fixtures\Repository\WithDependenciesRepository;
-use Corma\Test\Fixtures\WithDependencies;
 use Corma\QueryHelper\QueryHelper;
-use Corma\Util\Inflector;
 use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\ArrayCache;
@@ -26,6 +20,7 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -33,19 +28,19 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class ObjectRepositoryTest extends TestCase
 {
     private $objectMapper;
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $connection;
 
     /** @var EventDispatcherInterface */
     private $dispatcher;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $queryHelper;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $objectManager;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
@@ -86,11 +81,9 @@ class ObjectRepositoryTest extends TestCase
         $this->assertEquals(ExtendedDataObject::class, $repository->getClassName());
     }
 
-    /**
-     * @expectedException \Corma\Exception\ClassNotFoundException
-     */
     public function testClassNotFound()
     {
+        $this->expectException(ClassNotFoundException::class);
         /** @noinspection PhpParamsInspection */
         $repository = new NoClassObjectRepository($this->connection, $this->objectMapper, new ArrayCache());
         $repository->getClassName();
@@ -99,7 +92,7 @@ class ObjectRepositoryTest extends TestCase
     public function testFind()
     {
         $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()
-            ->setMethods(['execute'])->getMock();
+            ->onlyMethods(['execute'])->getMock();
 
         $object = new ExtendedDataObject();
         $object->setId(5);
@@ -116,7 +109,7 @@ class ObjectRepositoryTest extends TestCase
     public function testFindByIds()
     {
         $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()
-            ->setMethods(['execute'])->getMock();
+            ->onlyMethods(['execute'])->getMock();
 
         $objects = [];
         $objects[] = $object = new ExtendedDataObject();
@@ -125,7 +118,7 @@ class ObjectRepositoryTest extends TestCase
         $object->setId(6);
 
         $this->objectManager->expects($this->once())->method('fetchAll')->willReturn($objects);
-        $this->objectManager->expects($this->exactly(2))->method('getId')->willReturn(5, 6);
+        $this->objectManager->expects($this->exactly(2))->method('getId')->willReturn('5', '6');
 
         $this->queryHelper->expects($this->once())->method('buildSelectQuery')->willReturn($mockQb);
         $repository = $this->getRepository();
@@ -152,18 +145,16 @@ class ObjectRepositoryTest extends TestCase
         $object = new ExtendedDataObject();
         $object->setId('123')->setMyColumn('testValue');
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($table = $this->getTable());
-        $this->objectManager->expects($this->atLeastOnce())->method('getId')->willReturn(123);
+        $this->objectManager->expects($this->atLeastOnce())->method('getId')->willReturn('123');
         $this->objectManager->expects($this->once())->method('extract')->willReturn(['myColumn'=>'testValue']);
         $this->queryHelper->expects($this->once())->method('massUpdate')->with('extended_data_objects', ['myColumn'=>'testValue'], ['id'=>'123']);
         $repo = $this->getRepository();
         $repo->save($object);
     }
 
-    /**
-     * @expectedException \Corma\Exception\InvalidArgumentException
-     */
     public function testSaveIncorrectClass()
     {
+        $this->expectException(InvalidArgumentException::class);
         $object = new OtherDataObject();
         $this->getRepository()->save($object);
     }
@@ -184,11 +175,9 @@ class ObjectRepositoryTest extends TestCase
         $this->assertEquals(count($objects), $inserts);
     }
 
-    /**
-     * @expectedException \Corma\Exception\InvalidArgumentException
-     */
     public function testSaveAllIncorrectClass()
     {
+        $this->expectException(InvalidArgumentException::class);
         $object = new OtherDataObject();
         $this->getRepository()->saveAll([$object]);
     }
@@ -222,11 +211,10 @@ class ObjectRepositoryTest extends TestCase
         $repo->delete($object);
     }
 
-    /**
-     * @expectedException \Corma\Exception\InvalidArgumentException
-     */
     public function testDeleteIncorrectClass()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $object = new OtherDataObject();
         $this->getRepository()->delete($object);
     }
@@ -269,11 +257,10 @@ class ObjectRepositoryTest extends TestCase
         $this->assertEquals(0, $deletes);
     }
 
-    /**
-     * @expectedException \Corma\Exception\InvalidArgumentException
-     */
     public function testDeleteAllIncorrectClass()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $object = new OtherDataObject();
         $this->getRepository()->deleteAll([$object]);
     }
@@ -292,10 +279,10 @@ class ObjectRepositoryTest extends TestCase
         });
 
         $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()
-            ->setMethods(['execute'])->getMock();
+            ->onlyMethods(['execute'])->getMock();
 
         $mockStatement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()
-            ->setMethods(['fetch', 'setFetchMode'])->getMock();
+            ->onlyMethods(['fetch', 'setFetchMode'])->getMock();
 
         $mockQb->expects($this->once())->method('execute')->willReturn($mockStatement);
 
@@ -325,10 +312,10 @@ class ObjectRepositoryTest extends TestCase
         });
 
         $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()
-            ->setMethods(['execute'])->getMock();
+            ->onlyMethods(['execute'])->getMock();
 
         $mockStatement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()
-            ->setMethods(['fetchAll'])->getMock();
+            ->onlyMethods(['fetchAll'])->getMock();
 
         $objects = [new ExtendedDataObject(), new ExtendedDataObject()];
 
@@ -631,11 +618,10 @@ class ObjectRepositoryTest extends TestCase
         }]);
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testSaveWithException()
     {
+        $this->expectException(\Exception::class);
+
         $repository = $this->getRepository();
         $reflectionObj = new \ReflectionClass($repository);
         $saveWith = $reflectionObj->getMethod('saveWith');
@@ -665,11 +651,10 @@ class ObjectRepositoryTest extends TestCase
         }]);
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testSaveAllWithException()
     {
+        $this->expectException(\Exception::class);
+
         $repository = $this->getRepository();
         $reflectionObj = new \ReflectionClass($repository);
         $saveWith = $reflectionObj->getMethod('saveAllWith');
@@ -683,11 +668,10 @@ class ObjectRepositoryTest extends TestCase
         }]);
     }
 
-    /**
-     * @expectedException \Corma\Exception\InvalidArgumentException
-     */
     public function testInvalidPagingStrategy()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $this->getRepository()->findAllInvalidPaged();
     }
 

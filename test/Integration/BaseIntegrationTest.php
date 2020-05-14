@@ -31,7 +31,7 @@ abstract class BaseIntegrationTest extends TestCase
     /** @var Connection */
     protected static $connection;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->dispatcher = new EventDispatcher();
         $this->objectMapper = ObjectMapper::withDefaults(self::$connection);
@@ -39,13 +39,13 @@ abstract class BaseIntegrationTest extends TestCase
         $this->repository = $this->objectMapper->getRepository(ExtendedDataObject::class);
     }
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         static::createDatabase();
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         parent::tearDownAfterClass();
         static::deleteDatabase();

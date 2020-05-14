@@ -2,24 +2,25 @@
 namespace Corma\Test\Util;
 
 use Corma\DataObject\ObjectManager;
+use Corma\Exception\InvalidArgumentException;
 use Corma\Util\OffsetPagedQuery;
-use Corma\Util\PagedQuery;
 use Corma\QueryHelper\QueryHelper;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class OffsetPagedQueryTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $qb;
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $queryHelper;
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $objectManager;
 
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->qb = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
@@ -100,19 +101,15 @@ class OffsetPagedQueryTest extends TestCase
         $this->assertFalse($pagedQuery->valid());
     }
 
-    /**
-     * @expectedException \Corma\Exception\InvalidArgumentException
-     */
     public function testGetInvalidPageSize()
     {
+        $this->expectException(InvalidArgumentException::class);
         new OffsetPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 0);
     }
 
-    /**
-     * @expectedException \Corma\Exception\InvalidArgumentException
-     */
     public function testGetInvalidPage()
     {
+        $this->expectException(InvalidArgumentException::class);
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
         $pagedQuery = new OffsetPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
         $pagedQuery->getResults(0);

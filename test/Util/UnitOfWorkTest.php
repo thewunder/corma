@@ -1,5 +1,5 @@
 <?php
-namespace Util;
+namespace Corma\Test\Util;
 
 use Corma\ObjectMapper;
 use Corma\QueryHelper\QueryHelper;
@@ -7,6 +7,7 @@ use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Util\UnitOfWork;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -14,16 +15,16 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class UnitOfWorkTest extends TestCase
 {
     private $objectMapper;
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $connection;
 
     /** @var EventDispatcherInterface */
     private $dispatcher;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $queryHelper;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
@@ -53,11 +54,9 @@ class UnitOfWorkTest extends TestCase
         });
     }
 
-    /**
-     * @expectedException \Exception
-     */
     public function testExecuteTransactionException()
     {
+        $this->expectException(\Exception::class);
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('rollback');
@@ -66,12 +65,9 @@ class UnitOfWorkTest extends TestCase
         });
     }
 
-    /**
-     * @requires PHP 7.0
-     * @expectedException \Error
-     */
     public function testExecuteTransactionError()
     {
+        $this->expectExceptionMessage('Call to a member function gonnaThrow() on null');
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('rollback');

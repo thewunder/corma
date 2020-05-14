@@ -12,27 +12,28 @@ use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class CachingRepositoryTest extends TestCase
 {
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     protected $objectMapper;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $connection;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $queryHelper;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $cache;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $objectManager;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
@@ -75,7 +76,7 @@ class CachingRepositoryTest extends TestCase
         $object = new Caching();
         $object->setId(9);
         $repository->expects($this->once())->method('create')->willReturn($object);
-        $this->objectManager->expects($this->once())->method('getId')->willReturn(9);
+        $this->objectManager->expects($this->once())->method('getId')->willReturn('9');
         $object = $repository->find(9);
         $this->assertInstanceOf(Caching::class, $object);
         $this->assertEquals(9, $object->getId());
@@ -88,7 +89,7 @@ class CachingRepositoryTest extends TestCase
 
         $repository = $this->getRepository();
         $willReturn = new Caching();
-        $this->objectManager->expects($this->once())->method('getId')->willReturn(9);
+        $this->objectManager->expects($this->once())->method('getId')->willReturn('9');
         $this->objectManager->expects($this->once())->method('extract')->willReturn(['id'=>9]);
         $repository->expects($this->once())->method('fetchOne')->willReturn($willReturn->setId(9));
 
@@ -120,7 +121,7 @@ class CachingRepositoryTest extends TestCase
         $repository->expects($this->once())->method('fetchAll')->willReturn([$willReturn->setId(10)]);
         $repository->expects($this->once())->method('create')->willReturn((new Caching())->setId(9));
 
-        $this->objectManager->expects($this->exactly(4))->method('getId')->willReturnOnConsecutiveCalls(9, 10, 10, 10);
+        $this->objectManager->expects($this->exactly(4))->method('getId')->willReturnOnConsecutiveCalls('9', '10', '10', '10');
         $this->objectManager->expects($this->once())->method('extract')->willReturnOnConsecutiveCalls(['id'=>10]);
         $objects = $repository->findByIds([9, 10]);
         $this->assertCount(2, $objects);
@@ -150,7 +151,7 @@ class CachingRepositoryTest extends TestCase
         $repository = $this->getRepository();
         $willReturn = new Caching();
 
-        $this->objectManager->expects($this->any())->method('getId')->willReturn(9);
+        $this->objectManager->expects($this->any())->method('getId')->willReturn('9');
         $this->objectManager->expects($this->exactly(2))->method('extract')->willReturn(['id'=>9]);
         $return = $repository->save($willReturn->setId(9));
         $this->assertEquals(9, $return->getId());
@@ -163,7 +164,7 @@ class CachingRepositoryTest extends TestCase
         $repository = $this->getRepository();
         $object = new Caching();
 
-        $this->objectManager->method('getId')->willReturn(9);
+        $this->objectManager->method('getId')->willReturn('9');
         $repository->delete($object->setId(9));
     }
 
@@ -180,7 +181,7 @@ class CachingRepositoryTest extends TestCase
         $objects[] = $object2->setId(12);
 
         $this->objectManager->method('extract')->willReturnOnConsecutiveCalls(['id'=>11], ['id'=>12], ['id'=>11], ['id'=>12]);
-        $this->objectManager->method('getId')->willReturnOnConsecutiveCalls(11, 12, 11, 12, 11, 12);
+        $this->objectManager->method('getId')->willReturnOnConsecutiveCalls('11', '12', '11', '12', '11', '12');
         $repository->saveAll($objects);
     }
 
@@ -196,7 +197,7 @@ class CachingRepositoryTest extends TestCase
         $object = new Caching();
         $objects[] = $object->setId(12);
 
-        $this->objectManager->method('getId')->willReturnOnConsecutiveCalls(11, 12);
+        $this->objectManager->method('getId')->willReturnOnConsecutiveCalls('11', '12');
         $repository->deleteAll($objects);
     }
 
@@ -207,7 +208,7 @@ class CachingRepositoryTest extends TestCase
     {
         $repository = $this->getMockBuilder(CachingRepository::class)
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
-            ->setMethods(['fetchAll', 'fetchOne', 'create'])->getMock();
+            ->onlyMethods(['fetchAll', 'fetchOne', 'create'])->getMock();
 
         $repository->setClassName(Caching::class);
 

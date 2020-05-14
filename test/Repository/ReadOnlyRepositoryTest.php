@@ -1,29 +1,30 @@
 <?php
 namespace Corma\Test\Repository;
 
+use Corma\Exception\BadMethodCallException;
 use Corma\ObjectMapper;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\ReadOnlyRepository;
-use Corma\QueryHelper\QueryHelper;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class ReadOnlyRepositoryTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     protected $objectMapper;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $connection;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $queryHelper;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var MockObject */
     private $cache;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
@@ -38,41 +39,33 @@ class ReadOnlyRepositoryTest extends TestCase
             ->getMock();
     }
 
-    /**
-     * @expectedException \Corma\Exception\BadMethodCallException
-     */
     public function testSave()
     {
+        $this->expectException(BadMethodCallException::class);
         $object = new ExtendedDataObject();
         $repo = $this->getRepository();
         $repo->save($object);
     }
 
-    /**
-     * @expectedException \Corma\Exception\BadMethodCallException
-     */
     public function testSaveAll()
     {
+        $this->expectException(BadMethodCallException::class);
         $object = new ExtendedDataObject();
         $repo = $this->getRepository();
         $repo->saveAll([$object]);
     }
 
-    /**
-     * @expectedException \Corma\Exception\BadMethodCallException
-     */
     public function testDelete()
     {
+        $this->expectException(BadMethodCallException::class);
         $object = new ExtendedDataObject();
         $repo = $this->getRepository();
         $repo->delete($object);
     }
 
-    /**
-     * @expectedException \Corma\Exception\BadMethodCallException
-     */
     public function testDeleteAll()
     {
+        $this->expectException(BadMethodCallException::class);
         $object = new ExtendedDataObject();
         $repo = $this->getRepository();
         $repo->deleteAll([$object]);
@@ -85,7 +78,7 @@ class ReadOnlyRepositoryTest extends TestCase
     {
         $repository = $this->getMockBuilder(ReadOnlyRepository::class)
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
-            ->setMethods(['fetchAll'])->getMock();
+            ->onlyMethods(['fetchAll'])->getMock();
 
         return $repository;
     }

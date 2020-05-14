@@ -3,6 +3,7 @@
 
 namespace Corma\Test\Repository;
 
+use Corma\Exception\ClassNotFoundException;
 use Corma\ObjectMapper;
 use Corma\Repository\ObjectRepository;
 use Corma\Repository\ObjectRepositoryFactory;
@@ -41,15 +42,13 @@ class ObjectRepositoryFactoryTest extends TestCase
         $this->assertEquals(OtherDataObject::class, $repository->getClassName());
     }
 
-    /**
-     * @expectedException \Corma\Exception\ClassNotFoundException
-     */
     public function testClassNotFound()
     {
+        $this->expectException(ClassNotFoundException::class);
         $this->repositoryFactory->getRepository('Nope');
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         /** @var Connection $connection */
         $connection = $this->getMockBuilder(Connection::class)

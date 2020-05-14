@@ -36,7 +36,7 @@ class PdoObjectFactoryTest extends TestCase
     public function testFetchOne()
     {
         $statement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()
-            ->setMethods(['setFetchMode', 'fetch'])->getMock();
+            ->onlyMethods(['setFetchMode', 'fetch'])->getMock();
 
         $object = new ExtendedDataObject();
         $statement->expects($this->once())->method('setFetchMode');
@@ -50,7 +50,7 @@ class PdoObjectFactoryTest extends TestCase
     public function testFetchAll()
     {
         $statement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()
-            ->setMethods(['fetchAll'])->getMock();
+            ->onlyMethods(['fetchAll'])->getMock();
 
         $objects = [];
         $objects[] = new ExtendedDataObject();

@@ -14,6 +14,7 @@ use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class ObjectMapperTest extends TestCase
@@ -120,7 +121,7 @@ class ObjectMapperTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $orm = $this->getCorma($mockRepo);
-        /** @var \PHPUnit_Framework_MockObject_MockObject $mockLoader */
+        /** @var MockObject $mockLoader */
         $mockLoader = $orm->getRelationshipLoader();
 
         $return = ['789' => new OtherDataObject()];
@@ -145,7 +146,7 @@ class ObjectMapperTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $orm = $this->getCorma($mockRepo);
-        /** @var \PHPUnit_Framework_MockObject_MockObject $mockLoader */
+        /** @var MockObject $mockLoader */
         $mockLoader = $orm->getRelationshipLoader();
 
         $return = ['789' => new OtherDataObject()];
@@ -170,7 +171,7 @@ class ObjectMapperTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $orm = $this->getCorma($mockRepo);
-        /** @var \PHPUnit_Framework_MockObject_MockObject $mockLoader */
+        /** @var MockObject $mockLoader */
         $mockLoader = $orm->getRelationshipLoader();
 
         $return = ['789' => new OtherDataObject()];
@@ -263,7 +264,7 @@ class ObjectMapperTest extends TestCase
      * @param $mockRepository
      * @return ObjectMapper
      */
-    protected function getCorma(\PHPUnit_Framework_MockObject_MockObject $mockRepository)
+    protected function getCorma(MockObject $mockRepository)
     {
         /** @var Connection $connection */
         $connection = $this->getMockBuilder(Connection::class)
@@ -284,7 +285,7 @@ class ObjectMapperTest extends TestCase
 
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->setConstructorArgs([new QueryHelper($connection, new ArrayCache()), $repositoryFactory, $objectManagerFactory,  Inflector::build()])
-            ->setMethods(['getRelationshipLoader'])->getMock();
+            ->onlyMethods(['getRelationshipLoader'])->getMock();
 
         $objectMapper->method('getRelationshipLoader')->willReturn($loader);
 

@@ -2,6 +2,7 @@
 namespace Corma\Test\Util;
 
 use Corma\DataObject\ObjectManager;
+use Corma\Exception\InvalidArgumentException;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\QueryHelper\QueryHelper;
 use Corma\Util\SeekPagedQuery;
@@ -10,21 +11,22 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class SeekPagedQueryTest extends TestCase
 {
-    /** @var \PHPUnit_Framework_MockObject_MockObject|QueryBuilder */
+    /** @var MockObject|QueryBuilder */
     private $qb;
-    /** @var \PHPUnit_Framework_MockObject_MockObject|QueryHelper */
+    /** @var MockObject|QueryHelper */
     private $queryHelper;
-    /** @var \PHPUnit_Framework_MockObject_MockObject|ObjectManager */
+    /** @var MockObject|ObjectManager */
     private $objectManager;
 
 
-    public function setUp()
+    public function setUp(): void
     {
-        /** @var \PHPUnit_Framework_MockObject_MockObject|Connection $connection */
+        /** @var MockObject|Connection $connection */
         $connection = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMock();
         $connection->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
 
@@ -133,11 +135,9 @@ class SeekPagedQueryTest extends TestCase
         $this->assertFalse($pagedQuery->valid());
     }
 
-    /**
-     * @expectedException \Corma\Exception\InvalidArgumentException
-     */
     public function testGetInvalidPageSize()
     {
+        $this->expectException(InvalidArgumentException::class);
         new SeekPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 0);
     }
 

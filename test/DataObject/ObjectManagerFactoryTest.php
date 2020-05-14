@@ -21,7 +21,7 @@ class ObjectManagerFactoryTest extends TestCase
     private $queryHelper;
     private $annotationReader;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->queryHelper = $this->getMockBuilder(MySQLQueryHelper::class)->disableOriginalConstructor()->getMock();
