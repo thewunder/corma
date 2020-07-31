@@ -2,7 +2,9 @@
 
 namespace Corma\Util;
 
+use Corma\DataObject\ObjectManager;
 use Corma\Exception\InvalidArgumentException;
+use Corma\QueryHelper\QueryHelperInterface;
 use Doctrine\DBAL\Query\Expression\CompositeExpression;
 use Doctrine\DBAL\Query\QueryBuilder;
 
@@ -22,6 +24,15 @@ class SeekPagedQuery extends PagedQuery
     protected $lastResults = [];
 
     private $sortColumns;
+
+    public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, ObjectManager $objectManager, $pageSize = self::DEFAULT_PAGE_SIZE)
+    {
+        if ($qb->getQueryPart('groupBy')) {
+            throw new InvalidArgumentException('Seek paged queries do not support group by');
+        }
+
+        parent::__construct($qb, $queryHelper, $objectManager, $pageSize);
+    }
 
     public function current()
     {

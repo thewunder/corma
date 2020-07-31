@@ -16,6 +16,8 @@ use PHPUnit\Framework\TestCase;
 
 class SeekPagedQueryTest extends TestCase
 {
+    /** @var MockObject|Connection */
+    private $connection;
     /** @var MockObject|QueryBuilder */
     private $qb;
     /** @var MockObject|QueryHelper */
@@ -27,7 +29,7 @@ class SeekPagedQueryTest extends TestCase
     public function setUp(): void
     {
         /** @var MockObject|Connection $connection */
-        $connection = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMock();
+        $this->connection = $connection = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMock();
         $connection->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
 
         $this->qb = $this->getMockBuilder(QueryBuilder::class)
@@ -58,6 +60,14 @@ class SeekPagedQueryTest extends TestCase
 
         $this->assertEquals(50, $pagedQuery->getPageSize());
         $this->assertEquals(5, $pagedQuery->getPages());
+    }
+
+    public function testGroupByQueryUnsupported()
+    {
+        $qb = new QueryBuilder($this->connection);
+        $qb->groupBy('fakeColumn');
+        $this->expectException(InvalidArgumentException::class);
+        new SeekPagedQuery($qb, $this->queryHelper, $this->objectManager);
     }
 
     public function testCustomId()
