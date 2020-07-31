@@ -257,17 +257,26 @@ class QueryHelper implements QueryHelperInterface
         }
 
         $select = $qb->getQueryPart('select');
-        $orderBy = $qb->getQueryPart('orderBy');
 
-        $count = (int) $qb->select("COUNT(main.$idColumn)")
-            ->resetQueryPart('orderBy')
-            ->execute()->fetchColumn();
+        if ($qb->getQueryPart('groupBy')) {
+            $qb->select('1 AS group_by_row');
+            $count = $this->db->executeQuery("SELECT COUNT(*) FROM ({$qb->getSQL()}) AS group_by_count",
+                $qb->getParameters(), $qb->getParameterTypes())->fetchColumn();
+        } else {
+            $orderBy = $qb->getQueryPart('orderBy');
+
+            $count = (int) $qb->select("COUNT(main.$idColumn)")
+                ->resetQueryPart('orderBy')
+                ->execute()->fetchColumn();
+
+            foreach($orderBy as $orderByPart) {
+                [$column, $dir] = explode(' ', $orderByPart);
+                $qb->addOrderBy($column, $dir);
+            }
+        }
 
         $qb->select($select);
-        foreach($orderBy as $orderByPart) {
-            [$column, $dir] = explode(' ', $orderByPart);
-            $qb->addOrderBy($column, $dir);
-        }
+
         return $count;
     }
 
