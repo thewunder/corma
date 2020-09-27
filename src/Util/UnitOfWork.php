@@ -28,7 +28,7 @@ class UnitOfWork
      * @param object $object
      * @return $this
      */
-    public function save($object)
+    public function save(object $object): self
     {
         $class = get_class($object);
         if (isset($this->objectsToSave[$class])) {
@@ -43,7 +43,7 @@ class UnitOfWork
      * @param object[] $objects
      * @return $this
      */
-    public function saveAll(array $objects)
+    public function saveAll(array $objects): self
     {
         foreach ($objects as $object) {
             $this->save($object);
@@ -55,7 +55,7 @@ class UnitOfWork
      * @param object $object
      * @return $this
      */
-    public function delete($object)
+    public function delete(object $object): self
     {
         $class = get_class($object);
         if (isset($this->objectsToDelete[$class])) {
@@ -70,7 +70,7 @@ class UnitOfWork
      * @param object[] $objects
      * @return $this
      */
-    public function deleteAll(array $objects)
+    public function deleteAll(array $objects): self
     {
         foreach ($objects as $object) {
             $this->delete($object);
@@ -83,17 +83,19 @@ class UnitOfWork
      *
      * If no exceptionHandler is passed the transaction will be rolled back and the exception rethrown.
      *
-     * @param callable $run
-     * @param callable|null $exceptionHandler
+     * @param \Closure $run
+     * @param \Closure|null $exceptionHandler
+     * @return mixed The return of the closure passed in
      * @throws \Throwable
      */
-    public function executeTransaction(callable $run, callable $exceptionHandler = null)
+    public function executeTransaction(\Closure $run, \Closure $exceptionHandler = null)
     {
         $db = $this->orm->getQueryHelper()->getConnection();
         $db->beginTransaction();
         try {
-            $run();
+            $return = $run();
             $db->commit();
+            return $return;
         } catch (\Throwable $e) {
             if ($exceptionHandler) {
                 $exceptionHandler($e);
@@ -101,16 +103,17 @@ class UnitOfWork
                 $db->rollBack();
                 throw $e;
             }
+            return null;
         }
     }
 
     /**
      * Executes all operations
      *
-     * @param callable $exceptionHandler
+     * @param \Closure|null $exceptionHandler
      * @throws \Throwable
      */
-    public function flush(callable $exceptionHandler = null)
+    public function flush(\Closure $exceptionHandler = null): void
     {
         $this->executeTransaction(function () {
             foreach ($this->objectsToSave as $objects) {
