@@ -248,7 +248,7 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $lastId = null;
         $saveRelationships = $saveRelationships ?? $this->saveRelationships();
-        $doUpsert = function () use ($objects, $om, $saveRelationships, $lastId) {
+        $doUpsert = function () use ($objects, $om, $saveRelationships, &$lastId) {
             $columns = $this->queryHelper->getDbColumns($this->getTableName());
             $rows = [];
             foreach ($objects as $object) {
