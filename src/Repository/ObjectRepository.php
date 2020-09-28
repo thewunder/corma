@@ -129,7 +129,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $instances;
     }
 
-    public function findAll(): iterable
+    public function findAll(): array
     {
         $om = $this->getObjectManager();
         $qb = $this->queryHelper->buildSelectQuery($om->getTable());
@@ -140,7 +140,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $all;
     }
 
-    public function findBy(array $criteria, array $orderBy = [], ?int $limit = null, ?int $offset = null): iterable
+    public function findBy(array $criteria, array $orderBy = [], ?int $limit = null, ?int $offset = null): array
     {
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria, $orderBy);
         if ($limit) {

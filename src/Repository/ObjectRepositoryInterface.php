@@ -12,9 +12,9 @@ interface ObjectRepositoryInterface
     /**
      * Finds all objects in the repository.
      *
-     * @return iterable The objects.
+     * @return object[] The objects.
      */
-    public function findAll(): iterable;
+    public function findAll(): array;
 
     /**
      * Finds objects by a set of criteria.
@@ -28,11 +28,11 @@ interface ObjectRepositoryInterface
      * @param int|null   $limit
      * @param int|null   $offset
      *
-     * @return iterable The objects.
+     * @return object[] The objects.
      *
      * @throws \UnexpectedValueException
      */
-    public function findBy(array $criteria, array $orderBy = [], ?int $limit = null, ?int $offset = null): iterable;
+    public function findBy(array $criteria, array $orderBy = [], ?int $limit = null, ?int $offset = null): array;
 
     /**
      * Finds a single object by a set of criteria.
@@ -73,7 +73,7 @@ interface ObjectRepositoryInterface
      * @param bool $useCache Use cache?
      * @return object[]
      */
-    public function findByIds(array $ids, bool $useCache = true): iterable;
+    public function findByIds(array $ids, bool $useCache = true): array;
 
     /**
      * Return the database table for an object

@@ -28,7 +28,7 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
         return parent::findByIds($ids);
     }
 
-    public function findAll(): iterable
+    public function findAll(): array
     {
         $key = $this->getCacheKey();
         if ($this->cache->contains($key)) {
