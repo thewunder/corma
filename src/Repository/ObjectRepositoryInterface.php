@@ -93,7 +93,7 @@ interface ObjectRepositoryInterface
      *
      * @return object The saved object
      */
-    public function save(object $object, ?\Closure $saveRelationships): object;
+    public function save(object $object, ?\Closure $saveRelationships = null): object;
 
     /**
      * Persists all supplied objects into the database
@@ -105,7 +105,7 @@ interface ObjectRepositoryInterface
      *
      * @return int The number of effected rows
      */
-    public function saveAll(array $objects, ?\Closure $saveRelationships): int;
+    public function saveAll(array $objects, ?\Closure $saveRelationships = null): int;
 
     /**
      * Removes the object from the database

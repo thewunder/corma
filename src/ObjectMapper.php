@@ -59,9 +59,9 @@ class ObjectMapper
      * Creates a ObjectMapper instance using the default QueryHelper and ObjectRepositoryFactory
      *
      * @param Connection $db Database connection
-     * @param CacheProvider $cache Cache for table metadata and repositories
-     * @param EventDispatcherInterface $dispatcher
-     * @param ReaderInterface $reader
+     * @param CacheProvider|null $cache Cache for table metadata and repositories
+     * @param EventDispatcherInterface|null $dispatcher
+     * @param ReaderInterface|null $reader
      * @param array $additionalDependencies Additional dependencies to inject into Repository constructors
      * @return self
      *
@@ -179,9 +179,9 @@ class ObjectMapper
     /**
      * @param string $objectName Fully qualified object class name
      * @param array $criteria column => value pairs
-     * @param array $orderBy column => order pairs
-     * @param int $limit Maximum results to return
-     * @param int $offset First result to return
+     * @param array|null $orderBy column => order pairs
+     * @param int|null $limit Maximum results to return
+     * @param int|null $offset First result to return
      * @return object[]
      *
      * @see QueryHelperInterface::processWhereQuery() For details on $criteria
@@ -215,8 +215,8 @@ class ObjectMapper
      *
      * @param object[] $objects
      * @param string $className Class name of foreign object to load
-     * @param string $foreignIdColumn Column / property on this object that relates to the foreign table's id (defaults to if the class = ForeignObject foreignObjectId)
-     * @param string $setter Name of setter method on objects
+     * @param string|null $foreignIdColumn Column / property on this object that relates to the foreign table's id (defaults to if the class = ForeignObject foreignObjectId)
+     * @param string|null $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
      */
     public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $setter = null): array
@@ -239,8 +239,8 @@ class ObjectMapper
      *
      * @param object[] $objects
      * @param string $className Class name of foreign objects to load
-     * @param string $foreignColumn Column / property on foreign object that relates to this object id
-     * @param string $setter Name of setter method on objects
+     * @param string|null $foreignColumn Column / property on foreign object that relates to this object id
+     * @param string|null $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
      */
     public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array
@@ -264,9 +264,9 @@ class ObjectMapper
      * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
-     * @param string $idColumn Column on link table = the id on this object
-     * @param string $foreignIdColumn Column on link table = the id on the foreign object table
-     * @param string $setter Name of setter method on objects
+     * @param string|null $idColumn Column on link table = the id on this object
+     * @param string|null $foreignIdColumn Column on link table = the id on the foreign object table
+     * @param string|null $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
      */
     public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null, ?string $setter = null): array
@@ -284,12 +284,20 @@ class ObjectMapper
     /**
      * Persists a single object to the database
      *
-     * @param object $object
+     * @param object $object The object to save
+     * @param \Closure|null $saveRelationships If the repository provides a saveRelationships closure then omitting
+     * will use the default specified by the repository. Explicitly passing null will not save any relationships even
+     * if the repository returns a closure from saveRelationships.
      * @return object
      */
-    public function save($object)
+    public function save(object $object, ?\Closure $saveRelationships = null)
     {
-        return $this->getRepository(get_class($object))->save($object);
+        $repository = $this->getRepository(get_class($object));
+        if (func_num_args() == 2) {
+            return $repository->save($object, $saveRelationships);
+        } else {
+            return $repository->save($object);
+        }
     }
 
     /**
@@ -297,21 +305,30 @@ class ObjectMapper
      *
      * This method works on objects of mixed type.
      *
-     * @param object[] $objects
+     * @param object[] $objects The objects to save
+     * @param \Closure|null $saveRelationships If the repository provides a saveRelationships closure then omitting
+     * will use the default specified by the repository. Explicitly passing null will not save any relationships even
+     * if the repository returns a closure from saveRelationships.
      */
-    public function saveAll(array $objects)
+    public function saveAll(array $objects, ?\Closure $saveRelationships = null)
     {
         $objectsByClass = $this->groupByClass($objects);
 
         foreach ($objectsByClass as $class => $classObjects) {
-            $this->getRepository($class)->saveAll($classObjects);
+            $repository = $this->getRepository($class);
+
+            if (func_num_args() == 2) {
+                $repository->saveAll($classObjects, $saveRelationships);
+            } else {
+                $repository->saveAll($classObjects);
+            }
         }
     }
 
     /**
      * @param object $object
      */
-    public function delete($object)
+    public function delete(object $object)
     {
         $this->getRepository(get_class($object))->delete($object);
     }
