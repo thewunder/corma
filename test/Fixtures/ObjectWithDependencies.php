@@ -1,7 +1,6 @@
 <?php
 namespace Corma\Test\Fixtures;
 
-use Corma\DataObject\DataObject;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ObjectWithDependencies extends BaseDataObject
