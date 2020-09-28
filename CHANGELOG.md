@@ -1,3 +1,15 @@
+Version 3.5.0
+=============
+
+Updates
+-----
+* Add ability for repositories to customize relationship saving for save and saveAll by overriding 
+ObjectRepository::saveRelationships. Also allow the caller to customize what relationships are saved when calling
+save and saveAll.
+* Add missing parameter and return type hints to ObjectRepositoryInterface. This is a BC break for all those extending ObjectRepository. 
+* Don't save child relationships when updating the parent object with child ids after saving one-to-one relationships.
+* Deprecated ObjectRepository::saveWith and saveAllWith
+
 Version 3.4.0
 =============
 
