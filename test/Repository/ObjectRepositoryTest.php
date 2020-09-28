@@ -131,6 +131,7 @@ class ObjectRepositoryTest extends TestCase
         $object = new ExtendedDataObject();
         $object->setMyColumn('testValue');
         $table = $this->getTable();
+        $this->connection->expects($this->never())->method('beginTransaction');
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($table);
         $this->queryHelper->expects($this->once())->method('massInsert')->with('extended_data_objects', [['myColumn'=>'testValue']]);
         $this->objectManager->expects($this->once())->method('extract')->willReturn(['myColumn'=>'testValue']);
@@ -144,6 +145,7 @@ class ObjectRepositoryTest extends TestCase
     {
         $object = new ExtendedDataObject();
         $object->setId('123')->setMyColumn('testValue');
+        $this->connection->expects($this->never())->method('beginTransaction');
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($table = $this->getTable());
         $this->objectManager->expects($this->atLeastOnce())->method('getId')->willReturn('123');
         $this->objectManager->expects($this->once())->method('extract')->willReturn(['myColumn'=>'testValue']);
@@ -157,6 +159,18 @@ class ObjectRepositoryTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $object = new OtherDataObject();
         $this->getRepository()->save($object);
+    }
+
+    public function testSaveWithRelationships()
+    {
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
+        $this->connection->expects($this->once())->method('beginTransaction');
+        /** @var MockObject|ExtendedDataObject $dataObjectMock */
+        $dataObjectMock = $this->getMockBuilder(ExtendedDataObject::class)->onlyMethods(['getMyColumn'])->getMock();
+        $dataObjectMock->expects($this->once())->method('getMyColumn');
+        $relationshipSaver = function () use ($dataObjectMock) {$dataObjectMock->getMyColumn();};
+        $repository = $this->getRepository();
+        $repository->save(new ExtendedDataObject(), $relationshipSaver);
     }
 
     public function testSaveAll()
@@ -186,6 +200,25 @@ class ObjectRepositoryTest extends TestCase
     {
         $inserts = $this->getRepository()->saveAll([]);
         $this->assertEquals(0, $inserts);
+    }
+
+    public function testSaveAllWithRelationships()
+    {
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('testValue');
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('testValue 2');
+
+        /** @var MockObject|ExtendedDataObject $dataObjectMock */
+        $dataObjectMock = $this->getMockBuilder(ExtendedDataObject::class)->onlyMethods(['getMyColumn'])->getMock();
+        $dataObjectMock->expects($this->once())->method('getMyColumn');
+        $relationshipSaver = function () use ($dataObjectMock) {$dataObjectMock->getMyColumn();};
+
+        $this->connection->expects($this->once())->method('beginTransaction');
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
+        $repo = $this->getRepository();
+        $repo->saveAll($objects, $relationshipSaver);
     }
 
     public function testDelete()
@@ -609,8 +642,8 @@ class ObjectRepositoryTest extends TestCase
         $saveWith = $reflectionObj->getMethod('saveWith');
         $saveWith->setAccessible(true);
 
-        $this->connection->expects($this->once())->method('beginTransaction');
-        $this->connection->expects($this->once())->method('commit');
+        $this->connection->expects($this->atLeastOnce())->method('beginTransaction');
+        $this->connection->expects($this->atLeastOnce())->method('commit');
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(new Table('test_table'));
         $test = $this;
         $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function (array $objects) use ($test) {

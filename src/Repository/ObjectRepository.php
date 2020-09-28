@@ -80,12 +80,12 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->dispatcher = $dispatcher;
     }
 
-    public function create(array $data = [])
+    public function create(array $data = []): object
     {
         return $this->getObjectManager()->create($data);
     }
 
-    public function find($id, bool $useCache = true)
+    public function find($id, bool $useCache = true): ?object
     {
         $identityMap = $this->getIdentityMap();
         if ($useCache && $identityMap->contains($id)) {
@@ -129,7 +129,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $instances;
     }
 
-    public function findAll()
+    public function findAll(): iterable
     {
         $om = $this->getObjectManager();
         $qb = $this->queryHelper->buildSelectQuery($om->getTable());
@@ -140,7 +140,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $all;
     }
 
-    public function findBy(array $criteria, array $orderBy = [], ?int $limit = null, ?int $offset = null)
+    public function findBy(array $criteria, array $orderBy = [], ?int $limit = null, ?int $offset = null): iterable
     {
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria, $orderBy);
         if ($limit) {
@@ -152,19 +152,14 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $this->fetchAll($qb);
     }
 
-    public function findOneBy(array $criteria, array $orderBy = [])
+    public function findOneBy(array $criteria, array $orderBy = []): ?object
     {
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria, $orderBy);
         $qb->setMaxResults(1);
         return $this->fetchOne($qb);
     }
 
-    /**
-     * Returns the full class name of the object managed by the repository.
-     *
-     * @return string
-     */
-    public function getClassName()
+    public function getClassName(): string
     {
         if ($this->className) {
             return $this->className;
@@ -193,7 +188,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $className
      * @return $this
      */
-    public function setClassName($className)
+    public function setClassName(string $className)
     {
         $this->className = $className;
         return $this;
@@ -208,36 +203,32 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
     }
 
-    /**
-     * Persists the object to the database
-     *
-     * @param object $object
-     * @return object
-     * @throws \Exception
-     */
-    public function save($object)
+    public function save(object $object, ?\Closure $saveRelationships = null): object
     {
         $this->checkArgument($object);
 
-        $this->dispatchEvents('beforeSave', $object);
+        $saveRelationships = func_num_args() === 1 ? $this->saveRelationships() : $saveRelationships;
 
-        if ($this->getObjectManager()->isNew($object)) {
-            $this->insert($object);
+        $doSave = function () use ($object, $saveRelationships) {
+            $this->dispatchEvents('beforeSave', $object);
+            if ($this->getObjectManager()->isNew($object)) {
+                $this->insert($object, $saveRelationships);
+            } else {
+                $this->update($object, $saveRelationships);
+            }
+            $this->dispatchEvents('afterSave', $object);
+        };
+
+        if ($saveRelationships) {
+            $this->objectMapper->unitOfWork()->executeTransaction($doSave);
         } else {
-            $this->update($object);
+            $doSave();
         }
 
-        $this->dispatchEvents('afterSave', $object);
         return $object;
     }
 
-    /**
-     * Persists all supplied objects into the database
-     *
-     * @param object[] $objects
-     * @return int
-     */
-    public function saveAll(array $objects)
+    public function saveAll(array $objects, ?\Closure $saveRelationships = null): int
     {
         if (empty($objects)) {
             return 0;
@@ -255,20 +246,33 @@ class ObjectRepository implements ObjectRepositoryInterface
             }
         }
 
-        $columns = $this->queryHelper->getDbColumns($this->getTableName());
-        $rows = [];
-        foreach ($objects as $object) {
-            $data = $om->extract($object);
-            foreach ($data as $prop => $value) {
-                if (!$columns->hasColumn($prop)) {
-                    unset($data[$prop]);
-                }
-            }
-            $rows[] = $data;
-        }
-
         $lastId = null;
-        $rows = $this->queryHelper->massUpsert($this->getTableName(), $rows, $lastId);
+        $saveRelationships = $saveRelationships ?? $this->saveRelationships();
+        $doUpsert = function () use ($objects, $om, $saveRelationships, $lastId) {
+            $columns = $this->queryHelper->getDbColumns($this->getTableName());
+            $rows = [];
+            foreach ($objects as $object) {
+                $data = $om->extract($object);
+                foreach ($data as $prop => $value) {
+                    if (!$columns->hasColumn($prop)) {
+                        unset($data[$prop]);
+                    }
+                }
+                $rows[] = $data;
+            }
+
+            $rows = $this->queryHelper->massUpsert($this->getTableName(), $rows, $lastId);
+            if ($saveRelationships) {
+                $saveRelationships($objects);
+            }
+            return $rows;
+        };
+
+        if ($saveRelationships) {
+            $rows = $this->objectMapper->unitOfWork()->executeTransaction($doUpsert);
+        } else {
+            $rows = $doUpsert();
+        }
 
         foreach ($objects as $object) {
             if ($om->getId($object)) {
@@ -283,16 +287,15 @@ class ObjectRepository implements ObjectRepositoryInterface
             $this->dispatchEvents('afterSave', $object);
         }
 
-        return $rows;
+        return $rows ?? 0;
     }
 
     /**
      * Removes the object from the database
      *
      * @param object $object
-     * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
      */
-    public function delete($object)
+    public function delete(object $object): void
     {
         $this->checkArgument($object);
         $this->dispatchEvents('beforeDelete', $object);
@@ -313,7 +316,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param object[] $objects
      * @return int Number of db rows effected
      */
-    public function deleteAll(array $objects)
+    public function deleteAll(array $objects): int
     {
         if (empty($objects)) {
             return 0;
@@ -372,9 +375,10 @@ class ObjectRepository implements ObjectRepositoryInterface
      * Inserts this DataObject into the database
      *
      * @param object $object
+     * @param \Closure|null $saveRelationships
      * @return object The newly persisted object with id set
      */
-    protected function insert($object)
+    protected function insert(object $object, ?\Closure $saveRelationships): object
     {
         $this->dispatchEvents('beforeInsert', $object);
 
@@ -382,6 +386,9 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->queryHelper->massInsert($this->getTableName(), [$data]);
 
         $this->getObjectManager()->setNewId($object);
+        if ($saveRelationships) {
+            $saveRelationships([$object]);
+        }
 
         $this->dispatchEvents('afterInsert', $object);
         return $object;
@@ -391,16 +398,31 @@ class ObjectRepository implements ObjectRepositoryInterface
      *  Update this DataObject's table row
      *
      * @param object $object
+     * @param \Closure|null $saveRelationships
      */
-    protected function update($object)
+    protected function update(object $object, ?\Closure $saveRelationships)
     {
         $this->dispatchEvents('beforeUpdate', $object);
 
         $om = $this->getObjectManager();
         $data = $this->buildQueryParams($object);
         $this->queryHelper->massUpdate($this->getTableName(), $data, [$om->getIdColumn() =>$om->getId($object)]);
+        if ($saveRelationships) {
+            $saveRelationships([$object]);
+        }
 
         $this->dispatchEvents('afterUpdate', $object);
+    }
+
+    /**
+     * Override this method to return a closure that takes an array of objects and saves child relationships using the
+     * RelationshipSaver
+     *
+     * @return \Closure|null
+     */
+    protected function saveRelationships(): ?\Closure
+    {
+        return null;
     }
 
     /**
@@ -409,11 +431,14 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * Functions will receive an array parameter with the object that has just been saved
      *
+     * @deprecated Use saveRelationships instead
+     *
      * @param object $object
      * @param callable $afterSave
-     * @param callable $exceptionHandler
+     * @param callable|null $exceptionHandler
+     * @throws \Throwable
      */
-    protected function saveWith($object, callable $afterSave, callable $exceptionHandler = null)
+    protected function saveWith(object $object, callable $afterSave, callable $exceptionHandler = null)
     {
         $this->objectMapper->unitOfWork()->executeTransaction(function () use ($object, $afterSave) {
             self::save($object);
@@ -427,9 +452,12 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * Functions will receive an array parameter with the objects that have just been saved
      *
+     * @deprecated Use saveRelationships instead
+     *
      * @param object[] $objects
      * @param callable $afterSave
-     * @param callable $exceptionHandler
+     * @param callable|null $exceptionHandler
+     * @throws \Throwable
      */
     protected function saveAllWith(array $objects, callable $afterSave, callable $exceptionHandler = null)
     {
@@ -465,7 +493,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param object $object
      * @return array
      */
-    protected function buildQueryParams($object)
+    protected function buildQueryParams(object $object): array
     {
         $queryParams = [];
         $om = $this->getObjectManager();
@@ -520,7 +548,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $eventName
      * @param object $object
      */
-    protected function dispatchEvents($eventName, $object)
+    protected function dispatchEvents(string $eventName, object $object): void
     {
         if (!$this->dispatcher) {
             return;
@@ -583,7 +611,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $key
      * @param int $lifeTime
      */
-    protected function storeAllInCache(array $objects, $key, $lifeTime = 0)
+    protected function storeAllInCache(array $objects, string $key, $lifeTime = 0): void
     {
         $dataToCache = [];
         $om = $this->getObjectManager();
@@ -597,7 +625,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * @param object $object
      */
-    protected function checkArgument($object)
+    protected function checkArgument(object $object): void
     {
         $className = $this->getClassName();
         if (!($object instanceof $className)) {

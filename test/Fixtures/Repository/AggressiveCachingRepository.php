@@ -5,7 +5,7 @@ use Corma\Repository\AggressiveCachingObjectRepository;
 
 class AggressiveCachingRepository extends AggressiveCachingObjectRepository
 {
-    public function getClassName()
+    public function getClassName(): string
     {
         return 'Corma\\Test\\Fixtures\\ExtendedDataObject';
     }

@@ -19,9 +19,6 @@ class ReadOnlyRepositoryTest extends TestCase
     private $connection;
 
     /** @var MockObject */
-    private $queryHelper;
-
-    /** @var MockObject */
     private $cache;
 
     public function setUp(): void
@@ -72,14 +69,12 @@ class ReadOnlyRepositoryTest extends TestCase
     }
 
     /**
-     * @return ReadOnlyRepository
+     * @return ReadOnlyRepository|MockObject
      */
     protected function getRepository()
     {
-        $repository = $this->getMockBuilder(ReadOnlyRepository::class)
+        return $this->getMockBuilder(ReadOnlyRepository::class)
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
             ->onlyMethods(['fetchAll'])->getMock();
-
-        return $repository;
     }
 }
