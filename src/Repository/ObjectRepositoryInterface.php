@@ -12,9 +12,9 @@ interface ObjectRepositoryInterface
     /**
      * Finds all objects in the repository.
      *
-     * @return array The objects.
+     * @return iterable The objects.
      */
-    public function findAll();
+    public function findAll(): iterable;
 
     /**
      * Finds objects by a set of criteria.
@@ -28,11 +28,11 @@ interface ObjectRepositoryInterface
      * @param int|null   $limit
      * @param int|null   $offset
      *
-     * @return array The objects.
+     * @return iterable The objects.
      *
      * @throws \UnexpectedValueException
      */
-    public function findBy(array $criteria, array $orderBy = [], ?int $limit = null, ?int $offset = null);
+    public function findBy(array $criteria, array $orderBy = [], ?int $limit = null, ?int $offset = null): iterable;
 
     /**
      * Finds a single object by a set of criteria.
@@ -42,14 +42,14 @@ interface ObjectRepositoryInterface
      *
      * @return object|null The object.
      */
-    public function findOneBy(array $criteria, array $orderBy = []);
+    public function findOneBy(array $criteria, array $orderBy = []): ?object;
 
     /**
      * Returns the class name of the object managed by the repository.
      *
      * @return string
      */
-    public function getClassName();
+    public function getClassName(): string;
 
     /**
      * Creates a new instance of the object
@@ -57,14 +57,14 @@ interface ObjectRepositoryInterface
      * @param array $data Optional array of data to set on object after instantiation
      * @return object
      */
-    public function create(array $data = []);
+    public function create(array $data = []): object;
 
     /**
      * @param mixed $id The Identifier
      * @param bool $useCache Use cache?
-     * @return mixed
+     * @return object|null
      */
-    public function find($id, bool $useCache = true);
+    public function find($id, bool $useCache = true): ?object;
 
     /**
      * Find one or more data objects by id
@@ -73,7 +73,7 @@ interface ObjectRepositoryInterface
      * @param bool $useCache Use cache?
      * @return object[]
      */
-    public function findByIds(array $ids, bool $useCache = true): array;
+    public function findByIds(array $ids, bool $useCache = true): iterable;
 
     /**
      * Return the database table for an object
@@ -86,32 +86,41 @@ interface ObjectRepositoryInterface
     /**
      * Persists the object to the database
      *
-     * @param object $object
-     * @return object
+     * @param object $object The object to save
+     * @param \Closure|null $saveRelationships If the repository provides a saveRelationships closure then omitting
+     * will use the default specified by the repository. Explicitly passing null will not save any relationships even
+     * if the repository returns a closure from saveRelationships.
+     *
+     * @return object The saved object
      */
-    public function save($object);
+    public function save(object $object, ?\Closure $saveRelationships = null): object;
 
     /**
      * Persists all supplied objects into the database
-     **
-     * @param object[] $objects
+     *
+     * @param object[] $objects The objects to save
+     * @param \Closure|null $saveRelationships If the repository provides a saveRelationships closure then omitting
+     * will use the default specified by the repository. Explicitly passing null will not save any relationships even
+     * if the repository returns a closure from saveRelationships.
+     *
      * @return int The number of effected rows
      */
-    public function saveAll(array $objects);
+    public function saveAll(array $objects, ?\Closure $saveRelationships = null): int;
 
     /**
      * Removes the object from the database
      *
      * @param object $object
      */
-    public function delete($object);
+    public function delete(object $object): void;
 
     /**
      * Deletes all objects by id
      *
      * @param object[] $objects
+     * @return int The number of objects deleted
      */
-    public function deleteAll(array $objects);
+    public function deleteAll(array $objects): int;
 
     /**
      * Retrieves the object manager for the class managed by this repository.

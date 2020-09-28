@@ -96,7 +96,8 @@ class RelationshipSaver
                 }
             }
         }
-        $this->objectMapper->saveAll($objectsToUpdate);
+
+        $this->objectMapper->saveAll($objectsToUpdate, null);
     }
 
     /**

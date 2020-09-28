@@ -152,7 +152,7 @@ class CachingRepositoryTest extends TestCase
         $willReturn = new Caching();
 
         $this->objectManager->expects($this->any())->method('getId')->willReturn('9');
-        $this->objectManager->expects($this->exactly(2))->method('extract')->willReturn(['id'=>9]);
+        $this->objectManager->expects($this->atLeastOnce())->method('extract')->willReturn(['id'=>9]);
         $return = $repository->save($willReturn->setId(9));
         $this->assertEquals(9, $return->getId());
     }

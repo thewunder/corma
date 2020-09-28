@@ -6,7 +6,7 @@ namespace Corma\Repository;
  */
 abstract class CachingObjectRepository extends ObjectRepository
 {
-    public function find($id, bool $useCache = true)
+    public function find($id, bool $useCache = true): ?object
     {
         if (!$useCache) {
             return parent::find($id, false);
@@ -64,32 +64,28 @@ abstract class CachingObjectRepository extends ObjectRepository
         return array_merge($objects, $fromDb);
     }
 
-    public function save($object)
+    public function save(object $object, ?\Closure $saveRelationships = null): object
     {
         $object = parent::save($object);
         $this->storeInCache($object);
         return $object;
     }
 
-    /**
-     * @param object[] $objects
-     * @return int
-     */
-    public function saveAll(array $objects)
+    public function saveAll(array $objects, ?\Closure $saveRelationships = null): int
     {
         $result = parent::saveAll($objects);
         $this->storeMultipleInCache($objects);
         return $result;
     }
 
-    public function delete($object)
+    public function delete($object): void
     {
         parent::delete($object);
         $om = $this->getObjectManager();
         $this->cache->delete($this->getCacheKey($om->getId($object)));
     }
 
-    public function deleteAll(array $objects)
+    public function deleteAll(array $objects): int
     {
         $result = parent::deleteAll($objects);
         $om = $this->getObjectManager();
@@ -110,11 +106,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         return 86400;
     }
 
-
-    /**
-     * @param object $object
-     */
-    protected function storeInCache($object)
+    protected function storeInCache(object $object)
     {
         $om = $this->getObjectManager();
         $id = $om->getId($object);
@@ -135,11 +127,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         $this->cache->saveMultiple($data, $this->getCacheLifetime());
     }
 
-    /**
-     * @param string $id
-     * @return string
-     */
-    protected function getCacheKey($id)
+    protected function getCacheKey(string $id): string
     {
         return $this->getTableName() . "[$id]";
     }

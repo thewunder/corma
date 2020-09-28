@@ -10,7 +10,7 @@ namespace Corma\Repository;
  */
 abstract class AggressiveCachingObjectRepository extends ObjectRepository
 {
-    public function find($id, bool $useCache = true)
+    public function find($id, bool $useCache = true): ?object
     {
         if ($useCache) {
             $this->findAll();
@@ -28,7 +28,7 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
         return parent::findByIds($ids);
     }
 
-    public function findAll()
+    public function findAll(): iterable
     {
         $key = $this->getCacheKey();
         if ($this->cache->contains($key)) {
@@ -42,37 +42,34 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
         return $objects;
     }
 
-    public function save($object)
+    public function save(object $object, ?\Closure $saveRelationships = null): object
     {
         parent::save($object);
         $this->cache->delete($this->getCacheKey());
         return $object;
     }
 
-    public function saveAll(array $objects)
+    public function saveAll(array $objects, ?\Closure $saveRelationships = null): int
     {
         $result = parent::saveAll($objects);
         $this->cache->delete($this->getCacheKey());
         return $result;
     }
 
-    public function delete($object)
+    public function delete(object $object): void
     {
         parent::delete($object);
         $this->cache->delete($this->getCacheKey());
     }
 
-    public function deleteAll(array $objects)
+    public function deleteAll(array $objects): int
     {
         $result = parent::deleteAll($objects);
         $this->cache->delete($this->getCacheKey());
         return $result;
     }
 
-    /**
-     * @return string
-     */
-    protected function getCacheKey()
+    protected function getCacheKey(): string
     {
         return "all_{$this->getTableName()}";
     }

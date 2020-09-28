@@ -50,8 +50,10 @@ class UnitOfWorkTest extends TestCase
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('commit');
-        $unitOfWork->executeTransaction(function () {
+        $return = $unitOfWork->executeTransaction(function () {
+            return 7;
         });
+        $this->assertEquals(7, $return);
     }
 
     public function testExecuteTransactionException()
