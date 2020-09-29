@@ -236,19 +236,20 @@ class ObjectRepository implements ObjectRepositoryInterface
 
         $om = $this->getObjectManager();
 
-        foreach ($objects as $object) {
+        $inserts = [];
+        foreach ($objects as $i => $object) {
             $this->checkArgument($object);
             $this->dispatchEvents('beforeSave', $object);
             if ($om->getId($object)) {
                 $this->dispatchEvents('beforeUpdate', $object);
             } else {
                 $this->dispatchEvents('beforeInsert', $object);
+                $inserts[$i] = $object;
             }
         }
 
-        $lastId = null;
         $saveRelationships = $saveRelationships ?? $this->saveRelationships();
-        $doUpsert = function () use ($objects, $om, $saveRelationships, &$lastId) {
+        $doUpsert = function () use ($objects, $om, $saveRelationships, $inserts) {
             $columns = $this->queryHelper->getDbColumns($this->getTableName());
             $rows = [];
             foreach ($objects as $object) {
@@ -261,7 +262,15 @@ class ObjectRepository implements ObjectRepositoryInterface
                 $rows[] = $data;
             }
 
+            $lastId = null;
             $rows = $this->queryHelper->massUpsert($this->getTableName(), $rows, $lastId);
+            foreach ($inserts as $object) {
+                if ($lastId) {
+                    $om->setId($object, $lastId);
+                    $lastId++;
+                }
+            }
+
             if ($saveRelationships) {
                 $saveRelationships($objects);
             }
@@ -274,15 +283,11 @@ class ObjectRepository implements ObjectRepositoryInterface
             $rows = $doUpsert();
         }
 
-        foreach ($objects as $object) {
-            if ($om->getId($object)) {
-                $this->dispatchEvents('afterUpdate', $object);
-            } else {
-                if ($lastId) {
-                    $om->setId($object, $lastId);
-                    $lastId++;
-                }
+        foreach ($objects as $i => $object) {
+            if (isset($inserts[$i])) {
                 $this->dispatchEvents('afterInsert', $object);
+            } else {
+                $this->dispatchEvents('afterUpdate', $object);
             }
             $this->dispatchEvents('afterSave', $object);
         }
@@ -462,8 +467,8 @@ class ObjectRepository implements ObjectRepositoryInterface
     protected function saveAllWith(array $objects, callable $afterSave, callable $exceptionHandler = null)
     {
         $this->objectMapper->unitOfWork()->executeTransaction(function () use ($objects, $afterSave) {
-                self::saveAll($objects);
-                $afterSave($objects);
+            self::saveAll($objects);
+            $afterSave($objects);
         }, $exceptionHandler);
     }
 
