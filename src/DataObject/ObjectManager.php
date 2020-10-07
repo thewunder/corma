@@ -57,7 +57,7 @@ class ObjectManager
      */
     public function create($data = [])
     {
-        return $this->factory->create($this->className, $this->dependencies, $data);
+        return $this->factory->create($this->className, $data, $this->dependencies);
     }
 
     /**

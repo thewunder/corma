@@ -22,14 +22,14 @@ class PdoObjectFactoryTest extends TestCase
     {
         $factory = $this->getFactory();
         /** @var ExtendedDataObject $object */
-        $object = $factory->create(ExtendedDataObject::class, [], ['myColumn'=>'asdf']);
+        $object = $factory->create(ExtendedDataObject::class, ['myColumn' => 'asdf'], []);
         $this->assertEquals('asdf', $object->getMyColumn());
     }
 
     public function testCreateWithDependencies()
     {
         $factory = $this->getFactory();
-        $object = $factory->create(ObjectWithDependencies::class, [new EventDispatcher()]);
+        $object = $factory->create(ObjectWithDependencies::class, [], [new EventDispatcher()]);
         $this->assertInstanceOf(ObjectWithDependencies::class, $object);
     }
 
