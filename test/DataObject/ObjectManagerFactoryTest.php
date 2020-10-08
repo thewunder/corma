@@ -1,8 +1,9 @@
 <?php
 
-namespace DataObject;
+namespace Corma\Test\DataObject;
 
 use Corma\DataObject\Factory\PdoObjectFactory;
+use Corma\DataObject\Factory\PsrContainerObjectFactory;
 use Corma\DataObject\Hydrator\ClosureHydrator;
 use Corma\DataObject\Identifier\AutoIncrementIdentifier;
 use Corma\DataObject\Identifier\CustomizableAutoIncrementIdentifier;
@@ -14,7 +15,9 @@ use Corma\QueryHelper\MySQLQueryHelper;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Util\Inflector;
 use Minime\Annotations\Reader;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 
 class ObjectManagerFactoryTest extends TestCase
 {
@@ -44,6 +47,17 @@ class ObjectManagerFactoryTest extends TestCase
         $this->assertInstanceOf(AnnotationCustomizableTableConvention::class, $omf->getTableConvention());
         $this->assertInstanceOf(ClosureHydrator::class, $omf->getHydrator());
         $this->assertInstanceOf(CustomizableAutoIncrementIdentifier::class, $omf->getIdentifier());
+    }
+
+    public function testWithDefaultsWithContainer()
+    {
+        /** @var MockObject|ContainerInterface $container */
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
+        $omf = ObjectManagerFactory::withDefaults($this->queryHelper, Inflector::build(), null, $container);
+        $this->assertInstanceOf(PsrContainerObjectFactory::class, $omf->getFactory());
+        $this->assertInstanceOf(DefaultTableConvention::class, $omf->getTableConvention());
+        $this->assertInstanceOf(ClosureHydrator::class, $omf->getHydrator());
+        $this->assertInstanceOf(AutoIncrementIdentifier::class, $omf->getIdentifier());
     }
 
     public function testGetManager()

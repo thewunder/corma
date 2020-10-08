@@ -3,6 +3,7 @@ namespace Corma\DataObject;
 
 use Corma\DataObject\Factory\ObjectFactoryInterface;
 use Corma\DataObject\Factory\PdoObjectFactory;
+use Corma\DataObject\Factory\PsrContainerObjectFactory;
 use Corma\DataObject\Hydrator\ClosureHydrator;
 use Corma\DataObject\Hydrator\ObjectHydratorInterface;
 use Corma\DataObject\Identifier\AutoIncrementIdentifier;
@@ -14,6 +15,7 @@ use Corma\DataObject\TableConvention\TableConventionInterface;
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\Util\Inflector;
 use Minime\Annotations\Interfaces\ReaderInterface;
+use Psr\Container\ContainerInterface;
 
 class ObjectManagerFactory
 {
@@ -46,12 +48,17 @@ class ObjectManagerFactory
      * @param QueryHelperInterface $queryHelper
      * @param Inflector $inflector
      * @param ReaderInterface|null $reader
+     * @param ContainerInterface|null $container
      * @return ObjectManagerFactory
      */
-    public static function withDefaults(QueryHelperInterface $queryHelper, Inflector $inflector, ?ReaderInterface $reader = null): self
+    public static function withDefaults(QueryHelperInterface $queryHelper, Inflector $inflector, ?ReaderInterface $reader = null, ?ContainerInterface $container = null): self
     {
         $hydrator = new ClosureHydrator();
-        $factory = new PdoObjectFactory($hydrator);
+        if ($container) {
+            $factory = new PsrContainerObjectFactory($container, $hydrator);
+        } else {
+            $factory = new PdoObjectFactory($hydrator);
+        }
         if ($reader) {
             $tableConvention = new AnnotationCustomizableTableConvention($inflector, $reader);
         } else {
