@@ -59,15 +59,12 @@ class ObjectManagerFactory
         } else {
             $factory = new PdoObjectFactory($hydrator);
         }
-        if ($reader) {
-            $tableConvention = new AnnotationCustomizableTableConvention($inflector, $reader);
-        } else {
-            $tableConvention = new DefaultTableConvention($inflector);
-        }
 
         if ($reader) {
+            $tableConvention = new AnnotationCustomizableTableConvention($inflector, $reader);
             $identifier = new CustomizableAutoIncrementIdentifier($inflector, $reader, $queryHelper, $tableConvention);
         } else {
+            $tableConvention = new DefaultTableConvention($inflector);
             $identifier = new AutoIncrementIdentifier($inflector, $queryHelper, $tableConvention);
         }
 

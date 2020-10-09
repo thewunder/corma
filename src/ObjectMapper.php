@@ -63,12 +63,14 @@ class ObjectMapper
      * @param CacheProvider|null $cache Cache for table metadata and repositories
      * @param EventDispatcherInterface|null $dispatcher
      * @param ReaderInterface|null $reader
-     * @param ContainerInterface|array $dependencies Dependency injection container for constructing data objects and their repositories
+     * @param array $dependencies Array of additional dependencies use for constructing repositories
+     * @param ContainerInterface|null $container Dependency injection container for constructing data objects and their repositories
      * @return self
      *
      * @throws DBALException When the database platform is not supported by Doctrine DBAL
      */
-    public static function withDefaults(Connection $db, ?CacheProvider $cache = null, ?EventDispatcherInterface $dispatcher = null, ?ReaderInterface $reader = null, $dependencies = []): self
+    public static function withDefaults(Connection $db, ?CacheProvider $cache = null, ?EventDispatcherInterface $dispatcher = null,
+                                        ?ReaderInterface $reader = null, array $dependencies = [], ContainerInterface $container = null): self
     {
         if ($cache === null) {
             $cache = new LimitedArrayCache(10000);
@@ -79,18 +81,13 @@ class ObjectMapper
 
         $inflector = Inflector::build();
 
-        if ($dependencies instanceof ContainerInterface) {
-            $repositoryFactory = new ObjectRepositoryFactory($dependencies);
-            $objectManagerFactory = ObjectManagerFactory::withDefaults($queryHelper, $inflector, $reader, $dependencies);
-        } else {
-            $repositoryFactory = new ObjectRepositoryFactory();
-            $objectManagerFactory = ObjectManagerFactory::withDefaults($queryHelper, $inflector, $reader);
-        }
+        $repositoryFactory = new ObjectRepositoryFactory($container);
+        $objectManagerFactory = ObjectManagerFactory::withDefaults($queryHelper, $inflector, $reader, $container);
 
         $instance = new static($queryHelper, $repositoryFactory, $objectManagerFactory, $inflector);
 
         $repositoryDependencies = [$db, $instance, $cache, $dispatcher];
-        if (is_array($dependencies)) {
+        if (!empty($dependencies)) {
             $repositoryDependencies = array_merge($repositoryDependencies, $dependencies);
         }
         $repositoryFactory->setDependencies($repositoryDependencies);
