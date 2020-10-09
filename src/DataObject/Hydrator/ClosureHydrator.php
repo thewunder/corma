@@ -47,7 +47,7 @@ class ClosureHydrator implements ObjectHydratorInterface
     {
         return function (array $data) {
             foreach ($data as $name => $value) {
-                if (is_scalar($value) && property_exists($this, $name)) {
+                if ((is_scalar($value) || $value === null) && property_exists($this, $name)) {
                     $this->{$name} = $value;
                     continue;
                 }
