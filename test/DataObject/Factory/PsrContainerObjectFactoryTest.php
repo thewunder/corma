@@ -30,6 +30,7 @@ class PsrContainerObjectFactoryTest extends TestCase
     public function testCreate()
     {
         $object = new ExtendedDataObject();
+        $this->container->expects($this->once())->method('has')->with(ExtendedDataObject::class)->willReturn(true);
         $this->container->expects($this->once())->method('get')->with(ExtendedDataObject::class)->willReturn($object);
         $this->assertEquals($object, $this->factory->create(ExtendedDataObject::class));
     }
@@ -38,6 +39,7 @@ class PsrContainerObjectFactoryTest extends TestCase
     {
         $object = new ExtendedDataObject();
         $data = ['myColumn'=>'value'];
+        $this->container->expects($this->once())->method('has')->with(ExtendedDataObject::class)->willReturn(true);
         $this->container->expects($this->once())->method('get')->with(ExtendedDataObject::class)->willReturn($object);
         $this->hydrator->expects($this->once())->method('hydrate')->with($object, $data);
         $this->assertEquals($object, $this->factory->create(ExtendedDataObject::class, $data));
@@ -59,6 +61,7 @@ class PsrContainerObjectFactoryTest extends TestCase
         $data = ['myColumn'=>'value'];
         $object2 = new ExtendedDataObject();
         $data2 = ['myColumn'=>'value2'];
+        $this->container->expects($this->exactly(2))->method('has')->with(ExtendedDataObject::class)->willReturn(true);
         $this->container->expects($this->exactly(2))->method('get')->with(ExtendedDataObject::class)->willReturn($object, $object2);
         $this->hydrator->expects($this->exactly(2))->method('hydrate')->withConsecutive([$object, $data], [$object2, $data2]);
 
@@ -73,6 +76,7 @@ class PsrContainerObjectFactoryTest extends TestCase
     {
         $object = new ExtendedDataObject();
         $data = ['myColumn'=>'value'];
+        $this->container->expects($this->once())->method('has')->with(ExtendedDataObject::class)->willReturn(true);
         $this->container->expects($this->once())->method('get')->with(ExtendedDataObject::class)->willReturn($object);
         $this->hydrator->expects($this->once())->method('hydrate')->with($object, $data);
 
