@@ -11,30 +11,30 @@ interface ObjectFactoryInterface
     /**
      * Retrieves a single instance of the specified object
      *
-     * @param string $class
-     * @param array $dependencies
-     * @param array $data
+     * @param string $class Fully qualified class name of the object to create
+     * @param array $data Data to hydrate the object with
+     * @param array $dependencies Dependencies to construct the object with
      * @return object
      */
-    public function create(string $class, array $dependencies = [], array $data = []): object;
+    public function create(string $class, array $data = [], array $dependencies = []): object;
 
     /**
      * Retrieves all items from select statement, hydrated, and with dependencies
      *
-     * @param string $class
-     * @param ResultStatement|\PDOStatement $statement
-     * @param array $dependencies
+     * @param string $class Fully qualified class name of the object to create
+     * @param ResultStatement $statement Database result statement
+     * @param array $dependencies Dependencies to construct the object with
      * @return object[]
      */
-    public function fetchAll(string $class, $statement, array $dependencies = []): array;
+    public function fetchAll(string $class, ResultStatement $statement, array $dependencies = []): array;
 
     /**
      * Retrieves a single item from select statement, hydrated, and with dependencies
      *
-     * @param string $class
-     * @param ResultStatement $statement
-     * @param array $dependencies
+     * @param string $class Fully qualified class name of the object to create
+     * @param ResultStatement $statement Database result statement
+     * @param array $dependencies Dependencies to construct the object with
      * @return object|null
      */
-    public function fetchOne(string $class, $statement, array $dependencies = []): ?object;
+    public function fetchOne(string $class, ResultStatement $statement, array $dependencies = []): ?object;
 }

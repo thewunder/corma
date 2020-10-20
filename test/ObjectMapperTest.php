@@ -16,20 +16,28 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 
 class ObjectMapperTest extends TestCase
 {
     public function testCreate()
     {
-        $connection = $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
+        $connection = $this->mockConnection();
 
         $corma = ObjectMapper::withDefaults($connection);
         $this->assertInstanceOf(ObjectMapper::class, $corma);
         return $corma;
+    }
+
+    public function testCreateWithContainer()
+    {
+        $connection = $this->mockConnection();
+
+        /** @var ContainerInterface|MockObject $container */
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
+
+        $corma = ObjectMapper::withDefaults($connection, null, null, null, [], $container);
+        $this->assertInstanceOf(ObjectMapper::class, $corma);
     }
 
     /**
@@ -248,11 +256,7 @@ class ObjectMapperTest extends TestCase
 
     public function testUnitOfWork()
     {
-        $connection = $this->getMockBuilder(Connection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
+        $connection = $this->mockConnection();
 
         $corma = ObjectMapper::withDefaults($connection);
 
@@ -262,7 +266,7 @@ class ObjectMapperTest extends TestCase
 
     /**
      * @param $mockRepository
-     * @return ObjectMapper
+     * @return ObjectMapper|MockObject
      */
     protected function getCorma(MockObject $mockRepository)
     {
@@ -290,5 +294,19 @@ class ObjectMapperTest extends TestCase
         $objectMapper->method('getRelationshipLoader')->willReturn($loader);
 
         return $objectMapper;
+    }
+
+    /**
+     * @return Connection|MockObject
+     */
+    private function mockConnection()
+    {
+        /** @var Connection|MockObject $connection */
+        $connection = $this->getMockBuilder(Connection::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
+        return $connection;
     }
 }

@@ -3,6 +3,7 @@ namespace Corma\Repository;
 
 use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidClassException;
+use Psr\Container\ContainerInterface;
 
 /**
  * Default object repository factory.
@@ -23,11 +24,16 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     private $dependencies;
 
     /**
-     * @param array $dependencies Repository constructor dependencies
+     * @var ContainerInterface|null
      */
-    public function __construct(array $dependencies = [])
+    private $container;
+
+    /**
+     * @param ContainerInterface|null $container Dependency injection container to construct non-default repositories
+     */
+    public function __construct(?ContainerInterface $container = null)
     {
-        $this->dependencies = $dependencies;
+        $this->container = $container;
     }
 
     public function getRepository(string $class): ?ObjectRepositoryInterface
@@ -87,9 +93,13 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
                 throw new InvalidClassException("$className does not implement ObjectRepositoryInterface");
             }
 
-            $reflection = new \ReflectionClass($className);
-            /** @var ObjectRepositoryInterface $repository */
-            $repository = $reflection->newInstanceArgs($this->dependencies);
+            if ($this->container && $this->container->has($className)) {
+                $repository = $this->container->get($className);
+            } else {
+                $reflection = new \ReflectionClass($className);
+                /** @var ObjectRepositoryInterface $repository */
+                $repository = $reflection->newInstanceArgs($this->dependencies);
+            }
 
             $this->repositories[$className] = $repository;
             return $repository;
@@ -98,10 +108,15 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     }
 
     /**
-     * @param array $dependencies
+     * @param array $repositoryDependencies Array of dependencies to pass into the default / base repository constructors
      */
-    public function setDependencies($dependencies)
+    public function setDependencies(array $repositoryDependencies)
     {
-        $this->dependencies = $dependencies;
+        $this->dependencies = $repositoryDependencies;
+    }
+
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
     }
 }

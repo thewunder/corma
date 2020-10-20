@@ -1,3 +1,19 @@
+Version 3.6.0
+=============
+
+New Feature
+------------
+* Support PSR-11 DI containers for data object and repository creation. This allows custom dependencies to be injected
+into repositories, and removes the burden of configuring the data object's dependencies from the repository. 
+
+
+Version 3.5.1, 3.5.2
+=============
+
+Fixes
+-----
+* Fix errors related to new relationship saving pattern in repositories
+
 Version 3.5.0
 =============
 

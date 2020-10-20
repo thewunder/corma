@@ -18,7 +18,7 @@ abstract class BaseObjectFactory implements ObjectFactoryInterface
         $this->hydrator = $hydrator;
     }
 
-    public function create(string $class, array $dependencies = [], array $data = []): object
+    public function create(string $class, array $data = [], array $dependencies = []): object
     {
         if (empty($dependencies)) {
             $object = new $class;
