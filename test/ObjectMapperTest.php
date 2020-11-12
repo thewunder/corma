@@ -111,9 +111,9 @@ class ObjectMapperTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mockRepo->expects($this->once())->method('findOneBy')->with(['asdf'=>'value']);
+        $mockRepo->expects($this->once())->method('findOneBy')->with(['asdf'=>'value'], ['asdf'=>'ASC']);
 
-        $this->getCorma($mockRepo)->findOneBy(ExtendedDataObject::class, ['asdf'=>'value']);
+        $this->getCorma($mockRepo)->findOneBy(ExtendedDataObject::class, ['asdf'=>'value'], ['asdf'=>'ASC']);
     }
 
     public function testLoadOneToMany()

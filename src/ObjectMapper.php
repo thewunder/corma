@@ -205,13 +205,14 @@ class ObjectMapper
      *
      * @param string $objectName Fully qualified object class name
      * @param array $criteria column => value pairs
+     * @param array|null $orderBy column => order pairs
      * @return object
      *
      * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
-    public function findOneBy(string $objectName, array $criteria)
+    public function findOneBy(string $objectName, array $criteria, ?array $orderBy = [])
     {
-        return $this->getRepository($objectName)->findOneBy($criteria);
+        return $this->getRepository($objectName)->findOneBy($criteria, $orderBy);
     }
 
     /**
