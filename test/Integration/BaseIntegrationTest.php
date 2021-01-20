@@ -205,6 +205,21 @@ abstract class BaseIntegrationTest extends TestCase
         }
     }
 
+    public function testFindByNullWithTableAlias()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('ASDF 4');
+        $this->repository->save($object);
+
+        /** @var ExtendedDataObject[] $nullObjects */
+        $nullObjects = $this->repository->findBy(['main.myNullableColumn'=>null]);
+        $this->assertGreaterThan(0, $nullObjects);
+
+        foreach ($nullObjects as $object) {
+            $this->assertNull($object->getMyNullableColumn());
+        }
+    }
+
     public function testFindByBool()
     {
         $object = new ExtendedDataObject();

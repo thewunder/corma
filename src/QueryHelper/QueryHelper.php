@@ -356,14 +356,15 @@ class QueryHelper implements QueryHelperInterface
 
     /**
      * @param array $from The from part of the query builder
-     * @param string $column
+     * @param string $whereClause
      * @return bool
      */
-    protected function acceptsNull(array $from, string $column)
+    protected function acceptsNull(array $from, string $whereClause)
     {
         foreach ($from as $tableInfo) {
             $table = str_replace($this->db->getDatabasePlatform()->getIdentifierQuoteCharacter(), '', $tableInfo['table']);
             $columns = $this->getDbColumns($table);
+            $column = $this->getColumnName($whereClause, false);
             if (!$columns->hasColumn($column)) {
                 continue;
             }
@@ -451,7 +452,7 @@ class QueryHelper implements QueryHelperInterface
     protected function getParameterName(string $whereCondition, QueryBuilder $qb)
     {
         //chop off table alias and operator
-        $base = ':' . preg_replace(self::WHERE_COLUMN_REGEX, '$3', $whereCondition);
+        $base = ':' . $this->getColumnName($whereCondition, false);
 
         //check for collisions
         $parameterName = $base;
@@ -464,14 +465,15 @@ class QueryHelper implements QueryHelperInterface
     }
 
     /**
-     * Return table alias (if specified) and column
+     * Returns column name, and optionally table alias
      *
-     * @param $whereCondition
-     * @return mixed
+     * @param string $whereCondition
+     * @param bool $includeTableAlias
+     * @return string column name
      */
-    protected function getColumnName(string $whereCondition)
+    protected function getColumnName(string $whereCondition, bool $includeTableAlias = true): string
     {
-        return preg_replace(self::WHERE_COLUMN_REGEX, '$2$3', $whereCondition);
+        return preg_replace(self::WHERE_COLUMN_REGEX, $includeTableAlias ? '$2$3' : '$3', $whereCondition);
     }
 
     /**
