@@ -31,6 +31,7 @@ class SeekPagedQueryTest extends TestCase
         /** @var MockObject|Connection $connection */
         $this->connection = $connection = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMock();
         $connection->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
+        $connection->method('quoteIdentifier')->willReturnArgument(0);
 
         $this->qb = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()

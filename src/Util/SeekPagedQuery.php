@@ -131,11 +131,10 @@ class SeekPagedQuery extends PagedQuery
     private function addIdSort(): void
     {
         $columns = $this->getSortColumns();
-        $connection = $this->queryHelper->getConnection();
         $identifier = $this->objectManager->getIdColumn();
         if (!isset($columns[$identifier]) && !isset($columns['main.'.$identifier])) {
             $this->sortColumns[$identifier] = 'ASC';
-            $this->qb->addOrderBy('main.' . $connection->quoteIdentifier($identifier), 'ASC');
+            $this->qb->addOrderBy($this->quotedColumn($identifier), 'ASC');
         }
     }
 
@@ -149,7 +148,7 @@ class SeekPagedQuery extends PagedQuery
         foreach ($sortColumns as $column => $direction) {
             $value = $this->getLastResultValue($column, $lastResultData);
 
-            $quotedColumn = $this->qb->getConnection()->quoteIdentifier($column);
+            $quotedColumn = $this->quotedColumn($column);
             $param = ':' . $this->removeTableAlias($column);
             $comparison = $direction == 'ASC' ? '>' : '<';
 
@@ -201,6 +200,14 @@ class SeekPagedQuery extends PagedQuery
         }
 
         return $lastResultData[$column];
+    }
+
+    private function quotedColumn(string $column): string
+    {
+        if (strpos($column, '.') === false) {
+            $column = 'main.' . $column;
+        }
+        return $this->qb->getConnection()->quoteIdentifier($column);
     }
 
     private function removeTableAlias(string $column): string
