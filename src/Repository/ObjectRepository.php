@@ -237,8 +237,14 @@ class ObjectRepository implements ObjectRepositoryInterface
         $om = $this->getObjectManager();
 
         $inserts = [];
+        $uniqueObjects = [];
         foreach ($objects as $i => $object) {
             $this->checkArgument($object);
+            $hash = spl_object_hash($object);
+            if (isset($uniqueObjects[$hash])) {
+                continue;
+            }
+            $uniqueObjects[$hash] = $object;
             $this->dispatchEvents('beforeSave', $object);
             if ($om->getId($object)) {
                 $this->dispatchEvents('beforeUpdate', $object);
@@ -249,10 +255,10 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
 
         $saveRelationships = $saveRelationships ?? $this->saveRelationships();
-        $doUpsert = function () use ($objects, $om, $saveRelationships, $inserts) {
+        $doUpsert = function () use ($uniqueObjects, $om, $saveRelationships, $inserts) {
             $columns = $this->queryHelper->getDbColumns($this->getTableName());
             $rows = [];
-            foreach ($objects as $object) {
+            foreach ($uniqueObjects as $object) {
                 $data = $om->extract($object);
                 foreach ($data as $prop => $value) {
                     if (!$columns->hasColumn($prop)) {
@@ -263,7 +269,7 @@ class ObjectRepository implements ObjectRepositoryInterface
             }
 
             $lastId = null;
-            $rows = $this->queryHelper->massUpsert($this->getTableName(), $rows, $lastId);
+            $rowCount = $this->queryHelper->massUpsert($this->getTableName(), $rows, $lastId);
             foreach ($inserts as $object) {
                 if ($lastId) {
                     $om->setId($object, $lastId);
@@ -272,9 +278,9 @@ class ObjectRepository implements ObjectRepositoryInterface
             }
 
             if ($saveRelationships) {
-                $saveRelationships($objects);
+                $saveRelationships($uniqueObjects);
             }
-            return $rows;
+            return $rowCount;
         };
 
         if ($saveRelationships) {
