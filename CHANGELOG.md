@@ -1,3 +1,23 @@
+Version 3.6.2
+=============
+
+Updates
+-----
+* Run tests on PHP 8
+
+Fixes
+-----
+* Handle cases where the same object instance is passed to saveAll multiple times
+* Fix null in where clauses when a table alias is included
+* Fix seek paged queries with a join
+
+Version 3.6.1
+=============
+
+Updates
+-----
+* Add orderBy param to findOneBy
+
 Version 3.6.0
 =============
 
