@@ -11,8 +11,8 @@ use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Util\Inflector;
 use Corma\Util\LimitedArrayCache;
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use Dotenv\Dotenv;
 
 class PostgresIntegrationTest extends BaseIntegrationTest
@@ -31,11 +31,11 @@ class PostgresIntegrationTest extends BaseIntegrationTest
         $objectMapper->expects($this->any())->method('getIdentityMap')->willReturn(new LimitedArrayCache());
         $this->repository = new ExtendedDataObjectRepository(self::$connection, $objectMapper, $cache, $this->dispatcher);
 
-        $this->assertFalse($mySQLQueryHelper->isDuplicateException(new DBALException()));
+        $this->assertFalse($mySQLQueryHelper->isDuplicateException(new Exception()));
 
         try {
             $this->repository->causeUniqueConstraintViolation();
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
             $this->assertTrue($mySQLQueryHelper->isDuplicateException($e));
             $this->repository->deleteAll($this->repository->findAll());
             return;
@@ -74,17 +74,14 @@ class PostgresIntegrationTest extends BaseIntegrationTest
 
         $pass = getenv('PGSQL_PASS') ? getenv('PGSQL_PASS') : '';
 
-        $pdo = new \PDO('pgsql:host='.getenv('PGSQL_HOST'), getenv('PGSQL_USER'), $pass);
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-        self::$connection = DriverManager::getConnection(['driver'=>'pdo_pgsql','pdo'=>$pdo, 'dbname'=>'public']);
+        self::$connection = DriverManager::getConnection(['driver'=>'pdo_pgsql','host'=>getenv('PGSQL_HOST'), 'user'=> getenv('PGSQL_USER'), 'password'=>$pass]);
         try {
-            self::$connection->query('drop schema cormatest cascade');
-        } catch (DBALException $e) {
+            self::$connection->executeQuery('drop schema cormatest cascade');
+        } catch (Exception $e) {
         }
 
-        self::$connection->query('create schema cormatest');
-        self::$connection->query('CREATE TABLE extended_data_objects (
+        self::$connection->executeQuery('create schema cormatest');
+        self::$connection->executeQuery('CREATE TABLE extended_data_objects (
           id SERIAL PRIMARY KEY,
           "isDeleted" BOOLEAN NOT NULL DEFAULT FALSE,
           "myColumn" VARCHAR(255) NOT NULL,
@@ -92,14 +89,14 @@ class PostgresIntegrationTest extends BaseIntegrationTest
           "otherDataObjectId" INT NULL
         )');
 
-        self::$connection->query('CREATE TABLE other_data_objects (
+        self::$connection->executeQuery('CREATE TABLE other_data_objects (
           id SERIAL PRIMARY KEY,
           "isDeleted" BOOLEAN NOT NULL DEFAULT FALSE,
           "name" VARCHAR(255) NOT NULL,
           "extendedDataObjectId" INT NULL REFERENCES extended_data_objects (id)
         )');
 
-        self::$connection->query('CREATE TABLE extended_other_rel (
+        self::$connection->executeQuery('CREATE TABLE extended_other_rel (
           "extendedDataObjectId" INT NOT NULL REFERENCES extended_data_objects (id),
           "otherDataObjectId" INT NOT NULL REFERENCES other_data_objects (id)
         )');

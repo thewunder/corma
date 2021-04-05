@@ -9,8 +9,8 @@ use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Util\Inflector;
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Exception;
 use Dotenv\Dotenv;
 
 class MysqlIntegrationTest extends BaseIntegrationTest
@@ -26,11 +26,11 @@ class MysqlIntegrationTest extends BaseIntegrationTest
         $objectMapper->method('getObjectManagerFactory')->willReturn($objectManagerFactory);
         $this->repository = new ExtendedDataObjectRepository(self::$connection, $objectMapper, $cache, $this->dispatcher);
 
-        $this->assertFalse($mySQLQueryHelper->isDuplicateException(new DBALException()));
+        $this->assertFalse($mySQLQueryHelper->isDuplicateException(new Exception()));
 
         try {
             $this->repository->causeUniqueConstraintViolation();
-        } catch (DBALException $e) {
+        } catch (Exception $e) {
             $this->assertTrue($mySQLQueryHelper->isDuplicateException($e));
             return;
         }
@@ -67,13 +67,10 @@ class MysqlIntegrationTest extends BaseIntegrationTest
 
         $pass = getenv('MYSQL_PASS') ? getenv('MYSQL_PASS') : '';
 
-        $pdo = new \PDO('mysql:host='.getenv('MYSQL_HOST'), getenv('MYSQL_USER'), $pass);
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-        self::$connection = DriverManager::getConnection(['driver'=>'pdo_mysql','pdo'=>$pdo]);
-        self::$connection->query('CREATE DATABASE corma_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;');
-        self::$connection->query('USE corma_test');
-        self::$connection->query('CREATE TABLE extended_data_objects (
+        self::$connection = DriverManager::getConnection(['driver'=>'pdo_mysql','user'=>getenv('MYSQL_USER'), 'host'=>getenv('MYSQL_HOST'), 'password'=>$pass]);
+        self::$connection->executeQuery('CREATE DATABASE corma_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;');
+        self::$connection->executeQuery('USE corma_test');
+        self::$connection->executeQuery('CREATE TABLE extended_data_objects (
           id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
           isDeleted TINYINT(1) UNSIGNED NOT NULL,
           myColumn VARCHAR(255) NOT NULL,
@@ -81,7 +78,7 @@ class MysqlIntegrationTest extends BaseIntegrationTest
           otherDataObjectId INT (11) UNSIGNED NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1');
 
-        self::$connection->query('CREATE TABLE other_data_objects (
+        self::$connection->executeQuery('CREATE TABLE other_data_objects (
           id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
           isDeleted TINYINT(1) UNSIGNED NOT NULL,
           `name` VARCHAR(255) NOT NULL,
@@ -89,7 +86,7 @@ class MysqlIntegrationTest extends BaseIntegrationTest
           FOREIGN KEY `extendedDataObjectId` (`extendedDataObjectId`) REFERENCES `extended_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1');
 
-        self::$connection->query('CREATE TABLE extended_other_rel (
+        self::$connection->executeQuery('CREATE TABLE extended_other_rel (
           extendedDataObjectId INT(11) UNSIGNED NOT NULL,
           otherDataObjectId INT(11) UNSIGNED NOT NULL,
           FOREIGN KEY `extendedId` (`extendedDataObjectId`) REFERENCES `extended_data_objects` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -99,6 +96,6 @@ class MysqlIntegrationTest extends BaseIntegrationTest
 
     protected static function deleteDatabase()
     {
-        self::$connection->query('DROP DATABASE corma_test');
+        self::$connection->executeQuery('DROP DATABASE corma_test');
     }
 }
