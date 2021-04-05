@@ -1,12 +1,12 @@
 <?php
-namespace DataObject\TableConvention;
+namespace Corma\Test\DataObject\TableConvention;
 
 use Corma\DataObject\TableConvention\AnnotationCustomizableTableConvention;
 use Corma\Test\Fixtures\AnnotatedDataObject;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Util\Inflector;
 use Minime\Annotations\Reader;
-use PHPStan\Testing\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class AnnotationCustomizableTableConventionTest extends TestCase
 {

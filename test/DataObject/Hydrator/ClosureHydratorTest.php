@@ -4,7 +4,7 @@ namespace Corma\Test\DataObject\Hydrator;
 use Corma\DataObject\Hydrator\ClosureHydrator;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
-use PHPStan\Testing\TestCase;
+use PHPUnit\Framework\TestCase;
 
 class ClosureHydratorTest extends TestCase
 {
