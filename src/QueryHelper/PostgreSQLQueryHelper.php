@@ -60,7 +60,7 @@ class PostgreSQLQueryHelper extends QueryHelper
 
         $params = $this->getParams($normalizedRows);
 
-        $effected = $this->db->executeUpdate($query, $params);
+        $effected = $this->db->executeStatement($query, $params);
         $lastInsertId = $this->getLastInsertId($table, $primaryKey) - ($effected - $updates - 1);
 
         return $effected;
@@ -87,7 +87,7 @@ class PostgreSQLQueryHelper extends QueryHelper
         if ($this->version) {
             return $this->version;
         }
-        $versionString = $this->db->query('SELECT version()')->fetchColumn();
+        $versionString = $this->db->executeQuery('SELECT version()')->fetchColumn();
         preg_match('/^PostgreSQL ([\d\.]+).*/', $versionString, $matches);
         $version = $matches[1];
         return $this->version = $version;

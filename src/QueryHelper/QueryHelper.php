@@ -167,7 +167,7 @@ class QueryHelper implements QueryHelperInterface
         $query = $this->getInsertSql($table, $normalizedRows);
         $params = $this->getParams($normalizedRows);
 
-        return $this->db->executeUpdate($query, $params);
+        return $this->db->executeStatement($query, $params);
     }
 
     /**

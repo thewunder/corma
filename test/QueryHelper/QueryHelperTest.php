@@ -244,7 +244,7 @@ class QueryHelperTest extends TestCase
 
     public function testMassInsert()
     {
-        $this->connection->expects($this->once())->method('executeUpdate')
+        $this->connection->expects($this->once())->method('executeStatement')
             ->with(
                 'INSERT INTO `test_table` (`column1`, `column2`) VALUES (?, ?), (?, ?)',
                 [1, 2, 3, 4]

@@ -46,7 +46,7 @@ class MySQLQueryHelper extends QueryHelper
 
         $params = $this->getParams($normalizedRows);
         
-        $effected = $this->db->executeUpdate($query, $params);
+        $effected = $this->db->executeStatement($query, $params);
         $lastInsertId = $this->db->lastInsertId();
 
         return $effected - $updates; //compensate for mysql returning 2 for each row updated
