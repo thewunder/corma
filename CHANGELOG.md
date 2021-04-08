@@ -1,3 +1,10 @@
+Version 3.6.3
+=============
+
+Updates
+-----
+* Clean up deprecations and test failures when using doctrine/dbal 2.13
+
 Version 3.6.2
 =============
 
