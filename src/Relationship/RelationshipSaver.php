@@ -36,8 +36,8 @@ class RelationshipSaver
      *
      * @param object[] $objects
      * @param string $className Class name of foreign object to load
-     * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
-     * @param string $getter Name of getter method on objects
+     * @param string|null $foreignIdColumn Property on this object that relates to the foreign tables id
+     * @param string|null $getter Name of getter method on objects
      */
     public function saveOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $getter = null)
     {
@@ -109,9 +109,10 @@ class RelationshipSaver
      *
      * @param object[] $objects
      * @param string $className Class name of foreign objects to load
-     * @param string $foreignObjectGetter Name of getter to retrieve foreign objects
-     * @param string $foreignColumn Property on foreign object that relates to this object id
+     * @param string|null $foreignObjectGetter Name of getter to retrieve foreign objects
+     * @param string|null $foreignColumn Property on foreign object that relates to this object id
      * @param boolean $deleteMissing Set to false to leave objects alone if missing
+     * @throws \Throwable
      */
     public function saveMany(array $objects, string $className, ?string $foreignObjectGetter = null, ?string $foreignColumn = null, bool $deleteMissing = true)
     {
@@ -204,9 +205,10 @@ class RelationshipSaver
      * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
-     * @param string $foreignObjectGetter Name of getter to retrieve foreign objects
-     * @param string $idColumn Column on link table = the id on this object
-     * @param string $foreignIdColumn Column on link table = the id on the foreign object table
+     * @param string|null $foreignObjectGetter Name of getter to retrieve foreign objects
+     * @param string|null $idColumn Column on link table = the id on this object
+     * @param string|null $foreignIdColumn Column on link table = the id on the foreign object table
+     * @throws \Throwable
      */
     public function saveManyToManyLinks(
         array $objects,
@@ -274,9 +276,10 @@ class RelationshipSaver
      * @param object[] $objects
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
-     * @param string $foreignObjectGetter Name of getter to retrieve foreign objects
-     * @param string $idColumn Column on link table = the id on this object
-     * @param string $foreignIdColumn Column on link table = the id on the foreign object table
+     * @param string|null $foreignObjectGetter Name of getter to retrieve foreign objects
+     * @param string|null $idColumn Column on link table = the id on this object
+     * @param string|null $foreignIdColumn Column on link table = the id on the foreign object table
+     * @throws \Throwable
      */
     public function saveManyToMany(
         array $objects,

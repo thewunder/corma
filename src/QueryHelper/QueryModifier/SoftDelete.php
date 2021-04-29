@@ -49,10 +49,8 @@ class SoftDelete extends QueryModifier
         if ($columns->hasColumn($this->column) && !$this->hasSoftDeleteColumn($where) && !$this->hasId($columns, $where)) {
             $qb->andWhere($this->connection->quoteIdentifier(QueryHelperInterface::TABLE_ALIAS) . '.' .
                 $this->connection->quoteIdentifier($this->column) . ' = FALSE');
-            return $qb;
-        } else {
-            return $qb;
         }
+        return $qb;
     }
 
     public function deleteQuery(QueryBuilder $qb, string $table, array $where): QueryBuilder
@@ -61,10 +59,8 @@ class SoftDelete extends QueryModifier
         if ($columns->hasColumn($this->column) && !$this->hasSoftDeleteColumn($where)) {
             $qb->update($table, $this->queryHelper::TABLE_ALIAS);
             $qb->set($this->connection->quoteIdentifier($this->column), 'TRUE');
-            return $qb;
-        } else {
-            return $qb;
         }
+        return $qb;
     }
 
     /**

@@ -33,8 +33,8 @@ class RelationshipLoader
      *
      * @param object[] $objects Data objects of the same class
      * @param string $className Class name of foreign object to load
-     * @param string $foreignIdColumn Property on this object that relates to the foreign tables id
-     * @param string $setter Name of setter method on objects
+     * @param string|null $foreignIdColumn Property on this object that relates to the foreign tables id
+     * @param string|null $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
      */
     public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $setter = null): array
@@ -101,8 +101,8 @@ class RelationshipLoader
      *
      * @param object[] $objects Data objects of the same class
      * @param string $className Class name of foreign objects to load
-     * @param string $foreignColumn Property on foreign object that relates to this object id
-     * @param string $setter Name of setter method on objects
+     * @param string|null $foreignColumn Property on foreign object that relates to this object id
+     * @param string|null $setter Name of setter method on objects
      * @return array|\object[] Loaded objects keyed by id
      */
     public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array
@@ -161,10 +161,11 @@ class RelationshipLoader
      * @param object[] $objects Data objects of the same class
      * @param string $className Class name of foreign objects to load
      * @param string $linkTable Table that links two objects together
-     * @param string $idColumn Column on link table = the id on this object
-     * @param string $foreignIdColumn Column on link table = the id on the foreign object table
-     * @param string $setter Name of setter method on objects
+     * @param string|null $idColumn Column on link table = the id on this object
+     * @param string|null $foreignIdColumn Column on link table = the id on the foreign object table
+     * @param string|null $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
+     * @throws \Doctrine\DBAL\Exception
      */
     public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null, ?string $setter = null): array
     {

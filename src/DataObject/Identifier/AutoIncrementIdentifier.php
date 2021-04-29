@@ -2,7 +2,6 @@
 namespace Corma\DataObject\Identifier;
 
 use Corma\DataObject\TableConvention\TableConventionInterface;
-use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\Util\Inflector;
 
@@ -12,7 +11,7 @@ use Corma\Util\Inflector;
 class AutoIncrementIdentifier extends BaseIdentifier
 {
     /**
-     * @var QueryHelper
+     * @var QueryHelperInterface
      */
     private $queryHelper;
     /**

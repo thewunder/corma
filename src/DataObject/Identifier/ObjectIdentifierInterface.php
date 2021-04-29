@@ -36,7 +36,7 @@ interface ObjectIdentifierInterface
      * Sets the primary key on the object
      *
      * @param object $object
-     * @param string $id
+     * @param string|int $id
      * @return object The object passed in
      */
     public function setId(object $object, $id): object;

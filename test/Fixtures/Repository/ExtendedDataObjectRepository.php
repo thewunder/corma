@@ -6,6 +6,9 @@ use Corma\Util\PagedQuery;
 
 class ExtendedDataObjectRepository extends ObjectRepository
 {
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function causeUniqueConstraintViolation()
     {
         $this->db->insert($this->getTableName(), ['id'=>999, $this->db->quoteIdentifier('myColumn')=>'value', $this->db->quoteIdentifier('isDeleted')=>0]);

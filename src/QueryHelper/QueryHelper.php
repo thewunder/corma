@@ -493,7 +493,7 @@ class QueryHelper implements QueryHelperInterface
     }
 
     /**
-     * @param $table
+     * @param string $table
      * @param array $normalizedRows
      * @return string INSERT SQL Query
      */
@@ -585,7 +585,7 @@ class QueryHelper implements QueryHelperInterface
      * the number of effected rows, this potential inaccuracy is preferable to throwing an error.
      *
      * @param array $rows
-     * @param string $primaryKey
+     * @param string|null $primaryKey
      *
      * @return int
      */
