@@ -558,6 +558,20 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals($otherObject->getId(), $fromDb->getOtherDataObjectId());
     }
 
+    public function testSaveOneNoForeignObjects()
+    {
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('Save one-to-one 1');
+
+        $this->repository->saveAll($objects);
+        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
+        $relationshipSaver->saveOne($objects, OtherDataObject::class);
+
+        $fromDb = $this->repository->find($object->getId(), false);
+        $this->assertInstanceOf(ExtendedDataObject::class, $fromDb);
+    }
+
     public function testSaveMany()
     {
         $otherObject = new OtherDataObject();

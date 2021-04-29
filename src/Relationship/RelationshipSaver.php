@@ -67,7 +67,11 @@ class RelationshipSaver
                 }
             }
         }
-        
+
+        if (empty($foreignObjectsByObjectId)) {
+            return;
+        }
+
         $this->objectMapper->saveAll($foreignObjectsByObjectId);
         
         $idSetter = 'set' . ucfirst($foreignIdColumn);
