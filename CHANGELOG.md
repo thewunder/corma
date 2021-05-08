@@ -1,3 +1,11 @@
+Version 3.6.4
+=============
+
+Fixes
+-----
+* Fix error when there are no foreign objects to save in a one-to-one relationship
+
+
 Version 3.6.3
 =============
 
