@@ -1,3 +1,10 @@
+Version 3.6.5
+=============
+
+Fixes
+-----
+* Allow dev-master annotation library so to make for a smoother php 8 transition
+
 Version 3.6.4
 =============
 
