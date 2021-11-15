@@ -8,7 +8,7 @@ use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Util\Inflector;
-use Doctrine\Common\Cache\ArrayCache;
+use Corma\Util\LimitedArrayCache;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Dotenv\Dotenv;
@@ -17,7 +17,7 @@ class MysqlIntegrationTest extends BaseIntegrationTest
 {
     public function testIsDuplicateException()
     {
-        $cache = new ArrayCache();
+        $cache = new LimitedArrayCache();
         $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
         $objectManagerFactory = ObjectManagerFactory::withDefaults($mySQLQueryHelper, Inflector::build());
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)

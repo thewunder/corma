@@ -10,8 +10,8 @@ use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\QueryHelper\QueryHelper;
 use Corma\Util\Inflector;
+use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -288,7 +288,7 @@ class ObjectMapperTest extends TestCase
         $loader = $this->getMockBuilder(RelationshipLoader::class)->disableOriginalConstructor()->getMock();
 
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
-            ->setConstructorArgs([new QueryHelper($connection, new ArrayCache()), $repositoryFactory, $objectManagerFactory,  Inflector::build()])
+            ->setConstructorArgs([new QueryHelper($connection, new LimitedArrayCache()), $repositoryFactory, $objectManagerFactory,  Inflector::build()])
             ->onlyMethods(['getRelationshipLoader'])->getMock();
 
         $objectMapper->method('getRelationshipLoader')->willReturn($loader);

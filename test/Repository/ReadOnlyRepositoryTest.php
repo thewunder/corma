@@ -5,7 +5,7 @@ use Corma\Exception\BadMethodCallException;
 use Corma\ObjectMapper;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\ReadOnlyRepository;
-use Doctrine\Common\Cache\ArrayCache;
+use Corma\Util\LimitedArrayCache;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -31,7 +31,7 @@ class ReadOnlyRepositoryTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->cache = $this->getMockBuilder(ArrayCache::class)
+        $this->cache = $this->getMockBuilder(LimitedArrayCache::class)
             ->disableOriginalConstructor()
             ->getMock();
     }

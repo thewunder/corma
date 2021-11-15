@@ -5,7 +5,7 @@ use Corma\Exception\InvalidArgumentException;
 use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\QueryHelper\QueryModifier\SoftDelete;
-use Doctrine\Common\Cache\ArrayCache;
+use Corma\Util\LimitedArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -32,7 +32,7 @@ class QueryHelperTest extends TestCase
             return "`$column`";
         }));
 
-        $this->queryHelper = new QueryHelper($this->connection, new ArrayCache());
+        $this->queryHelper = new QueryHelper($this->connection, new LimitedArrayCache());
     }
 
     public function testBuildSelectQuery()
@@ -174,7 +174,7 @@ class QueryHelperTest extends TestCase
         $this->expectExceptionMessage('BETWEEN value must be a 2 item array with numeric keys');
         $qb = new QueryBuilder($this->connection);
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
-            ->onlyMethods(['acceptsNull'])->setConstructorArgs([$this->connection, new ArrayCache()])
+            ->onlyMethods(['acceptsNull'])->setConstructorArgs([$this->connection, new LimitedArrayCache()])
             ->getMock();
 
         $this->queryHelper->processWhereQuery($qb, ['column BETWEEN'=>['asdf']]);
@@ -186,7 +186,7 @@ class QueryHelperTest extends TestCase
 
         $qb = new QueryBuilder($this->connection);
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
-            ->onlyMethods(['acceptsNull'])->setConstructorArgs([$this->connection, new ArrayCache()])
+            ->onlyMethods(['acceptsNull'])->setConstructorArgs([$this->connection, new LimitedArrayCache()])
             ->getMock();
 
         $this->queryHelper->processWhereQuery($qb, ['main.column'=>null]);
@@ -227,7 +227,7 @@ class QueryHelperTest extends TestCase
     {
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
             ->onlyMethods(['buildUpdateQuery'])
-            ->setConstructorArgs([$this->connection, new ArrayCache()])
+            ->setConstructorArgs([$this->connection, new LimitedArrayCache()])
             ->getMock();
 
         $qb = $this->getMockBuilder(QueryBuilder::class)
@@ -253,7 +253,7 @@ class QueryHelperTest extends TestCase
 
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
             ->onlyMethods(['getDbColumns'])
-            ->setConstructorArgs([$this->connection, new ArrayCache()])
+            ->setConstructorArgs([$this->connection, new LimitedArrayCache()])
             ->getMock();
 
         $table = new Table('test_table');
@@ -286,7 +286,7 @@ class QueryHelperTest extends TestCase
     {
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
             ->onlyMethods(['buildDeleteQuery'])
-            ->setConstructorArgs([$this->connection, new ArrayCache()])
+            ->setConstructorArgs([$this->connection, new LimitedArrayCache()])
             ->getMock();
 
         $qb = $this->getMockBuilder(QueryBuilder::class)

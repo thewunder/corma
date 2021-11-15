@@ -19,7 +19,7 @@ class PostgresIntegrationTest extends BaseIntegrationTest
 {
     public function testIsDuplicateException()
     {
-        $cache = new ArrayCache();
+        $cache = new LimitedArrayCache();
         $mySQLQueryHelper = new PostgreSQLQueryHelper(self::$connection, $cache);
 
         $objectManagerFactory = ObjectManagerFactory::withDefaults($mySQLQueryHelper, Inflector::build());

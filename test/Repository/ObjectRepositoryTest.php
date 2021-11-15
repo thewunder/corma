@@ -14,7 +14,6 @@ use Corma\Test\Fixtures\Repository\NoClassObjectRepository;
 use Corma\QueryHelper\QueryHelper;
 use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
@@ -84,8 +83,7 @@ class ObjectRepositoryTest extends TestCase
     public function testClassNotFound()
     {
         $this->expectException(ClassNotFoundException::class);
-        /** @noinspection PhpParamsInspection */
-        $repository = new NoClassObjectRepository($this->connection, $this->objectMapper, new ArrayCache());
+        $repository = new NoClassObjectRepository($this->connection, $this->objectMapper, new LimitedArrayCache());
         $repository->getClassName();
     }
 
@@ -713,7 +711,7 @@ class ObjectRepositoryTest extends TestCase
      */
     protected function getRepository()
     {
-        $repository = new ExtendedDataObjectRepository($this->connection, $this->objectMapper, new ArrayCache(), $this->dispatcher);
+        $repository = new ExtendedDataObjectRepository($this->connection, $this->objectMapper, new LimitedArrayCache(), $this->dispatcher);
         return $repository;
     }
 

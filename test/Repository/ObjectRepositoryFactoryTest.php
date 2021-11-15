@@ -11,7 +11,7 @@ use Corma\Repository\ObjectRepositoryFactoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
-use Doctrine\Common\Cache\ArrayCache;
+use Corma\Util\LimitedArrayCache;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -87,6 +87,6 @@ class ObjectRepositoryFactoryTest extends TestCase
         $dispatcher = new EventDispatcher();
 
         $this->repositoryFactory = new ObjectRepositoryFactory();
-        $this->repositoryFactory->setDependencies([$connection, $objectMapper, new ArrayCache(), $dispatcher]);
+        $this->repositoryFactory->setDependencies([$connection, $objectMapper, new LimitedArrayCache(), $dispatcher]);
     }
 }
