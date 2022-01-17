@@ -6,15 +6,12 @@ use Corma\DataObject\Factory\PdoObjectFactory;
 use Corma\DataObject\Factory\PsrContainerObjectFactory;
 use Corma\DataObject\Hydrator\ClosureHydrator;
 use Corma\DataObject\Hydrator\ObjectHydratorInterface;
-use Corma\DataObject\Identifier\AutoIncrementIdentifier;
 use Corma\DataObject\Identifier\CustomizableAutoIncrementIdentifier;
 use Corma\DataObject\Identifier\ObjectIdentifierInterface;
-use Corma\DataObject\TableConvention\AnnotationCustomizableTableConvention;
-use Corma\DataObject\TableConvention\DefaultTableConvention;
+use Corma\DataObject\TableConvention\CustomizableTableConvention;
 use Corma\DataObject\TableConvention\TableConventionInterface;
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\Util\Inflector;
-use Minime\Annotations\Interfaces\ReaderInterface;
 use Psr\Container\ContainerInterface;
 
 class ObjectManagerFactory
@@ -47,11 +44,10 @@ class ObjectManagerFactory
     /**
      * @param QueryHelperInterface $queryHelper
      * @param Inflector $inflector
-     * @param ReaderInterface|null $reader
      * @param ContainerInterface|null $container
      * @return ObjectManagerFactory
      */
-    public static function withDefaults(QueryHelperInterface $queryHelper, Inflector $inflector, ?ReaderInterface $reader = null, ?ContainerInterface $container = null): self
+    public static function withDefaults(QueryHelperInterface $queryHelper, Inflector $inflector, ?ContainerInterface $container = null): self
     {
         $hydrator = new ClosureHydrator();
         if ($container) {
@@ -60,15 +56,10 @@ class ObjectManagerFactory
             $factory = new PdoObjectFactory($hydrator);
         }
 
-        if ($reader) {
-            $tableConvention = new AnnotationCustomizableTableConvention($inflector, $reader);
-            $identifier = new CustomizableAutoIncrementIdentifier($inflector, $reader, $queryHelper, $tableConvention);
-        } else {
-            $tableConvention = new DefaultTableConvention($inflector);
-            $identifier = new AutoIncrementIdentifier($inflector, $queryHelper, $tableConvention);
-        }
+        $tableConvention = new CustomizableTableConvention($inflector);
+        $identifier = new CustomizableAutoIncrementIdentifier($inflector, $queryHelper, $tableConvention);
 
-        return new static($hydrator, $identifier, $tableConvention, $factory);
+        return new self($hydrator, $identifier, $tableConvention, $factory);
     }
 
     /**
@@ -78,7 +69,7 @@ class ObjectManagerFactory
      * @param array $dependencies
      * @param ObjectHydratorInterface|null $hydrator Setting a custom object hydrator can change how columns are mapped to property names and how those properties are set
      * @param ObjectIdentifierInterface|null $identifier Setting a custom object identifier can change how your id is generated, retrieved, and set
-     * @param TableConventionInterface|null $tableConvention If you have enabled annotations (by constructing Corma with an annotation reader), you should use @table instead of injecting a custom convention here.
+     * @param TableConventionInterface|null $tableConvention You should use #[DbTable] instead of injecting a custom convention here.
      * @param ObjectFactoryInterface|null $factory Setting a custom object factory will customize how your object is instantiated
      *
      * @return ObjectManager

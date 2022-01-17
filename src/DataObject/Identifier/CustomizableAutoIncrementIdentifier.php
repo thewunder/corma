@@ -4,25 +4,18 @@ namespace Corma\DataObject\Identifier;
 use Corma\DataObject\TableConvention\TableConventionInterface;
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\Util\Inflector;
-use Minime\Annotations\Interfaces\ReaderInterface;
 
 /**
  * Sets the id for new objects from the database sequence / auto increment id
  */
-class CustomizableAutoIncrementIdentifier extends AnnotationCustomizableIdentifier
+class CustomizableAutoIncrementIdentifier extends CustomizableIdentifier
 {
-    /**
-     * @var QueryHelperInterface
-     */
-    private $queryHelper;
-    /**
-     * @var TableConventionInterface
-     */
-    private $convention;
+    private QueryHelperInterface $queryHelper;
+    private TableConventionInterface $convention;
 
-    public function __construct(Inflector $inflector, ReaderInterface $reader, QueryHelperInterface $queryHelper, TableConventionInterface $convention)
+    public function __construct(Inflector $inflector, QueryHelperInterface $queryHelper, TableConventionInterface $convention)
     {
-        parent::__construct($inflector, $reader);
+        parent::__construct($inflector);
         $this->queryHelper = $queryHelper;
         $this->convention = $convention;
     }

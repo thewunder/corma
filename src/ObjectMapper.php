@@ -17,7 +17,6 @@ use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
-use Minime\Annotations\Interfaces\ReaderInterface;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -62,7 +61,6 @@ class ObjectMapper
      * @param Connection $db Database connection
      * @param CacheProvider|null $cache Cache for table metadata and repositories
      * @param EventDispatcherInterface|null $dispatcher
-     * @param ReaderInterface|null $reader
      * @param array $dependencies Array of additional dependencies use for constructing repositories
      * @param ContainerInterface|null $container Dependency injection container for constructing data objects and their repositories
      * @return self
@@ -70,7 +68,7 @@ class ObjectMapper
      * @throws DBALException When the database platform is not supported by Doctrine DBAL
      */
     public static function withDefaults(Connection $db, ?CacheProvider $cache = null, ?EventDispatcherInterface $dispatcher = null,
-                                        ?ReaderInterface $reader = null, array $dependencies = [], ContainerInterface $container = null): self
+                                        array $dependencies = [], ContainerInterface $container = null): self
     {
         if ($cache === null) {
             $cache = new LimitedArrayCache(10000);
@@ -82,9 +80,9 @@ class ObjectMapper
         $inflector = Inflector::build();
 
         $repositoryFactory = new ObjectRepositoryFactory($container);
-        $objectManagerFactory = ObjectManagerFactory::withDefaults($queryHelper, $inflector, $reader, $container);
+        $objectManagerFactory = ObjectManagerFactory::withDefaults($queryHelper, $inflector, $container);
 
-        $instance = new static($queryHelper, $repositoryFactory, $objectManagerFactory, $inflector);
+        $instance = new self($queryHelper, $repositoryFactory, $objectManagerFactory, $inflector);
 
         $repositoryDependencies = [$db, $instance, $cache, $dispatcher];
         if (!empty($dependencies)) {

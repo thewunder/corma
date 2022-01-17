@@ -1,27 +1,21 @@
 <?php
 namespace Corma\Test\Fixtures;
 
-/**
- * @table custom_table
- * @identifier custom_id
- */
+use Corma\DataObject\Identifier\IdColumn;
+use Corma\DataObject\TableConvention\DbTable;
+
+#[DbTable("custom_table")]
+#[IdColumn("custom_id")]
 class AnnotatedDataObject
 {
-    protected $custom_id;
+    protected string $custom_id;
 
-    /**
-     * @return mixed
-     */
-    public function getCustomId()
+    public function getCustomId(): string
     {
         return $this->custom_id;
     }
 
-    /**
-     * @param mixed $custom_id
-     * @return AnnotatedDataObject
-     */
-    public function setCustomId($custom_id)
+    public function setCustomId(string $custom_id): AnnotatedDataObject
     {
         $this->custom_id = $custom_id;
         return $this;

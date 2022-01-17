@@ -9,7 +9,6 @@ use Corma\Test\Fixtures\AnnotatedDataObject;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\MissingIdGettersAndSetters;
 use Corma\Util\Inflector;
-use Minime\Annotations\Reader;
 use PHPUnit\Framework\TestCase;
 
 class AutoIncrementIdentifierTest extends TestCase
@@ -91,17 +90,13 @@ class AutoIncrementIdentifierTest extends TestCase
         $this->assertEquals(42, $object->getId());
     }
 
-    /**
-     * @return CustomizableAutoIncrementIdentifier
-     */
-    protected function getIdentifier()
+    protected function getIdentifier(): CustomizableAutoIncrementIdentifier
     {
         $queryHelper = $this->getMockBuilder(QueryHelper::class)
             ->disableOriginalConstructor()->onlyMethods(['getLastInsertId'])
             ->getMock();
         $queryHelper->method('getLastInsertId')->willReturn('42');
         $inflector = Inflector::build();
-        $reader = Reader::createFromDefaults();
-        return new CustomizableAutoIncrementIdentifier($inflector, $reader, $queryHelper, new DefaultTableConvention($inflector, $reader));
+        return new CustomizableAutoIncrementIdentifier($inflector, $queryHelper, new DefaultTableConvention($inflector));
     }
 }
