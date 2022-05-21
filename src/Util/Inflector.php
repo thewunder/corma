@@ -86,7 +86,7 @@ class Inflector extends DoctrineInflector
 
     /**
      * @param string $className With or without namespace
-     * @param string $suffix
+     * @param string|null $suffix
      * @return string
      */
     public function idColumnFromClass(string $className, ?string $suffix = 'Id'): string

@@ -31,7 +31,7 @@ class ClosureHydratorTest extends TestCase
     {
         $hydrator = new ClosureHydrator();
         $closure = function (){};
-        $hydrator->setHydrateClosure($closure);
+        $hydrator->setHydrate($closure);
 
         $object = new ExtendedDataObject();
         $hydrator->hydrate($object, ['myColumn'=>4]);
@@ -42,7 +42,7 @@ class ClosureHydratorTest extends TestCase
     {
         $hydrator = new ClosureHydrator();
         $closure = function (){return [];};
-        $hydrator->setExtractClosure($closure);
+        $hydrator->setExtract($closure);
 
         $object = new ExtendedDataObject();
         $object->setMyColumn(4);

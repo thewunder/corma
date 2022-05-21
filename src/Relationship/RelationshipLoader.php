@@ -10,19 +10,10 @@ use Corma\Util\Inflector;
  */
 class RelationshipLoader
 {
-    /**
-     * @var ObjectMapper
-     */
-    private $objectMapper;
+    private Inflector $inflector;
 
-    /**
-     * @var Inflector
-     */
-    private $inflector;
-
-    public function __construct(ObjectMapper $objectMapper)
+    public function __construct(private ObjectMapper $objectMapper)
     {
-        $this->objectMapper = $objectMapper;
         $this->inflector = $objectMapper->getInflector();
     }
 
@@ -103,7 +94,7 @@ class RelationshipLoader
      * @param string $className Class name of foreign objects to load
      * @param string|null $foreignColumn Property on foreign object that relates to this object id
      * @param string|null $setter Name of setter method on objects
-     * @return array|\object[] Loaded objects keyed by id
+     * @return array|object[] Loaded objects keyed by id
      */
     public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array
     {

@@ -12,9 +12,9 @@ interface ObjectIdentifierInterface
      * Gets the primary key for the object
      *
      * @param object $object
-     * @return string
+     * @return string|int|null
      */
-    public function getId(object $object): ?string;
+    public function getId(object $object): string|int|null;
 
     /**
      * Returns true if this object has not yet been persisted into the database
@@ -39,7 +39,7 @@ interface ObjectIdentifierInterface
      * @param string|int $id
      * @return object The object passed in
      */
-    public function setId(object $object, $id): object;
+    public function setId(object $object, string|int $id): object;
 
     /**
      * Generates a new id for the object and sets it
@@ -53,5 +53,5 @@ interface ObjectIdentifierInterface
      * @param string|object $objectOrClass
      * @return string Database column name containing the identifier for the object
      */
-    public function getIdColumn($objectOrClass): string;
+    public function getIdColumn(object|string $objectOrClass): string;
 }

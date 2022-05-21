@@ -36,7 +36,7 @@ class ObjectMapperTest extends TestCase
         /** @var ContainerInterface|MockObject $container */
         $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
 
-        $corma = ObjectMapper::withDefaults($connection, null, null, null, [], $container);
+        $corma = ObjectMapper::withDefaults($connection, null, null, [], $container);
         $this->assertInstanceOf(ObjectMapper::class, $corma);
     }
 

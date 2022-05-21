@@ -5,16 +5,10 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class DataObjectEvent extends Event implements DataObjectEventInterface
 {
-    protected $object;
-
-    public function __construct($object)
+    public function __construct(protected object $object)
     {
-        $this->object = $object;
     }
 
-    /**
-     * @return object
-     */
     public function getObject(): object
     {
         return $this->object;

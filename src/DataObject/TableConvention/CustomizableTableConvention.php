@@ -13,7 +13,7 @@ class CustomizableTableConvention extends DefaultTableConvention
      * @param string|object $classOrObject
      * @return string The database table name
      */
-    public function getTable($classOrObject): string
+    public function getTable(object|string $classOrObject): string
     {
         $reflectionClass = new \ReflectionClass($classOrObject);
         $attributes = $reflectionClass->getAttributes(DbTable::class);

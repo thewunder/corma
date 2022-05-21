@@ -11,17 +11,11 @@ use Corma\ObjectMapper;
  */
 class UnitOfWork
 {
-    private $objectsToSave = [];
-    private $objectsToDelete = [];
+    private array $objectsToSave = [];
+    private array $objectsToDelete = [];
 
-    /**
-     * @var ObjectMapper
-     */
-    private $orm;
-
-    public function __construct(ObjectMapper $orm)
+    public function __construct(private ObjectMapper $orm)
     {
-        $this->orm = $orm;
     }
 
     /**

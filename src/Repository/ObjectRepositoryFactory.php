@@ -16,24 +16,14 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     /**
      * @var ObjectRepositoryInterface[]
      */
-    private $repositories = [];
-
-    /**
-     * @var array
-     */
-    private $dependencies;
-
-    /**
-     * @var ContainerInterface|null
-     */
-    private $container;
+    private array $repositories = [];
+    private array $dependencies;
 
     /**
      * @param ContainerInterface|null $container Dependency injection container to construct non-default repositories
      */
-    public function __construct(?ContainerInterface $container = null)
+    public function __construct(private ?ContainerInterface $container = null)
     {
-        $this->container = $container;
     }
 
     public function getRepository(string $class): ?ObjectRepositoryInterface
@@ -75,7 +65,7 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     }
 
 
-    protected function getRepositoryClass(string $objectName, string $namespace)
+    protected function getRepositoryClass(string $objectName, string $namespace): string
     {
         return "$namespace\\Repository\\{$objectName}Repository";
     }
@@ -83,7 +73,7 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     /**
      * Construct the repository and return
      *
-     * @param $className
+     * @param string $className
      * @return ObjectRepositoryInterface|null
      */
     protected function createRepository(string $className): ?ObjectRepositoryInterface

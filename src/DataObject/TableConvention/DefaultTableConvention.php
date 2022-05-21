@@ -5,22 +5,15 @@ use Corma\Util\Inflector;
 
 class DefaultTableConvention implements TableConventionInterface
 {
-    /**
-     * @var Inflector
-     */
-    protected $inflector;
-
-
-    public function __construct(Inflector $inflector)
+    public function __construct(protected Inflector $inflector)
     {
-        $this->inflector = $inflector;
     }
 
     /**
-     * @param string|object $classOrObject
+     * @param object|string $classOrObject
      * @return string The database table name
      */
-    public function getTable($classOrObject): string
+    public function getTable(object|string $classOrObject): string
     {
         $class = $this->inflector->getShortClass($classOrObject);
         return $this->inflector->tableize($this->inflector->pluralize($class));

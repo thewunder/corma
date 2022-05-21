@@ -6,10 +6,7 @@ use Doctrine\DBAL\DBALException;
 
 class PostgreSQLQueryHelper extends QueryHelper
 {
-    /**
-     * @var string
-     */
-    private $version;
+    private ?string $version = null;
 
     /**
      * Use ON CONFLICT (id) DO UPDATE to optimize upsert in PostgreSQL > 9.5

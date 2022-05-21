@@ -20,8 +20,8 @@ class SeekPagedQuery extends PagedQuery
     /**
      * @var int internal counter used to know when to stop when using as iterator, not necessarily accurate
      */
-    protected $page = 1;
-    protected $lastResults = [];
+    protected int $page = 1;
+    protected array $lastResults = [];
 
     private $sortColumns;
 
@@ -97,7 +97,7 @@ class SeekPagedQuery extends PagedQuery
         return $results;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $data = parent::jsonSerialize();
         $data->lastResult = $this->key();

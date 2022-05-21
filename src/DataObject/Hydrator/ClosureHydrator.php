@@ -6,44 +6,36 @@ namespace Corma\DataObject\Hydrator;
  */
 class ClosureHydrator implements ObjectHydratorInterface
 {
-    /** @var  \Closure */
-    protected $hydrateClosure;
-
-    /** @var  \Closure */
-    protected $extractClosure;
-
-    public function __construct(\Closure $hydrate = null, \Closure $extract = null)
+    public function __construct(protected ?\Closure $hydrate = null, protected ?\Closure $extract = null)
     {
-        $this->hydrateClosure = $hydrate;
-        $this->extractClosure = $extract;
     }
 
-    public function hydrate(object $object, array $data)
+    public function hydrate(object $object, array $data): object
     {
-        if (!$this->hydrateClosure) {
-            $this->hydrateClosure = self::getDefaultHydrate();
+        if (!$this->hydrate) {
+            $this->hydrate = self::getDefaultHydrate();
         }
 
-        $this->hydrateClosure->bindTo($object, $object)->__invoke($data);
+        $this->hydrate->bindTo($object, $object)->__invoke($data);
 
         return $object;
     }
 
     public function extract(object $object): array
     {
-        if (!$this->extractClosure) {
-            $this->extractClosure = self::getDefaultExtract();
+        if (!$this->extract) {
+            $this->extract = self::getDefaultExtract();
         }
 
-        return $this->extractClosure->bindTo($object, $object)->__invoke();
+        return $this->extract->bindTo($object, $object)->__invoke();
     }
 
     /**
-     * This implementation sets properties directly for scalar values (to mimic PDO), and calls setters for non scalar data.
+     * This implementation sets properties directly for scalar values (to mimic PDO), and calls setters for non-scalar data.
      *
      * @return \Closure
      */
-    public function getDefaultHydrate()
+    public function getDefaultHydrate(): \Closure
     {
         return function (array $data) {
             foreach ($data as $name => $value) {
@@ -61,10 +53,7 @@ class ClosureHydrator implements ObjectHydratorInterface
         };
     }
 
-    /**
-     * @return \Closure
-     */
-    public function getDefaultExtract()
+    public function getDefaultExtract(): \Closure
     {
         return function () {
             $data = [];
@@ -79,19 +68,13 @@ class ClosureHydrator implements ObjectHydratorInterface
         };
     }
 
-    /**
-     * @param \Closure $hydrateClosure
-     */
-    public function setHydrateClosure(\Closure $hydrateClosure)
+    public function setHydrate(\Closure $hydrate)
     {
-        $this->hydrateClosure = $hydrateClosure;
+        $this->hydrate = $hydrate;
     }
 
-    /**
-     * @param \Closure $extractClosure
-     */
-    public function setExtractClosure(\Closure $extractClosure)
+    public function setExtract(\Closure $extract)
     {
-        $this->extractClosure = $extractClosure;
+        $this->extract = $extract;
     }
 }

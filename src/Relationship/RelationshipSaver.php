@@ -13,19 +13,10 @@ use Corma\Util\Inflector;
  */
 class RelationshipSaver
 {
-    /**
-     * @var ObjectMapper
-     */
-    private $objectMapper;
+    private Inflector $inflector;
 
-    /**
-     * @var Inflector
-     */
-    private $inflector;
-
-    public function __construct(ObjectMapper $objectMapper)
+    public function __construct(private ObjectMapper $objectMapper)
     {
-        $this->objectMapper = $objectMapper;
         $this->inflector = $objectMapper->getInflector();
     }
 
@@ -39,7 +30,7 @@ class RelationshipSaver
      * @param string|null $foreignIdColumn Property on this object that relates to the foreign tables id
      * @param string|null $getter Name of getter method on objects
      */
-    public function saveOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $getter = null)
+    public function saveOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $getter = null): void
     {
         if (empty($objects)) {
             return;
@@ -118,7 +109,7 @@ class RelationshipSaver
      * @param boolean $deleteMissing Set to false to leave objects alone if missing
      * @throws \Throwable
      */
-    public function saveMany(array $objects, string $className, ?string $foreignObjectGetter = null, ?string $foreignColumn = null, bool $deleteMissing = true)
+    public function saveMany(array $objects, string $className, ?string $foreignObjectGetter = null, ?string $foreignColumn = null, bool $deleteMissing = true): void
     {
         if (empty($objects)) {
             return;
@@ -221,7 +212,8 @@ class RelationshipSaver
         ?string $foreignObjectGetter = null,
         ?string $idColumn = null,
         ?string $foreignIdColumn = null
-    ) {
+    ): void
+    {
     
         if (empty($objects)) {
             return;
@@ -292,7 +284,8 @@ class RelationshipSaver
         ?string $foreignObjectGetter = null,
         ?string $idColumn = null,
         ?string $foreignIdColumn = null
-    ) {
+    ): void
+    {
     
         if (empty($objects)) {
             return;

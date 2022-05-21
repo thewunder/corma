@@ -6,19 +6,13 @@ use Corma\Util\Inflector;
 
 abstract class BaseIdentifier implements ObjectIdentifierInterface
 {
-    /**
-     * @var Inflector
-     */
-    protected $inflector;
-
-    public function __construct(Inflector $inflector)
+    public function __construct(protected Inflector $inflector)
     {
-        $this->inflector = $inflector;
     }
 
     /**
      * @param object $object
-     * @return string
+     * @return string|null
      */
     public function getId(object $object): ?string
     {
@@ -73,7 +67,7 @@ abstract class BaseIdentifier implements ObjectIdentifierInterface
      * @param string|object $objectOrClass
      * @return string Database column name containing the identifier for the object
      */
-    public function getIdColumn($objectOrClass): string
+    public function getIdColumn(object|string $objectOrClass): string
     {
         return 'id';
     }

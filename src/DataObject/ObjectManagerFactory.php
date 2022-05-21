@@ -16,29 +16,9 @@ use Psr\Container\ContainerInterface;
 
 class ObjectManagerFactory
 {
-    /**
-     * @var ObjectHydratorInterface
-     */
-    protected $hydrator;
-    /**
-     * @var ObjectIdentifierInterface
-     */
-    protected $identifier;
-    /**
-     * @var ObjectFactoryInterface
-     */
-    protected $factory;
-    /**
-     * @var TableConventionInterface
-     */
-    protected $tableConvention;
-
-    public function __construct(ObjectHydratorInterface $hydrator, ObjectIdentifierInterface $identifier, TableConventionInterface $tableConvention, ObjectFactoryInterface $factory)
+    public function __construct(protected ObjectHydratorInterface $hydrator, protected ObjectIdentifierInterface $identifier,
+                                protected TableConventionInterface $tableConvention, protected ObjectFactoryInterface $factory)
     {
-        $this->hydrator = $hydrator;
-        $this->identifier = $identifier;
-        $this->tableConvention = $tableConvention;
-        $this->factory = $factory;
     }
 
     /**
@@ -74,7 +54,7 @@ class ObjectManagerFactory
      *
      * @return ObjectManager
      */
-    public function getManager(string $className, array $dependencies = [], ?ObjectHydratorInterface $hydrator = null, ?ObjectIdentifierInterface $identifier = null, ?TableConventionInterface $tableConvention = null, ?ObjectFactoryInterface $factory = null)
+    public function getManager(string $className, array $dependencies = [], ?ObjectHydratorInterface $hydrator = null, ?ObjectIdentifierInterface $identifier = null, ?TableConventionInterface $tableConvention = null, ?ObjectFactoryInterface $factory = null): ObjectManager
     {
         $hydrator = $hydrator ? $hydrator : clone $this->hydrator;
         $identifier = $identifier ? $identifier : clone $this->identifier;
@@ -84,33 +64,21 @@ class ObjectManagerFactory
         return new ObjectManager($hydrator, $identifier, $tableConvention, $factory, $className, $dependencies);
     }
 
-    /**
-     * @return ObjectFactoryInterface
-     */
     public function getFactory(): ObjectFactoryInterface
     {
         return $this->factory;
     }
 
-    /**
-     * @return ObjectHydratorInterface
-     */
     public function getHydrator(): ObjectHydratorInterface
     {
         return $this->hydrator;
     }
 
-    /**
-     * @return TableConventionInterface
-     */
     public function getTableConvention(): TableConventionInterface
     {
         return $this->tableConvention;
     }
 
-    /**
-     * @return ObjectIdentifierInterface
-     */
     public function getIdentifier(): ObjectIdentifierInterface
     {
         return $this->identifier;

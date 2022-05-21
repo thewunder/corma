@@ -25,35 +25,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class ObjectMapper
 {
-    /**
-     * @var ObjectRepositoryFactoryInterface
-     */
-    private $repositoryFactory;
-
-    /**
-     * @var ObjectManagerFactory
-     */
-    private $objectManagerFactory;
-
-    /**
-     * @var QueryHelperInterface
-     */
-    private $queryHelper;
-
-    /**
-     * @var RelationshipLoader
-     */
-    private $relationshipLoader;
-
-    /**
-     * @var RelationshipSaver
-     */
-    private $relationshipSaver;
-
-    /**
-     * @var Inflector
-     */
-    private $inflector;
+    private ?RelationshipLoader $relationshipLoader = null;
+    private ?RelationshipSaver $relationshipSaver = null;
 
     /**
      * Creates a ObjectMapper instance using the default QueryHelper and ObjectRepositoryFactory
@@ -118,12 +91,9 @@ class ObjectMapper
      * @param ObjectManagerFactory $objectManagerFactory
      * @param Inflector $inflector
      */
-    public function __construct(QueryHelperInterface $queryHelper, ObjectRepositoryFactoryInterface $repositoryFactory, ObjectManagerFactory $objectManagerFactory, Inflector $inflector)
+    public function __construct(private QueryHelperInterface $queryHelper, private ObjectRepositoryFactoryInterface $repositoryFactory,
+                                private ObjectManagerFactory $objectManagerFactory, private Inflector $inflector)
     {
-        $this->queryHelper = $queryHelper;
-        $this->repositoryFactory = $repositoryFactory;
-        $this->objectManagerFactory = $objectManagerFactory;
-        $this->inflector = $inflector;
     }
 
     /**
@@ -142,7 +112,7 @@ class ObjectMapper
      * @param array $data Optional array of data to set on object after instantiation
      * @return object
      */
-    public function create(string $objectName, array $data = [])
+    public function create(string $objectName, array $data = []): object
     {
         return $this->repositoryFactory->getRepository($objectName)->create($data);
     }
@@ -153,9 +123,9 @@ class ObjectMapper
      * @param string $objectName Fully qualified object class name
      * @param string|int $id
      * @param bool $useCache Use cache?
-     * @return object
+     * @return object|null
      */
-    public function find(string $objectName, string $id, bool $useCache = true)
+    public function find(string $objectName, string|int $id, bool $useCache = true): ?object
     {
         return $this->getRepository($objectName)->find($id, $useCache);
     }
@@ -204,11 +174,11 @@ class ObjectMapper
      * @param string $objectName Fully qualified object class name
      * @param array $criteria column => value pairs
      * @param array|null $orderBy column => order pairs
-     * @return object
+     * @return object|null
      *
      * @see QueryHelperInterface::processWhereQuery() For details on $criteria
      */
-    public function findOneBy(string $objectName, array $criteria, ?array $orderBy = [])
+    public function findOneBy(string $objectName, array $criteria, ?array $orderBy = []): ?object
     {
         return $this->getRepository($objectName)->findOneBy($criteria, $orderBy);
     }
@@ -233,7 +203,7 @@ class ObjectMapper
 
         $loader = $this->getRelationshipLoader();
         $loadedObjects = [];
-        foreach ($objectsByClass as $class => $classObjects) {
+        foreach ($objectsByClass as $classObjects) {
             $loadedObjects += $loader->loadOne($classObjects, $className, $foreignIdColumn, $setter);
         }
         return $loadedObjects;
@@ -257,7 +227,7 @@ class ObjectMapper
 
         $loader = $this->getRelationshipLoader();
         $loadedObjects = [];
-        foreach ($objectsByClass as $class => $classObjects) {
+        foreach ($objectsByClass as $classObjects) {
             $loadedObjects += $loader->loadMany($classObjects, $className, $foreignColumn, $setter);
         }
         return $loadedObjects;
@@ -283,7 +253,7 @@ class ObjectMapper
 
         $loader = $this->getRelationshipLoader();
         $loadedObjects = [];
-        foreach ($objectsByClass as $class => $classObjects) {
+        foreach ($objectsByClass as $classObjects) {
             $loadedObjects += $loader->loadManyToMany($classObjects, $className, $linkTable, $idColumn, $foreignIdColumn, $setter);
         }
         return $loadedObjects;
@@ -298,7 +268,7 @@ class ObjectMapper
      * if the repository returns a closure from saveRelationships.
      * @return object
      */
-    public function save(object $object, ?\Closure $saveRelationships = null)
+    public function save(object $object, ?\Closure $saveRelationships = null): object
     {
         $repository = $this->getRepository(get_class($object));
         if (func_num_args() == 2) {
@@ -318,7 +288,7 @@ class ObjectMapper
      * will use the default specified by the repository. Explicitly passing null will not save any relationships even
      * if the repository returns a closure from saveRelationships.
      */
-    public function saveAll(array $objects, ?\Closure $saveRelationships = null)
+    public function saveAll(array $objects, ?\Closure $saveRelationships = null): void
     {
         $objectsByClass = $this->groupByClass($objects);
 
@@ -334,9 +304,9 @@ class ObjectMapper
     }
 
     /**
-     * @param object $object
+     * @param object $object Object to delete
      */
-    public function delete(object $object)
+    public function delete(object $object): void
     {
         $this->getRepository(get_class($object))->delete($object);
     }
@@ -348,7 +318,7 @@ class ObjectMapper
      *
      * @param object[] $objects
      */
-    public function deleteAll(array $objects)
+    public function deleteAll(array $objects): void
     {
         $objectsByClass = $this->groupByClass($objects);
 
@@ -399,10 +369,10 @@ class ObjectMapper
     }
 
     /**
-     * @param string|object|array $objectOrClass
+     * @param object|array|string $objectOrClass
      * @return DataObject\ObjectManager
      */
-    public function getObjectManager($objectOrClass): ObjectManager
+    public function getObjectManager(object|string|array $objectOrClass): ObjectManager
     {
         if (is_array($objectOrClass)) {
             $objectOrClass = reset($objectOrClass);

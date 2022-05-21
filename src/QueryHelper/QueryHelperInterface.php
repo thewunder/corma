@@ -25,7 +25,7 @@ interface QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where array
      */
-    public function buildSelectQuery(string $table, $columns = 'main.*', array $where = [], array $orderBy = []): QueryBuilder;
+    public function buildSelectQuery(string $table, array|string $columns = 'main.*', array $where = [], array $orderBy = []): QueryBuilder;
 
     /**
      * Build an update query for the provided table
@@ -136,15 +136,15 @@ interface QueryHelperInterface
      * @return bool
      */
     public function isDuplicateException(DBALException $error): bool;
-    
+
     /**
      * Retrieve the last inserted row id
      *
      * @param string $table
      * @param string $column
-     * @return string
+     * @return string|int|null
      */
-    public function getLastInsertId(string $table, string $column): ?string;
+    public function getLastInsertId(string $table, string $column): string|int|null;
 
     /**
      * @return Connection

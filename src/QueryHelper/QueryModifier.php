@@ -21,7 +21,7 @@ abstract class QueryModifier
      * @param array $orderBy of column => ASC / DESC pairs
      * @return QueryBuilder
      */
-    public function selectQuery(QueryBuilder $qb, string $table, $columns, array $where, array $orderBy): QueryBuilder
+    public function selectQuery(QueryBuilder $qb, string $table, array|string $columns, array $where, array $orderBy): QueryBuilder
     {
         return $qb;
     }

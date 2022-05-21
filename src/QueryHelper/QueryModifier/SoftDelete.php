@@ -21,29 +21,14 @@ use Doctrine\DBAL\Schema\Table;
  */
 class SoftDelete extends QueryModifier
 {
-    /**
-     * @var QueryHelperInterface
-     */
-    protected $queryHelper;
+    protected Connection $connection;
 
-    /**
-     * @var Connection
-     */
-    protected $connection;
-
-    /**
-     * @var string
-     */
-    protected $column;
-
-    public function __construct(QueryHelperInterface $queryHelper, string $column = 'isDeleted')
+    public function __construct(protected QueryHelperInterface $queryHelper, protected string $column = 'isDeleted')
     {
-        $this->queryHelper = $queryHelper;
         $this->connection = $queryHelper->getConnection();
-        $this->column = $column;
     }
 
-    public function selectQuery(QueryBuilder $qb, string $table, $columns, array $where, array $orderBy): QueryBuilder
+    public function selectQuery(QueryBuilder $qb, string $table, array|string $columns, array $where, array $orderBy): QueryBuilder
     {
         $columns = $this->queryHelper->getDbColumns($table);
         if ($columns->hasColumn($this->column) && !$this->hasSoftDeleteColumn($where) && !$this->hasId($columns, $where)) {
@@ -63,17 +48,11 @@ class SoftDelete extends QueryModifier
         return $qb;
     }
 
-    /**
-     * @return string
-     */
     public function getColumn(): string
     {
         return $this->column;
     }
 
-    /**
-     * @param string $column
-     */
     public function setColumn(string $column)
     {
         $this->column = $column;
@@ -100,7 +79,7 @@ class SoftDelete extends QueryModifier
         }
 
         foreach (array_keys($where) as $column) {
-            if(strpos($column, $this->column) === 0) {
+            if(str_starts_with($column, $this->column)) {
                 return true;
             }
         }

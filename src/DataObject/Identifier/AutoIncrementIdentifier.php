@@ -10,20 +10,9 @@ use Corma\Util\Inflector;
  */
 class AutoIncrementIdentifier extends BaseIdentifier
 {
-    /**
-     * @var QueryHelperInterface
-     */
-    private $queryHelper;
-    /**
-     * @var TableConventionInterface
-     */
-    private $convention;
-
-    public function __construct(Inflector $inflector, QueryHelperInterface $queryHelper, TableConventionInterface $convention)
+    public function __construct(Inflector $inflector, private QueryHelperInterface $queryHelper, private TableConventionInterface $convention)
     {
         parent::__construct($inflector);
-        $this->queryHelper = $queryHelper;
-        $this->convention = $convention;
     }
 
     public function setNewId(object $object): object

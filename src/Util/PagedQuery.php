@@ -16,26 +16,8 @@ abstract class PagedQuery implements \JsonSerializable, \Iterator
     const STRATEGY_OFFSET = 'offset';
     const STRATEGY_SEEK = 'seek';
 
-    /** @var int  */
-    protected $pageSize;
-    /** @var int  */
-    protected $resultCount;
-    /** @var int  */
-    protected $pages;
-
-    /**
-     * @var QueryBuilder
-     */
-    protected $qb;
-
-    /**
-     * @var ObjectManager
-     */
-    protected $objectManager;
-    /**
-     * @var QueryHelperInterface
-     */
-    protected $queryHelper;
+    protected ?int $resultCount = null;
+    protected ?int $pages = null;
 
     /**
      * @param QueryBuilder $qb
@@ -43,21 +25,18 @@ abstract class PagedQuery implements \JsonSerializable, \Iterator
      * @param ObjectManager $objectManager
      * @param int $pageSize
      */
-    public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, ObjectManager $objectManager, $pageSize = self::DEFAULT_PAGE_SIZE)
+    public function __construct(protected QueryBuilder $qb, protected QueryHelperInterface $queryHelper,
+                                protected ObjectManager $objectManager, protected int $pageSize = self::DEFAULT_PAGE_SIZE)
     {
         if ($pageSize < 1) {
             throw new InvalidArgumentException('Page size must be greater than 0');
         }
 
-        $this->qb = $qb;
-        $this->pageSize = $pageSize;
         $this->resultCount = $queryHelper->getCount($qb, $objectManager->getIdColumn());
-        $this->queryHelper = $queryHelper;
         $this->pages = floor($this->resultCount / $this->pageSize);
         if($this->resultCount % $this->pageSize > 0) {
             $this->pages++;
         }
-        $this->objectManager = $objectManager;
     }
 
     /**
@@ -97,7 +76,7 @@ abstract class PagedQuery implements \JsonSerializable, \Iterator
         return $this->resultCount;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $vars = get_object_vars($this);
         unset($vars['qb'], $vars['objectManager'], $vars['queryHelper']);

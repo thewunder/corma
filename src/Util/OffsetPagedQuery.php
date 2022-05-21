@@ -9,12 +9,9 @@ use Corma\Exception\InvalidArgumentException;
  */
 class OffsetPagedQuery extends PagedQuery
 {
-    /** @var int  */
-    protected $page;
-    /** @var int  */
-    protected $prev;
-    /** @var int  */
-    protected $next;
+    protected ?int $page = null;
+    protected int $prev;
+    protected int $next;
 
     /**
      * @param int $page Page number to return
@@ -93,7 +90,7 @@ class OffsetPagedQuery extends PagedQuery
         return $this->page;
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return $this->page >= 1 && $this->page <= $this->pages;
     }

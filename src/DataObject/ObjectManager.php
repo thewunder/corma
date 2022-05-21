@@ -12,41 +12,10 @@ use Doctrine\DBAL\Driver\ResultStatement;
  */
 class ObjectManager
 {
-    /**
-     * @var ObjectHydratorInterface
-     */
-    protected $hydrator;
-    /**
-     * @var ObjectIdentifierInterface
-     */
-    protected $identifier;
-    /**
-     * @var TableConventionInterface
-     */
-    protected $tableConvention;
-    /**
-     * @var ObjectFactoryInterface
-     */
-    protected $factory;
-
-    /**
-     * @var string
-     */
-    protected $className;
-
-    /**
-     * @var array
-     */
-    protected $dependencies;
-
-    public function __construct(ObjectHydratorInterface $hydrator, ObjectIdentifierInterface $identifier, TableConventionInterface $tableConvention, ObjectFactoryInterface $factory, string $className, array $dependencies = [])
+    public function __construct(protected ObjectHydratorInterface $hydrator, protected ObjectIdentifierInterface $identifier,
+                                protected TableConventionInterface $tableConvention, protected ObjectFactoryInterface $factory,
+                                protected string $className, protected array $dependencies = [])
     {
-        $this->hydrator = $hydrator;
-        $this->identifier = $identifier;
-        $this->tableConvention = $tableConvention;
-        $this->factory = $factory;
-        $this->className = $className;
-        $this->dependencies = $dependencies;
     }
 
     /**
@@ -55,7 +24,7 @@ class ObjectManager
      * @param array $data
      * @return object
      */
-    public function create($data = [])
+    public function create(array $data = []): object
     {
         return $this->factory->create($this->className, $data, $this->dependencies);
     }
@@ -64,9 +33,9 @@ class ObjectManager
      * Retrieves a single object from the database
      *
      * @param ResultStatement|\PDOStatement $statement
-     * @return object
+     * @return object|null
      */
-    public function fetchOne($statement)
+    public function fetchOne($statement): ?object
     {
         return $this->factory->fetchOne($this->className, $statement, $this->dependencies);
     }
@@ -89,7 +58,7 @@ class ObjectManager
      * @param array $data
      * @return object
      */
-    public function hydrate(object $object, array $data)
+    public function hydrate(object $object, array $data): object
     {
         return $this->hydrator->hydrate($object, $data);
     }
@@ -123,11 +92,7 @@ class ObjectManager
         return $this->identifier->getIdColumn($this->className);
     }
 
-    /**
-     * @param object $object
-     * @return string
-     */
-    public function getId(object $object): ?string
+    public function getId(object $object): string|int|null
     {
         return $this->identifier->getId($object);
     }
@@ -158,10 +123,10 @@ class ObjectManager
      * Sets the primary key on the object
      *
      * @param object $object
-     * @param string $id
+     * @param string|int $id
      * @return object
      */
-    public function setId($object, $id): object
+    public function setId(object $object, string|int $id): object
     {
         return $this->identifier->setId($object, $id);
     }

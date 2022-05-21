@@ -60,11 +60,11 @@ interface ObjectRepositoryInterface
     public function create(array $data = []): object;
 
     /**
-     * @param mixed $id The Identifier
+     * @param string|int $id The Identifier
      * @param bool $useCache Use cache?
      * @return object|null
      */
-    public function find($id, bool $useCache = true): ?object;
+    public function find(string|int $id, bool $useCache = true): ?object;
 
     /**
      * Find one or more data objects by id
@@ -78,10 +78,10 @@ interface ObjectRepositoryInterface
     /**
      * Return the database table for an object
      *
-     * @param mixed $objectOrClass If omitted will return table for the object this repository manages
+     * @param object|string|null $objectOrClass If omitted will return table for the object this repository manages
      * @return string The name of the database table
      */
-    public function getTableName($objectOrClass = null): string;
+    public function getTableName(object|string $objectOrClass = null): string;
 
     /**
      * Persists the object to the database

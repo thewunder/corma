@@ -5,17 +5,10 @@ use Corma\DataObject\Hydrator\ObjectHydratorInterface;
 
 abstract class BaseObjectFactory implements ObjectFactoryInterface
 {
-    protected $reflectionClasses = [];
+    protected array $reflectionClasses = [];
 
-    /**
-     * @var ObjectHydratorInterface
-     */
-    protected $hydrator;
-
-
-    public function __construct(ObjectHydratorInterface $hydrator)
+    public function __construct(protected ObjectHydratorInterface $hydrator)
     {
-        $this->hydrator = $hydrator;
     }
 
     public function create(string $class, array $data = [], array $dependencies = []): object
@@ -33,7 +26,7 @@ abstract class BaseObjectFactory implements ObjectFactoryInterface
         return $object;
     }
 
-    protected function getReflectionClass(string $class)
+    protected function getReflectionClass(string $class): \ReflectionClass
     {
         if (isset($this->reflectionClasses[$class])) {
             return $this->reflectionClasses[$class];

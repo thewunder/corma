@@ -16,23 +16,12 @@ class LimitedArrayCache extends CacheProvider
 
     private const DEFAULT_LIMIT = 1000;
 
-    /** @var array  */
-    private $data = [];
-
-    /** @var array  */
-    private $expirations = [];
-
-    /** @var int  */
-    private $hits = 0;
-
-    /** @var int  */
-    private $misses = 0;
-
-    /** @var int */
-    private $start;
-
-    /** @var int */
-    private $limit;
+    private array $data = [];
+    private array $expirations = [];
+    private int $hits = 0;
+    private int $misses = 0;
+    private int $start;
+    private int $limit;
 
     public function __construct(int $limit = self::DEFAULT_LIMIT)
     {
@@ -56,7 +45,7 @@ class LimitedArrayCache extends CacheProvider
     /**
      * @inheritDoc
      */
-    protected function doContains($id)
+    protected function doContains($id): bool
     {
         if (!isset($this->data[$id])) {
             return false;
@@ -76,7 +65,7 @@ class LimitedArrayCache extends CacheProvider
     /**
      * @inheritDoc
      */
-    protected function doSave($id, $data, $lifeTime = 0)
+    protected function doSave($id, $data, $lifeTime = 0): bool
     {
         $this->data[$id] = $data;
 
@@ -110,7 +99,7 @@ class LimitedArrayCache extends CacheProvider
     /**
      * @inheritDoc
      */
-    protected function doDelete($id)
+    protected function doDelete($id): bool
     {
         unset($this->data[$id]);
         unset($this->expirations[$id]);

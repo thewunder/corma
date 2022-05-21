@@ -9,8 +9,8 @@ interface TableConventionInterface
     /**
      * Gets the name of the database table for the supplied object
      *
-     * @param string|object $classOrObject
+     * @param object|string $classOrObject
      * @return string
      */
-    public function getTable($classOrObject): string;
+    public function getTable(object|string $classOrObject): string;
 }

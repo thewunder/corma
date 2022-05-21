@@ -24,24 +24,12 @@ class QueryHelper implements QueryHelperInterface
     protected const COMPARISON_OPERATORS = ['=', '<', '>', '<=', '>=', '<>', '!=', 'LIKE', 'NOT LIKE', 'BETWEEN', 'NOT BETWEEN'];
 
     /**
-     * @var Connection
-     */
-    protected $db;
-
-    /**
-     * @var CacheProvider
-     */
-    protected $cache;
-
-    /**
      * @var QueryModifier[]
      */
-    protected $modifiers = [];
+    protected array $modifiers = [];
 
-    public function __construct(Connection $db, CacheProvider $cache)
+    public function __construct(protected Connection $db, protected CacheProvider $cache)
     {
-        $this->db = $db;
-        $this->cache = $cache;
     }
 
     /**
@@ -55,7 +43,7 @@ class QueryHelper implements QueryHelperInterface
      *
      * @see processWhereQuery() For details on $where
      */
-    public function buildSelectQuery(string $table, $columns = 'main.*', array $where = [], array $orderBy = []): QueryBuilder
+    public function buildSelectQuery(string $table, array|string $columns = 'main.*', array $where = [], array $orderBy = []): QueryBuilder
     {
         $qb = $this->db->createQueryBuilder()->select($columns)->from($this->db->quoteIdentifier($table), self::TABLE_ALIAS);
 
@@ -359,7 +347,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $whereClause
      * @return bool
      */
-    protected function acceptsNull(array $from, string $whereClause)
+    protected function acceptsNull(array $from, string $whereClause): bool
     {
         foreach ($from as $tableInfo) {
             $table = str_replace($this->db->getDatabasePlatform()->getIdentifierQuoteCharacter(), '', $tableInfo['table']);
@@ -399,8 +387,8 @@ class QueryHelper implements QueryHelperInterface
     /**
      * @param string $table
      * @param string $column
-     * @return string
-     * @throws DBALException
+     * @return string|null
+     * @throws \Doctrine\DBAL\Exception
      */
     public function getLastInsertId(string $table, string $column): ?string
     {
@@ -449,7 +437,7 @@ class QueryHelper implements QueryHelperInterface
      * @param QueryBuilder $qb
      * @return string
      */
-    protected function getParameterName(string $whereCondition, QueryBuilder $qb)
+    protected function getParameterName(string $whereCondition, QueryBuilder $qb): string
     {
         //chop off table alias and operator
         $base = ':' . $this->getColumnName($whereCondition, false);
@@ -482,7 +470,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $columnName
      * @return string
      */
-    protected function getOperator(string $columnName)
+    protected function getOperator(string $columnName): string
     {
         $operator = trim(preg_replace(self::WHERE_COLUMN_REGEX, '$4', $columnName));
         if ($operator && in_array($operator, self::COMPARISON_OPERATORS)) {
@@ -497,7 +485,7 @@ class QueryHelper implements QueryHelperInterface
      * @param array $normalizedRows
      * @return string INSERT SQL Query
      */
-    protected function getInsertSql(string $table, array $normalizedRows)
+    protected function getInsertSql(string $table, array $normalizedRows): string
     {
         $tableName = $this->db->quoteIdentifier($table);
         $columns = array_keys($normalizedRows[0]);
@@ -524,9 +512,6 @@ class QueryHelper implements QueryHelperInterface
         return $query;
     }
 
-    /**
-     * @return Connection
-     */
     public function getConnection(): Connection
     {
         return $this->db;
@@ -539,7 +524,7 @@ class QueryHelper implements QueryHelperInterface
      * @param array $rows
      * @return array
      */
-    protected function normalizeRows(string $table, array $rows)
+    protected function normalizeRows(string $table, array $rows): array
     {
         $dbColumns = $this->getDbColumns($table);
 
@@ -550,7 +535,7 @@ class QueryHelper implements QueryHelperInterface
 
             foreach ($dbColumns->getColumns() as $column) {
                 $columnName = $column->getName();
-                $normalizedRow[$columnName] = isset($row[$columnName]) ? $row[$columnName] : null;
+                $normalizedRow[$columnName] = $row[$columnName] ?? null;
             }
             $normalizedRows[] = $normalizedRow;
         }
@@ -563,7 +548,7 @@ class QueryHelper implements QueryHelperInterface
      * @param array $normalizedRows
      * @return array
      */
-    protected function getParams(array $normalizedRows)
+    protected function getParams(array $normalizedRows): array
     {
         $params = [];
         foreach ($normalizedRows as $normalizedRow) {

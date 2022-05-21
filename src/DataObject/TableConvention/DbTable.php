@@ -6,15 +6,12 @@ namespace Corma\DataObject\TableConvention;
 #[\Attribute]
 class DbTable
 {
-    private string $name;
-
-    public function __construct(string $table)
+    public function __construct(private string $table)
     {
-        $this->name = $table;
     }
 
     public function getTable(): string
     {
-        return $this->name;
+        return $this->table;
     }
 }

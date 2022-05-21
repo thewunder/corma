@@ -10,7 +10,7 @@ abstract class CustomizableIdentifier extends BaseIdentifier
 {
     private ?string $idColumn = null;
 
-    public function getIdColumn($objectOrClass): string
+    public function getIdColumn(object|string $objectOrClass): string
     {
         if ($this->idColumn) {
             return $this->idColumn;

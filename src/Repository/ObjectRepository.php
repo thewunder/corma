@@ -22,62 +22,21 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class ObjectRepository implements ObjectRepositoryInterface
 {
-    /**
-     * @var Connection
-     */
-    protected $db;
-    /**
-     * @var EventDispatcherInterface
-     */
-    protected $dispatcher;
-
-    /**
-     * @var QueryHelperInterface
-     */
-    protected $queryHelper;
-
-    /**
-     * @var string
-     */
-    protected $className;
-
-    /**
-     * @var string
-     */
-    protected $shortClassName;
-
-    /**
-     * @var CacheProvider
-     */
-    protected $cache;
-
-    /**
-     * @var ObjectMapper
-     */
-    protected $objectMapper;
-
-    /**
-     * @var ObjectManager
-     */
-    protected $objectManager;
-
-    /**
-     * @var CacheProvider
-     */
-    protected $identityMap;
+    protected QueryHelperInterface $queryHelper;
+    protected ?string $className = null;
+    protected ?string $shortClassName = null;
+    protected ?ObjectManager $objectManager = null;
+    protected ?CacheProvider $identityMap = null;
 
     /**
      * @var array Array of dependencies passed as constructor parameters to the data objects
      */
-    protected $objectDependencies = [];
+    protected array $objectDependencies = [];
 
-    public function __construct(Connection $db, ObjectMapper $objectMapper, CacheProvider $cache, EventDispatcherInterface $dispatcher = null)
+    public function __construct(protected Connection    $db, protected ObjectMapper $objectMapper,
+                                protected CacheProvider $cache, protected ?EventDispatcherInterface $dispatcher = null)
     {
-        $this->db = $db;
-        $this->objectMapper = $objectMapper;
         $this->queryHelper = $objectMapper->getQueryHelper();
-        $this->cache = $cache;
-        $this->dispatcher = $dispatcher;
     }
 
     public function create(array $data = []): object
@@ -188,7 +147,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $className
      * @return $this
      */
-    public function setClassName(string $className)
+    public function setClassName(string $className): static
     {
         $this->className = $className;
         return $this;
@@ -527,7 +486,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param QueryBuilder $qb
      * @return object[]
      */
-    protected function fetchAll(QueryBuilder $qb)
+    protected function fetchAll(QueryBuilder $qb): array
     {
         $statement = $qb->execute();
         $objects = $this->getObjectManager()->fetchAll($statement);
@@ -539,9 +498,10 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     /**
      * @param QueryBuilder $qb
-     * @return object
+     * @return object|null
+     * @throws \Doctrine\DBAL\Exception
      */
-    protected function fetchOne(QueryBuilder $qb)
+    protected function fetchOne(QueryBuilder $qb): ?object
     {
         $statement = $qb->setMaxResults(1)->execute();
         $object = $this->getObjectManager()->fetchOne($statement);
@@ -576,7 +536,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * @return string
      */
-    protected function getShortClassName()
+    protected function getShortClassName(): string
     {
         if ($this->shortClassName) {
             return $this->shortClassName;
@@ -591,7 +551,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param array $data
      * @return object
      */
-    protected function restoreFromCache(array $data)
+    protected function restoreFromCache(array $data): object
     {
         $object = $this->create($data);
         $om = $this->getObjectManager();
@@ -605,7 +565,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $key Cache key
      * @return object[]
      */
-    protected function restoreAllFromCache(string $key)
+    protected function restoreAllFromCache(string $key): array
     {
         $cachedData = $this->cache->fetch($key);
         $objectsFromCache = [];
@@ -622,7 +582,7 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @param string $key
      * @param int $lifeTime
      */
-    protected function storeAllInCache(array $objects, string $key, $lifeTime = 0): void
+    protected function storeAllInCache(array $objects, string $key, int $lifeTime = 0): void
     {
         $dataToCache = [];
         $om = $this->getObjectManager();
