@@ -10,7 +10,9 @@ use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Util\OffsetPagedQuery;
 use Corma\Util\SeekPagedQuery;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -34,7 +36,10 @@ abstract class BaseIntegrationTest extends TestCase
     public function setUp(): void
     {
         $this->dispatcher = new EventDispatcher();
-        $this->objectMapper = ObjectMapper::withDefaults(self::$connection);
+        /** @var ContainerInterface | MockObject  $mockContainer */
+        $mockContainer = $this->getMockBuilder(ContainerInterface::class)->getMock();
+        $mockContainer->method('get')->willReturnCallback(fn(string $className) => new $className());
+        $this->objectMapper = ObjectMapper::withDefaults(self::$connection, $mockContainer);
         $this->identifier = $this->objectMapper->getObjectManagerFactory()->getIdentifier();
         $this->repository = $this->objectMapper->getRepository(ExtendedDataObject::class);
     }
@@ -101,7 +106,7 @@ abstract class BaseIntegrationTest extends TestCase
      * @param ExtendedDataObject $object
      * @return ExtendedDataObject
      */
-    public function testUpdate(ExtendedDataObject $object)
+    public function testUpdate(ExtendedDataObject $object): ExtendedDataObject
     {
         $object->setMyColumn('New Value')->setMyNullableColumn(null);
         $this->repository->save($object);

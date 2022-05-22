@@ -7,7 +7,7 @@ use Corma\Exception\MissingPrimaryKeyException;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
 
@@ -83,7 +83,7 @@ class QueryHelper implements QueryHelperInterface
                     $value = $this->db->getDatabasePlatform()->convertBooleans($value);
                 }
 
-                $qb->set($this->db->quoteIdentifier($column), "$paramName")
+                $qb->set($this->db->quoteIdentifier($column), ":$paramName")
                     ->setParameter($paramName, $value);
             }
         }
@@ -131,7 +131,7 @@ class QueryHelper implements QueryHelperInterface
     public function massUpdate(string $table, array $update, array $where): int
     {
         $qb = $this->buildUpdateQuery($table, $update, $where);
-        return $qb->execute();
+        return $qb->executeStatement();
     }
 
     /**
@@ -205,7 +205,7 @@ class QueryHelper implements QueryHelperInterface
             foreach ($rowsToUpdate as $row) {
                 $id = $row[$primaryKey];
                 unset($row[$primaryKey]);
-                $effected += $this->buildUpdateQuery($table, $row, [$primaryKey=>$id])->execute();
+                $effected += $this->buildUpdateQuery($table, $row, [$primaryKey=>$id])->executeStatement();
             }
             $this->db->commit();
         } catch (\Exception $e) {
@@ -249,13 +249,13 @@ class QueryHelper implements QueryHelperInterface
         if ($qb->getQueryPart('groupBy')) {
             $qb->select('1 AS group_by_row');
             $count = $this->db->executeQuery("SELECT COUNT(*) FROM ({$qb->getSQL()}) AS group_by_count",
-                $qb->getParameters(), $qb->getParameterTypes())->fetchColumn();
+                $qb->getParameters(), $qb->getParameterTypes())->fetchOne();
         } else {
             $orderBy = $qb->getQueryPart('orderBy');
 
             $count = (int) $qb->select("COUNT(main.$idColumn)")
                 ->resetQueryPart('orderBy')
-                ->execute()->fetchColumn();
+                ->executeQuery()->fetchOne();
 
             foreach($orderBy as $orderByPart) {
                 [$column, $dir] = explode(' ', $orderByPart);
@@ -300,41 +300,40 @@ class QueryHelper implements QueryHelperInterface
      * @param $value
      * @return string
      */
-    protected function processWhereField(QueryBuilder $qb, $wherePart, $value)
+    protected function processWhereField(QueryBuilder $qb, $wherePart, $value): string
     {
         $paramName = $this->getParameterName($wherePart, $qb);
+        //$paramPlaceHolder = ':' . $paramName;
         $column = $this->getColumnName($wherePart);
         $columnName = $this->db->quoteIdentifier($column);
         $operator = $this->getOperator($wherePart);
-        if (strpos($operator, 'BETWEEN') !== false) {
+        if (str_contains($operator, 'BETWEEN')) {
             if (!is_array($value) || !isset($value[0]) || !isset($value[1])) {
                 throw new InvalidArgumentException('BETWEEN value must be a 2 item array with numeric keys');
             }
             $gtParam = $paramName . 'GreaterThan';
             $ltParam = $paramName . 'LessThan';
-            $clause = "$columnName $operator $gtParam AND $ltParam";
+            $clause = "$columnName $operator :$gtParam AND :$ltParam";
             $qb->setParameter($gtParam, $value[0])
                 ->setParameter($ltParam, $value[1]);
             return $clause;
         } elseif (is_array($value)) {
             if ($operator == '<>' || $operator == '!=') {
-                $clause = "$columnName NOT IN($paramName)";
+                $clause = "$columnName NOT IN(:$paramName)";
                 $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
             } else {
-                $clause = "$columnName IN($paramName)";
+                $clause = "$columnName IN(:$paramName)";
                 $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
             }
             return $clause;
         } elseif ($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
             if ($operator == '<>' || $operator == '!=') {
-                $clause = $this->db->getDatabasePlatform()->getIsNotNullExpression($columnName);
-                return $clause;
+                return "$columnName IS NOT NULL";
             } else {
-                $clause = $this->db->getDatabasePlatform()->getIsNullExpression($columnName);
-                return $clause;
+                return "$columnName IS NULL";
             }
         } elseif ($value !== null) {
-            $clause = "$columnName $operator $paramName";
+            $clause = "$columnName $operator :$paramName";
             $qb->setParameter($paramName, $value);
             return $clause;
         } else {
@@ -401,19 +400,6 @@ class QueryHelper implements QueryHelperInterface
     }
 
     /**
-     * Is this exception caused by a duplicate record (i.e. unique index constraint violation)
-     *
-     * This will need to be overridden in db specific query helpers
-     *
-     * @param DBALException $error
-     * @return bool
-     */
-    public function isDuplicateException(DBALException $error): bool
-    {
-        throw new BadMethodCallException('This method has not been implemented for the current database type');
-    }
-
-    /**
      * Returns the primary key of the table
      *
      * @param string $table
@@ -424,8 +410,8 @@ class QueryHelper implements QueryHelperInterface
         $schema = $this->getDbColumns($table);
         try {
             $primaryKeys = $schema->getPrimaryKeyColumns();
-            return $primaryKeys[0];
-        } catch (DBALException $e) {
+            return reset($primaryKeys)->getName();
+        } catch (Exception) {
             return null;
         }
     }
@@ -440,7 +426,7 @@ class QueryHelper implements QueryHelperInterface
     protected function getParameterName(string $whereCondition, QueryBuilder $qb): string
     {
         //chop off table alias and operator
-        $base = ':' . $this->getColumnName($whereCondition, false);
+        $base = $this->getColumnName($whereCondition, false);
 
         //check for collisions
         $parameterName = $base;
@@ -610,5 +596,10 @@ class QueryHelper implements QueryHelperInterface
             return true;
         }
         return false;
+    }
+
+    public function isDuplicateException(Exception $error): bool
+    {
+        return $error instanceof Exception\UniqueConstraintViolationException;
     }
 }

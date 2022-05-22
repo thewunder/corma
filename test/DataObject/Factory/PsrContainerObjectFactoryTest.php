@@ -5,7 +5,7 @@ use Corma\DataObject\Factory\PsrContainerObjectFactory;
 use Corma\DataObject\Hydrator\ObjectHydratorInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\ObjectWithDependencies;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -65,8 +65,8 @@ class PsrContainerObjectFactoryTest extends TestCase
         $this->container->expects($this->exactly(2))->method('get')->with(ExtendedDataObject::class)->willReturn($object, $object2);
         $this->hydrator->expects($this->exactly(2))->method('hydrate')->withConsecutive([$object, $data], [$object2, $data2]);
 
-        /** @var ResultStatement | MockObject $mockResult */
-        $mockResult = $this->getMockBuilder(ResultStatement::class)->getMock();
+        /** @var Result | MockObject $mockResult */
+        $mockResult = $this->getMockBuilder(Result::class)->getMock();
         $mockResult->expects($this->exactly(3))->method('fetch')->willReturn($data, $data2, false);
 
         $this->assertCount(2, $this->factory->fetchAll(ExtendedDataObject::class, $mockResult));
@@ -80,8 +80,8 @@ class PsrContainerObjectFactoryTest extends TestCase
         $this->container->expects($this->once())->method('get')->with(ExtendedDataObject::class)->willReturn($object);
         $this->hydrator->expects($this->once())->method('hydrate')->with($object, $data);
 
-        /** @var ResultStatement | MockObject $mockResult */
-        $mockResult = $this->getMockBuilder(ResultStatement::class)->getMock();
+        /** @var Result | MockObject $mockResult */
+        $mockResult = $this->getMockBuilder(Result::class)->getMock();
         $mockResult->expects($this->once())->method('fetch')->willReturn($data);
 
         $this->assertEquals($object, $this->factory->fetchOne(ExtendedDataObject::class, $mockResult));

@@ -85,8 +85,8 @@ class SeekPagedQuery extends PagedQuery
             $qb->setMaxResults($this->pageSize);
         }
 
-        $statement = $qb->execute();
-        $results = $this->objectManager->fetchAll($statement);
+        $result = $qb->executeQuery();
+        $results = $this->objectManager->fetchAll($result);
 
         if (!$allResults) {
             if(!empty($results) && $this->page <= $this->pages) {
@@ -149,20 +149,20 @@ class SeekPagedQuery extends PagedQuery
             $value = $this->getLastResultValue($column, $lastResultData);
 
             $quotedColumn = $this->quotedColumn($column);
-            $param = ':' . $this->removeTableAlias($column);
+            $param = $this->removeTableAlias($column);
             $comparison = $direction == 'ASC' ? '>' : '<';
 
             if ($column == $identifier || $column == "main.$identifier") {
                 $qb->setParameter($param, $value);
-                $tieBreakerEqualities[] = "$quotedColumn $comparison $param";
+                $tieBreakerEqualities[] = "$quotedColumn $comparison :$param";
             } else {
                 $this->queryHelper->processWhereQuery($qb, ["$column $comparison=" => $value]);
-                $tieBreakerInequalities[] = "$quotedColumn $comparison $param";
-                $tieBreakerEqualities[] = "$quotedColumn = $param";
+                $tieBreakerInequalities[] = "$quotedColumn $comparison :$param";
+                $tieBreakerEqualities[] = "$quotedColumn = :$param";
             }
         }
 
-        $qb->andWhere($qb->expr()->orX(
+        $qb->andWhere($qb->expr()->or(
             new CompositeExpression(CompositeExpression::TYPE_AND, $tieBreakerInequalities),
             new CompositeExpression(CompositeExpression::TYPE_AND, $tieBreakerEqualities)
         )

@@ -2,7 +2,6 @@
 namespace Corma\QueryHelper;
 
 use Corma\Exception\MissingPrimaryKeyException;
-use Doctrine\DBAL\DBALException;
 
 class PostgreSQLQueryHelper extends QueryHelper
 {
@@ -15,7 +14,6 @@ class PostgreSQLQueryHelper extends QueryHelper
      * @param array $rows
      * @param null $lastInsertId Optional reference to populate with the last auto increment id
      * @return int Rows affected
-     * @throws DBALException
      */
     public function massUpsert(string $table, array $rows, &$lastInsertId = null): int
     {
@@ -61,22 +59,6 @@ class PostgreSQLQueryHelper extends QueryHelper
         $lastInsertId = $this->getLastInsertId($table, $primaryKey) - ($effected - $updates - 1);
 
         return $effected;
-    }
-
-    /**
-     * Only tested with PDO
-     *
-     * @param DBALException $error
-     * @return bool
-     */
-    public function isDuplicateException(DBALException $error): bool
-    {
-        /** @var \PDOException $previous */
-        $previous = $error->getPrevious();
-        if (!$previous || $previous->getCode() != 23505) {
-            return false;
-        }
-        return true;
     }
 
     protected function getVersion(): string

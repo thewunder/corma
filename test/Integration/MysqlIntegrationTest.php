@@ -12,6 +12,7 @@ use Corma\Util\LimitedArrayCache;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Dotenv\Dotenv;
+use Psr\Container\ContainerInterface;
 
 class MysqlIntegrationTest extends BaseIntegrationTest
 {
@@ -19,7 +20,8 @@ class MysqlIntegrationTest extends BaseIntegrationTest
     {
         $cache = new LimitedArrayCache();
         $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
-        $objectManagerFactory = ObjectManagerFactory::withDefaults($mySQLQueryHelper, Inflector::build());
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
+        $objectManagerFactory = ObjectManagerFactory::withDefaults($mySQLQueryHelper, Inflector::build(), $container);
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
             ->getMock();

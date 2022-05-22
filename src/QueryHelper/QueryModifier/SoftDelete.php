@@ -65,7 +65,8 @@ class SoftDelete extends QueryModifier
         }
 
         foreach ($table->getPrimaryKeyColumns() as $column) {
-            if(isset($where[$column]) || isset($where[QueryHelperInterface::TABLE_ALIAS. '.' .$column])) {
+            $columnName = $column->getName();
+            if(isset($where[$columnName]) || isset($where[QueryHelperInterface::TABLE_ALIAS. '.' .$columnName])) {
                 return true;
             }
         }

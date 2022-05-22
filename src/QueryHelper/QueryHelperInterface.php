@@ -2,7 +2,7 @@
 namespace Corma\QueryHelper;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
 
@@ -132,10 +132,10 @@ interface QueryHelperInterface
     /**
      * Is this exception caused by a duplicate record (i.e. unique index constraint violation)
      *
-     * @param DBALException $error
+     * @param Exception $error
      * @return bool
      */
-    public function isDuplicateException(DBALException $error): bool;
+    public function isDuplicateException(Exception $error): bool;
 
     /**
      * Retrieve the last inserted row id

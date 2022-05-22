@@ -24,17 +24,13 @@ class ObjectManagerFactory
     /**
      * @param QueryHelperInterface $queryHelper
      * @param Inflector $inflector
-     * @param ContainerInterface|null $container
+     * @param ContainerInterface $container
      * @return ObjectManagerFactory
      */
-    public static function withDefaults(QueryHelperInterface $queryHelper, Inflector $inflector, ?ContainerInterface $container = null): self
+    public static function withDefaults(QueryHelperInterface $queryHelper, Inflector $inflector, ContainerInterface $container): self
     {
         $hydrator = new ClosureHydrator();
-        if ($container) {
-            $factory = new PsrContainerObjectFactory($container, $hydrator);
-        } else {
-            $factory = new PdoObjectFactory($hydrator);
-        }
+        $factory = new PsrContainerObjectFactory($container, $hydrator);
 
         $tableConvention = new CustomizableTableConvention($inflector);
         $identifier = new CustomizableAutoIncrementIdentifier($inflector, $queryHelper, $tableConvention);

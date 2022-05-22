@@ -258,7 +258,7 @@ class RelationshipSaver
 
         $this->objectMapper->unitOfWork()->executeTransaction(function () use ($linkTable, $idColumn, $objects, $linkData, $om) {
             $queryHelper = $this->objectMapper->getQueryHelper();
-            $queryHelper->buildDeleteQuery($linkTable, [$idColumn=>$om->getIds($objects)])->execute();
+            $queryHelper->buildDeleteQuery($linkTable, [$idColumn=>$om->getIds($objects)])->executeStatement();
             $queryHelper->massInsert($linkTable, $linkData);
         });
     }
@@ -344,7 +344,7 @@ class RelationshipSaver
 
         $connection = $queryHelper->getConnection();
         $qb = $queryHelper->buildSelectQuery($foreignTable, [$connection->quoteIdentifier($idColumn), $connection->quoteIdentifier($foreignColumn)], [$foreignColumn => $objectIds]);
-        $existingForeignObjectIds = $qb->execute()->fetchAll(\PDO::FETCH_NUM);
+        $existingForeignObjectIds = $qb->executeQuery()->fetchAll(\PDO::FETCH_NUM);
 
         $existingForeignObjectsIdsByObjectId = [];
         foreach ($existingForeignObjectIds as $row) {

@@ -176,11 +176,10 @@ class RelationshipLoader
         $qb = $queryHelper->buildSelectQuery($linkTable, [$db->quoteIdentifier($idColumn).' AS id', $db->quoteIdentifier($foreignIdColumn).' AS '. $db->quoteIdentifier('foreignId')], [$idColumn=>$ids]);
         $foreignIdsById = [];
         $foreignIds = [];
-        $linkRows = $qb->execute();
-        $linkRows->setFetchMode(\PDO::FETCH_OBJ);
-        foreach ($linkRows as $linkRow) {
-            $foreignIdsById[$linkRow->id][] = $linkRow->foreignId;
-            $foreignIds[$linkRow->foreignId] = true;
+        $linkRows = $qb->executeQuery();
+        while ($linkRow = $linkRows->fetchAssociative()) {
+            $foreignIdsById[$linkRow['id']][] = $linkRow['foreignId'];
+            $foreignIds[$linkRow['foreignId']] = true;
         }
 
         $foreignObjects = $this->objectMapper->findByIds($className, array_keys($foreignIds));

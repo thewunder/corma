@@ -17,6 +17,7 @@ use Corma\Util\UnitOfWork;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -32,16 +33,16 @@ class ObjectMapper
      * Creates a ObjectMapper instance using the default QueryHelper and ObjectRepositoryFactory
      *
      * @param Connection $db Database connection
+     * @param ContainerInterface $container Dependency injection container for constructing data objects and their repositories
      * @param CacheProvider|null $cache Cache for table metadata and repositories
      * @param EventDispatcherInterface|null $dispatcher
-     * @param array $dependencies Array of additional dependencies use for constructing repositories
-     * @param ContainerInterface|null $container Dependency injection container for constructing data objects and their repositories
      * @return self
      *
-     * @throws DBALException When the database platform is not supported by Doctrine DBAL
      */
-    public static function withDefaults(Connection $db, ?CacheProvider $cache = null, ?EventDispatcherInterface $dispatcher = null,
-                                        array $dependencies = [], ContainerInterface $container = null): self
+    public static function withDefaults(Connection                $db,
+                                        ContainerInterface $container,
+                                        ?CacheProvider            $cache = null,
+                                        ?EventDispatcherInterface $dispatcher = null): self
     {
         if ($cache === null) {
             $cache = new LimitedArrayCache(10000);

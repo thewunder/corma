@@ -5,7 +5,7 @@ namespace Corma\DataObject\Factory;
 
 
 use Corma\DataObject\Hydrator\ObjectHydratorInterface;
-use Doctrine\DBAL\Driver\ResultStatement;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\FetchMode;
 use Psr\Container\ContainerInterface;
 
@@ -36,10 +36,10 @@ class PsrContainerObjectFactory extends BaseObjectFactory implements ObjectFacto
         return $instance;
     }
 
-    public function fetchAll(string $class, ResultStatement $statement, array $dependencies = []): array
+    public function fetchAll(string $class, Result $statement, array $dependencies = []): array
     {
         $results = [];
-        while ($data = $statement->fetch(FetchMode::ASSOCIATIVE)) {
+        while ($data = $statement->fetchAssociative()) {
             $object = $this->create($class, $data, $dependencies);
             $results[] = $object;
         }
@@ -47,9 +47,9 @@ class PsrContainerObjectFactory extends BaseObjectFactory implements ObjectFacto
         return $results;
     }
 
-    public function fetchOne(string $class, ResultStatement $statement, array $dependencies = []): ?object
+    public function fetchOne(string $class, Result $statement, array $dependencies = []): ?object
     {
-        $data = $statement->fetch(FetchMode::ASSOCIATIVE);
+        $data = $statement->fetchAssociative();
         if (!empty($data)) {
             return $this->create($class, $data, $dependencies);
         }

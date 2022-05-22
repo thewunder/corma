@@ -37,7 +37,7 @@ class OffsetPagedQuery extends PagedQuery
                 ->setFirstResult(($page-1) * $this->pageSize);
         }
 
-        $statement = $this->qb->execute();
+        $statement = $this->qb->executeQuery();
         return $this->objectManager->fetchAll($statement);
     }
 
