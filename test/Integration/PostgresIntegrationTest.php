@@ -22,7 +22,7 @@ class PostgresIntegrationTest extends BaseIntegrationTest
         $cache = new LimitedArrayCache();
         $mySQLQueryHelper = new PostgreSQLQueryHelper(self::$connection, $cache);
 
-        $objectManagerFactory = ObjectManagerFactory::withDefaults($mySQLQueryHelper, Inflector::build());
+        $objectManagerFactory = ObjectManagerFactory::withDefaults($mySQLQueryHelper, Inflector::build(), $this->container);
         $objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -81,7 +81,8 @@ class PostgresIntegrationTest extends BaseIntegrationTest
         }
 
         self::$connection->executeQuery('create schema cormatest');
-        self::$connection->executeQuery('CREATE TABLE extended_data_objects (
+        self::$connection->executeQuery('SET search_path TO cormatest');
+        self::$connection->executeQuery('CREATE TABLE cormatest.extended_data_objects (
           id SERIAL PRIMARY KEY,
           "isDeleted" BOOLEAN NOT NULL DEFAULT FALSE,
           "myColumn" VARCHAR(255) NOT NULL,
@@ -89,14 +90,14 @@ class PostgresIntegrationTest extends BaseIntegrationTest
           "otherDataObjectId" INT NULL
         )');
 
-        self::$connection->executeQuery('CREATE TABLE other_data_objects (
+        self::$connection->executeQuery('CREATE TABLE cormatest.other_data_objects (
           id SERIAL PRIMARY KEY,
           "isDeleted" BOOLEAN NOT NULL DEFAULT FALSE,
           "name" VARCHAR(255) NOT NULL,
           "extendedDataObjectId" INT NULL REFERENCES extended_data_objects (id)
         )');
 
-        self::$connection->executeQuery('CREATE TABLE extended_other_rel (
+        self::$connection->executeQuery('CREATE TABLE cormatest.extended_other_rel (
           "extendedDataObjectId" INT NOT NULL REFERENCES extended_data_objects (id),
           "otherDataObjectId" INT NOT NULL REFERENCES other_data_objects (id)
         )');

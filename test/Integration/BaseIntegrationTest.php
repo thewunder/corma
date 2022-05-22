@@ -18,28 +18,20 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 abstract class BaseIntegrationTest extends TestCase
 {
-    /** @var  ObjectRepositoryInterface */
-    protected $repository;
+    protected ObjectRepositoryInterface $repository;
+    protected EventDispatcherInterface $dispatcher;
+    protected ObjectMapper $objectMapper;
+    protected ObjectIdentifierInterface $identifier;
+    protected ContainerInterface|MockObject $container;
 
-    /** @var EventDispatcherInterface */
-    protected $dispatcher;
-
-    /** @var ObjectMapper */
-    protected $objectMapper;
-
-    /** @var  ObjectIdentifierInterface */
-    protected $identifier;
-
-    /** @var Connection */
-    protected static $connection;
+    protected static Connection $connection;
 
     public function setUp(): void
     {
         $this->dispatcher = new EventDispatcher();
-        /** @var ContainerInterface | MockObject  $mockContainer */
-        $mockContainer = $this->getMockBuilder(ContainerInterface::class)->getMock();
-        $mockContainer->method('get')->willReturnCallback(fn(string $className) => new $className());
-        $this->objectMapper = ObjectMapper::withDefaults(self::$connection, $mockContainer);
+        $this->container = $this->getMockBuilder(ContainerInterface::class)->getMock();
+        $this->container->method('get')->willReturnCallback(fn(string $className) => new $className());
+        $this->objectMapper = ObjectMapper::withDefaults(self::$connection, $this->container);
         $this->identifier = $this->objectMapper->getObjectManagerFactory()->getIdentifier();
         $this->repository = $this->objectMapper->getRepository(ExtendedDataObject::class);
     }
