@@ -504,8 +504,8 @@ class ObjectRepository implements ObjectRepositoryInterface
      */
     protected function fetchOne(QueryBuilder $qb): ?object
     {
-        $statement = $qb->setMaxResults(1)->executeQuery();
-        $object = $this->getObjectManager()->fetchOne($statement);
+        $result = $qb->setMaxResults(1)->executeQuery();
+        $object = $this->getObjectManager()->fetchOne($result);
         if ($object) {
             $this->dispatchEvents('loaded', $object);
             return $object;

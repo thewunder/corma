@@ -20,24 +20,20 @@ use Psr\Container\ContainerInterface;
 
 class ObjectMapperTest extends TestCase
 {
-    public function testCreate()
-    {
-        $connection = $this->mockConnection();
+    private Connection|MockObject $connection;
+    private ContainerInterface|MockObject $container;
 
-        $corma = ObjectMapper::withDefaults($connection);
-        $this->assertInstanceOf(ObjectMapper::class, $corma);
-        return $corma;
+    public function setUp(): void
+    {
+        $this->connection = $this->mockConnection();
+        $this->container = $this->getMockBuilder(ContainerInterface::class)->getMock();
     }
 
-    public function testCreateWithContainer()
+    public function testCreate(): ObjectMapper
     {
-        $connection = $this->mockConnection();
-
-        /** @var ContainerInterface|MockObject $container */
-        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
-
-        $corma = ObjectMapper::withDefaults($connection, [], null, null);
+        $corma = ObjectMapper::withDefaults($this->connection, $this->container);
         $this->assertInstanceOf(ObjectMapper::class, $corma);
+        return $corma;
     }
 
     /**
@@ -256,19 +252,13 @@ class ObjectMapperTest extends TestCase
 
     public function testUnitOfWork()
     {
-        $connection = $this->mockConnection();
-
-        $corma = ObjectMapper::withDefaults($connection);
+        $corma = ObjectMapper::withDefaults($this->connection, $this->container);
 
         $unitOfWork = $corma->unitOfWork();
         $this->assertInstanceOf(UnitOfWork::class, $unitOfWork);
     }
 
-    /**
-     * @param $mockRepository
-     * @return ObjectMapper|MockObject
-     */
-    protected function getCorma(MockObject $mockRepository)
+    protected function getCorma(MockObject $mockRepository): ObjectMapper
     {
         /** @var Connection $connection */
         $connection = $this->getMockBuilder(Connection::class)
@@ -296,12 +286,8 @@ class ObjectMapperTest extends TestCase
         return $objectMapper;
     }
 
-    /**
-     * @return Connection|MockObject
-     */
-    private function mockConnection()
+    private function mockConnection(): Connection|MockObject
     {
-        /** @var Connection|MockObject $connection */
         $connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();

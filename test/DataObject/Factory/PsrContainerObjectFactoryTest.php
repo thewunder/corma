@@ -13,12 +13,9 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class PsrContainerObjectFactoryTest extends TestCase
 {
-    /** @var MockObject | ContainerInterface */
-    private $container;
-    /** @var MockObject | ObjectHydratorInterface */
-    private $hydrator;
-    /** @var PsrContainerObjectFactory */
-    private $factory;
+    private ContainerInterface|MockObject $container;
+    private ObjectHydratorInterface|MockObject $hydrator;
+    private PsrContainerObjectFactory $factory;
 
     protected function setUp(): void
     {
@@ -66,8 +63,8 @@ class PsrContainerObjectFactoryTest extends TestCase
         $this->hydrator->expects($this->exactly(2))->method('hydrate')->withConsecutive([$object, $data], [$object2, $data2]);
 
         /** @var Result | MockObject $mockResult */
-        $mockResult = $this->getMockBuilder(Result::class)->getMock();
-        $mockResult->expects($this->exactly(3))->method('fetch')->willReturn($data, $data2, false);
+        $mockResult = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
+        $mockResult->expects($this->exactly(3))->method('fetchAssociative')->willReturn($data, $data2, false);
 
         $this->assertCount(2, $this->factory->fetchAll(ExtendedDataObject::class, $mockResult));
     }
@@ -81,8 +78,8 @@ class PsrContainerObjectFactoryTest extends TestCase
         $this->hydrator->expects($this->once())->method('hydrate')->with($object, $data);
 
         /** @var Result | MockObject $mockResult */
-        $mockResult = $this->getMockBuilder(Result::class)->getMock();
-        $mockResult->expects($this->once())->method('fetch')->willReturn($data);
+        $mockResult = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
+        $mockResult->expects($this->once())->method('fetchAssociative')->willReturn($data);
 
         $this->assertEquals($object, $this->factory->fetchOne(ExtendedDataObject::class, $mockResult));
     }

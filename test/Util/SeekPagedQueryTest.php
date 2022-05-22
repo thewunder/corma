@@ -10,20 +10,16 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Statement;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class SeekPagedQueryTest extends TestCase
 {
-    /** @var MockObject|Connection */
-    private $connection;
-    /** @var MockObject|QueryBuilder */
-    private $qb;
-    /** @var MockObject|QueryHelper */
-    private $queryHelper;
-    /** @var MockObject|ObjectManager */
-    private $objectManager;
+    private MockObject|Connection $connection;
+    private QueryBuilder|MockObject $qb;
+    private QueryHelper|MockObject $queryHelper;
+    private MockObject|ObjectManager $objectManager;
 
 
     public function setUp(): void
@@ -82,14 +78,14 @@ class SeekPagedQueryTest extends TestCase
     public function testGetResults()
     {
         $this->objectManager->method('getIdColumn')->willReturn('id');
-        $statement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()->getMock();
+        $result = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
 
         $this->qb->expects($this->once())->method('setMaxResults')->with(50)->will($this->returnSelf());
-        $this->qb->expects($this->once())->method('execute')->willReturn($statement);
+        $this->qb->expects($this->once())->method('executeQuery')->willReturn($result);
 
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
 
-        $this->objectManager->expects($this->once())->method('fetchAll')->with($statement);
+        $this->objectManager->expects($this->once())->method('fetchAll')->with($result);
 
         $pagedQuery = new SeekPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
         $pagedQuery->getResults("{\"id\": 3}");
@@ -98,10 +94,10 @@ class SeekPagedQueryTest extends TestCase
     public function testUsageAsIterator()
     {
         $this->objectManager->method('getIdColumn')->willReturn('id');
-        $statement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()->getMock();
+        $result = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
 
         $this->qb->expects($this->any())->method('setMaxResults')->will($this->returnSelf());
-        $this->qb->expects($this->any())->method('execute')->willReturn($statement);
+        $this->qb->expects($this->any())->method('executeQuery')->willReturn($result);
 
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
         $this->objectManager->expects($this->exactly(5))->method('extract')
@@ -113,7 +109,7 @@ class SeekPagedQueryTest extends TestCase
                 ['id'=>5]
             );
 
-        $this->objectManager->expects($this->exactly(5))->method('fetchAll')->with($statement)
+        $this->objectManager->expects($this->exactly(5))->method('fetchAll')->with($result)
             ->willReturnOnConsecutiveCalls(
                 [(new ExtendedDataObject())->setId(1)],
                 [(new ExtendedDataObject())->setId(2)],

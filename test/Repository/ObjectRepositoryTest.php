@@ -17,6 +17,7 @@ use Corma\Util\UnitOfWork;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -90,7 +91,7 @@ class ObjectRepositoryTest extends TestCase
     public function testFind()
     {
         $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()
-            ->onlyMethods(['execute'])->getMock();
+            ->onlyMethods(['executeQuery'])->getMock();
 
         $object = new ExtendedDataObject();
         $object->setId(5);
@@ -107,7 +108,7 @@ class ObjectRepositoryTest extends TestCase
     public function testFindByIds()
     {
         $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()
-            ->onlyMethods(['execute'])->getMock();
+            ->onlyMethods(['executeQuery'])->getMock();
 
         $objects = [];
         $objects[] = $object = new ExtendedDataObject();
@@ -166,7 +167,7 @@ class ObjectRepositoryTest extends TestCase
         /** @var MockObject|ExtendedDataObject $dataObjectMock */
         $dataObjectMock = $this->getMockBuilder(ExtendedDataObject::class)->onlyMethods(['getMyColumn'])->getMock();
         $dataObjectMock->expects($this->once())->method('getMyColumn');
-        $relationshipSaver = function () use ($dataObjectMock) {$dataObjectMock->getMyColumn();};
+        $relationshipSaver = function () use ($dataObjectMock) {return $dataObjectMock->getMyColumn();};
         $repository = $this->getRepository();
         $repository->save(new ExtendedDataObject(), $relationshipSaver);
     }
@@ -211,7 +212,7 @@ class ObjectRepositoryTest extends TestCase
         /** @var MockObject|ExtendedDataObject $dataObjectMock */
         $dataObjectMock = $this->getMockBuilder(ExtendedDataObject::class)->onlyMethods(['getMyColumn'])->getMock();
         $dataObjectMock->expects($this->once())->method('getMyColumn');
-        $relationshipSaver = function () use ($dataObjectMock) {$dataObjectMock->getMyColumn();};
+        $relationshipSaver = function () use ($dataObjectMock) {return $dataObjectMock->getMyColumn();};
 
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
@@ -309,13 +310,10 @@ class ObjectRepositoryTest extends TestCase
             $firedEvents['DataObject.ExtendedDataObject.loaded'] ++;
         });
 
-        $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()
-            ->onlyMethods(['execute'])->getMock();
-
-        $mockStatement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()
-            ->onlyMethods(['fetch', 'setFetchMode'])->getMock();
-
-        $mockQb->expects($this->once())->method('execute')->willReturn($mockStatement);
+        $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()->getMock();
+        $mockResult = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
+        $mockQb->expects($this->once())->method('executeQuery')->willReturn($mockResult);
+        $mockQb->expects($this->once())->method('setMaxResults')->willReturnSelf();
 
         $this->objectManager->expects($this->once())->method('fetchOne')->willReturn(new ExtendedDataObject());
         $this->queryHelper->expects($this->once())->method('buildSelectQuery')->willReturn($mockQb);
@@ -342,15 +340,13 @@ class ObjectRepositoryTest extends TestCase
             $firedEvents['DataObject.ExtendedDataObject.loaded'] ++;
         });
 
-        $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()
-            ->onlyMethods(['execute'])->getMock();
+        $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()->getMock();
 
-        $mockStatement = $this->getMockBuilder(Statement::class)->disableOriginalConstructor()
-            ->onlyMethods(['fetchAll'])->getMock();
+        $mockResult = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
 
         $objects = [new ExtendedDataObject(), new ExtendedDataObject()];
 
-        $mockQb->expects($this->once())->method('execute')->willReturn($mockStatement);
+        $mockQb->expects($this->once())->method('executeQuery')->willReturn($mockResult);
 
         $this->queryHelper->expects($this->once())->method('buildSelectQuery')->willReturn($mockQb);
 

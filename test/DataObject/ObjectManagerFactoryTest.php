@@ -2,14 +2,11 @@
 
 namespace Corma\Test\DataObject;
 
-use Corma\DataObject\Factory\PdoObjectFactory;
 use Corma\DataObject\Factory\PsrContainerObjectFactory;
 use Corma\DataObject\Hydrator\ClosureHydrator;
-use Corma\DataObject\Identifier\AutoIncrementIdentifier;
 use Corma\DataObject\Identifier\CustomizableAutoIncrementIdentifier;
 use Corma\DataObject\ObjectManager;
 use Corma\DataObject\ObjectManagerFactory;
-use Corma\DataObject\TableConvention\CustomizableTableConvention;
 use Corma\DataObject\TableConvention\DefaultTableConvention;
 use Corma\QueryHelper\MySQLQueryHelper;
 use Corma\Test\Fixtures\ExtendedDataObject;
@@ -21,27 +18,18 @@ use Psr\Container\ContainerInterface;
 class ObjectManagerFactoryTest extends TestCase
 {
     private MySQLQueryHelper|MockObject $queryHelper;
+    private ContainerInterface|MockObject $container;
 
     public function setUp(): void
     {
         parent::setUp();
         $this->queryHelper = $this->getMockBuilder(MySQLQueryHelper::class)->disableOriginalConstructor()->getMock();
+        $this->container = $this->getMockBuilder(ContainerInterface::class)->getMock();
     }
 
     public function testWithDefaults()
     {
-        $omf = ObjectManagerFactory::withDefaults($this->queryHelper, Inflector::build());
-        $this->assertInstanceOf(PdoObjectFactory::class, $omf->getFactory());
-        $this->assertInstanceOf(DefaultTableConvention::class, $omf->getTableConvention());
-        $this->assertInstanceOf(ClosureHydrator::class, $omf->getHydrator());
-        $this->assertInstanceOf(CustomizableAutoIncrementIdentifier::class, $omf->getIdentifier());
-    }
-
-    public function testWithDefaultsWithContainer()
-    {
-        /** @var MockObject|ContainerInterface $container */
-        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
-        $omf = ObjectManagerFactory::withDefaults($this->queryHelper, Inflector::build(), $container);
+        $omf = ObjectManagerFactory::withDefaults($this->queryHelper, Inflector::build(), $this->container);
         $this->assertInstanceOf(PsrContainerObjectFactory::class, $omf->getFactory());
         $this->assertInstanceOf(DefaultTableConvention::class, $omf->getTableConvention());
         $this->assertInstanceOf(ClosureHydrator::class, $omf->getHydrator());
@@ -50,7 +38,7 @@ class ObjectManagerFactoryTest extends TestCase
 
     public function testGetManager()
     {
-        $omf = ObjectManagerFactory::withDefaults($this->queryHelper, Inflector::build());
+        $omf = ObjectManagerFactory::withDefaults($this->queryHelper, Inflector::build(), $this->container);
         $objectManager = $omf->getManager(ExtendedDataObject::class);
         $this->assertInstanceOf(ObjectManager::class, $objectManager);
     }
