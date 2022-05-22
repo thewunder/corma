@@ -20,8 +20,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ObjectRepositoryFactoryTest extends TestCase
 {
-    /** @var ObjectRepositoryFactoryInterface */
-    private $repositoryFactory;
+    private ObjectRepositoryFactoryInterface $repositoryFactory;
 
     public function testGetRepositoryFullClass()
     {

@@ -12,14 +12,9 @@ use PHPUnit\Framework\TestCase;
 
 class ReadOnlyRepositoryTest extends TestCase
 {
-    /** @var MockObject */
-    protected $objectMapper;
-
-    /** @var MockObject */
-    private $connection;
-
-    /** @var MockObject */
-    private $cache;
+    protected ObjectMapper|MockObject $objectMapper;
+    private Connection|MockObject $connection;
+    private LimitedArrayCache|MockObject $cache;
 
     public function setUp(): void
     {
@@ -68,10 +63,7 @@ class ReadOnlyRepositoryTest extends TestCase
         $repo->deleteAll([$object]);
     }
 
-    /**
-     * @return ReadOnlyRepository|MockObject
-     */
-    protected function getRepository()
+    protected function getRepository(): ReadOnlyRepository|MockObject
     {
         return $this->getMockBuilder(ReadOnlyRepository::class)
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])

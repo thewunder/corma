@@ -289,7 +289,7 @@ class QueryHelperTest extends TestCase
         $qb = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $qb->expects($this->once())->method('execute')->willReturn(29);
+        $qb->expects($this->once())->method('executeStatement')->willReturn(29);
 
         $this->queryHelper->expects($this->once())->method('buildDeleteQuery')
             ->with('test_table', ['whereColumn'=>'x'])
@@ -357,7 +357,7 @@ class QueryHelperTest extends TestCase
         $mockSchemaManager->expects($this->once())->method('listTableDetails')
             ->with($tableName)->willReturn($table);
 
-        $this->connection->expects($this->once())->method('getSchemaManager')
+        $this->connection->expects($this->once())->method('createSchemaManager')
             ->willReturn($mockSchemaManager);
 
         $return = $this->queryHelper->getDbColumns($tableName);
@@ -399,7 +399,7 @@ class QueryHelperTest extends TestCase
         $mockSchemaManager->expects($this->once())->method('listTableDetails')
             ->with($tableName)->willReturn($table);
 
-        $this->connection->expects($this->once())->method('getSchemaManager')
+        $this->connection->expects($this->once())->method('createSchemaManager')
             ->willReturn($mockSchemaManager);
 
         $this->queryHelper->getDbColumns($tableName);

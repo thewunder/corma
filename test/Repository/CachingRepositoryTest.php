@@ -16,21 +16,10 @@ use PHPUnit\Framework\TestCase;
 
 class CachingRepositoryTest extends TestCase
 {
-
-    /** @var MockObject */
-    protected $objectMapper;
-
-    /** @var MockObject */
-    private $connection;
-
-    /** @var MockObject */
-    private $queryHelper;
-
-    /** @var MockObject */
-    private $cache;
-
-    /** @var MockObject */
-    private $objectManager;
+    private ObjectMapper|MockObject $objectMapper;
+    private Connection|MockObject $connection;
+    private LimitedArrayCache|MockObject $cache;
+    private ObjectManager|MockObject $objectManager;
 
     public function setUp(): void
     {
@@ -38,14 +27,14 @@ class CachingRepositoryTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
+        $queryHelper = $this->getMockBuilder(QueryHelper::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $queryBuilder = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()->getMock();
 
-        $this->queryHelper->expects($this->any())->method('buildSelectQuery')->willReturn($queryBuilder);
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(new Table('cachings'));
+        $queryHelper->expects($this->any())->method('buildSelectQuery')->willReturn($queryBuilder);
+        $queryHelper->expects($this->any())->method('getDbColumns')->willReturn(new Table('cachings'));
 
         $this->objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
@@ -59,7 +48,7 @@ class CachingRepositoryTest extends TestCase
         $objectManagerFactory->expects($this->any())->method('getManager')->willReturn($objectManager);
 
         $this->objectMapper->method('getObjectManagerFactory')->willReturn($objectManagerFactory);
-        $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($this->queryHelper);
+        $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($queryHelper);
         $this->objectMapper->expects($this->any())->method('getIdentityMap')->willReturn(new LimitedArrayCache());
 
         $this->cache = $this->getMockBuilder(LimitedArrayCache::class)
@@ -200,10 +189,7 @@ class CachingRepositoryTest extends TestCase
         $repository->deleteAll($objects);
     }
 
-    /**
-     * @return CachingRepository
-     */
-    protected function getRepository()
+    protected function getRepository(): CachingRepository|MockObject
     {
         $repository = $this->getMockBuilder(CachingRepository::class)
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])

@@ -3,40 +3,26 @@ namespace Corma\Test\Fixtures;
 
 class OtherDataObject extends BaseDataObject
 {
-    protected $name;
-    protected $extendedDataObjectId;
+    protected string $name = '';
+    protected ?int $extendedDataObjectId = null;
 
-    /**
-     * @return mixed
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param mixed $name
-     * @return OtherDataObject
-     */
-    public function setName($name)
+    public function setName(string $name): static
     {
         $this->name = $name;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getExtendedDataObjectId()
+    public function getExtendedDataObjectId(): ?int
     {
         return $this->extendedDataObjectId;
     }
 
-    /**
-     * @param mixed $extendedDataObjectId
-     * @return OtherDataObject
-     */
-    public function setExtendedDataObjectId($extendedDataObjectId)
+    public function setExtendedDataObjectId(?int $extendedDataObjectId): static
     {
         $this->extendedDataObjectId = $extendedDataObjectId;
         return $this;

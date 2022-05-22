@@ -736,14 +736,14 @@ abstract class BaseIntegrationTest extends TestCase
         $relationshipSaver->saveManyToManyLinks($objects, OtherDataObject::class, 'extended_other_rel');
 
         $objectLinks = $queryHelper->buildSelectQuery('extended_other_rel', self::$connection->quoteIdentifier('otherDataObjectId'), ['extendedDataObjectId'=>$object->getId()])
-            ->execute()->fetchAll(\PDO::FETCH_COLUMN);
+            ->executeQuery()->fetchFirstColumn();
 
         $this->assertCount(2, $objectLinks);
         $this->assertEquals($otherObject->getId(), $objectLinks[0]);
         $this->assertEquals($otherObject2->getId(), $objectLinks[1]);
 
         $object2Links = $queryHelper->buildSelectQuery('extended_other_rel', self::$connection->quoteIdentifier('otherDataObjectId'), ['extendedDataObjectId'=>$object2->getId()])
-            ->execute()->fetchAll(\PDO::FETCH_COLUMN);
+            ->executeQuery()->fetchFirstColumn();
 
         $this->assertCount(2, $object2Links);
         $this->assertEquals($otherObject3->getId(), $object2Links[0]);
@@ -793,14 +793,14 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertGreaterThan(0, $otherObject4->getId());
 
         $objectLinks = $queryHelper->buildSelectQuery('extended_other_rel', self::$connection->quoteIdentifier('otherDataObjectId'), ['extendedDataObjectId'=>$object->getId()])
-            ->execute()->fetchAll(\PDO::FETCH_COLUMN);
+            ->executeQuery()->fetchFirstColumn();
 
         $this->assertCount(2, $objectLinks);
         $this->assertEquals($otherObject->getId(), $objectLinks[0]);
         $this->assertEquals($otherObject2->getId(), $objectLinks[1]);
 
         $object2Links = $queryHelper->buildSelectQuery('extended_other_rel', self::$connection->quoteIdentifier('otherDataObjectId'), ['extendedDataObjectId'=>$object2->getId()])
-            ->execute()->fetchAll(\PDO::FETCH_COLUMN);
+            ->executeQuery()->fetchFirstColumn();
 
         $this->assertCount(2, $object2Links);
         $this->assertEquals($otherObject3->getId(), $object2Links[0]);

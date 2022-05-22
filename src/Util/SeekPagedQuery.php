@@ -10,7 +10,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 
 /**
  * Uses the more consistent and efficient seek / cursor pagination method that uses data from the last result to move between pages.
- * This method however cannot retrieve a page with out retrieving the previous page first.
+ * This method however cannot retrieve a page without retrieving the previous page first.
  * This will modify the order by of your query to add a secondary sort based on ID
  *
  * @see https://use-the-index-luke.com/sql/partial-results/fetch-next-page
@@ -22,8 +22,7 @@ class SeekPagedQuery extends PagedQuery
      */
     protected int $page = 1;
     protected array $lastResults = [];
-
-    private $sortColumns;
+    private ?array $sortColumns = null;
 
     public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, ObjectManager $objectManager, $pageSize = self::DEFAULT_PAGE_SIZE)
     {
@@ -49,7 +48,7 @@ class SeekPagedQuery extends PagedQuery
         return $this->lastResults[$this->page-2] ?? null;
     }
 
-    public function valid()
+    public function valid(): bool
     {
         if(empty($this->lastResults) && $this->page == 1) {
             return $this->resultCount > 0;
@@ -204,7 +203,7 @@ class SeekPagedQuery extends PagedQuery
 
     private function quotedColumn(string $column): string
     {
-        if (strpos($column, '.') === false) {
+        if (!str_contains($column, '.')) {
             $column = 'main.' . $column;
         }
         return $this->qb->getConnection()->quoteIdentifier($column);
@@ -212,7 +211,7 @@ class SeekPagedQuery extends PagedQuery
 
     private function removeTableAlias(string $column): string
     {
-        if (strpos($column, '.') !== false) {
+        if (str_contains($column, '.')) {
             $column = substr($column, strpos($column, '.') + 1);
         }
         return $column;

@@ -19,7 +19,6 @@ use Doctrine\DBAL\Platforms\MySqlPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -27,18 +26,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ObjectRepositoryTest extends TestCase
 {
-    private $objectMapper;
-    /** @var MockObject */
-    private $connection;
-
-    /** @var EventDispatcherInterface */
-    private $dispatcher;
-
-    /** @var MockObject */
-    private $queryHelper;
-
-    /** @var MockObject */
-    private $objectManager;
+    private ObjectMapper $objectMapper;
+    private Connection|MockObject $connection;
+    private EventDispatcherInterface $dispatcher;
+    private QueryHelper|MockObject $queryHelper;
+    private ObjectManager|MockObject $objectManager;
 
     public function setUp(): void
     {
@@ -145,7 +137,7 @@ class ObjectRepositoryTest extends TestCase
         $object = new ExtendedDataObject();
         $object->setId('123')->setMyColumn('testValue');
         $this->connection->expects($this->never())->method('beginTransaction');
-        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($table = $this->getTable());
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
         $this->objectManager->expects($this->atLeastOnce())->method('getId')->willReturn('123');
         $this->objectManager->expects($this->once())->method('extract')->willReturn(['myColumn'=>'testValue']);
         $this->queryHelper->expects($this->once())->method('massUpdate')->with('extended_data_objects', ['myColumn'=>'testValue'], ['id'=>'123']);
@@ -303,10 +295,10 @@ class ObjectRepositoryTest extends TestCase
             'DataObject.loaded' => 0,
             'DataObject.ExtendedDataObject.loaded' => 0
         ];
-        $this->dispatcher->addListener('DataObject.loaded', function (DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.loaded', function () use (&$firedEvents) {
             $firedEvents['DataObject.loaded'] ++;
         });
-        $this->dispatcher->addListener('DataObject.ExtendedDataObject.loaded', function (DataObjectEventInterface $event) use (&$firedEvents) {
+        $this->dispatcher->addListener('DataObject.ExtendedDataObject.loaded', function () use (&$firedEvents) {
             $firedEvents['DataObject.ExtendedDataObject.loaded'] ++;
         });
 
@@ -689,8 +681,7 @@ class ObjectRepositoryTest extends TestCase
 
         $this->objectManager->expects($this->any())->method('extract')->willReturn([]);
         $this->connection->expects($this->once())->method('rollback');
-        $test = $this;
-        $saveWith->invokeArgs($repository, [[new ExtendedDataObject()], function (array $objects) use ($test) {
+        $saveWith->invokeArgs($repository, [[new ExtendedDataObject()], function (array $objects) {
             throw new \Exception('Testing rollback');
         }]);
     }
@@ -702,19 +693,11 @@ class ObjectRepositoryTest extends TestCase
         $this->getRepository()->findAllInvalidPaged();
     }
 
-    /**
-     * @return ExtendedDataObjectRepository
-     */
-    protected function getRepository()
+    protected function getRepository(): ExtendedDataObjectRepository
     {
-        $repository = new ExtendedDataObjectRepository($this->connection, $this->objectMapper, new LimitedArrayCache(), $this->dispatcher);
-        return $repository;
+        return new ExtendedDataObjectRepository($this->connection, $this->objectMapper, new LimitedArrayCache(), $this->dispatcher);
     }
 
-    /**
-     * @param bool $softDelete
-     * @return Table
-     */
     private function getTable(bool $softDelete = true): Table
     {
         $table = new Table('extended_data_objects');

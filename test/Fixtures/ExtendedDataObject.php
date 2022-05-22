@@ -6,128 +6,81 @@ namespace Corma\Test\Fixtures;
  */
 class ExtendedDataObject extends BaseDataObject
 {
-    protected $myColumn = '';
-    protected $myNullableColumn;
-    protected $otherDataObjectId;
+    protected string $myColumn = '';
+    protected ?int $myNullableColumn = null;
+    protected ?int $otherDataObjectId = null;
 
-    /** @var array */
-    protected $arrayProperty;
-
-    /** @var ExtendedDataObject */
-    protected $objectProperty;
-
-    /** @var OtherDataObject */
-    protected $otherDataObject;
+    protected ?array $arrayProperty = null;
+    protected ?ExtendedDataObject $objectProperty = null;
+    protected ?OtherDataObject $otherDataObject = null;
 
     /** @var OtherDataObject[] */
-    protected $otherDataObjects;
+    protected ?array $otherDataObjects= null;
 
     /** @var OtherDataObject[] */
-    protected $custom;
+    protected ?array $custom = null;
 
-    /**
-     * @return mixed
-     */
-    public function getMyColumn()
+    public function getMyColumn(): string
     {
         return $this->myColumn;
     }
 
-    /**
-     * @param mixed $myColumn
-     * @return $this
-     */
-    public function setMyColumn($myColumn)
+    public function setMyColumn(string $myColumn): static
     {
         $this->myColumn = $myColumn;
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getMyNullableColumn()
+    public function getMyNullableColumn(): ?int
     {
         return $this->myNullableColumn;
     }
 
-    /**
-     * @param int $myNullableColumn
-     * @return ExtendedDataObject
-     */
-    public function setMyNullableColumn($myNullableColumn)
+    public function setMyNullableColumn(?int $myNullableColumn): static
     {
         $this->myNullableColumn = $myNullableColumn;
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getArrayProperty()
+    public function getArrayProperty(): array
     {
         return $this->arrayProperty;
     }
 
-    /**
-     * @param array $arrayProperty
-     * @return ExtendedDataObject
-     */
-    public function setArrayProperty($arrayProperty)
+    public function setArrayProperty(array $arrayProperty): static
     {
         $this->arrayProperty = $arrayProperty;
         return $this;
     }
 
-    /**
-     * @return ExtendedDataObject
-     */
-    public function getObjectProperty()
+    public function getObjectProperty(): ?ExtendedDataObject
     {
         return $this->objectProperty;
     }
 
-    /**
-     * @param ExtendedDataObject $objectProperty
-     * @return ExtendedDataObject
-     */
-    public function setObjectProperty($objectProperty)
+    public function setObjectProperty(ExtendedDataObject $objectProperty): static
     {
         $this->objectProperty = $objectProperty;
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getOtherDataObjectId()
+    public function getOtherDataObjectId(): ?int
     {
         return $this->otherDataObjectId;
     }
 
-    /**
-     * @param mixed $otherDataObjectId
-     * @return ExtendedDataObject
-     */
-    public function setOtherDataObjectId($otherDataObjectId)
+    public function setOtherDataObjectId(?int $otherDataObjectId): static
     {
         $this->otherDataObjectId = $otherDataObjectId;
         return $this;
     }
 
-    /**
-     * @return OtherDataObject
-     */
-    public function getOtherDataObject()
+    public function getOtherDataObject(): ?OtherDataObject
     {
         return $this->otherDataObject;
     }
 
-    /**
-     * @param OtherDataObject $otherDataObject
-     * @return $this
-     */
-    public function setOtherDataObject(OtherDataObject $otherDataObject)
+    public function setOtherDataObject(OtherDataObject $otherDataObject): static
     {
         $this->otherDataObject = $otherDataObject;
         return $this;
@@ -137,7 +90,7 @@ class ExtendedDataObject extends BaseDataObject
      * @param OtherDataObject[] $otherDataObjects
      * @return ExtendedDataObject
      */
-    public function setOtherDataObjects($otherDataObjects)
+    public function setOtherDataObjects(array $otherDataObjects): static
     {
         $this->otherDataObjects = $otherDataObjects;
         return $this;
@@ -146,7 +99,7 @@ class ExtendedDataObject extends BaseDataObject
     /**
      * @return OtherDataObject[]
      */
-    public function getOtherDataObjects()
+    public function getOtherDataObjects(): array
     {
         return $this->otherDataObjects;
     }

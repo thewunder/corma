@@ -10,19 +10,11 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class UnitOfWorkTest extends TestCase
 {
-    private $objectMapper;
-    /** @var MockObject */
-    private $connection;
-
-    /** @var EventDispatcherInterface */
-    private $dispatcher;
-
-    /** @var MockObject */
-    private $queryHelper;
+    private ObjectMapper|MockObject $objectMapper;
+    private Connection|MockObject $connection;
 
     public function setUp(): void
     {
@@ -32,17 +24,17 @@ class UnitOfWorkTest extends TestCase
 
         $this->dispatcher = new EventDispatcher();
 
-        $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
+        $queryHelper = $this->getMockBuilder(QueryHelper::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->queryHelper->expects($this->any())->method('getConnection')->willReturn($this->connection);
+        $queryHelper->expects($this->any())->method('getConnection')->willReturn($this->connection);
 
         $this->objectMapper = $this->getMockBuilder(ObjectMapper::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($this->queryHelper);
+        $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($queryHelper);
     }
 
     public function testExecuteTransaction()

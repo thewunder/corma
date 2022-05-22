@@ -26,26 +26,26 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     {
     }
 
-    public function getRepository(string $class): ?ObjectRepositoryInterface
+    public function getRepository(string $objectName): ?ObjectRepositoryInterface
     {
-        if (isset($this->repositories[$class])) {
-            return $this->repositories[$class];
+        if (isset($this->repositories[$objectName])) {
+            return $this->repositories[$objectName];
         }
 
-        [$namespace, $objectName] = $this->splitClassAndNamespace($class);
-        $className = $this->getRepositoryClass($objectName, $namespace);
+        [$namespace, $shortClass] = $this->splitClassAndNamespace($objectName);
+        $className = $this->getRepositoryClass($shortClass, $namespace);
         $repository = $this->createRepository($className);
         if ($repository) {
-            $this->repositories[$class] = $repository;
+            $this->repositories[$objectName] = $repository;
             return $repository;
-        } elseif (class_exists($class)) {
+        } elseif (class_exists($objectName)) {
             /** @var ObjectRepository $default */
             $default = $this->createRepository(ObjectRepository::class);
-            $default->setClassName($class);
-            return $this->repositories[$class] = $default;
+            $default->setClassName($objectName);
+            return $this->repositories[$objectName] = $default;
         }
 
-        throw new ClassNotFoundException("Cannot get repository for non-existent class '$class'");
+        throw new ClassNotFoundException("Cannot get repository for non-existent class '$objectName'");
     }
 
     /**

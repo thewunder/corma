@@ -344,7 +344,7 @@ class RelationshipSaver
 
         $connection = $queryHelper->getConnection();
         $qb = $queryHelper->buildSelectQuery($foreignTable, [$connection->quoteIdentifier($idColumn), $connection->quoteIdentifier($foreignColumn)], [$foreignColumn => $objectIds]);
-        $existingForeignObjectIds = $qb->executeQuery()->fetchAll(\PDO::FETCH_NUM);
+        $existingForeignObjectIds = $qb->executeQuery()->fetchAllNumeric();
 
         $existingForeignObjectsIdsByObjectId = [];
         foreach ($existingForeignObjectIds as $row) {

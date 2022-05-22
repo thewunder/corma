@@ -52,10 +52,10 @@ class ObjectManagerFactory
      */
     public function getManager(string $className, array $dependencies = [], ?ObjectHydratorInterface $hydrator = null, ?ObjectIdentifierInterface $identifier = null, ?TableConventionInterface $tableConvention = null, ?ObjectFactoryInterface $factory = null): ObjectManager
     {
-        $hydrator = $hydrator ? $hydrator : clone $this->hydrator;
-        $identifier = $identifier ? $identifier : clone $this->identifier;
-        $tableConvention = $tableConvention ? $tableConvention : clone $this->tableConvention;
-        $factory = $factory ? $factory : clone $this->factory;
+        $hydrator = $hydrator ?: clone $this->hydrator;
+        $identifier = $identifier ?: clone $this->identifier;
+        $tableConvention = $tableConvention ?: clone $this->tableConvention;
+        $factory = $factory ?: clone $this->factory;
 
         return new ObjectManager($hydrator, $identifier, $tableConvention, $factory, $className, $dependencies);
     }

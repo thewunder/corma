@@ -1,7 +1,6 @@
 <?php
 namespace Corma\QueryHelper;
 
-use Corma\Exception\BadMethodCallException;
 use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\MissingPrimaryKeyException;
 use Doctrine\Common\Cache\CacheProvider;
@@ -228,7 +227,7 @@ class QueryHelper implements QueryHelperInterface
     public function massDelete(string $table, array $where): int
     {
         $qb = $this->buildDeleteQuery($table, $where);
-        return $qb->execute();
+        return $qb->executeStatement();
     }
 
     /**
@@ -320,11 +319,10 @@ class QueryHelper implements QueryHelperInterface
         } elseif (is_array($value)) {
             if ($operator == '<>' || $operator == '!=') {
                 $clause = "$columnName NOT IN(:$paramName)";
-                $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
             } else {
                 $clause = "$columnName IN(:$paramName)";
-                $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
             }
+            $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
             return $clause;
         } elseif ($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
             if ($operator == '<>' || $operator == '!=') {
@@ -372,7 +370,7 @@ class QueryHelper implements QueryHelperInterface
         if ($this->cache->contains($key)) {
             return $this->cache->fetch($key);
         } else {
-            $schemaManager = $this->db->getSchemaManager();
+            $schemaManager = $this->db->createSchemaManager();
             $tableObj = $schemaManager->listTableDetails($table);
             if (empty($tableObj->getColumns())) {
                 $database = $this->db->getDatabase();
@@ -387,7 +385,7 @@ class QueryHelper implements QueryHelperInterface
      * @param string $table
      * @param string $column
      * @return string|null
-     * @throws \Doctrine\DBAL\Exception
+     * @throws Exception
      */
     public function getLastInsertId(string $table, string $column): ?string
     {

@@ -3,28 +3,26 @@ namespace Corma\Test\Fixtures;
 
 class BaseDataObject
 {
-    protected $id;
+    protected ?int $id = null;
+    protected bool $isDeleted = false;
 
-    /** @var bool */
-    protected $isDeleted = false;
-
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId($id)
+    public function setId(?int $id): static
     {
         $this->id = $id;
         return $this;
     }
 
-    public function isDeleted()
+    public function isDeleted(): bool
     {
-        return (bool) $this->isDeleted;
+        return $this->isDeleted;
     }
 
-    public function setDeleted(bool $isDeleted)
+    public function setDeleted(bool $isDeleted): void
     {
         $this->isDeleted = $isDeleted;
     }

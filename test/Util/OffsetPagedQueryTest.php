@@ -13,12 +13,9 @@ use PHPUnit\Framework\TestCase;
 
 class OffsetPagedQueryTest extends TestCase
 {
-    /** @var MockObject */
-    private $qb;
-    /** @var MockObject */
-    private $queryHelper;
-    /** @var MockObject */
-    private $objectManager;
+    private QueryBuilder|MockObject $qb;
+    private QueryHelper|MockObject $queryHelper;
+    private MockObject|ObjectManager $objectManager;
 
 
     public function setUp(): void
