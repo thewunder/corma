@@ -16,8 +16,8 @@ use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
 use Doctrine\DBAL\Connection;
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\SimpleCache\CacheInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Main entry point for the ORM

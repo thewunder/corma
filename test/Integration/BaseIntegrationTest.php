@@ -14,12 +14,11 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 abstract class BaseIntegrationTest extends TestCase
 {
     protected ObjectRepositoryInterface $repository;
-    protected EventDispatcherInterface $dispatcher;
+    protected EventDispatcher $dispatcher;
     protected ObjectMapper $objectMapper;
     protected ObjectIdentifierInterface $identifier;
     protected ContainerInterface|MockObject $container;

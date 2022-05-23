@@ -8,7 +8,8 @@ Breaking Changes
 * Requires PHP 8.0 or above
 * Depends on Doctrine/DBAL 3.x
 * Phpdoc annotations have been replaced with DbTable and IdColumn attributes
-* Cache uses PSR-16 Simple Cache interface rather than requiring Doctrine's Cache implementation
+* Cache uses PSR-16 Simple Cache interface rather than requiring Doctrine's implementation
+* Event Dispatcher uses PSR-14 event dispatcher interface rather than requiring Symfony's implementation
 
 Updates
 -------

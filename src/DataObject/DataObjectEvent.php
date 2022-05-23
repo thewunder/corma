@@ -1,9 +1,8 @@
 <?php
 namespace Corma\DataObject;
 
-use Symfony\Contracts\EventDispatcher\Event;
 
-class DataObjectEvent extends Event implements DataObjectEventInterface
+class DataObjectEvent implements DataObjectEventInterface
 {
     public function __construct(protected object $object)
     {

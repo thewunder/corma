@@ -13,8 +13,8 @@ use Corma\Util\SeekPagedQuery;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\SimpleCache\CacheInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * An object repository manages all creation, persistence, retrieval, deletion of objects of a particular class.
