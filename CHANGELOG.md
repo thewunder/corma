@@ -1,3 +1,19 @@
+Version 4.0
+===========
+
+Breaking Changes
+----------------
+
+* Now Requires a PSR-11 container for data object construction
+* Requires PHP 8 or above
+* Depends on Doctrine/DBAL 3.x
+* Phpdoc annotations have been replaced with DbTable and IdColumn attributes
+
+Updates
+-------
+
+* Upgrade to PHPUnit 9
+
 Version 3.6.5
 =============
 
