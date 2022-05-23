@@ -14,6 +14,7 @@ Updates
 -------
 
 * Upgrade to PHPUnit 9
+* Allow for Doctrine Inflector 1.x or 2.x
 
 Version 3.6.5
 =============
