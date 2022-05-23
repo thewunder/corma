@@ -96,9 +96,9 @@ class AggressiveCachingRepositoryTest extends TestCase
 
     public function testFindAll()
     {
-        $this->cache->expects($this->exactly(2))->method('contains')->will($this->onConsecutiveCalls(false, true));
-        $this->cache->expects($this->once())->method('save');
-        $this->cache->expects($this->once())->method('fetch')->willReturn([['id' =>1, 'myColumn'=>'My Value'], ['id' =>2, 'myColumn'=>'My Value 2']]);
+        $this->cache->expects($this->exactly(2))->method('has')->will($this->onConsecutiveCalls(false, true));
+        $this->cache->expects($this->once())->method('set');
+        $this->cache->expects($this->once())->method('get')->willReturn([['id' =>1, 'myColumn'=>'My Value'], ['id' =>2, 'myColumn'=>'My Value 2']]);
 
         $repository = $this->getRepository();
 

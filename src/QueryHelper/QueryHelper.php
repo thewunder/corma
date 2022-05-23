@@ -3,12 +3,12 @@ namespace Corma\QueryHelper;
 
 use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\MissingPrimaryKeyException;
-use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Schema\Table;
+use Psr\SimpleCache\CacheInterface;
 
 class QueryHelper implements QueryHelperInterface
 {
@@ -27,7 +27,7 @@ class QueryHelper implements QueryHelperInterface
      */
     protected array $modifiers = [];
 
-    public function __construct(protected Connection $db, protected CacheProvider $cache)
+    public function __construct(protected Connection $db, protected CacheInterface $cache)
     {
     }
 
@@ -367,8 +367,8 @@ class QueryHelper implements QueryHelperInterface
     public function getDbColumns(string $table): Table
     {
         $key = 'db_columns.'.$table;
-        if ($this->cache->contains($key)) {
-            return $this->cache->fetch($key);
+        if ($this->cache->has($key)) {
+            return $this->cache->get($key);
         } else {
             $schemaManager = $this->db->createSchemaManager();
             $tableObj = $schemaManager->listTableDetails($table);
@@ -376,7 +376,7 @@ class QueryHelper implements QueryHelperInterface
                 $database = $this->db->getDatabase();
                 throw new InvalidArgumentException("The table $database.$table does not exist");
             }
-            $this->cache->save($key, $tableObj);
+            $this->cache->set($key, $tableObj);
             return $tableObj;
         }
     }

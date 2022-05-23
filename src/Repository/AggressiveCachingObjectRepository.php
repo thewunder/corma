@@ -1,6 +1,8 @@
 <?php
 namespace Corma\Repository;
 
+use Closure;
+
 /**
  * Repository that aggressively caches its results so that find, findByIds, and findAll operate exclusively from cache.
  *
@@ -31,7 +33,7 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
     public function findAll(): array
     {
         $key = $this->getCacheKey();
-        if ($this->cache->contains($key)) {
+        if ($this->cache->has($key)) {
             return $this->restoreAllFromCache($key);
         }
 
@@ -42,14 +44,14 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
         return $objects;
     }
 
-    public function save(object $object, ?\Closure $saveRelationships = null): object
+    public function save(object $object, ?Closure $saveRelationships = null): object
     {
         parent::save($object);
         $this->cache->delete($this->getCacheKey());
         return $object;
     }
 
-    public function saveAll(array $objects, ?\Closure $saveRelationships = null): int
+    public function saveAll(array $objects, ?Closure $saveRelationships = null): int
     {
         $result = parent::saveAll($objects);
         $this->cache->delete($this->getCacheKey());

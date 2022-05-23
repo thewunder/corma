@@ -57,7 +57,7 @@ class CachingRepositoryTest extends TestCase
 
     public function testFindHit()
     {
-        $this->cache->expects($this->once())->method('fetch')->with('cachings[9]')->willReturn(['id'=>9]);
+        $this->cache->expects($this->once())->method('get')->with('cachings[9]')->willReturn(['id'=>9]);
 
         $repository = $this->getRepository();
 
@@ -72,8 +72,8 @@ class CachingRepositoryTest extends TestCase
 
     public function testFindMiss()
     {
-        $this->cache->expects($this->once())->method('fetch')->with('cachings[9]')->willReturn(null);
-        $this->cache->expects($this->once())->method('save')->with('cachings[9]', ['id'=>9]);
+        $this->cache->expects($this->once())->method('get')->with('cachings[9]')->willReturn(null);
+        $this->cache->expects($this->once())->method('set')->with('cachings[9]', ['id'=>9]);
 
         $repository = $this->getRepository();
         $willReturn = new Caching();
@@ -88,7 +88,7 @@ class CachingRepositoryTest extends TestCase
 
     public function testFindNoCache()
     {
-        $this->cache->expects($this->never())->method('fetch');
+        $this->cache->expects($this->never())->method('get');
 
         $repository = $this->getRepository();
         $willReturn = new Caching();
@@ -101,8 +101,8 @@ class CachingRepositoryTest extends TestCase
 
     public function testFindByIds()
     {
-        $this->cache->expects($this->once())->method('fetchMultiple')->with(['cachings[9]', 'cachings[10]'])->willReturn(['cachings[9]'=>['id'=>9]]);
-        $this->cache->expects($this->once())->method('saveMultiple')->with(['cachings[10]'=>['id'=>10]], 86400);
+        $this->cache->expects($this->once())->method('getMultiple')->with(['cachings[9]', 'cachings[10]'])->willReturn(['cachings[9]'=>['id'=>9]]);
+        $this->cache->expects($this->once())->method('setMultiple')->with(['cachings[10]'=>['id'=>10]], 86400);
 
         $repository = $this->getRepository();
         $willReturn = new Caching();
@@ -119,7 +119,7 @@ class CachingRepositoryTest extends TestCase
 
     public function testFindByIdsNoCache()
     {
-        $this->cache->expects($this->never())->method('fetchMultiple');
+        $this->cache->expects($this->never())->method('getMultiple');
 
         $repository = $this->getRepository();
         $willReturn = new Caching();
@@ -134,7 +134,7 @@ class CachingRepositoryTest extends TestCase
 
     public function testSave()
     {
-        $this->cache->expects($this->once())->method('save')->with('cachings[9]', ['id'=>9]);
+        $this->cache->expects($this->once())->method('set')->with('cachings[9]', ['id'=>9]);
 
         $repository = $this->getRepository();
         $willReturn = new Caching();
@@ -158,7 +158,7 @@ class CachingRepositoryTest extends TestCase
 
     public function testSaveAll()
     {
-        $this->cache->expects($this->once())->method('saveMultiple')->with(['cachings[11]'=>['id'=>11], 'cachings[12]'=>['id'=>12]], 86400);
+        $this->cache->expects($this->once())->method('setMultiple')->with(['cachings[11]'=>['id'=>11], 'cachings[12]'=>['id'=>12]], 86400);
 
         $repository = $this->getRepository();
 

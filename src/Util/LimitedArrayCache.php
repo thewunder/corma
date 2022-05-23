@@ -2,59 +2,40 @@
 
 namespace Corma\Util;
 
-use Doctrine\Common\Cache\CacheProvider;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * An Array backed cache that evicts based on a maximum size
  */
-class LimitedArrayCache extends CacheProvider
+class LimitedArrayCache implements CacheInterface
 {
-    /**
-     * Number of keys in this cache
-     */
-    const STATS_KEYS = 'keys';
-
     private const DEFAULT_LIMIT = 1000;
 
     private array $data = [];
     private array $expirations = [];
-    private int $hits = 0;
-    private int $misses = 0;
-    private int $start;
-    private int $limit;
 
-    public function __construct(int $limit = self::DEFAULT_LIMIT)
+    public function __construct(private int $limit = self::DEFAULT_LIMIT)
     {
-        $this->start = time();
-        $this->limit = $limit;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function doFetch($id)
+    public function get(string $key, mixed $default = null): mixed
     {
-        if ($this->doContains($id)) {
-            $this->hits++;
-            return $this->data[$id];
+        if ($this->has($key)) {
+            return $this->data[$key];
         }
-        $this->misses++;
-        return false;
+        return $default;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function doContains($id): bool
+    public function has(string $key): bool
     {
-        if (!isset($this->data[$id])) {
+        if (!isset($this->data[$key])) {
             return false;
         }
 
-        $expiration = $this->expirations[$id] ?? false;
+        $expiration = $this->expirations[$key] ?? false;
 
         if ($expiration && $expiration < time()) {
-            $this->doDelete($id);
+            $this->delete($key);
 
             return false;
         }
@@ -62,21 +43,57 @@ class LimitedArrayCache extends CacheProvider
         return true;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function doSave($id, $data, $lifeTime = 0): bool
+    public function set(string $key, mixed $value, int|\DateInterval|null $ttl = null): bool
     {
-        $this->data[$id] = $data;
+        $this->data[$key] = $value;
 
-        if ($lifeTime > 0) {
-            $this->expirations[$id] = time() + $lifeTime;
+        if ($ttl instanceof \DateInterval) {
+            $ttl = date_create('@0')->add($ttl)->getTimestamp();
+        }
+
+        if ($ttl > 0) {
+            $this->expirations[$key] = time() + $ttl;
         }
 
         if (count($this->data) > $this->limit) {
             $this->evictKeys();
         }
 
+        return true;
+    }
+
+    public function getMultiple(iterable $keys, mixed $default = null): iterable
+    {
+        $values = [];
+        foreach ($keys as $key) {
+            $value = $this->get($key);
+            if ($value != null) {
+                $values[$key] = $value;
+            }
+        }
+        return $values;
+    }
+
+    public function setMultiple(iterable $values, \DateInterval|int|null $ttl = null): bool
+    {
+        foreach ($values as $key => $value) {
+            $this->set($key, $value, $ttl);
+        }
+        return true;
+    }
+
+    public function delete(string $key): bool
+    {
+        unset($this->data[$key]);
+        unset($this->expirations[$key]);
+        return true;
+    }
+
+    public function deleteMultiple(iterable $keys): bool
+    {
+        foreach ($keys as $key) {
+            $this->delete($key);
+        }
         return true;
     }
 
@@ -96,37 +113,18 @@ class LimitedArrayCache extends CacheProvider
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function doDelete($id): bool
+    public function clear(): bool
     {
-        unset($this->data[$id]);
-        unset($this->expirations[$id]);
+        $this->data = [];
+        $this->expirations = [];
         return true;
     }
 
     /**
-     * @inheritDoc
+     * @return int Number of keys currently in cache
      */
-    protected function doFlush()
+    public function count(): int
     {
-        $this->data = [];
-        $this->expirations = [];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected function doGetStats()
-    {
-        return [
-            self::STATS_HITS => $this->hits,
-            self::STATS_MISSES => $this->misses,
-            self::STATS_UPTIME => $this->start - time(),
-            self::STATS_MEMORY_AVAILABLE => null,
-            self::STATS_MEMORY_USAGE => null,
-            self::STATS_KEYS  => count($this->data)
-        ];
+        return count($this->data);
     }
 }

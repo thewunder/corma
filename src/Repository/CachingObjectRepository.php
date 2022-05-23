@@ -1,6 +1,8 @@
 <?php
 namespace Corma\Repository;
 
+use Closure;
+
 /**
  * Caches individual objects by id, by default for 24 hours
  */
@@ -12,8 +14,8 @@ abstract class CachingObjectRepository extends ObjectRepository
             return parent::find($id, false);
         }
 
-        if (!$this->getIdentityMap()->contains($id)) {
-            $dataFromCache = $this->cache->fetch($this->getCacheKey($id));
+        if (!$this->getIdentityMap()->has($id)) {
+            $dataFromCache = $this->cache->get($this->getCacheKey($id));
             if ($dataFromCache) {
                 return $this->restoreFromCache($dataFromCache);
             }
@@ -32,7 +34,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         }
 
         $om = $this->getObjectManager();
-        $objects = $this->getIdentityMap()->fetchMultiple($ids);
+        $objects = $this->getIdentityMap()->getMultiple($ids);
         $cachedIds = [];
         foreach ($objects as $object) {
             $cachedIds[] = $om->getId($object);
@@ -47,7 +49,7 @@ abstract class CachingObjectRepository extends ObjectRepository
             return $this->getCacheKey($id);
         }, $ids);
 
-        $cachedData = $this->cache->fetchMultiple($keys);
+        $cachedData = $this->cache->getMultiple($keys);
 
         foreach ($cachedData as $data) {
             $object = $this->restoreFromCache($data);
@@ -64,7 +66,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         return array_merge($objects, $fromDb);
     }
 
-    public function save(object $object, ?\Closure $saveRelationships = null): object
+    public function save(object $object, ?Closure $saveRelationships = null): object
     {
         if (func_num_args() == 2) {
             $object = parent::save($object, $saveRelationships);
@@ -75,7 +77,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         return $object;
     }
 
-    public function saveAll(array $objects, ?\Closure $saveRelationships = null): int
+    public function saveAll(array $objects, ?Closure $saveRelationships = null): int
     {
         if (func_num_args() == 2) {
             $result = parent::saveAll($objects, $saveRelationships);
@@ -109,7 +111,7 @@ abstract class CachingObjectRepository extends ObjectRepository
      *
      * @return int
      */
-    protected function getCacheLifetime()
+    protected function getCacheLifetime(): int
     {
         return 86400;
     }
@@ -118,7 +120,7 @@ abstract class CachingObjectRepository extends ObjectRepository
     {
         $om = $this->getObjectManager();
         $id = $om->getId($object);
-        $this->cache->save($this->getCacheKey($id), $om->extract($object), $this->getCacheLifetime());
+        $this->cache->set($this->getCacheKey($id), $om->extract($object), $this->getCacheLifetime());
     }
 
     /**
@@ -132,7 +134,7 @@ abstract class CachingObjectRepository extends ObjectRepository
             $id = $om->getId($object);
             $data[$this->getCacheKey($id)] = $om->extract($object);
         }
-        $this->cache->saveMultiple($data, $this->getCacheLifetime());
+        $this->cache->setMultiple($data, $this->getCacheLifetime());
     }
 
     protected function getCacheKey(string $id): string

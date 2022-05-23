@@ -14,11 +14,9 @@ use Corma\Repository\ObjectRepositoryInterface;
 use Corma\Util\Inflector;
 use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
-use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Exception;
 use Psr\Container\ContainerInterface;
+use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -34,14 +32,14 @@ class ObjectMapper
      *
      * @param Connection $db Database connection
      * @param ContainerInterface $container Dependency injection container for constructing data objects and their repositories
-     * @param CacheProvider|null $cache Cache for table metadata and repositories
+     * @param CacheInterface|null $cache Cache for table metadata and repositories
      * @param EventDispatcherInterface|null $dispatcher
      * @return self
      *
      */
     public static function withDefaults(Connection                $db,
                                         ContainerInterface $container,
-                                        ?CacheProvider            $cache = null,
+                                        ?CacheInterface          $cache = null,
                                         ?EventDispatcherInterface $dispatcher = null): self
     {
         if ($cache === null) {
@@ -69,11 +67,10 @@ class ObjectMapper
 
     /**
      * @param Connection $db
-     * @param CacheProvider $cache
+     * @param CacheInterface $cache
      * @return QueryHelperInterface
-     * @throws DBALException When the database platform is not supported by Doctrine DBAL
      */
-    protected static function createQueryHelper(Connection $db, CacheProvider $cache): QueryHelperInterface
+    protected static function createQueryHelper(Connection $db, CacheInterface $cache): QueryHelperInterface
     {
         $database = $db->getDatabasePlatform()->getReservedKeywordsList()->getName();
         $database = preg_replace('/[^A-Za-z]/', '', $database); //strip version
@@ -364,7 +361,7 @@ class ObjectMapper
         return $this->objectManagerFactory;
     }
 
-    public function getIdentityMap(): CacheProvider
+    public function getIdentityMap(): CacheInterface
     {
         return new LimitedArrayCache();
     }
