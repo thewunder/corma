@@ -101,7 +101,7 @@ class CachingRepositoryTest extends TestCase
 
     public function testFindByIds()
     {
-        $this->cache->expects($this->once())->method('getMultiple')->with(['cachings[9]', 'cachings[10]'])->willReturn(['cachings[9]'=>['id'=>9]]);
+        $this->cache->expects($this->once())->method('getMultiple')->with(['cachings[9]', 'cachings[10]'])->willReturn(['cachings[9]'=>['id'=>9], 'cachings[10]'=>null]);
         $this->cache->expects($this->once())->method('setMultiple')->with(['cachings[10]'=>['id'=>10]], 86400);
 
         $repository = $this->getRepository();

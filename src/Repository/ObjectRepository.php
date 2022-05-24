@@ -65,7 +65,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $om = $this->getObjectManager();
         if ($useCache) {
-            $instances = $this->getIdentityMap()->getMultiple($ids);
+            $instances = array_filter($this->getIdentityMap()->getMultiple($ids));
             $cachedIds = [];
             foreach ($instances as $instance) {
                 $cachedIds[] = $om->getId($instance);

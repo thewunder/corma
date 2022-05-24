@@ -66,10 +66,7 @@ class LimitedArrayCache implements CacheInterface
     {
         $values = [];
         foreach ($keys as $key) {
-            $value = $this->get($key);
-            if ($value != null) {
-                $values[$key] = $value;
-            }
+            $values[$key] = $this->get($key, $default);
         }
         return $values;
     }

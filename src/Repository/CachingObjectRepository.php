@@ -34,7 +34,7 @@ abstract class CachingObjectRepository extends ObjectRepository
         }
 
         $om = $this->getObjectManager();
-        $objects = $this->getIdentityMap()->getMultiple($ids);
+        $objects = array_filter($this->getIdentityMap()->getMultiple($ids));
         $cachedIds = [];
         foreach ($objects as $object) {
             $cachedIds[] = $om->getId($object);
@@ -49,7 +49,7 @@ abstract class CachingObjectRepository extends ObjectRepository
             return $this->getCacheKey($id);
         }, $ids);
 
-        $cachedData = $this->cache->getMultiple($keys);
+        $cachedData = array_filter($this->cache->getMultiple($keys));
 
         foreach ($cachedData as $data) {
             $object = $this->restoreFromCache($data);
