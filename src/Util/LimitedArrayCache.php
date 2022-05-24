@@ -18,7 +18,7 @@ class LimitedArrayCache implements CacheInterface
     {
     }
 
-    public function get(string $key, mixed $default = null): mixed
+    public function get($key, mixed $default = null): mixed
     {
         if ($this->has($key)) {
             return $this->data[$key];
@@ -26,7 +26,7 @@ class LimitedArrayCache implements CacheInterface
         return $default;
     }
 
-    public function has(string $key): bool
+    public function has($key): bool
     {
         if (!isset($this->data[$key])) {
             return false;
@@ -43,7 +43,7 @@ class LimitedArrayCache implements CacheInterface
         return true;
     }
 
-    public function set(string $key, mixed $value, int|\DateInterval|null $ttl = null): bool
+    public function set($key, mixed $value, $ttl = null): bool
     {
         $this->data[$key] = $value;
 
@@ -62,7 +62,7 @@ class LimitedArrayCache implements CacheInterface
         return true;
     }
 
-    public function getMultiple(iterable $keys, mixed $default = null): iterable
+    public function getMultiple($keys, mixed $default = null): iterable
     {
         $values = [];
         foreach ($keys as $key) {
@@ -74,7 +74,7 @@ class LimitedArrayCache implements CacheInterface
         return $values;
     }
 
-    public function setMultiple(iterable $values, \DateInterval|int|null $ttl = null): bool
+    public function setMultiple($values, $ttl = null): bool
     {
         foreach ($values as $key => $value) {
             $this->set($key, $value, $ttl);
@@ -82,14 +82,14 @@ class LimitedArrayCache implements CacheInterface
         return true;
     }
 
-    public function delete(string $key): bool
+    public function delete($key): bool
     {
         unset($this->data[$key]);
         unset($this->expirations[$key]);
         return true;
     }
 
-    public function deleteMultiple(iterable $keys): bool
+    public function deleteMultiple($keys): bool
     {
         foreach ($keys as $key) {
             $this->delete($key);
