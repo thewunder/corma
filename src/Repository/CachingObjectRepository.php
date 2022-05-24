@@ -109,9 +109,9 @@ abstract class CachingObjectRepository extends ObjectRepository
     /**
      * Return the cache lifetime in seconds
      *
-     * @return int
+     * @return ?int Null = never expire
      */
-    protected function getCacheLifetime(): int
+    protected function getCacheLifetime(): ?int
     {
         return 86400;
     }

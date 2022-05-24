@@ -581,9 +581,9 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * @param object[] $objects
      * @param string $key
-     * @param int $lifeTime
+     * @param ?int $lifeTime
      */
-    protected function storeAllInCache(array $objects, string $key, int $lifeTime = 0): void
+    protected function storeAllInCache(array $objects, string $key, ?int $lifeTime = null): void
     {
         $dataToCache = [];
         $om = $this->getObjectManager();
