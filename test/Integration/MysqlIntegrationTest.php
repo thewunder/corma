@@ -70,6 +70,7 @@ class MysqlIntegrationTest extends BaseIntegrationTest
         $pass = getenv('MYSQL_PASS') ? getenv('MYSQL_PASS') : '';
 
         self::$connection = DriverManager::getConnection(['driver'=>'pdo_mysql','user'=>getenv('MYSQL_USER'), 'host'=>getenv('MYSQL_HOST'), 'password'=>$pass]);
+        self::$connection->executeQuery('DROP DATABASE IF EXISTS corma_test;');
         self::$connection->executeQuery('CREATE DATABASE corma_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;');
         self::$connection->executeQuery('USE corma_test');
         self::$connection->executeQuery('CREATE TABLE extended_data_objects (
