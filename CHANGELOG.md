@@ -1,3 +1,10 @@
+Version 4.0.1
+=============
+
+Fixes
+-----
+* Fix return type issues on PagedQuery classes for PHP 8.1 compatibility
+
 Version 4.0
 ===========
 
