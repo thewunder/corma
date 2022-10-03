@@ -71,7 +71,7 @@ class OffsetPagedQuery extends PagedQuery
         return $this->next;
     }
 
-    public function current()
+    public function current(): array
     {
         if($this->page === null) {
             $this->page = 1;
@@ -80,12 +80,12 @@ class OffsetPagedQuery extends PagedQuery
         return $this->getResults($this->page);
     }
 
-    public function next()
+    public function next(): void
     {
         $this->page++;
     }
 
-    public function key()
+    public function key(): ?int
     {
         return $this->page;
     }
@@ -95,7 +95,7 @@ class OffsetPagedQuery extends PagedQuery
         return $this->page >= 1 && $this->page <= $this->pages;
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->page = 1;
     }

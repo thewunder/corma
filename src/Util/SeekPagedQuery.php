@@ -33,17 +33,17 @@ class SeekPagedQuery extends PagedQuery
         parent::__construct($qb, $queryHelper, $objectManager, $pageSize);
     }
 
-    public function current()
+    public function current(): array
     {
         $current = $this->key();
         return $this->getResults($current);
     }
 
-    public function next()
+    public function next(): void
     {
     }
 
-    public function key()
+    public function key(): mixed
     {
         return $this->lastResults[$this->page-2] ?? null;
     }
@@ -58,16 +58,16 @@ class SeekPagedQuery extends PagedQuery
             && $this->page > 0 && $this->page <= $this->pages;
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->page = 1;
         $this->lastResults = [];
     }
 
-    public function getResults($lastResult, bool $allResults = false): array
+    public function getResults($page, bool $allResults = false): array
     {
         $qb = $this->qb;
-        $lastResultData = $this->decodeLastResultData($lastResult);
+        $lastResultData = $this->decodeLastResultData($page);
 
         if (!$allResults) {
             $this->addIdSort();
