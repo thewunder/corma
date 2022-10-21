@@ -13,7 +13,7 @@ use Corma\Util\Inflector;
 use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -292,7 +292,7 @@ class ObjectMapperTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
+        $connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
         return $connection;
     }
 }

@@ -15,7 +15,7 @@ use Corma\QueryHelper\QueryHelper;
 use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Table;
@@ -40,7 +40,7 @@ class ObjectRepositoryTest extends TestCase
         $this->connection->expects($this->any())->method('quoteIdentifier')->will($this->returnCallback(function ($column) {
             return "`$column`";
         }));
-        $this->connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
+        $this->connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
         $this->dispatcher = new EventDispatcher();
 

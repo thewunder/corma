@@ -7,7 +7,7 @@ use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\QueryHelper\QueryHelper;
 use Corma\Util\SeekPagedQuery;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySqlPlatform;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
@@ -26,7 +26,7 @@ class SeekPagedQueryTest extends TestCase
     {
         /** @var MockObject|Connection $connection */
         $this->connection = $connection = $this->getMockBuilder(Connection::class)->disableOriginalConstructor()->getMock();
-        $connection->method('getDatabasePlatform')->willReturn(new MySqlPlatform());
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
         $connection->method('quoteIdentifier')->willReturnArgument(0);
 
         $this->qb = $this->getMockBuilder(QueryBuilder::class)
