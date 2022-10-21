@@ -42,7 +42,7 @@ class SoftDelete extends QueryModifier
     {
         $columns = $this->queryHelper->getDbColumns($table);
         if ($columns->hasColumn($this->column) && !$this->hasSoftDeleteColumn($where)) {
-            $qb->update($table, $this->queryHelper::TABLE_ALIAS);
+            $qb->update($this->connection->quoteIdentifier($table), $this->queryHelper::TABLE_ALIAS);
             $qb->set($this->connection->quoteIdentifier($this->column), 'TRUE');
         }
         return $qb;
