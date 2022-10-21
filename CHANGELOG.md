@@ -1,3 +1,11 @@
+Version 4.0.2
+=============
+
+Fixes
+-----
+* Quote table name in soft delete query modifier
+* Fix case of MySQLPlatform class in tests
+
 Version 4.0.1
 =============
 
