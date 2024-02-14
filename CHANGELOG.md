@@ -1,3 +1,10 @@
+Version 4.0.3
+=============
+
+Fixes
+-----
+* Fix issue where an empty page in a seek paged query can loop infinitely
+
 Version 4.0.2
 =============
 
