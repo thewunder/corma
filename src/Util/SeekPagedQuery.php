@@ -88,8 +88,11 @@ class SeekPagedQuery extends PagedQuery
         $results = $this->objectManager->fetchAll($result);
 
         if (!$allResults) {
-            if(!empty($results) && $this->page <= $this->pages) {
+            if (!empty($results)) {
                 $this->lastResults[] = $this->encodeLastResultData(end($results));
+            }
+
+            if ($this->page <= $this->pages) {
                 $this->page++;
             }
         }
