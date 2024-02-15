@@ -1,5 +1,5 @@
 <?php
-namespace DataObject\TableConvention;
+namespace Corma\Test\DataObject\TableConvention;
 
 use Corma\DataObject\TableConvention\DefaultTableConvention;
 use Corma\Test\Fixtures\ExtendedDataObject;

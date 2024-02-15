@@ -1,6 +1,6 @@
 <?php
 
-namespace DataObject\TableConvention;
+namespace Corma\Test\DataObject\TableConvention;
 
 use Corma\DataObject\TableConvention\CustomTable;
 use Corma\Test\Fixtures\ExtendedDataObject;
