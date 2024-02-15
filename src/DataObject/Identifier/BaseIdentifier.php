@@ -33,6 +33,7 @@ abstract class BaseIdentifier implements ObjectIdentifierInterface
             return [];
         }
 
+        /** @var object $object */
         $object = reset($objects);
         $getter = $this->inflector->getterFromColumn($this->getIdColumn($object));
         if (!method_exists($object, $getter)) {
