@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class CustomTableTest extends TestCase
 {
-    public function testCustomTable()
+    public function testCustomTable(): void
     {
         $customTable = new CustomTable('custom_table');
         $this->assertEquals('custom_table', $customTable->getTable(ExtendedDataObject::class));

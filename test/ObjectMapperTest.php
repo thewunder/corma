@@ -40,13 +40,13 @@ class ObjectMapperTest extends TestCase
      * @depends testCreate
      * @param ObjectMapper $corma
      */
-    public function testGetRepository(ObjectMapper $corma)
+    public function testGetRepository(ObjectMapper $corma): void
     {
         $repository = $corma->getRepository(ExtendedDataObject::class);
         $this->assertInstanceOf(ExtendedDataObjectRepository::class, $repository);
     }
 
-    public function testCreateObject()
+    public function testCreateObject(): void
     {
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
             ->disableOriginalConstructor()
@@ -57,7 +57,7 @@ class ObjectMapperTest extends TestCase
         $this->getCorma($mockRepo)->create(ExtendedDataObject::class);
     }
 
-    public function testFind()
+    public function testFind(): void
     {
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
             ->disableOriginalConstructor()
@@ -68,7 +68,7 @@ class ObjectMapperTest extends TestCase
         $this->getCorma($mockRepo)->find(ExtendedDataObject::class, 5);
     }
 
-    public function testFindByIds()
+    public function testFindByIds(): void
     {
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
             ->disableOriginalConstructor()
@@ -79,7 +79,7 @@ class ObjectMapperTest extends TestCase
         $this->getCorma($mockRepo)->findByIds(ExtendedDataObject::class, [5, 15]);
     }
 
-    public function testFindAll()
+    public function testFindAll(): void
     {
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
             ->disableOriginalConstructor()
@@ -90,7 +90,7 @@ class ObjectMapperTest extends TestCase
         $this->getCorma($mockRepo)->findAll(ExtendedDataObject::class);
     }
 
-    public function testFindBy()
+    public function testFindBy(): void
     {
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
             ->disableOriginalConstructor()
@@ -101,7 +101,7 @@ class ObjectMapperTest extends TestCase
         $this->getCorma($mockRepo)->findBy(ExtendedDataObject::class, ['asdf'=>'value'], ['asdf'=>'ASC'], 2, 1);
     }
 
-    public function testFindOneBy()
+    public function testFindOneBy(): void
     {
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
             ->disableOriginalConstructor()
@@ -112,7 +112,7 @@ class ObjectMapperTest extends TestCase
         $this->getCorma($mockRepo)->findOneBy(ExtendedDataObject::class, ['asdf'=>'value'], ['asdf'=>'ASC']);
     }
 
-    public function testLoadOneToMany()
+    public function testLoadOneToMany(): void
     {
         $objects = [];
         $object = new ExtendedDataObject();
@@ -137,7 +137,7 @@ class ObjectMapperTest extends TestCase
         $this->assertEquals($return, $loaded);
     }
 
-    public function testLoadManyToOne()
+    public function testLoadManyToOne(): void
     {
         $objects = [];
         $object = new ExtendedDataObject();
@@ -162,7 +162,7 @@ class ObjectMapperTest extends TestCase
         $this->assertEquals($return, $loaded);
     }
 
-    public function testLoadManyToMany()
+    public function testLoadManyToMany(): void
     {
         $objects = [];
         $object = new ExtendedDataObject();
@@ -187,7 +187,7 @@ class ObjectMapperTest extends TestCase
         $this->assertEquals($return, $loaded);
     }
 
-    public function testSave()
+    public function testSave(): void
     {
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
             ->disableOriginalConstructor()
@@ -199,7 +199,7 @@ class ObjectMapperTest extends TestCase
         $this->getCorma($mockRepo)->save($object);
     }
 
-    public function testSaveAll()
+    public function testSaveAll(): void
     {
         $objects = [];
         $objects[] = new ExtendedDataObject();
@@ -214,7 +214,7 @@ class ObjectMapperTest extends TestCase
         $this->getCorma($mockRepo)->saveAll($objects);
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
             ->disableOriginalConstructor()
@@ -226,7 +226,7 @@ class ObjectMapperTest extends TestCase
         $this->getCorma($mockRepo)->delete($object);
     }
 
-    public function testDeleteAll()
+    public function testDeleteAll(): void
     {
         $objects = [];
         $objects[] = new ExtendedDataObject();
@@ -245,12 +245,12 @@ class ObjectMapperTest extends TestCase
      * @depends testCreate
      * @param ObjectMapper $corma
      */
-    public function testGetQueryHelper(ObjectMapper $corma)
+    public function testGetQueryHelper(ObjectMapper $corma): void
     {
         $this->assertInstanceOf(QueryHelper::class, $corma->getQueryHelper());
     }
 
-    public function testUnitOfWork()
+    public function testUnitOfWork(): void
     {
         $corma = ObjectMapper::withDefaults($this->connection, $this->container);
 

@@ -115,7 +115,7 @@ class ExtendedDataObject extends BaseDataObject
     /**
      * @param OtherDataObject[] $custom
      */
-    public function setCustom(array $custom)
+    public function setCustom(array $custom): void
     {
         $this->custom = $custom;
     }

@@ -100,12 +100,12 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     /**
      * @param array $repositoryDependencies Array of dependencies to pass into the default / base repository constructors
      */
-    public function setDependencies(array $repositoryDependencies)
+    public function setDependencies(array $repositoryDependencies): void
     {
         $this->dependencies = $repositoryDependencies;
     }
 
-    public function setContainer(ContainerInterface $container)
+    public function setContainer(ContainerInterface $container): void
     {
         $this->container = $container;
     }

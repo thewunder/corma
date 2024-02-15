@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class DefaultTableConventionTest extends TestCase
 {
-    public function testGetTable()
+    public function testGetTable(): void
     {
         $convention = new DefaultTableConvention(Inflector::build());
         $this->assertEquals('extended_data_objects', $convention->getTable(ExtendedDataObject::class));

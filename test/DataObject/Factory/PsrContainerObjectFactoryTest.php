@@ -24,7 +24,7 @@ class PsrContainerObjectFactoryTest extends TestCase
         $this->factory = new PsrContainerObjectFactory($this->container, $this->hydrator);
     }
 
-    public function testCreate()
+    public function testCreate(): void
     {
         $object = new ExtendedDataObject();
         $this->container->expects($this->once())->method('has')->with(ExtendedDataObject::class)->willReturn(true);
@@ -32,7 +32,7 @@ class PsrContainerObjectFactoryTest extends TestCase
         $this->assertEquals($object, $this->factory->create(ExtendedDataObject::class));
     }
 
-    public function testCreateWithData()
+    public function testCreateWithData(): void
     {
         $object = new ExtendedDataObject();
         $data = ['myColumn'=>'value'];
@@ -42,7 +42,7 @@ class PsrContainerObjectFactoryTest extends TestCase
         $this->assertEquals($object, $this->factory->create(ExtendedDataObject::class, $data));
     }
 
-    public function testCreateWithDependencies()
+    public function testCreateWithDependencies(): void
     {
         $data = ['myColumn'=>'value'];
         $dependencies = [new EventDispatcher()];
@@ -52,7 +52,7 @@ class PsrContainerObjectFactoryTest extends TestCase
         $this->assertInstanceOf(ObjectWithDependencies::class, $obj);
     }
 
-    public function testFetchAll()
+    public function testFetchAll(): void
     {
         $object = new ExtendedDataObject();
         $data = ['myColumn'=>'value'];
@@ -69,7 +69,7 @@ class PsrContainerObjectFactoryTest extends TestCase
         $this->assertCount(2, $this->factory->fetchAll(ExtendedDataObject::class, $mockResult));
     }
 
-    public function testFetchOne()
+    public function testFetchOne(): void
     {
         $object = new ExtendedDataObject();
         $data = ['myColumn'=>'value'];

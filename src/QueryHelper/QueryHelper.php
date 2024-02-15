@@ -285,7 +285,7 @@ class QueryHelper implements QueryHelperInterface
      * @param QueryBuilder $qb
      * @param array $where column => value pairs
      */
-    public function processWhereQuery(QueryBuilder $qb, array $where)
+    public function processWhereQuery(QueryBuilder $qb, array $where): void
     {
         foreach ($where as $wherePart => $value) {
             $clause = $this->processWhereField($qb, $wherePart, $value);

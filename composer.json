@@ -28,10 +28,10 @@
   },
   "require-dev": {
     "vlucas/phpdotenv": "~2.0",
-    "phpstan/phpstan": "~0.9",
     "php-coveralls/php-coveralls": "~2.0",
     "phpunit/phpunit": "^9.0",
-    "symfony/event-dispatcher": "^6.0"
+    "symfony/event-dispatcher": "^6.0",
+    "rector/rector": "^1.0"
   },
   "scripts": {
     "test": "vendor/bin/phpunit"

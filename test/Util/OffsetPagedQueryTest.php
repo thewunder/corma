@@ -33,7 +33,7 @@ class OffsetPagedQueryTest extends TestCase
             ->getMock();
     }
 
-    public function testConstructor()
+    public function testConstructor(): void
     {
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
 
@@ -43,7 +43,7 @@ class OffsetPagedQueryTest extends TestCase
         $this->assertEquals(5, $pagedQuery->getPages());
     }
 
-    public function testCustomId()
+    public function testCustomId(): void
     {
         $this->objectManager->expects($this->once())->method('getIdColumn')->willReturn('custom_id');
         $this->queryHelper->expects($this->once())->method('getCount')->with($this->qb, 'custom_id');
@@ -51,7 +51,7 @@ class OffsetPagedQueryTest extends TestCase
         new OffsetPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
     }
 
-    public function testGetResults()
+    public function testGetResults(): void
     {
         $result = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
 
@@ -70,7 +70,7 @@ class OffsetPagedQueryTest extends TestCase
         $this->assertEquals(4, $pagedQuery->getNext());
     }
 
-    public function testUsageAsIterator()
+    public function testUsageAsIterator(): void
     {
         $result = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
 
@@ -87,7 +87,7 @@ class OffsetPagedQueryTest extends TestCase
         }
     }
 
-    public function testGetEmpty()
+    public function testGetEmpty(): void
     {
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(0);
         $pagedQuery = new OffsetPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
@@ -99,13 +99,13 @@ class OffsetPagedQueryTest extends TestCase
         $this->assertFalse($pagedQuery->valid());
     }
 
-    public function testGetInvalidPageSize()
+    public function testGetInvalidPageSize(): void
     {
         $this->expectException(InvalidArgumentException::class);
         new OffsetPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 0);
     }
 
-    public function testGetInvalidPage()
+    public function testGetInvalidPage(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
@@ -113,7 +113,7 @@ class OffsetPagedQueryTest extends TestCase
         $pagedQuery->getResults(0);
     }
 
-    public function testJsonSerialize()
+    public function testJsonSerialize(): void
     {
         $this->queryHelper->expects($this->any())->method('getCount')->willReturn(205);
         $pagedQuery = new OffsetPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);

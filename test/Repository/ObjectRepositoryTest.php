@@ -67,20 +67,20 @@ class ObjectRepositoryTest extends TestCase
         $this->objectMapper->expects($this->any())->method('getIdentityMap')->willReturn(new LimitedArrayCache());
     }
 
-    public function testGetClassName()
+    public function testGetClassName(): void
     {
         $repository = $this->getRepository();
         $this->assertEquals(ExtendedDataObject::class, $repository->getClassName());
     }
 
-    public function testClassNotFound()
+    public function testClassNotFound(): void
     {
         $this->expectException(ClassNotFoundException::class);
         $repository = new NoClassObjectRepository($this->connection, $this->objectMapper, new LimitedArrayCache());
         $repository->getClassName();
     }
 
-    public function testFind()
+    public function testFind(): void
     {
         $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()
             ->onlyMethods(['executeQuery'])->getMock();
@@ -97,7 +97,7 @@ class ObjectRepositoryTest extends TestCase
         $this->assertTrue($object == $repository->find(5)); //test cache hit
     }
 
-    public function testFindByIds()
+    public function testFindByIds(): void
     {
         $mockQb = $this->getMockBuilder(QueryBuilder::class)->disableOriginalConstructor()
             ->onlyMethods(['executeQuery'])->getMock();
@@ -117,7 +117,7 @@ class ObjectRepositoryTest extends TestCase
         $this->assertTrue($objects === $return);
     }
 
-    public function testSave()
+    public function testSave(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('testValue');
@@ -132,7 +132,7 @@ class ObjectRepositoryTest extends TestCase
         $repo->save($object);
     }
 
-    public function testSaveExisting()
+    public function testSaveExisting(): void
     {
         $object = new ExtendedDataObject();
         $object->setId('123')->setMyColumn('testValue');
@@ -145,14 +145,14 @@ class ObjectRepositoryTest extends TestCase
         $repo->save($object);
     }
 
-    public function testSaveIncorrectClass()
+    public function testSaveIncorrectClass(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $object = new OtherDataObject();
         $this->getRepository()->save($object);
     }
 
-    public function testSaveWithRelationships()
+    public function testSaveWithRelationships(): void
     {
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
         $this->connection->expects($this->once())->method('beginTransaction');
@@ -164,7 +164,7 @@ class ObjectRepositoryTest extends TestCase
         $repository->save(new ExtendedDataObject(), $relationshipSaver);
     }
 
-    public function testSaveAll()
+    public function testSaveAll(): void
     {
         $objects = [];
         $object = new ExtendedDataObject();
@@ -180,20 +180,20 @@ class ObjectRepositoryTest extends TestCase
         $this->assertEquals(count($objects), $inserts);
     }
 
-    public function testSaveAllIncorrectClass()
+    public function testSaveAllIncorrectClass(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $object = new OtherDataObject();
         $this->getRepository()->saveAll([$object]);
     }
 
-    public function testSaveAllEmptyArray()
+    public function testSaveAllEmptyArray(): void
     {
         $inserts = $this->getRepository()->saveAll([]);
         $this->assertEquals(0, $inserts);
     }
 
-    public function testSaveAllWithRelationships()
+    public function testSaveAllWithRelationships(): void
     {
         $objects = [];
         $object = new ExtendedDataObject();
@@ -212,7 +212,7 @@ class ObjectRepositoryTest extends TestCase
         $repo->saveAll($objects, $relationshipSaver);
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $object = new ExtendedDataObject();
         $object->setId('123');
@@ -224,7 +224,7 @@ class ObjectRepositoryTest extends TestCase
         $repo->delete($object);
     }
 
-    public function testSoftDelete()
+    public function testSoftDelete(): void
     {
         $object = new ExtendedDataObject();
         $object->setId('123')->setMyColumn('testValue');
@@ -235,7 +235,7 @@ class ObjectRepositoryTest extends TestCase
         $repo->delete($object);
     }
 
-    public function testDeleteIncorrectClass()
+    public function testDeleteIncorrectClass(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -243,7 +243,7 @@ class ObjectRepositoryTest extends TestCase
         $this->getRepository()->delete($object);
     }
 
-    public function testDeleteAll()
+    public function testDeleteAll(): void
     {
         $objects = [];
         $object = new ExtendedDataObject();
@@ -259,7 +259,7 @@ class ObjectRepositoryTest extends TestCase
         $repo->deleteAll($objects);
     }
 
-    public function testDeleteAllSoft()
+    public function testDeleteAllSoft(): void
     {
         $objects = [];
         $object = new ExtendedDataObject();
@@ -275,13 +275,13 @@ class ObjectRepositoryTest extends TestCase
         $repo->deleteAll($objects);
     }
 
-    public function testDeleteAllEmptyArray()
+    public function testDeleteAllEmptyArray(): void
     {
         $deletes = $this->getRepository()->deleteAll([]);
         $this->assertEquals(0, $deletes);
     }
 
-    public function testDeleteAllIncorrectClass()
+    public function testDeleteAllIncorrectClass(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -289,7 +289,7 @@ class ObjectRepositoryTest extends TestCase
         $this->getRepository()->deleteAll([$object]);
     }
 
-    public function testFindEvents()
+    public function testFindEvents(): void
     {
         $firedEvents = [
             'DataObject.loaded' => 0,
@@ -317,7 +317,7 @@ class ObjectRepositoryTest extends TestCase
         $this->assertEquals(1, $firedEvents['DataObject.ExtendedDataObject.loaded']);
     }
 
-    public function testFindAllEvents()
+    public function testFindAllEvents(): void
     {
         $firedEvents = [
             'DataObject.loaded' => 0,
@@ -350,7 +350,7 @@ class ObjectRepositoryTest extends TestCase
         $this->assertEquals(2, $firedEvents['DataObject.ExtendedDataObject.loaded']);
     }
 
-    public function testSaveEvents()
+    public function testSaveEvents(): void
     {
         $firedEvents = [
             'DataObject.beforeSave' => 0,
@@ -446,7 +446,7 @@ class ObjectRepositoryTest extends TestCase
         $this->assertEquals(1, $firedEvents['DataObject.ExtendedDataObject.afterUpdate']);
     }
 
-    public function testSaveAllEvents()
+    public function testSaveAllEvents(): void
     {
         $firedEvents = [
             'DataObject.beforeSave' => 0,
@@ -540,7 +540,7 @@ class ObjectRepositoryTest extends TestCase
         $this->assertEquals(1, $firedEvents['DataObject.ExtendedDataObject.afterUpdate']);
     }
 
-    public function testDeleteEvents()
+    public function testDeleteEvents(): void
     {
         $firedEvents = [
             'DataObject.beforeDelete'                    => 0,
@@ -579,7 +579,7 @@ class ObjectRepositoryTest extends TestCase
         $this->assertEquals(1, $firedEvents['DataObject.ExtendedDataObject.afterDelete']);
     }
 
-    public function testDeleteAllEvents()
+    public function testDeleteAllEvents(): void
     {
         $firedEvents = [
             'DataObject.beforeDelete'                    => 0,
@@ -621,7 +621,7 @@ class ObjectRepositoryTest extends TestCase
         $this->assertEquals(2, $firedEvents['DataObject.ExtendedDataObject.afterDelete']);
     }
 
-    public function testSaveWith()
+    public function testSaveWith(): void
     {
         $repository = $this->getRepository();
         $reflectionObj = new \ReflectionClass($repository);
@@ -637,7 +637,7 @@ class ObjectRepositoryTest extends TestCase
         }]);
     }
 
-    public function testSaveWithException()
+    public function testSaveWithException(): void
     {
         $this->expectException(\Exception::class);
 
@@ -654,7 +654,7 @@ class ObjectRepositoryTest extends TestCase
         }]);
     }
 
-    public function testSaveAllWith()
+    public function testSaveAllWith(): void
     {
         $repository = $this->getRepository();
         $reflectionObj = new \ReflectionClass($repository);
@@ -670,7 +670,7 @@ class ObjectRepositoryTest extends TestCase
         }]);
     }
 
-    public function testSaveAllWithException()
+    public function testSaveAllWithException(): void
     {
         $this->expectException(\Exception::class);
 
@@ -686,7 +686,7 @@ class ObjectRepositoryTest extends TestCase
         }]);
     }
 
-    public function testInvalidPagingStrategy()
+    public function testInvalidPagingStrategy(): void
     {
         $this->expectException(InvalidArgumentException::class);
 

@@ -97,7 +97,7 @@ class LimitedArrayCache implements CacheInterface
     /**
      * Evict half the cache keys in a FIFO manner
      */
-    private function evictKeys()
+    private function evictKeys(): void
     {
         $evicted = 0;
         $toEvict = $this->limit / 2;

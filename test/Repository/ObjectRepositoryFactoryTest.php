@@ -22,13 +22,13 @@ class ObjectRepositoryFactoryTest extends TestCase
 {
     private ObjectRepositoryFactoryInterface $repositoryFactory;
 
-    public function testGetRepositoryFullClass()
+    public function testGetRepositoryFullClass(): void
     {
         $repository = $this->repositoryFactory->getRepository(ExtendedDataObject::class);
         $this->assertInstanceOf(ExtendedDataObjectRepository::class, $repository);
     }
 
-    public function testWithContainer()
+    public function testWithContainer(): void
     {
         /** @var ContainerInterface|MockObject $container */
         $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
@@ -40,14 +40,14 @@ class ObjectRepositoryFactoryTest extends TestCase
         $this->assertInstanceOf(ExtendedDataObjectRepository::class, $repository);
     }
 
-    public function testGetRepositoryCaching()
+    public function testGetRepositoryCaching(): void
     {
         $repository = $this->repositoryFactory->getRepository(ExtendedDataObject::class);
         $repository2 = $this->repositoryFactory->getRepository(ExtendedDataObject::class);
         $this->assertTrue($repository === $repository2);
     }
 
-    public function testGetDefaultRepository()
+    public function testGetDefaultRepository(): void
     {
         $repository = $this->repositoryFactory->getRepository(OtherDataObject::class);
 
@@ -55,7 +55,7 @@ class ObjectRepositoryFactoryTest extends TestCase
         $this->assertEquals(OtherDataObject::class, $repository->getClassName());
     }
 
-    public function testGetDefaultRepositoryWithContainer()
+    public function testGetDefaultRepositoryWithContainer(): void
     {
         /** @var ContainerInterface|MockObject $container */
         $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
@@ -66,7 +66,7 @@ class ObjectRepositoryFactoryTest extends TestCase
         $this->assertEquals(OtherDataObject::class, $repository->getClassName());
     }
 
-    public function testClassNotFound()
+    public function testClassNotFound(): void
     {
         $this->expectException(ClassNotFoundException::class);
         $this->repositoryFactory->getRepository('Nope');

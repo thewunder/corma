@@ -37,7 +37,7 @@ class UnitOfWorkTest extends TestCase
         $this->objectMapper->expects($this->any())->method('getQueryHelper')->willReturn($queryHelper);
     }
 
-    public function testExecuteTransaction()
+    public function testExecuteTransaction(): void
     {
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $this->connection->expects($this->once())->method('beginTransaction');
@@ -48,7 +48,7 @@ class UnitOfWorkTest extends TestCase
         $this->assertEquals(7, $return);
     }
 
-    public function testExecuteTransactionException()
+    public function testExecuteTransactionException(): void
     {
         $this->expectException(\Exception::class);
         $unitOfWork = new UnitOfWork($this->objectMapper);
@@ -59,7 +59,7 @@ class UnitOfWorkTest extends TestCase
         });
     }
 
-    public function testExecuteTransactionError()
+    public function testExecuteTransactionError(): void
     {
         $this->expectExceptionMessage('Call to a member function gonnaThrow() on null');
         $unitOfWork = new UnitOfWork($this->objectMapper);
@@ -71,7 +71,7 @@ class UnitOfWorkTest extends TestCase
         });
     }
 
-    public function testExecuteTransactionExceptionCustomHandler()
+    public function testExecuteTransactionExceptionCustomHandler(): void
     {
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $this->connection->expects($this->once())->method('beginTransaction');
@@ -85,7 +85,7 @@ class UnitOfWorkTest extends TestCase
         $this->assertTrue($hasRun);
     }
 
-    public function testFlush()
+    public function testFlush(): void
     {
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $toSave = new ExtendedDataObject();

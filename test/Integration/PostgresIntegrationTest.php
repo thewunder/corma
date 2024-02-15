@@ -17,7 +17,7 @@ use Dotenv\Dotenv;
 
 class PostgresIntegrationTest extends BaseIntegrationTest
 {
-    public function testIsDuplicateException()
+    public function testIsDuplicateException(): void
     {
         $cache = new LimitedArrayCache();
         $mySQLQueryHelper = new PostgreSQLQueryHelper(self::$connection, $cache);
@@ -45,7 +45,7 @@ class PostgresIntegrationTest extends BaseIntegrationTest
     }
 
 
-    public function testUpsertWithoutPrimaryKey()
+    public function testUpsertWithoutPrimaryKey(): void
     {
         $this->expectException(MissingPrimaryKeyException::class);
 

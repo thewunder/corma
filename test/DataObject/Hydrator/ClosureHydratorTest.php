@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class ClosureHydratorTest extends TestCase
 {
-    public function testHydrate()
+    public function testHydrate(): void
     {
         $hydrator = new ClosureHydrator();
         $object = new ExtendedDataObject();
@@ -18,7 +18,7 @@ class ClosureHydratorTest extends TestCase
         $this->assertEquals($otherObject, $object->getOtherDataObject());
     }
 
-    public function testExtract()
+    public function testExtract(): void
     {
         $hydrator = new ClosureHydrator();
         $object = new ExtendedDataObject();
@@ -27,7 +27,7 @@ class ClosureHydratorTest extends TestCase
         $this->assertEquals(4, $data['myColumn']);
     }
 
-    public function testSetHydrate()
+    public function testSetHydrate(): void
     {
         $hydrator = new ClosureHydrator();
         $closure = function (){};
@@ -38,7 +38,7 @@ class ClosureHydratorTest extends TestCase
         $this->assertEmpty($object->getMyColumn());
     }
 
-    public function testSetExtract()
+    public function testSetExtract(): void
     {
         $hydrator = new ClosureHydrator();
         $closure = function (){return [];};

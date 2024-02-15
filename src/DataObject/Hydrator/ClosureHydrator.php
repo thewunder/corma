@@ -68,12 +68,12 @@ class ClosureHydrator implements ObjectHydratorInterface
         };
     }
 
-    public function setHydrate(\Closure $hydrate)
+    public function setHydrate(\Closure $hydrate): void
     {
         $this->hydrate = $hydrate;
     }
 
-    public function setExtract(\Closure $extract)
+    public function setExtract(\Closure $extract): void
     {
         $this->extract = $extract;
     }

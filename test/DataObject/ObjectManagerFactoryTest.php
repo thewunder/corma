@@ -27,7 +27,7 @@ class ObjectManagerFactoryTest extends TestCase
         $this->container = $this->getMockBuilder(ContainerInterface::class)->getMock();
     }
 
-    public function testWithDefaults()
+    public function testWithDefaults(): void
     {
         $omf = ObjectManagerFactory::withDefaults($this->queryHelper, Inflector::build(), $this->container);
         $this->assertInstanceOf(PsrContainerObjectFactory::class, $omf->getFactory());
@@ -36,7 +36,7 @@ class ObjectManagerFactoryTest extends TestCase
         $this->assertInstanceOf(CustomizableAutoIncrementIdentifier::class, $omf->getIdentifier());
     }
 
-    public function testGetManager()
+    public function testGetManager(): void
     {
         $omf = ObjectManagerFactory::withDefaults($this->queryHelper, Inflector::build(), $this->container);
         $objectManager = $omf->getManager(ExtendedDataObject::class);

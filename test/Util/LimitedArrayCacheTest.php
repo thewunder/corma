@@ -7,14 +7,14 @@ use PHPUnit\Framework\TestCase;
 
 class LimitedArrayCacheTest extends TestCase
 {
-    public function testSetAndGet()
+    public function testSetAndGet(): void
     {
         $cache = new LimitedArrayCache();
         $cache->set('test_key', 'value');
         $this->assertEquals('value', $cache->get('test_key'));
     }
 
-    public function testDeleteAndContains()
+    public function testDeleteAndContains(): void
     {
         $cache = new LimitedArrayCache();
         $cache->set('test_key', 'value');
@@ -22,7 +22,7 @@ class LimitedArrayCacheTest extends TestCase
         $this->assertFalse($cache->has('test_key'));
     }
 
-    public function testSetMultipleAndFetchMultiple()
+    public function testSetMultipleAndFetchMultiple(): void
     {
         $cache = new LimitedArrayCache();
         $cache->setMultiple(['key1'=>'value1', 'key2'=>'value2']);
@@ -30,7 +30,7 @@ class LimitedArrayCacheTest extends TestCase
         $this->assertEquals(['key2'=>'value2', 'key1'=>'value1'], $values);
     }
 
-    public function testEviction()
+    public function testEviction(): void
     {
         $cache = new LimitedArrayCache(11);
         $data = [];
@@ -45,7 +45,7 @@ class LimitedArrayCacheTest extends TestCase
         $this->assertTrue($cache->has('key7'));
     }
 
-    public function testExpiration()
+    public function testExpiration(): void
     {
         $cache = new LimitedArrayCache();
         $cache->set('test_key', 'value', 1);
@@ -54,7 +54,7 @@ class LimitedArrayCacheTest extends TestCase
         $this->assertFalse($cache->has('test_key'));
     }
 
-    public function testClear()
+    public function testClear(): void
     {
         $cache = new LimitedArrayCache();
         $cache->set('test_key', 'value');

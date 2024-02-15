@@ -16,7 +16,7 @@ use Psr\Container\ContainerInterface;
 
 class MysqlIntegrationTest extends BaseIntegrationTest
 {
-    public function testIsDuplicateException()
+    public function testIsDuplicateException(): void
     {
         $cache = new LimitedArrayCache();
         $mySQLQueryHelper = new MySQLQueryHelper(self::$connection, $cache);
@@ -40,7 +40,7 @@ class MysqlIntegrationTest extends BaseIntegrationTest
         $this->markTestIncomplete('Expected Exception was not thrown');
     }
 
-    public function testUpsertWithoutPrimaryKey()
+    public function testUpsertWithoutPrimaryKey(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('Upsert EDO');

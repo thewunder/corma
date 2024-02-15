@@ -9,13 +9,13 @@ use PHPUnit\Framework\TestCase;
 
 class CustomizableTableConventionTest extends TestCase
 {
-    public function testGetTableWithAnnotation()
+    public function testGetTableWithAnnotation(): void
     {
         $convention = new CustomizableTableConvention(Inflector::build());
         $this->assertEquals('custom_table', $convention->getTable(AnnotatedDataObject::class));
     }
 
-    public function testGetTableWithOutAnnotation()
+    public function testGetTableWithOutAnnotation(): void
     {
         $convention = new CustomizableTableConvention(Inflector::build());
         $this->assertEquals('extended_data_objects', $convention->getTable(ExtendedDataObject::class));

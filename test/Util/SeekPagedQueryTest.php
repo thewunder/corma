@@ -49,7 +49,7 @@ class SeekPagedQueryTest extends TestCase
             ->getMock();
     }
 
-    public function testConstructor()
+    public function testConstructor(): void
     {
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(205);
 
@@ -59,7 +59,7 @@ class SeekPagedQueryTest extends TestCase
         $this->assertEquals(5, $pagedQuery->getPages());
     }
 
-    public function testGroupByQueryUnsupported()
+    public function testGroupByQueryUnsupported(): void
     {
         $qb = new QueryBuilder($this->connection);
         $qb->groupBy('fakeColumn');
@@ -67,7 +67,7 @@ class SeekPagedQueryTest extends TestCase
         new SeekPagedQuery($qb, $this->queryHelper, $this->objectManager);
     }
 
-    public function testCustomId()
+    public function testCustomId(): void
     {
         $this->objectManager->method('getIdColumn')->willReturn('custom_id');
         $this->queryHelper->expects($this->once())->method('getCount')->with($this->qb, 'custom_id');
@@ -75,7 +75,7 @@ class SeekPagedQueryTest extends TestCase
         new SeekPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
     }
 
-    public function testGetResults()
+    public function testGetResults(): void
     {
         $this->objectManager->method('getIdColumn')->willReturn('id');
         $result = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
@@ -91,7 +91,7 @@ class SeekPagedQueryTest extends TestCase
         $pagedQuery->getResults("{\"id\": 3}");
     }
 
-    public function testUsageAsIterator()
+    public function testUsageAsIterator(): void
     {
         $this->objectManager->method('getIdColumn')->willReturn('id');
         $result = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();
@@ -133,7 +133,7 @@ class SeekPagedQueryTest extends TestCase
         }
     }
 
-    public function testGetEmpty()
+    public function testGetEmpty(): void
     {
         $this->queryHelper->expects($this->once())->method('getCount')->willReturn(0);
         $pagedQuery = new SeekPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);
@@ -142,13 +142,13 @@ class SeekPagedQueryTest extends TestCase
         $this->assertFalse($pagedQuery->valid());
     }
 
-    public function testGetInvalidPageSize()
+    public function testGetInvalidPageSize(): void
     {
         $this->expectException(InvalidArgumentException::class);
         new SeekPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 0);
     }
 
-    public function testJsonSerialize()
+    public function testJsonSerialize(): void
     {
         $this->queryHelper->expects($this->any())->method('getCount')->willReturn(205);
         $pagedQuery = new SeekPagedQuery($this->qb, $this->queryHelper, $this->objectManager, 50);

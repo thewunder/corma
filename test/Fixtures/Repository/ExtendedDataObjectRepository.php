@@ -9,7 +9,7 @@ class ExtendedDataObjectRepository extends ObjectRepository
     /**
      * @throws \Doctrine\DBAL\Exception
      */
-    public function causeUniqueConstraintViolation()
+    public function causeUniqueConstraintViolation(): void
     {
         $this->db->insert($this->getTableName(), ['id'=>999, $this->db->quoteIdentifier('myColumn')=>'value', $this->db->quoteIdentifier('isDeleted')=>0]);
         $this->db->insert($this->getTableName(), ['id'=>999, $this->db->quoteIdentifier('myColumn')=>'value', $this->db->quoteIdentifier('isDeleted')=>0]);

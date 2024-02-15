@@ -57,7 +57,7 @@ class AggressiveCachingRepositoryTest extends TestCase
             ->getMock();
     }
 
-    public function testFind()
+    public function testFind(): void
     {
         $repository = $this->getMockBuilder(AggressiveCachingRepository::class)
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
@@ -73,7 +73,7 @@ class AggressiveCachingRepositoryTest extends TestCase
         $this->assertEquals('My Value', $object->getMyColumn());
     }
 
-    public function testFindByIds()
+    public function testFindByIds(): void
     {
         $repository = $this->getMockBuilder(AggressiveCachingRepository::class)
             ->setConstructorArgs([$this->connection, $this->objectMapper, $this->cache])
@@ -94,7 +94,7 @@ class AggressiveCachingRepositoryTest extends TestCase
         $this->assertEquals('My Value', $objects[0]->getMyColumn());
     }
 
-    public function testFindAll()
+    public function testFindAll(): void
     {
         $this->cache->expects($this->exactly(2))->method('has')->will($this->onConsecutiveCalls(false, true));
         $this->cache->expects($this->once())->method('set');
@@ -123,7 +123,7 @@ class AggressiveCachingRepositoryTest extends TestCase
         $this->assertEquals('My Value', $objects[0]->getMyColumn());
     }
 
-    public function testSave()
+    public function testSave(): void
     {
         $object = new ExtendedDataObject();
         $this->cache->expects($this->once())->method('delete')->with('all_extended_data_objects');
@@ -131,7 +131,7 @@ class AggressiveCachingRepositoryTest extends TestCase
         $repo->save($object);
     }
 
-    public function testSaveAll()
+    public function testSaveAll(): void
     {
         $this->cache->expects($this->once())->method('delete')->with('all_extended_data_objects');
         $object = new ExtendedDataObject();
@@ -139,7 +139,7 @@ class AggressiveCachingRepositoryTest extends TestCase
         $repo->saveAll([$object]);
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $this->cache->expects($this->once())->method('delete')->with('all_extended_data_objects');
         $object = new ExtendedDataObject();
@@ -147,7 +147,7 @@ class AggressiveCachingRepositoryTest extends TestCase
         $repo->delete($object);
     }
 
-    public function testDeleteAll()
+    public function testDeleteAll(): void
     {
         $this->cache->expects($this->once())->method('delete')->with('all_extended_data_objects');
         $object = new ExtendedDataObject();

@@ -55,7 +55,7 @@ class CachingRepositoryTest extends TestCase
             ->getMock();
     }
 
-    public function testFindHit()
+    public function testFindHit(): void
     {
         $this->cache->expects($this->once())->method('get')->with('cachings[9]')->willReturn(['id'=>9]);
 
@@ -70,7 +70,7 @@ class CachingRepositoryTest extends TestCase
         $this->assertEquals(9, $object->getId());
     }
 
-    public function testFindMiss()
+    public function testFindMiss(): void
     {
         $this->cache->expects($this->once())->method('get')->with('cachings[9]')->willReturn(null);
         $this->cache->expects($this->once())->method('set')->with('cachings[9]', ['id'=>9]);
@@ -86,7 +86,7 @@ class CachingRepositoryTest extends TestCase
         $this->assertEquals(9, $object->getId());
     }
 
-    public function testFindNoCache()
+    public function testFindNoCache(): void
     {
         $this->cache->expects($this->never())->method('get');
 
@@ -99,7 +99,7 @@ class CachingRepositoryTest extends TestCase
         $this->assertEquals(9, $object->getId());
     }
 
-    public function testFindByIds()
+    public function testFindByIds(): void
     {
         $this->cache->expects($this->once())->method('getMultiple')->with(['cachings[9]', 'cachings[10]'])->willReturn(['cachings[9]'=>['id'=>9], 'cachings[10]'=>null]);
         $this->cache->expects($this->once())->method('setMultiple')->with(['cachings[10]'=>['id'=>10]], 86400);
@@ -117,7 +117,7 @@ class CachingRepositoryTest extends TestCase
         $this->assertEquals(10, $objects[1]->getId());
     }
 
-    public function testFindByIdsNoCache()
+    public function testFindByIdsNoCache(): void
     {
         $this->cache->expects($this->never())->method('getMultiple');
 
@@ -132,7 +132,7 @@ class CachingRepositoryTest extends TestCase
         $this->assertEquals(10, $objects[1]->getId());
     }
 
-    public function testSave()
+    public function testSave(): void
     {
         $this->cache->expects($this->once())->method('set')->with('cachings[9]', ['id'=>9]);
 
@@ -145,7 +145,7 @@ class CachingRepositoryTest extends TestCase
         $this->assertEquals(9, $return->getId());
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $this->cache->expects($this->once())->method('delete')->with('cachings[9]');
 
@@ -156,7 +156,7 @@ class CachingRepositoryTest extends TestCase
         $repository->delete($object->setId(9));
     }
 
-    public function testSaveAll()
+    public function testSaveAll(): void
     {
         $this->cache->expects($this->once())->method('setMultiple')->with(['cachings[11]'=>['id'=>11], 'cachings[12]'=>['id'=>12]], 86400);
 
@@ -173,7 +173,7 @@ class CachingRepositoryTest extends TestCase
         $repository->saveAll($objects);
     }
 
-    public function testDeleteAll()
+    public function testDeleteAll(): void
     {
         $this->cache->expects($this->exactly(2))->method('delete')->withConsecutive(['cachings[11]'], ['cachings[12]']);
 

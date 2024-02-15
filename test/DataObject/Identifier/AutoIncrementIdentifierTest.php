@@ -13,26 +13,26 @@ use PHPUnit\Framework\TestCase;
 
 class AutoIncrementIdentifierTest extends TestCase
 {
-    public function testGetIdColumn()
+    public function testGetIdColumn(): void
     {
         $object = new ExtendedDataObject();
         $this->assertEquals('id', $this->getIdentifier()->getIdColumn($object));
     }
 
-    public function testAnnotationColumn()
+    public function testAnnotationColumn(): void
     {
         $object = new AnnotatedDataObject();
         $this->assertEquals('custom_id', $this->getIdentifier()->getIdColumn($object));
     }
 
-    public function testGetId()
+    public function testGetId(): void
     {
         $object = new ExtendedDataObject();
         $object->setId(99);
         $this->assertEquals(99, $this->getIdentifier()->getId($object));
     }
 
-    public function testIsNew()
+    public function testIsNew(): void
     {
         $object = new ExtendedDataObject();
         $this->assertTrue($this->getIdentifier()->isNew($object));
@@ -40,35 +40,35 @@ class AutoIncrementIdentifierTest extends TestCase
         $this->assertFalse($this->getIdentifier()->isNew($object));
     }
 
-    public function testMissingGetter()
+    public function testMissingGetter(): void
     {
         $this->expectException(MethodNotImplementedException::class);
         $object = new MissingIdGettersAndSetters();
         $this->getIdentifier()->getId($object);
     }
 
-    public function testGetIdWithAnnotation()
+    public function testGetIdWithAnnotation(): void
     {
         $object = new AnnotatedDataObject();
         $object->setCustomId(99);
         $this->assertEquals(99, $this->getIdentifier()->getId($object));
     }
 
-    public function testSetId()
+    public function testSetId(): void
     {
         $object = new ExtendedDataObject();
         $this->getIdentifier()->setId($object, 99);
         $this->assertEquals(99, $object->getId());
     }
 
-    public function testMissingSetter()
+    public function testMissingSetter(): void
     {
         $this->expectException(MethodNotImplementedException::class);
         $object = new MissingIdGettersAndSetters();
         $this->getIdentifier()->setId($object, 99);
     }
 
-    public function testGetIds()
+    public function testGetIds(): void
     {
         $objects = [];
         $objects[] = (new ExtendedDataObject())->setId(42);
@@ -76,14 +76,14 @@ class AutoIncrementIdentifierTest extends TestCase
         $this->assertEquals([42, 43], $this->getIdentifier()->getIds($objects));
     }
 
-    public function testGetIdsMissingGetter()
+    public function testGetIdsMissingGetter(): void
     {
         $this->expectException(MethodNotImplementedException::class);
         $object = new MissingIdGettersAndSetters();
         $this->getIdentifier()->getIds([$object]);
     }
 
-    public function testSetNewId()
+    public function testSetNewId(): void
     {
         $object = new ExtendedDataObject();
         $this->getIdentifier()->setNewId($object);

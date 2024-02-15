@@ -31,7 +31,7 @@ class ReadOnlyRepositoryTest extends TestCase
             ->getMock();
     }
 
-    public function testSave()
+    public function testSave(): void
     {
         $this->expectException(BadMethodCallException::class);
         $object = new ExtendedDataObject();
@@ -39,7 +39,7 @@ class ReadOnlyRepositoryTest extends TestCase
         $repo->save($object);
     }
 
-    public function testSaveAll()
+    public function testSaveAll(): void
     {
         $this->expectException(BadMethodCallException::class);
         $object = new ExtendedDataObject();
@@ -47,7 +47,7 @@ class ReadOnlyRepositoryTest extends TestCase
         $repo->saveAll([$object]);
     }
 
-    public function testDelete()
+    public function testDelete(): void
     {
         $this->expectException(BadMethodCallException::class);
         $object = new ExtendedDataObject();
@@ -55,7 +55,7 @@ class ReadOnlyRepositoryTest extends TestCase
         $repo->delete($object);
     }
 
-    public function testDeleteAll()
+    public function testDeleteAll(): void
     {
         $this->expectException(BadMethodCallException::class);
         $object = new ExtendedDataObject();

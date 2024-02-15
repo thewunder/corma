@@ -57,7 +57,7 @@ abstract class BaseIntegrationTest extends TestCase
 
     abstract public function testIsDuplicateException();
 
-    public function testCreate()
+    public function testCreate(): void
     {
         $object = $this->objectMapper->create(ExtendedDataObject::class, ['myColumn'=>'Test Value']);
         $this->assertInstanceOf(ExtendedDataObject::class, $object);
@@ -77,7 +77,7 @@ abstract class BaseIntegrationTest extends TestCase
      * @depends testSave
      * @param ExtendedDataObject $object
      */
-    public function testFind(ExtendedDataObject $object)
+    public function testFind(ExtendedDataObject $object): void
     {
         /** @var ExtendedDataObject $fromDb */
         $fromDb = $this->repository->find($object->getId(), false);
@@ -85,7 +85,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals($object->getMyNullableColumn(), $fromDb->getMyNullableColumn());
     }
 
-    public function testFindNull()
+    public function testFindNull(): void
     {
         /** @var ExtendedDataObject $fromDb */
         $fromDb = $this->repository->find(12345678, false);
@@ -113,7 +113,7 @@ abstract class BaseIntegrationTest extends TestCase
      * @depends testUpdate
      * @param ExtendedDataObject $object
      */
-    public function testDelete(ExtendedDataObject $object)
+    public function testDelete(ExtendedDataObject $object): void
     {
         $this->repository->delete($object);
 
@@ -145,7 +145,7 @@ abstract class BaseIntegrationTest extends TestCase
      * @depends testFindAll
      * @param array $objects
      */
-    public function testFindByIds(array $objects)
+    public function testFindByIds(array $objects): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('ASDF 3');
@@ -160,7 +160,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertCount(count($objects) + 1, $fromDb);
     }
 
-    public function testFindBy()
+    public function testFindBy(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('ASDF 4');
@@ -186,7 +186,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals('XYZ', $withIdsGt[0]->getMyColumn());
     }
 
-    public function testFindByNull()
+    public function testFindByNull(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('ASDF 4');
@@ -201,7 +201,7 @@ abstract class BaseIntegrationTest extends TestCase
         }
     }
 
-    public function testFindByNullWithTableAlias()
+    public function testFindByNullWithTableAlias(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('ASDF 4');
@@ -216,7 +216,7 @@ abstract class BaseIntegrationTest extends TestCase
         }
     }
 
-    public function testFindByBool()
+    public function testFindByBool(): void
     {
         $object = new ExtendedDataObject();
         $object->setDeleted(true);
@@ -232,7 +232,7 @@ abstract class BaseIntegrationTest extends TestCase
         }
     }
 
-    public function testFindByBetween()
+    public function testFindByBetween(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('0');
@@ -261,7 +261,7 @@ abstract class BaseIntegrationTest extends TestCase
         }
     }
 
-    public function testFindByIsNotNull()
+    public function testFindByIsNotNull(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('ASDF 4')->setMyNullableColumn(42);
@@ -276,7 +276,7 @@ abstract class BaseIntegrationTest extends TestCase
         }
     }
 
-    public function testFindOneBy()
+    public function testFindOneBy(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('XYZ 2');
@@ -290,7 +290,7 @@ abstract class BaseIntegrationTest extends TestCase
     /**
      * This one tests the MySQLQueryHelper implementation of massUpsert
      */
-    public function testSaveAll()
+    public function testSaveAll(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('Save All');
@@ -317,7 +317,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals('Save All 2', $fromDb->getMyColumn());
     }
 
-    public function testSaveAllWithDuplicates()
+    public function testSaveAllWithDuplicates(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('Save All');
@@ -343,7 +343,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals('Save All 2', $fromDb->getMyColumn());
     }
 
-    public function testDeleteAll()
+    public function testDeleteAll(): void
     {
         $objects = [];
         $object = new ExtendedDataObject();
@@ -361,7 +361,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertCount(2, $allFromDb);
     }
 
-    public function testLoadOne()
+    public function testLoadOne(): void
     {
         $otherObject = new OtherDataObject();
         $otherObject->setName('Other object one-to-many');
@@ -379,7 +379,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
     }
 
-    public function testLoadOneWithoutId()
+    public function testLoadOneWithoutId(): void
     {
         $otherObject = new OtherDataObject();
         $otherObject->setName('Other object one-to-many');
@@ -404,7 +404,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject2->getId()]);
     }
 
-    public function testLoadOneWithNull()
+    public function testLoadOneWithNull(): void
     {
         $otherObject = new OtherDataObject();
         $otherObject->setName('Other object one-to-many');
@@ -424,7 +424,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
     }
 
-    public function testLoadMany()
+    public function testLoadMany(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('many-to-one');
@@ -452,7 +452,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals($otherObject->getName(), $loadedOtherObjects[1]->getName());
     }
 
-    public function testLoadManyWithCustomSetter()
+    public function testLoadManyWithCustomSetter(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('many-to-one');
@@ -480,7 +480,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals($otherObject->getName(), $loadedOtherObjects[1]->getName());
     }
 
-    public function testLoadManyWithoutObjects()
+    public function testLoadManyWithoutObjects(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('many-to-one');
@@ -495,7 +495,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertCount(0, $loadedOtherObjects);
     }
 
-    public function testLoadManyToMany()
+    public function testLoadManyToMany(): void
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('many-to-many');
@@ -523,7 +523,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals($otherObject2->getName(), $loadedOtherObjects[1]->getName());
     }
 
-    public function testSaveOne()
+    public function testSaveOne(): void
     {
         $otherObject = new OtherDataObject();
         $otherObject->setName('Other object one-to-one 1');
@@ -554,7 +554,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals($otherObject->getId(), $fromDb->getOtherDataObjectId());
     }
 
-    public function testSaveOneNoForeignObjects()
+    public function testSaveOneNoForeignObjects(): void
     {
         $objects = [];
         $object = new ExtendedDataObject();
@@ -568,7 +568,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertInstanceOf(ExtendedDataObject::class, $fromDb);
     }
 
-    public function testSaveMany()
+    public function testSaveMany(): void
     {
         $otherObject = new OtherDataObject();
         $otherObject->setName('Other object one-to-many 1-1');
@@ -615,7 +615,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertTrue($otherObjectToDelete2->isDeleted());
     }
 
-    public function testSaveManyMove()
+    public function testSaveManyMove(): void
     {
         $otherObject = new OtherDataObject();
         $otherObject->setName('Other object one-to-many 1-1');
@@ -667,7 +667,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertFalse($otherObjectToMove->isDeleted());
     }
 
-    public function testSaveManyInsertion()
+    public function testSaveManyInsertion(): void
     {
         $otherObject = new OtherDataObject();
         $otherObject->setName('Other object one-to-many 1-1');
@@ -697,7 +697,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertGreaterThan(0, $newOtherObject->getId());
     }
 
-    public function testSaveManyToManyLinks()
+    public function testSaveManyToManyLinks(): void
     {
         $otherObjects = [];
         $otherObject = new OtherDataObject();
@@ -749,7 +749,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals($otherObject4->getId(), $object2Links[1]);
     }
 
-    public function testSaveManyToMany()
+    public function testSaveManyToMany(): void
     {
         $otherObjects = [];
         $otherObject = new OtherDataObject();
@@ -806,7 +806,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertEquals($otherObject4->getId(), $object2Links[1]);
     }
 
-    public function testOffsetPagedQuery()
+    public function testOffsetPagedQuery(): void
     {
         /** @var ExtendedDataObjectRepository $repo */
         $repo = $this->objectMapper->getRepository(ExtendedDataObject::class);
@@ -822,7 +822,7 @@ abstract class BaseIntegrationTest extends TestCase
         }
     }
 
-    public function testSeekPagedQuery()
+    public function testSeekPagedQuery(): void
     {
         /** @var ExtendedDataObjectRepository $repo */
         $repo = $this->objectMapper->getRepository(ExtendedDataObject::class);

@@ -32,7 +32,7 @@ class QueryHelperTest extends TestCase
         $this->queryHelper = new QueryHelper($this->connection, new LimitedArrayCache());
     }
 
-    public function testBuildSelectQuery()
+    public function testBuildSelectQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -52,7 +52,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(['`column` ASC'], $orderBy);
     }
 
-    public function testNotEqualsQuery()
+    public function testNotEqualsQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -65,7 +65,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(2, $qb->getParameter('notEqualColumn2'));
     }
 
-    public function testLessThanQuery()
+    public function testLessThanQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -78,7 +78,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(2, $qb->getParameter('lessThanEqColumn'));
     }
 
-    public function testGreaterThanQuery()
+    public function testGreaterThanQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -91,7 +91,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(2, $qb->getParameter('greaterThanEqColumn'));
     }
 
-    public function testLikeQuery()
+    public function testLikeQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -103,7 +103,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals('%whatever%', $qb->getParameter('likeColumn'));
     }
 
-    public function testNotLikeQuery()
+    public function testNotLikeQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -115,7 +115,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals('%whatever%', $qb->getParameter('likeColumn'));
     }
 
-    public function testInQuery()
+    public function testInQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -128,7 +128,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(Connection::PARAM_STR_ARRAY, $qb->getParameterType('inColumn'));
     }
 
-    public function testNotInQuery()
+    public function testNotInQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -141,7 +141,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(Connection::PARAM_STR_ARRAY, $qb->getParameterType('inColumn'));
     }
 
-    public function testBetweenQuery()
+    public function testBetweenQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -153,7 +153,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(10, $qb->getParameter('columnLessThan'));
     }
 
-    public function testNotBetweenQuery()
+    public function testNotBetweenQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -165,7 +165,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(10, $qb->getParameter('columnLessThan'));
     }
 
-    public function testInvalidBetweenQuery()
+    public function testInvalidBetweenQuery(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('BETWEEN value must be a 2 item array with numeric keys');
@@ -177,7 +177,7 @@ class QueryHelperTest extends TestCase
         $this->queryHelper->processWhereQuery($qb, ['column BETWEEN'=>['asdf']]);
     }
 
-    public function testProcessWhereInvalidArgument()
+    public function testProcessWhereInvalidArgument(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -189,7 +189,7 @@ class QueryHelperTest extends TestCase
         $this->queryHelper->processWhereQuery($qb, ['main.column'=>null]);
     }
 
-    public function testMultipleWhereSameColumn()
+    public function testMultipleWhereSameColumn(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -201,7 +201,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(10, $qb->getParameter('column2'));
     }
 
-    public function testBuildUpdateQuery()
+    public function testBuildUpdateQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -220,7 +220,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(['`columnToSet` = :columnToSet'], $set);
     }
 
-    public function testMassUpdate()
+    public function testMassUpdate(): void
     {
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
             ->onlyMethods(['buildUpdateQuery'])
@@ -239,7 +239,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(5, $rows);
     }
 
-    public function testMassInsert()
+    public function testMassInsert(): void
     {
         $this->connection->expects($this->once())->method('executeStatement')
             ->with(
@@ -263,7 +263,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(2, $effected);
     }
 
-    public function testBuildDeleteQuery()
+    public function testBuildDeleteQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
             ->willReturn(new QueryBuilder($this->connection));
@@ -279,7 +279,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals('(`column` = :column) AND (`inColumn` IN(:inColumn))', $where);
     }
 
-    public function testMassDelete()
+    public function testMassDelete(): void
     {
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
             ->onlyMethods(['buildDeleteQuery'])
@@ -299,7 +299,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(29, $rows);
     }
 
-    public function testGetCount()
+    public function testGetCount(): void
     {
         $qb = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
@@ -321,7 +321,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(9, $count);
     }
 
-    public function testGetCountWithGroupBy()
+    public function testGetCountWithGroupBy(): void
     {
         $qb = $this->getMockBuilder(QueryBuilder::class)
             ->disableOriginalConstructor()
@@ -344,7 +344,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(11, $count);
     }
 
-    public function testGetDbColumns()
+    public function testGetDbColumns(): void
     {
         $mockSchemaManager = $this->getMockBuilder(AbstractSchemaManager::class)
             ->disableOriginalConstructor()
@@ -364,7 +364,7 @@ class QueryHelperTest extends TestCase
         $this->assertEquals($table, $return);
     }
 
-    public function testAddModifier()
+    public function testAddModifier(): void
     {
         $queryModifier = new SoftDelete($this->queryHelper);
         $success = $this->queryHelper->addModifier($queryModifier);
@@ -374,7 +374,7 @@ class QueryHelperTest extends TestCase
         $this->assertFalse($success);
     }
 
-    public function testRemoveModifier()
+    public function testRemoveModifier(): void
     {
         $queryModifier = new SoftDelete($this->queryHelper);
         $success = $this->queryHelper->removeModifier(SoftDelete::class);
@@ -385,7 +385,7 @@ class QueryHelperTest extends TestCase
         $this->assertNull($this->queryHelper->getModifier(SoftDelete::class));
     }
 
-    public function testMissingTableException()
+    public function testMissingTableException(): void
     {
         $this->expectException(InvalidArgumentException::class);
 

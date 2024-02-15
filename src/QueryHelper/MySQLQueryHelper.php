@@ -43,7 +43,7 @@ class MySQLQueryHelper extends QueryHelper
         $query .= ' ON DUPLICATE KEY UPDATE ' . implode(', ', $columnsToUpdate);
 
         $params = $this->getParams($normalizedRows);
-        
+
         $effected = $this->db->executeStatement($query, $params);
         $lastInsertId = $this->db->lastInsertId();
 
