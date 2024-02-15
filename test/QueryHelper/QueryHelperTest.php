@@ -25,9 +25,7 @@ class QueryHelperTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->connection->expects($this->any())->method('quoteIdentifier')->will($this->returnCallback(function ($column) {
-            return "`$column`";
-        }));
+        $this->connection->expects($this->any())->method('quoteIdentifier')->will($this->returnCallback(fn($column) => "`$column`"));
 
         $this->queryHelper = new QueryHelper($this->connection, new LimitedArrayCache());
     }

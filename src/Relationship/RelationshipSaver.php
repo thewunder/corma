@@ -13,9 +13,9 @@ use Corma\Util\Inflector;
  */
 class RelationshipSaver
 {
-    private Inflector $inflector;
+    private readonly Inflector $inflector;
 
-    public function __construct(private ObjectMapper $objectMapper)
+    public function __construct(private readonly ObjectMapper $objectMapper)
     {
         $this->inflector = $objectMapper->getInflector();
     }
@@ -37,8 +37,8 @@ class RelationshipSaver
         }
 
         $om = $this->objectMapper->getObjectManager($objects);
-        $foreignIdColumn = $foreignIdColumn ?? $this->inflector->idColumnFromClass($className);
-        $getter = $getter ?? 'get' . $this->inflector->methodNameFromColumn($foreignIdColumn);
+        $foreignIdColumn ??= $this->inflector->idColumnFromClass($className);
+        $getter ??= 'get' . $this->inflector->methodNameFromColumn($foreignIdColumn);
 
         /** @var object[] $foreignObjectsByObjectId */
         $foreignObjectsByObjectId = [];
@@ -48,7 +48,7 @@ class RelationshipSaver
                 throw new MethodNotImplementedException("$getter must be defined on {$shortClass} to save relationship");
             }
             
-            $objectIdSetter = 'set' . $this->inflector->idColumnFromClass(get_class($object));
+            $objectIdSetter = 'set' . $this->inflector->idColumnFromClass($object::class);
             $foreignObject = $object->{$getter}();
             if ($foreignObject) {
                 $id = $om->getId($object);
@@ -123,7 +123,7 @@ class RelationshipSaver
         }
 
         if (!$foreignColumn) {
-            $foreignColumn = $this->inflector->idColumnFromClass(get_class(reset($objects)));
+            $foreignColumn = $this->inflector->idColumnFromClass(reset($objects)::class);
         }
         $objectIdSetter = 'set' . ucfirst($foreignColumn);
 
@@ -224,7 +224,7 @@ class RelationshipSaver
         }
 
         if (!$idColumn) {
-            $idColumn = $this->inflector->idColumnFromClass(get_class(reset($objects)));
+            $idColumn = $this->inflector->idColumnFromClass(reset($objects)::class);
         }
 
         if (!$foreignIdColumn) {
@@ -328,8 +328,6 @@ class RelationshipSaver
      * Retrieve foreign ids for a one-to-many relationship
      *
      * @param object[] $objects
-     * @param string $className
-     * @param string $foreignColumn
      * @return array objectId => map of foreign ids
      */
     protected function getExistingForeignIds(array $objects, string $className, string $foreignColumn): array
@@ -348,7 +346,7 @@ class RelationshipSaver
 
         $existingForeignObjectsIdsByObjectId = [];
         foreach ($existingForeignObjectIds as $row) {
-            list($foreignId, $objectId) = $row;
+            [$foreignId, $objectId] = $row;
             if (!isset($existingForeignObjectsIdsByObjectId[$objectId])) {
                 $existingForeignObjectsIdsByObjectId[$objectId] = [$foreignId=>true];
             } else {

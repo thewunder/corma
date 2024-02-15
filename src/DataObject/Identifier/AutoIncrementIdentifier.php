@@ -10,7 +10,7 @@ use Corma\Util\Inflector;
  */
 class AutoIncrementIdentifier extends BaseIdentifier
 {
-    public function __construct(Inflector $inflector, private QueryHelperInterface $queryHelper, private TableConventionInterface $convention)
+    public function __construct(Inflector $inflector, private readonly QueryHelperInterface $queryHelper, private readonly TableConventionInterface $convention)
     {
         parent::__construct($inflector);
     }

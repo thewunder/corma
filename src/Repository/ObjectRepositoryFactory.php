@@ -56,9 +56,9 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
      */
     protected function splitClassAndNamespace($objectClass): array
     {
-        $lastSlash = strrpos($objectClass, '\\');
+        $lastSlash = strrpos((string) $objectClass, '\\');
         if ($lastSlash !== false) {
-            return [substr($objectClass, 0, $lastSlash), substr($objectClass, $lastSlash+1)];
+            return [substr((string) $objectClass, 0, $lastSlash), substr((string) $objectClass, $lastSlash+1)];
         } else {
             return [$objectClass, ''];
         }
@@ -73,7 +73,6 @@ class ObjectRepositoryFactory implements ObjectRepositoryFactoryInterface
     /**
      * Construct the repository and return
      *
-     * @param string $className
      * @return ObjectRepositoryInterface|null
      */
     protected function createRepository(string $className): ?ObjectRepositoryInterface

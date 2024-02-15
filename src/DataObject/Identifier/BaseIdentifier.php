@@ -18,7 +18,7 @@ abstract class BaseIdentifier implements ObjectIdentifierInterface
     {
         $getter = $this->inflector->getterFromColumn($this->getIdColumn($object));
         if (!method_exists($object, $getter)) {
-            throw new MethodNotImplementedException("$getter must be implemented on ".get_class($object));
+            throw new MethodNotImplementedException("$getter must be implemented on ".$object::class);
         }
         return $object->$getter();
     }
@@ -36,7 +36,7 @@ abstract class BaseIdentifier implements ObjectIdentifierInterface
         $object = reset($objects);
         $getter = $this->inflector->getterFromColumn($this->getIdColumn($object));
         if (!method_exists($object, $getter)) {
-            throw new MethodNotImplementedException("$getter must be implemented on ".get_class($object));
+            throw new MethodNotImplementedException("$getter must be implemented on ".$object::class);
         }
 
         $ids = [];
@@ -60,7 +60,7 @@ abstract class BaseIdentifier implements ObjectIdentifierInterface
             return $object;
         }
 
-        throw new MethodNotImplementedException("$setter must be implemented on ".get_class($object));
+        throw new MethodNotImplementedException("$setter must be implemented on ".$object::class);
     }
 
     /**

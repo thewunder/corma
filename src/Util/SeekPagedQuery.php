@@ -119,7 +119,7 @@ class SeekPagedQuery extends PagedQuery
         $connection = $this->queryHelper->getConnection();
         $quoteChar = $connection->getDatabasePlatform()->getIdentifierQuoteCharacter();
         foreach ($orderBy as $orderByPart) {
-            [$column, $dir]= explode(' ', $orderByPart);
+            [$column, $dir]= explode(' ', (string) $orderByPart);
             $column = str_replace($quoteChar, '', $column);
             $columns[$column] = $dir;
         }
@@ -175,7 +175,7 @@ class SeekPagedQuery extends PagedQuery
     {
         $lastResultData = [];
         if ($lastResult) {
-            $lastResultData = json_decode($lastResult, true, 2);
+            $lastResultData = json_decode((string) $lastResult, true, 2);
             if (json_last_error()) {
                 throw new InvalidArgumentException('Invalid json passed');
             }

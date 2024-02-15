@@ -14,8 +14,6 @@ abstract class QueryModifier
     /**
      * Modify a select query before executing
      *
-     * @param QueryBuilder $qb
-     * @param string $table
      * @param array|string $columns
      * @param array $where column => value pairs
      * @param array $orderBy of column => ASC / DESC pairs
@@ -29,7 +27,6 @@ abstract class QueryModifier
     /**
      * Modify an insert query before executing
      *
-     * @param string $table
      * @param array $rows column => value pairs for each database row
      */
     public function insertQuery(string $table, array &$rows): void
@@ -39,7 +36,6 @@ abstract class QueryModifier
     /**
      * Modify an upsert query before executing
      *
-     * @param string $table
      * @param array $rows column => value pairs for each database row
      */
     public function upsertQuery(string $table, array &$rows): void
@@ -49,8 +45,6 @@ abstract class QueryModifier
     /**
      * Modify a update query before executing
      *
-     * @param QueryBuilder $qb
-     * @param string $table
      * @param array $update column => value pairs to update in SET clause
      * @param array $where column => value pairs
      * @return QueryBuilder
@@ -63,8 +57,6 @@ abstract class QueryModifier
     /**
      * Modify a delete query before executing
      *
-     * @param QueryBuilder $qb
-     * @param string $table
      * @param array $where column => value pairs
      * @return QueryBuilder
      */

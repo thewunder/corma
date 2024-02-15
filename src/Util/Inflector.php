@@ -30,15 +30,13 @@ class Inflector extends DoctrineInflector
         if (is_string($classOrObject)) {
             $class = $classOrObject;
         } else {
-            $class = get_class($classOrObject);
+            $class = $classOrObject::class;
         }
 
         return substr($class, strrpos($class, '\\') + 1);
     }
 
     /**
-     * @param string $columnName
-     * @param bool $plural
      * @return string Partial method name to get / set object(s)
      */
     public function methodNameFromColumn(string $columnName, bool $plural = false): string
@@ -52,8 +50,6 @@ class Inflector extends DoctrineInflector
     }
 
     /**
-     * @param string $className
-     * @param bool $plural
      * @return string Partial method name to get / set object(s)
      */
     public function methodNameFromClass(string $className, bool $plural = false): string
@@ -67,7 +63,6 @@ class Inflector extends DoctrineInflector
     }
 
     /**
-     * @param string $column
      * @return string
      */
     public function getterFromColumn(string $column): string
@@ -76,7 +71,6 @@ class Inflector extends DoctrineInflector
     }
 
     /**
-     * @param string $column
      * @return string
      */
     public function setterFromColumn(string $column): string

@@ -7,7 +7,7 @@ namespace Corma\DataObject\TableConvention;
  */
 class CustomTable implements TableConventionInterface
 {
-    public function __construct(private string $table)
+    public function __construct(private readonly string $table)
     {
     }
 

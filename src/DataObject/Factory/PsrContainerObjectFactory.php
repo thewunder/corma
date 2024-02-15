@@ -18,7 +18,7 @@ use Psr\Container\ContainerInterface;
  */
 class PsrContainerObjectFactory extends BaseObjectFactory implements ObjectFactoryInterface
 {
-    public function __construct(private ContainerInterface $container, ObjectHydratorInterface $hydrator)
+    public function __construct(private readonly ContainerInterface $container, ObjectHydratorInterface $hydrator)
     {
         parent::__construct($hydrator);
     }

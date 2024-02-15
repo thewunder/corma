@@ -18,7 +18,7 @@
     "psr-4": { "Corma\\Test\\": "test/"}
   },
   "require": {
-    "php": ">=8.0",
+    "php": ">=8.1",
     "ext-pdo" : "*",
     "ext-json": "*",
     "doctrine/dbal": "^3.0",

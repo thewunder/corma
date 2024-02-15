@@ -10,9 +10,9 @@ use Corma\Util\Inflector;
  */
 class RelationshipLoader
 {
-    private Inflector $inflector;
+    private readonly Inflector $inflector;
 
-    public function __construct(private ObjectMapper $objectMapper)
+    public function __construct(private readonly ObjectMapper $objectMapper)
     {
         $this->inflector = $objectMapper->getInflector();
     }
@@ -35,7 +35,7 @@ class RelationshipLoader
         }
 
         $idToForeignId = [];
-        $foreignIdColumn = $foreignIdColumn ?? $this->inflector->idColumnFromClass($className);
+        $foreignIdColumn ??= $this->inflector->idColumnFromClass($className);
         $foreignIdColumn = ucfirst($foreignIdColumn);
 
         $om = $this->objectMapper->getObjectManager($objects);
@@ -66,7 +66,7 @@ class RelationshipLoader
         }
         unset($foreignObjects);
 
-        $setter = $setter ?? 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn);
+        $setter ??= 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn);
         foreach ($objects as $i => $object) {
             if (method_exists($object, $setter)) {
                 $id = $om->getId($object);
@@ -106,7 +106,7 @@ class RelationshipLoader
         $fom = $this->objectMapper->getObjectManager($className);
         $ids = $om->getIds($objects);
 
-        $foreignColumn = $foreignColumn ?? $this->inflector->idColumnFromClass(get_class(reset($objects)));
+        $foreignColumn ??= $this->inflector->idColumnFromClass(reset($objects)::class);
 
         $foreignObjects = $this->objectMapper->findBy($className, [$foreignColumn => $ids]);
         $foreignObjectsById = [];
@@ -121,7 +121,7 @@ class RelationshipLoader
             }
         }
 
-        $setter = $setter ?? 'set' . $this->inflector->methodNameFromClass($className, true);
+        $setter ??= 'set' . $this->inflector->methodNameFromClass($className, true);
         foreach ($objects as $object) {
             if (method_exists($object, $setter)) {
                 $id = $om->getId($object);
@@ -167,8 +167,8 @@ class RelationshipLoader
         $om = $this->objectMapper->getObjectManager($objects);
         $fom = $this->objectMapper->getObjectManager($className);
 
-        $idColumn = $idColumn ?? $this->inflector->idColumnFromClass(get_class(reset($objects)));
-        $foreignIdColumn = $foreignIdColumn ?? $this->inflector->idColumnFromClass($className);
+        $idColumn ??= $this->inflector->idColumnFromClass(reset($objects)::class);
+        $foreignIdColumn ??= $this->inflector->idColumnFromClass($className);
 
         $ids = $om->getIds($objects);
         $queryHelper = $this->objectMapper->getQueryHelper();
@@ -191,7 +191,7 @@ class RelationshipLoader
         }
         unset($foreignObjects);
 
-        $setter =  $setter ?? 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn, true);
+        $setter ??= 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn, true);
         foreach ($objects as $object) {
             if (method_exists($object, $setter)) {
                 $foreignObjects = [];

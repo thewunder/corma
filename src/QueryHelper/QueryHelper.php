@@ -18,7 +18,7 @@ class QueryHelper implements QueryHelperInterface
      * 3. column
      * 4. optional comparison operator
      */
-    const WHERE_COLUMN_REGEX = '/^(([\w]+\\.)|)([\w]+)( LIKE| NOT LIKE| BETWEEN| NOT BETWEEN|([^\w]*))/';
+    public const WHERE_COLUMN_REGEX = '/^(([\w]+\\.)|)([\w]+)( LIKE| NOT LIKE| BETWEEN| NOT BETWEEN|([^\w]*))/';
 
     protected const COMPARISON_OPERATORS = ['=', '<', '>', '<=', '>=', '<>', '!=', 'LIKE', 'NOT LIKE', 'BETWEEN', 'NOT BETWEEN'];
 
@@ -257,7 +257,7 @@ class QueryHelper implements QueryHelperInterface
                 ->executeQuery()->fetchOne();
 
             foreach($orderBy as $orderByPart) {
-                [$column, $dir] = explode(' ', $orderByPart);
+                [$column, $dir] = explode(' ', (string) $orderByPart);
                 $qb->addOrderBy($column, $dir);
             }
         }
@@ -294,7 +294,6 @@ class QueryHelper implements QueryHelperInterface
     }
 
     /**
-     * @param QueryBuilder $qb
      * @param $wherePart
      * @param $value
      * @return string
@@ -341,13 +340,12 @@ class QueryHelper implements QueryHelperInterface
 
     /**
      * @param array $from The from part of the query builder
-     * @param string $whereClause
      * @return bool
      */
     protected function acceptsNull(array $from, string $whereClause): bool
     {
         foreach ($from as $tableInfo) {
-            $table = str_replace($this->db->getDatabasePlatform()->getIdentifierQuoteCharacter(), '', $tableInfo['table']);
+            $table = str_replace($this->db->getDatabasePlatform()->getIdentifierQuoteCharacter(), '', (string) $tableInfo['table']);
             $columns = $this->getDbColumns($table);
             $column = $this->getColumnName($whereClause, false);
             if (!$columns->hasColumn($column)) {
@@ -400,7 +398,6 @@ class QueryHelper implements QueryHelperInterface
     /**
      * Returns the primary key of the table
      *
-     * @param string $table
      * @return null|string
      */
     protected function getPrimaryKey(string $table): ?string
@@ -417,8 +414,6 @@ class QueryHelper implements QueryHelperInterface
     /**
      * Get the parameter name for a where condition part
      *
-     * @param string $whereCondition
-     * @param QueryBuilder $qb
      * @return string
      */
     protected function getParameterName(string $whereCondition, QueryBuilder $qb): string
@@ -439,8 +434,6 @@ class QueryHelper implements QueryHelperInterface
     /**
      * Returns column name, and optionally table alias
      *
-     * @param string $whereCondition
-     * @param bool $includeTableAlias
      * @return string column name
      */
     protected function getColumnName(string $whereCondition, bool $includeTableAlias = true): string
@@ -451,12 +444,11 @@ class QueryHelper implements QueryHelperInterface
     /**
      * Extract the operator from a where condition part, defaults to = if no operator present
      *
-     * @param string $columnName
      * @return string
      */
     protected function getOperator(string $columnName): string
     {
-        $operator = trim(preg_replace(self::WHERE_COLUMN_REGEX, '$4', $columnName));
+        $operator = trim((string) preg_replace(self::WHERE_COLUMN_REGEX, '$4', $columnName));
         if ($operator && in_array($operator, self::COMPARISON_OPERATORS)) {
             return $operator;
         } else {
@@ -465,8 +457,6 @@ class QueryHelper implements QueryHelperInterface
     }
 
     /**
-     * @param string $table
-     * @param array $normalizedRows
      * @return string INSERT SQL Query
      */
     protected function getInsertSql(string $table, array $normalizedRows): string
@@ -504,8 +494,6 @@ class QueryHelper implements QueryHelperInterface
     /**
      * Creates an array with database columns, all in the same order
      *
-     * @param string $table
-     * @param array $rows
      * @return array
      */
     protected function normalizeRows(string $table, array $rows): array
@@ -529,7 +517,6 @@ class QueryHelper implements QueryHelperInterface
     /**
      * Returns an array of parameters
      *
-     * @param array $normalizedRows
      * @return array
      */
     protected function getParams(array $normalizedRows): array
@@ -553,9 +540,7 @@ class QueryHelper implements QueryHelperInterface
      * If primary key is null this simply returns zero, since this is only used to count
      * the number of effected rows, this potential inaccuracy is preferable to throwing an error.
      *
-     * @param array $rows
      * @param string|null $primaryKey
-     *
      * @return int
      */
     protected function countUpdates(array $rows, ?string $primaryKey): int
@@ -575,8 +560,8 @@ class QueryHelper implements QueryHelperInterface
 
     public function addModifier(QueryModifier $queryModifier): bool
     {
-        if(!isset($this->modifiers[get_class($queryModifier)])) {
-            $this->modifiers[get_class($queryModifier)] = $queryModifier;
+        if(!isset($this->modifiers[$queryModifier::class])) {
+            $this->modifiers[$queryModifier::class] = $queryModifier;
             return true;
         }
         return false;

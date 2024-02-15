@@ -5,7 +5,7 @@ namespace Corma\DataObject\Identifier;
 #[\Attribute]
 class IdColumn
 {
-    public function __construct(private string $column)
+    public function __construct(private readonly string $column)
     {
     }
 

@@ -42,9 +42,7 @@ class UnitOfWorkTest extends TestCase
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('commit');
-        $return = $unitOfWork->executeTransaction(function () {
-            return 7;
-        });
+        $return = $unitOfWork->executeTransaction(fn() => 7);
         $this->assertEquals(7, $return);
     }
 
@@ -54,7 +52,7 @@ class UnitOfWorkTest extends TestCase
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->connection->expects($this->once())->method('rollback');
-        $unitOfWork->executeTransaction(function () {
+        $unitOfWork->executeTransaction(function (): never {
             throw new \Exception();
         });
     }
@@ -76,7 +74,7 @@ class UnitOfWorkTest extends TestCase
         $unitOfWork = new UnitOfWork($this->objectMapper);
         $this->connection->expects($this->once())->method('beginTransaction');
         $hasRun = false;
-        $unitOfWork->executeTransaction(function () {
+        $unitOfWork->executeTransaction(function (): never {
             throw new \Exception('My Message');
         }, function (\Exception $e) use (&$hasRun) {
             $hasRun = true;

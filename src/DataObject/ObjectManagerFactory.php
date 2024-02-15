@@ -22,9 +22,6 @@ class ObjectManagerFactory
     }
 
     /**
-     * @param QueryHelperInterface $queryHelper
-     * @param Inflector $inflector
-     * @param ContainerInterface $container
      * @return ObjectManagerFactory
      */
     public static function withDefaults(QueryHelperInterface $queryHelper, Inflector $inflector, ContainerInterface $container): self
@@ -41,8 +38,6 @@ class ObjectManagerFactory
     /**
      * Populates object handling classes with defaults if not provided
      *
-     * @param string $className
-     * @param array $dependencies
      * @param ObjectHydratorInterface|null $hydrator Setting a custom object hydrator can change how columns are mapped to property names and how those properties are set
      * @param ObjectIdentifierInterface|null $identifier Setting a custom object identifier can change how your id is generated, retrieved, and set
      * @param TableConventionInterface|null $tableConvention You should use #[DbTable] instead of injecting a custom convention here.

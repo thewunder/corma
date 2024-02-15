@@ -11,7 +11,6 @@ interface ObjectIdentifierInterface
     /**
      * Gets the primary key for the object
      *
-     * @param object $object
      * @return string|int|null
      */
     public function getId(object $object): string|int|null;
@@ -19,7 +18,6 @@ interface ObjectIdentifierInterface
     /**
      * Returns true if this object has not yet been persisted into the database
      *
-     * @param object $object
      * @return bool
      */
     public function isNew(object $object): bool;
@@ -35,7 +33,6 @@ interface ObjectIdentifierInterface
     /**
      * Sets the primary key on the object
      *
-     * @param object $object
      * @param string|int $id
      * @return object The object passed in
      */
@@ -44,7 +41,6 @@ interface ObjectIdentifierInterface
     /**
      * Generates a new id for the object and sets it
      *
-     * @param object $object
      * @return object The object passed in
      */
     public function setNewId(object $object): object;

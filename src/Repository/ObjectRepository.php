@@ -125,7 +125,7 @@ class ObjectRepository implements ObjectRepositoryInterface
             return $this->className;
         }
 
-        $class = explode('\\', get_called_class());
+        $class = explode('\\', static::class);
         $objectClass = [];
         foreach ($class as $classPart) {
             if ($classPart != 'Repository') {
@@ -145,7 +145,6 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * This method is deliberately excluded from the interface.
      *
-     * @param string $className
      * @return $this
      */
     public function setClassName(string $className): static
@@ -214,7 +213,7 @@ class ObjectRepository implements ObjectRepositoryInterface
             }
         }
 
-        $saveRelationships = $saveRelationships ?? $this->saveRelationships();
+        $saveRelationships ??= $this->saveRelationships();
         $doUpsert = function () use ($uniqueObjects, $om, $saveRelationships, $inserts) {
             $columns = $this->queryHelper->getDbColumns($this->getTableName());
             $rows = [];
@@ -345,7 +344,6 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * Inserts this DataObject into the database
      *
-     * @param object $object
      * @param \Closure|null $saveRelationships
      * @return object The newly persisted object with id set
      */
@@ -368,7 +366,6 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      *  Update this DataObject's table row
      *
-     * @param object $object
      * @param \Closure|null $saveRelationships
      */
     protected function update(object $object, ?\Closure $saveRelationships)
@@ -404,8 +401,6 @@ class ObjectRepository implements ObjectRepositoryInterface
      *
      * @deprecated Use saveRelationships instead
      *
-     * @param object $object
-     * @param callable $afterSave
      * @param callable|null $exceptionHandler
      * @throws \Throwable
      */
@@ -426,7 +421,6 @@ class ObjectRepository implements ObjectRepositoryInterface
      * @deprecated Use saveRelationships instead
      *
      * @param object[] $objects
-     * @param callable $afterSave
      * @param callable|null $exceptionHandler
      * @throws \Throwable
      */
@@ -441,9 +435,6 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * Creates a paged query for the proved select query builder
      *
-     * @param QueryBuilder $qb
-     * @param int $pageSize
-     * @param string $strategy
      * @return PagedQuery
      */
     protected function pagedQuery(QueryBuilder $qb, int $pageSize = PagedQuery::DEFAULT_PAGE_SIZE, string $strategy = PagedQuery::STRATEGY_OFFSET): PagedQuery
@@ -461,7 +452,6 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     /**
      * Build parameters for insert or update
-     * @param object $object
      * @return array
      */
     protected function buildQueryParams(object $object): array
@@ -484,7 +474,6 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
-     * @param QueryBuilder $qb
      * @return object[]
      */
     protected function fetchAll(QueryBuilder $qb): array
@@ -498,7 +487,6 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
-     * @param QueryBuilder $qb
      * @return object|null
      * @throws Exception
      */
@@ -516,9 +504,6 @@ class ObjectRepository implements ObjectRepositoryInterface
 
     /**
      * Dispatches two events one generic DataObject one and a class specific event
-     *
-     * @param string $eventName
-     * @param object $object
      */
     protected function dispatchEvents(string $eventName, object $object): void
     {
@@ -549,7 +534,6 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * Restores a single object from cached data
      *
-     * @param array $data
      * @return object
      */
     protected function restoreFromCache(array $data): object
@@ -580,8 +564,6 @@ class ObjectRepository implements ObjectRepositoryInterface
      * Stores DataObjects in cache at the key specified
      *
      * @param object[] $objects
-     * @param string $key
-     * @param ?int $lifeTime
      */
     protected function storeAllInCache(array $objects, string $key, ?int $lifeTime = null): void
     {
@@ -594,9 +576,6 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->cache->set($key, $dataToCache, $lifeTime);
     }
 
-    /**
-     * @param object $object
-     */
     protected function checkArgument(object $object): void
     {
         $className = $this->getClassName();

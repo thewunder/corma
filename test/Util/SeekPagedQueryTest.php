@@ -124,7 +124,7 @@ class SeekPagedQueryTest extends TestCase
          */
         foreach ($pagedQuery as $key => $results) {
             if ($key) {
-                $keyData = json_decode($key, true);
+                $keyData = json_decode((string) $key, true);
                 $id = $keyData['id'];
                 $this->assertEquals($id, $results[0]->getId());
             } else {

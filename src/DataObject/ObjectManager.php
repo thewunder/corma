@@ -21,7 +21,6 @@ class ObjectManager
     /**
      * Creates a new instance of object, optionally populated with the supplied data
      *
-     * @param array $data
      * @return object
      */
     public function create(array $data = []): object
@@ -32,7 +31,6 @@ class ObjectManager
     /**
      * Retrieves a single object from the database
      *
-     * @param Result $result
      * @return object|null
      */
     public function fetchOne(Result $result): ?object
@@ -43,7 +41,6 @@ class ObjectManager
     /**
      * Retrieves multiple objects from the database
      *
-     * @param Result $result
      * @return object[]
      */
     public function fetchAll(Result $result): array
@@ -54,8 +51,6 @@ class ObjectManager
     /**
      * Sets the supplied data on to the object.
      *
-     * @param object $object
-     * @param array $data
      * @return object
      */
     public function hydrate(object $object, array $data): object
@@ -66,7 +61,6 @@ class ObjectManager
     /**
      * Extracts all scalar data from the object
      *
-     * @param object $object
      * @return array
      */
     public function extract(object $object): array
@@ -100,7 +94,6 @@ class ObjectManager
     /**
      * Returns true if the object has not yet been persisted into the database
      *
-     * @param object $object
      * @return bool
      */
     public function isNew(object $object): bool
@@ -111,7 +104,6 @@ class ObjectManager
     /**
      * Gets the primary key for the supplied objects
      *
-     * @param array $objects
      * @return string[]
      */
     public function getIds(array $objects): array
@@ -122,7 +114,6 @@ class ObjectManager
     /**
      * Sets the primary key on the object
      *
-     * @param object $object
      * @param string|int $id
      * @return object
      */
@@ -132,7 +123,6 @@ class ObjectManager
     }
 
     /**
-     * @param object $object
      * @return object
      */
     public function setNewId(object $object): object

@@ -14,17 +14,16 @@ class UnitOfWork
     private array $objectsToSave = [];
     private array $objectsToDelete = [];
 
-    public function __construct(private ObjectMapper $orm)
+    public function __construct(private readonly ObjectMapper $orm)
     {
     }
 
     /**
-     * @param object $object
      * @return $this
      */
     public function save(object $object): self
     {
-        $class = get_class($object);
+        $class = $object::class;
         if (isset($this->objectsToSave[$class])) {
             $this->objectsToSave[$class][] = $object;
         } else {
@@ -46,12 +45,11 @@ class UnitOfWork
     }
 
     /**
-     * @param object $object
      * @return $this
      */
     public function delete(object $object): self
     {
-        $class = get_class($object);
+        $class = $object::class;
         if (isset($this->objectsToDelete[$class])) {
             $this->objectsToDelete[$class][] = $object;
         } else {
@@ -77,7 +75,6 @@ class UnitOfWork
      *
      * If no exceptionHandler is passed the transaction will be rolled back and the exception rethrown.
      *
-     * @param \Closure $run
      * @param \Closure|null $exceptionHandler
      * @return mixed The return of the closure passed in
      * @throws \Throwable

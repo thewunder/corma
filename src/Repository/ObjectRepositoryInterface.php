@@ -69,7 +69,6 @@ interface ObjectRepositoryInterface
     /**
      * Find one or more data objects by id
      *
-     * @param array $ids
      * @param bool $useCache Use cache?
      * @return object[]
      */
@@ -109,8 +108,6 @@ interface ObjectRepositoryInterface
 
     /**
      * Removes the object from the database
-     *
-     * @param object $object
      */
     public function delete(object $object): void;
 

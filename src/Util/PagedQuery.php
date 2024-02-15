@@ -11,20 +11,14 @@ use Doctrine\DBAL\Query\QueryBuilder;
  */
 abstract class PagedQuery implements \JsonSerializable, \Iterator
 {
-    const DEFAULT_PAGE_SIZE = 100;
+    public const DEFAULT_PAGE_SIZE = 100;
 
-    const STRATEGY_OFFSET = 'offset';
-    const STRATEGY_SEEK = 'seek';
+    public const STRATEGY_OFFSET = 'offset';
+    public const STRATEGY_SEEK = 'seek';
 
     protected ?int $resultCount = null;
     protected ?int $pages = null;
 
-    /**
-     * @param QueryBuilder $qb
-     * @param QueryHelperInterface $queryHelper
-     * @param ObjectManager $objectManager
-     * @param int $pageSize
-     */
     public function __construct(protected QueryBuilder $qb, protected QueryHelperInterface $queryHelper,
                                 protected ObjectManager $objectManager, protected int $pageSize = self::DEFAULT_PAGE_SIZE)
     {
@@ -41,10 +35,9 @@ abstract class PagedQuery implements \JsonSerializable, \Iterator
 
     /**
      * @param mixed $page Starts at 1
-     * @param bool $allResults
      * @return object[]
      */
-    abstract public function getResults($page, bool $allResults = false): array;
+    abstract public function getResults(mixed $page, bool $allResults = false): array;
 
     /**
      * Get the total number of result pages

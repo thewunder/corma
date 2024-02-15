@@ -51,7 +51,7 @@ class ObjectRepositoryFactoryTest extends TestCase
     {
         $repository = $this->repositoryFactory->getRepository(OtherDataObject::class);
 
-        $this->assertEquals(ObjectRepository::class, get_class($repository));
+        $this->assertEquals(ObjectRepository::class, $repository !== null ? $repository::class : self::class);
         $this->assertEquals(OtherDataObject::class, $repository->getClassName());
     }
 
@@ -62,7 +62,7 @@ class ObjectRepositoryFactoryTest extends TestCase
         $container->expects($this->once())->method('has')->with(ObjectRepository::class)->willReturn(false);
         $this->repositoryFactory->setContainer($container);
         $repository = $this->repositoryFactory->getRepository(OtherDataObject::class);
-        $this->assertEquals(ObjectRepository::class, get_class($repository));
+        $this->assertEquals(ObjectRepository::class, $repository !== null ? $repository::class : self::class);
         $this->assertEquals(OtherDataObject::class, $repository->getClassName());
     }
 

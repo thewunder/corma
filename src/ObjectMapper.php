@@ -66,8 +66,6 @@ class ObjectMapper
     }
 
     /**
-     * @param Connection $db
-     * @param CacheInterface $cache
      * @return QueryHelperInterface
      */
     protected static function createQueryHelper(Connection $db, CacheInterface $cache): QueryHelperInterface
@@ -84,13 +82,9 @@ class ObjectMapper
 
     /**
      * ObjectMapper constructor.
-     * @param QueryHelperInterface $queryHelper
-     * @param ObjectRepositoryFactoryInterface $repositoryFactory
-     * @param ObjectManagerFactory $objectManagerFactory
-     * @param Inflector $inflector
      */
-    public function __construct(private QueryHelperInterface $queryHelper, private ObjectRepositoryFactoryInterface $repositoryFactory,
-                                private ObjectManagerFactory $objectManagerFactory, private Inflector $inflector)
+    public function __construct(private readonly QueryHelperInterface $queryHelper, private readonly ObjectRepositoryFactoryInterface $repositoryFactory,
+                                private readonly ObjectManagerFactory $objectManagerFactory, private readonly Inflector $inflector)
     {
     }
 
@@ -132,7 +126,6 @@ class ObjectMapper
      * Find objects by ids
      *
      * @param string $objectName Fully qualified object class name
-     * @param array $ids
      * @return object[]
      */
     public function findByIds(string $objectName, array $ids): array
@@ -268,7 +261,7 @@ class ObjectMapper
      */
     public function save(object $object, ?\Closure $saveRelationships = null): object
     {
-        $repository = $this->getRepository(get_class($object));
+        $repository = $this->getRepository($object::class);
         if (func_num_args() == 2) {
             return $repository->save($object, $saveRelationships);
         } else {
@@ -306,7 +299,7 @@ class ObjectMapper
      */
     public function delete(object $object): void
     {
-        $this->getRepository(get_class($object))->delete($object);
+        $this->getRepository($object::class)->delete($object);
     }
 
     /**
@@ -375,7 +368,7 @@ class ObjectMapper
         if (is_array($objectOrClass)) {
             $objectOrClass = reset($objectOrClass);
         }
-        $class = is_string($objectOrClass) ? $objectOrClass : get_class($objectOrClass);
+        $class = is_string($objectOrClass) ? $objectOrClass : $objectOrClass::class;
         return $this->getRepository($class)->getObjectManager();
     }
 
@@ -387,7 +380,7 @@ class ObjectMapper
     {
         $objectsByClass = [];
         foreach ($objects as $object) {
-            $objectsByClass[get_class($object)][] = $object;
+            $objectsByClass[$object::class][] = $object;
         }
         return $objectsByClass;
     }

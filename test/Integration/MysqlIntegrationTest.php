@@ -67,7 +67,7 @@ class MysqlIntegrationTest extends BaseIntegrationTest
             throw new \RuntimeException('Create a .env file with MYSQL_HOST, MYSQL_USER, and MYSQL_PASS to run this test.');
         }
 
-        $pass = getenv('MYSQL_PASS') ? getenv('MYSQL_PASS') : '';
+        $pass = getenv('MYSQL_PASS') ?: '';
 
         self::$connection = DriverManager::getConnection(['driver'=>'pdo_mysql','user'=>getenv('MYSQL_USER'), 'host'=>getenv('MYSQL_HOST'), 'password'=>$pass]);
         self::$connection->executeQuery('DROP DATABASE IF EXISTS corma_test;');

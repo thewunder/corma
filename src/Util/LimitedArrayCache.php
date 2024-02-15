@@ -14,7 +14,7 @@ class LimitedArrayCache implements CacheInterface
     private array $data = [];
     private array $expirations = [];
 
-    public function __construct(private int $limit = self::DEFAULT_LIMIT)
+    public function __construct(private readonly int $limit = self::DEFAULT_LIMIT)
     {
     }
 

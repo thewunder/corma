@@ -37,9 +37,7 @@ class ObjectRepositoryTest extends TestCase
         $this->connection = $this->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $this->connection->expects($this->any())->method('quoteIdentifier')->will($this->returnCallback(function ($column) {
-            return "`$column`";
-        }));
+        $this->connection->expects($this->any())->method('quoteIdentifier')->will($this->returnCallback(fn($column) => "`$column`"));
         $this->connection->expects($this->any())->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
 
         $this->dispatcher = new EventDispatcher();
@@ -159,7 +157,7 @@ class ObjectRepositoryTest extends TestCase
         /** @var MockObject|ExtendedDataObject $dataObjectMock */
         $dataObjectMock = $this->getMockBuilder(ExtendedDataObject::class)->onlyMethods(['getMyColumn'])->getMock();
         $dataObjectMock->expects($this->once())->method('getMyColumn');
-        $relationshipSaver = function () use ($dataObjectMock) {return $dataObjectMock->getMyColumn();};
+        $relationshipSaver = fn() => $dataObjectMock->getMyColumn();
         $repository = $this->getRepository();
         $repository->save(new ExtendedDataObject(), $relationshipSaver);
     }
@@ -204,7 +202,7 @@ class ObjectRepositoryTest extends TestCase
         /** @var MockObject|ExtendedDataObject $dataObjectMock */
         $dataObjectMock = $this->getMockBuilder(ExtendedDataObject::class)->onlyMethods(['getMyColumn'])->getMock();
         $dataObjectMock->expects($this->once())->method('getMyColumn');
-        $relationshipSaver = function () use ($dataObjectMock) {return $dataObjectMock->getMyColumn();};
+        $relationshipSaver = fn() => $dataObjectMock->getMyColumn();
 
         $this->connection->expects($this->once())->method('beginTransaction');
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
@@ -649,7 +647,7 @@ class ObjectRepositoryTest extends TestCase
         $this->connection->expects($this->once())->method('rollback');
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn(new Table('test_table'));
         $test = $this;
-        $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function (array $objects) use ($test) {
+        $saveWith->invokeArgs($repository, [new ExtendedDataObject(), function (array $objects) use ($test): never {
             throw new \Exception('Testing rollback');
         }]);
     }
@@ -681,7 +679,7 @@ class ObjectRepositoryTest extends TestCase
 
         $this->objectManager->expects($this->any())->method('extract')->willReturn([]);
         $this->connection->expects($this->once())->method('rollback');
-        $saveWith->invokeArgs($repository, [[new ExtendedDataObject()], function (array $objects) {
+        $saveWith->invokeArgs($repository, [[new ExtendedDataObject()], function (array $objects): never {
             throw new \Exception('Testing rollback');
         }]);
     }

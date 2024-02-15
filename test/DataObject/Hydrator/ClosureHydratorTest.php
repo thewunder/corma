@@ -41,7 +41,7 @@ class ClosureHydratorTest extends TestCase
     public function testSetExtract(): void
     {
         $hydrator = new ClosureHydrator();
-        $closure = function (){return [];};
+        $closure = fn() => [];
         $hydrator->setExtract($closure);
 
         $object = new ExtendedDataObject();

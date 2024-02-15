@@ -72,12 +72,12 @@ class PostgresIntegrationTest extends BaseIntegrationTest
             throw new \RuntimeException('Create a .env file with PGSQL_HOST, PGSQL_USER, and PGSQL_PASS to run this test.');
         }
 
-        $pass = getenv('PGSQL_PASS') ? getenv('PGSQL_PASS') : '';
+        $pass = getenv('PGSQL_PASS') ?: '';
 
         self::$connection = DriverManager::getConnection(['driver'=>'pdo_pgsql','host'=>getenv('PGSQL_HOST'), 'user'=> getenv('PGSQL_USER'), 'password'=>$pass]);
         try {
             self::$connection->executeQuery('drop schema cormatest cascade');
-        } catch (Exception $e) {
+        } catch (Exception) {
         }
 
         self::$connection->executeQuery('create schema cormatest');

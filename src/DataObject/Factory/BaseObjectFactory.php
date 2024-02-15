@@ -28,9 +28,6 @@ abstract class BaseObjectFactory implements ObjectFactoryInterface
 
     protected function getReflectionClass(string $class): \ReflectionClass
     {
-        if (isset($this->reflectionClasses[$class])) {
-            return $this->reflectionClasses[$class];
-        }
-        return $this->reflectionClasses[$class] = new \ReflectionClass($class);
+        return $this->reflectionClasses[$class] ?? ($this->reflectionClasses[$class] = new \ReflectionClass($class));
     }
 }

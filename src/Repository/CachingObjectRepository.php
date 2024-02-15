@@ -45,9 +45,7 @@ abstract class CachingObjectRepository extends ObjectRepository
             return $objects;
         }
 
-        $keys = array_map(function ($id) {
-            return $this->getCacheKey($id);
-        }, $ids);
+        $keys = array_map(fn($id) => $this->getCacheKey($id), $ids);
 
         $cachedData = array_filter($this->cache->getMultiple($keys));
 

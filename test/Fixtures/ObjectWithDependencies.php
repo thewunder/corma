@@ -5,7 +5,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ObjectWithDependencies extends BaseDataObject
 {
-    public function __construct(private EventDispatcherInterface $dispatcher)
+    public function __construct(private readonly EventDispatcherInterface $dispatcher)
     {
     }
 }

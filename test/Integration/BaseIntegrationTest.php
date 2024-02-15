@@ -75,7 +75,6 @@ abstract class BaseIntegrationTest extends TestCase
 
     /**
      * @depends testSave
-     * @param ExtendedDataObject $object
      */
     public function testFind(ExtendedDataObject $object): void
     {
@@ -94,7 +93,6 @@ abstract class BaseIntegrationTest extends TestCase
 
     /**
      * @depends testSave
-     * @param ExtendedDataObject $object
      * @return ExtendedDataObject
      */
     public function testUpdate(ExtendedDataObject $object): ExtendedDataObject
@@ -111,7 +109,6 @@ abstract class BaseIntegrationTest extends TestCase
 
     /**
      * @depends testUpdate
-     * @param ExtendedDataObject $object
      */
     public function testDelete(ExtendedDataObject $object): void
     {
@@ -143,7 +140,6 @@ abstract class BaseIntegrationTest extends TestCase
 
     /**
      * @depends testFindAll
-     * @param array $objects
      */
     public function testFindByIds(array $objects): void
     {

@@ -38,7 +38,6 @@ class ObjectMapperTest extends TestCase
 
     /**
      * @depends testCreate
-     * @param ObjectMapper $corma
      */
     public function testGetRepository(ObjectMapper $corma): void
     {
@@ -243,7 +242,6 @@ class ObjectMapperTest extends TestCase
 
     /**
      * @depends testCreate
-     * @param ObjectMapper $corma
      */
     public function testGetQueryHelper(ObjectMapper $corma): void
     {
