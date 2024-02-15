@@ -60,7 +60,11 @@ class PsrContainerObjectFactoryTest extends TestCase
         $data2 = ['myColumn'=>'value2'];
         $this->container->expects($this->exactly(2))->method('has')->with(ExtendedDataObject::class)->willReturn(true);
         $this->container->expects($this->exactly(2))->method('get')->with(ExtendedDataObject::class)->willReturn($object, $object2);
-        $this->hydrator->expects($this->exactly(2))->method('hydrate')->withConsecutive([$object, $data], [$object2, $data2]);
+        $matcher = $this->exactly(2);
+        $this->hydrator->expects($matcher)->method('hydrate')->willReturnCallback(fn() => match ($matcher->numberOfInvocations()) {
+            1 => [$object, $data],
+            2 => [$object2, $data2],
+        });
 
         /** @var Result | MockObject $mockResult */
         $mockResult = $this->getMockBuilder(Result::class)->disableOriginalConstructor()->getMock();

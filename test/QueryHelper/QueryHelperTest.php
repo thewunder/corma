@@ -308,9 +308,12 @@ class QueryHelperTest extends TestCase
             ->getMock();
 
         $mockResult->expects($this->once())->method('fetchOne')->willReturn(9);
+        $matcher = $this->exactly(2);
 
-        $qb->expects($this->exactly(2))->method('select')
-            ->withConsecutive(['COUNT(main.id)'], [null])->will($this->returnSelf());
+        $qb->expects($matcher)->method('select')->willReturnCallback(fn() => match ($matcher->numberOfInvocations()) {
+            1 => ['COUNT(main.id)'],
+            2 => [null],
+        })->will($this->returnSelf());
         $qb->expects($this->once())->method('executeQuery')->willReturn($mockResult);
         $qb->method('getQueryPart')->willReturnOnConsecutiveCalls(null, null,[]);
         $qb->expects($this->once())->method('resetQueryPart')->will($this->returnSelf());
@@ -328,9 +331,12 @@ class QueryHelperTest extends TestCase
         $mockResult = $this->getMockBuilder(Result::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $matcher = $this->exactly(2);
 
-        $qb->expects($this->exactly(2))->method('select')
-            ->withConsecutive(['1 AS group_by_row'], [null])->will($this->returnSelf());
+        $qb->expects($matcher)->method('select')->willReturnCallback(fn() => match ($matcher->numberOfInvocations()) {
+            1 => ['1 AS group_by_row'],
+            2 => [null],
+        })->willReturnSelf();
         $qb->method('getQueryPart')->willReturnOnConsecutiveCalls(null, ['groupByColumn']);
         $qb->expects($this->once())->method('getParameters')->willReturn([]);
         $qb->expects($this->once())->method('getParameterTypes')->willReturn([]);

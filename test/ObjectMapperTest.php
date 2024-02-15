@@ -14,6 +14,7 @@ use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -36,9 +37,7 @@ class ObjectMapperTest extends TestCase
         return $corma;
     }
 
-    /**
-     * @depends testCreate
-     */
+    #[Depends('testCreate')]
     public function testGetRepository(ObjectMapper $corma): void
     {
         $repository = $corma->getRepository(ExtendedDataObject::class);
@@ -240,9 +239,7 @@ class ObjectMapperTest extends TestCase
         $this->getCorma($mockRepo)->deleteAll($objects);
     }
 
-    /**
-     * @depends testCreate
-     */
+    #[Depends('testCreate')]
     public function testGetQueryHelper(ObjectMapper $corma): void
     {
         $this->assertInstanceOf(QueryHelper::class, $corma->getQueryHelper());

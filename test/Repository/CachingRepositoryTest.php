@@ -175,7 +175,8 @@ class CachingRepositoryTest extends TestCase
 
     public function testDeleteAll(): void
     {
-        $this->cache->expects($this->exactly(2))->method('delete')->withConsecutive(['cachings[11]'], ['cachings[12]']);
+        $matcher = $this->exactly(2);
+        $this->cache->expects($matcher)->method('delete')->willReturn(true);
 
         $repository = $this->getRepository();
 

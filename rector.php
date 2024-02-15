@@ -10,6 +10,9 @@ return RectorConfig::configure()
         __DIR__ . '/src',
         __DIR__ . '/test',
     ])->withPhpSets()
+    ->withSets([
+        Rector\PHPUnit\Set\PHPUnitSetList::PHPUNIT_100
+    ])
     ->withRules([
         AddVoidReturnTypeWhereNoReturnRector::class,
     ]);

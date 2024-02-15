@@ -156,6 +156,6 @@ class SeekPagedQueryTest extends TestCase
         $this->assertEquals(50, $object->pageSize);
         $this->assertEquals(5, $object->pages);
         $this->assertEquals(205, $object->resultCount);
-        $this->assertObjectHasAttribute('lastResult', $object);
+        $this->assertTrue(property_exists($object, 'lastResult'));
     }
 }

@@ -10,6 +10,7 @@ use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Util\OffsetPagedQuery;
 use Corma\Util\SeekPagedQuery;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -73,9 +74,7 @@ abstract class BaseIntegrationTest extends TestCase
         return $object;
     }
 
-    /**
-     * @depends testSave
-     */
+    #[Depends('testSave')]
     public function testFind(ExtendedDataObject $object): void
     {
         /** @var ExtendedDataObject $fromDb */
@@ -92,9 +91,9 @@ abstract class BaseIntegrationTest extends TestCase
     }
 
     /**
-     * @depends testSave
      * @return ExtendedDataObject
      */
+    #[Depends('testSave')]
     public function testUpdate(ExtendedDataObject $object): ExtendedDataObject
     {
         $object->setMyColumn('New Value')->setMyNullableColumn(null);
@@ -107,9 +106,7 @@ abstract class BaseIntegrationTest extends TestCase
         return $object;
     }
 
-    /**
-     * @depends testUpdate
-     */
+    #[Depends('testUpdate')]
     public function testDelete(ExtendedDataObject $object): void
     {
         $this->repository->delete($object);
@@ -120,9 +117,9 @@ abstract class BaseIntegrationTest extends TestCase
     }
 
     /**
-     * @depends testDelete
      * @return object[]
      */
+    #[Depends('testDelete')]
     public function testFindAll()
     {
         $object = new ExtendedDataObject();
@@ -138,9 +135,7 @@ abstract class BaseIntegrationTest extends TestCase
         return $objects;
     }
 
-    /**
-     * @depends testFindAll
-     */
+    #[Depends('testFindAll')]
     public function testFindByIds(array $objects): void
     {
         $object = new ExtendedDataObject();

@@ -33,7 +33,7 @@ class Inflector extends DoctrineInflector
             $class = $classOrObject::class;
         }
 
-        return substr($class, strrpos($class, '\\') + 1);
+        return substr((string) $class, strrpos((string) $class, '\\') + 1);
     }
 
     /**
