@@ -2,7 +2,6 @@
 namespace Corma\DataObject;
 
 use Corma\DataObject\Factory\ObjectFactoryInterface;
-use Corma\DataObject\Factory\PdoObjectFactory;
 use Corma\DataObject\Factory\PsrContainerObjectFactory;
 use Corma\DataObject\Hydrator\ClosureHydrator;
 use Corma\DataObject\Hydrator\ObjectHydratorInterface;

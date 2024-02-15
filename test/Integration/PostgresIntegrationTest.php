@@ -10,7 +10,6 @@ use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Util\Inflector;
 use Corma\Util\LimitedArrayCache;
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Dotenv\Dotenv;
