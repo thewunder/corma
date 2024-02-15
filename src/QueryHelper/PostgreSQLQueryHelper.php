@@ -67,7 +67,7 @@ class PostgreSQLQueryHelper extends QueryHelper
             return $this->version;
         }
         $versionString = $this->db->executeQuery('SELECT version()')->fetchOne();
-        preg_match('/^PostgreSQL ([\d\.]+).*/', (string) $versionString, $matches);
+        preg_match('/^PostgreSQL ([\d.]+).*/', (string) $versionString, $matches);
         $version = $matches[1];
         return $this->version = $version;
     }
