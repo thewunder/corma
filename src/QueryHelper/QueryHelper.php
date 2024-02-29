@@ -323,18 +323,16 @@ class QueryHelper implements QueryHelperInterface
             }
             $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
             return $clause;
-        } elseif ($value === null && $this->acceptsNull($qb->getQueryPart('from'), $column)) {
+        } elseif ($value === null) {
             if ($operator == '<>' || $operator == '!=') {
                 return "$columnName IS NOT NULL";
             } else {
                 return "$columnName IS NULL";
             }
-        } elseif ($value !== null) {
+        } else {
             $clause = "$columnName $operator :$paramName";
             $qb->setParameter($paramName, $value);
             return $clause;
-        } else {
-            throw new InvalidArgumentException("Value for $column is null, but null is not allowed on this column");
         }
     }
 

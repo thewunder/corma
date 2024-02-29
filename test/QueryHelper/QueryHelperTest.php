@@ -169,22 +169,10 @@ class QueryHelperTest extends TestCase
         $this->expectExceptionMessage('BETWEEN value must be a 2 item array with numeric keys');
         $qb = new QueryBuilder($this->connection);
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
-            ->onlyMethods(['acceptsNull'])->setConstructorArgs([$this->connection, new LimitedArrayCache()])
+            ->onlyMethods([])->setConstructorArgs([$this->connection, new LimitedArrayCache()])
             ->getMock();
 
         $this->queryHelper->processWhereQuery($qb, ['column BETWEEN'=>['asdf']]);
-    }
-
-    public function testProcessWhereInvalidArgument(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        $qb = new QueryBuilder($this->connection);
-        $this->queryHelper = $this->getMockBuilder(QueryHelper::class)
-            ->onlyMethods(['acceptsNull'])->setConstructorArgs([$this->connection, new LimitedArrayCache()])
-            ->getMock();
-
-        $this->queryHelper->processWhereQuery($qb, ['main.column'=>null]);
     }
 
     public function testMultipleWhereSameColumn(): void
