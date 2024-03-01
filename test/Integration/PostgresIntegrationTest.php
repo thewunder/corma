@@ -68,12 +68,18 @@ class PostgresIntegrationTest extends BaseIntegrationTest
         }
 
         if (empty(getenv('PGSQL_HOST')) || empty(getenv('PGSQL_USER'))) {
-            throw new \RuntimeException('Create a .env file with PGSQL_HOST, PGSQL_USER, and PGSQL_PASS to run this test.');
+            throw new \RuntimeException('Create a .env file with PGSQL_HOST, PGSQL_PORT, PGSQL_USER, and PGSQL_PASS to run this test.');
         }
 
         $pass = getenv('PGSQL_PASS') ?: '';
 
-        self::$connection = DriverManager::getConnection(['driver'=>'pdo_pgsql','host'=>getenv('PGSQL_HOST'), 'user'=> getenv('PGSQL_USER'), 'password'=>$pass]);
+        self::$connection = DriverManager::getConnection([
+            'driver'=>'pdo_pgsql',
+            'host'=>getenv('PGSQL_HOST'),
+            'port'=>getenv('PGSQL_PORT') ?? 5432,
+            'user'=> getenv('PGSQL_USER'),
+            'password'=>$pass
+        ]);
         try {
             self::$connection->executeQuery('drop schema cormatest cascade');
         } catch (Exception) {
@@ -93,11 +99,11 @@ class PostgresIntegrationTest extends BaseIntegrationTest
           id SERIAL PRIMARY KEY,
           "isDeleted" BOOLEAN NOT NULL DEFAULT FALSE,
           "name" VARCHAR(255) NOT NULL,
-          "extendedDataObjectId" INT NULL REFERENCES extended_data_objects (id)
+          "extendedDataObjectId" INT NULL REFERENCES extended_data_objects (id) ON DELETE CASCADE 
         )');
 
         self::$connection->executeQuery('CREATE TABLE cormatest.extended_other_rel (
-          "extendedDataObjectId" INT NOT NULL REFERENCES extended_data_objects (id),
+          "extendedDataObjectId" INT NOT NULL REFERENCES extended_data_objects (id) ON DELETE CASCADE,
           "otherDataObjectId" INT NOT NULL REFERENCES other_data_objects (id)
         )');
     }
