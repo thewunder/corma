@@ -1,3 +1,18 @@
+Version 4.1.0
+=============
+
+Changes
+-------
+- Requires PHP 8.1 or greater
+- No longer throws and exception when querying for NULL on a non-nullable column
+- Allow for setting custom port numbers for integration tests
+
+Updates
+-------
+
+* Update to PhpUnit 10
+* Psalm with Rector, bringing standards up to PHP 8.1
+
 Version 4.0.3
 =============
 
