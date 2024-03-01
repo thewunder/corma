@@ -3,7 +3,7 @@
 namespace Corma\DataObject\TableConvention;
 
 
-#[\Attribute]
+#[\Attribute(\Attribute::TARGET_CLASS)]
 class DbTable
 {
     public function __construct(private readonly string $table)
