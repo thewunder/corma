@@ -7,7 +7,7 @@ use Corma\Exception\InvalidAttributeException;
 /**
  * Reads the RelationshipType type attribute and passes it to the proper handler.
  */
-final class RelationshipReader
+final class RelationshipManager
 {
 
     /** @var RelationshipHandler[] */

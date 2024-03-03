@@ -2,19 +2,21 @@
 
 namespace Corma\Test\Relationship;
 
+use Corma\ObjectMapper;
 use Corma\Relationship\OneToOne;
 use Corma\Relationship\OneToOneHandler;
-use Corma\Relationship\RelationshipReader;
+use Corma\Relationship\RelationshipManager;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use PHPUnit\Framework\TestCase;
 
-class RelationshipReaderTest extends TestCase
+class RelationshipManagerTest extends TestCase
 {
-    private RelationshipReader $reader;
+    private RelationshipManager $reader;
     public function setUp(): void
     {
-        $this->reader = new RelationshipReader([
-            new OneToOneHandler()
+        $orm = $this->getMockBuilder(ObjectMapper::class)->disableOriginalConstructor()->getMock();
+        $this->reader = new RelationshipManager([
+            new OneToOneHandler($orm)
         ]);
     }
     public function testReadAttribute()
