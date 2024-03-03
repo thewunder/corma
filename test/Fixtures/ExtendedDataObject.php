@@ -1,6 +1,8 @@
 <?php
 namespace Corma\Test\Fixtures;
 
+use Corma\Relationship\OneToOne;
+
 /**
  * A Fixture
  */
@@ -11,6 +13,8 @@ class ExtendedDataObject extends BaseDataObject
     protected ?int $otherDataObjectId = null;
 
     protected ?array $arrayProperty = null;
+
+    #[OneToOne]
     protected ?ExtendedDataObject $objectProperty = null;
     protected ?OtherDataObject $otherDataObject = null;
 
