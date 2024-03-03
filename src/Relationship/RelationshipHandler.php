@@ -12,7 +12,7 @@ interface RelationshipHandler
      */
     public static function getRelationshipClass(): string;
 
-    public function load(array $objects, string $property): array;
+    public function load(array $objects, RelationshipType $relationship): array;
 
-    public function save(array $objects, string $property): void;
+    public function save(array $objects, RelationshipType $relationship): void;
 }

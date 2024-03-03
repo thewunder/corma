@@ -33,5 +33,7 @@ final class OneToOne extends RelationshipType
             }
             $this->className = $className;
         }
+
+        parent::setReflectionData($property);
     }
 }

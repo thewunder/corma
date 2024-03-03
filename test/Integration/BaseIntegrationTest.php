@@ -362,7 +362,7 @@ abstract class BaseIntegrationTest extends TestCase
         $object->setMyColumn('one-to-many')->setOtherDataObjectId($otherObject->getId());
         $this->objectMapper->save($object);
 
-        $return = $this->objectMapper->loadOne([$object], OtherDataObject::class);
+        $return = $this->objectMapper->load([$object], 'otherDataObject');
 
         $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
@@ -384,7 +384,7 @@ abstract class BaseIntegrationTest extends TestCase
         $object2 = new ExtendedDataObject();
         $object2->setOtherDataObjectId($otherObject2->getId());
 
-        $return = $this->objectMapper->loadOne([$object, $object2], OtherDataObject::class);
+        $return = $this->objectMapper->load([$object, $object2], 'otherDataObject');
 
         $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
@@ -406,7 +406,7 @@ abstract class BaseIntegrationTest extends TestCase
         $object2 = new ExtendedDataObject();
         $this->objectMapper->saveAll([$object, $object2]);
 
-        $return = $this->objectMapper->loadOne([$object, $object2], OtherDataObject::class);
+        $return = $this->objectMapper->load([$object, $object2], 'otherDataObject');
 
         $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
@@ -530,8 +530,8 @@ abstract class BaseIntegrationTest extends TestCase
         $objects[] = $object3->setMyColumn('Save one-to-one 3');
 
         $this->repository->saveAll($objects);
-        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
-        $relationshipSaver->saveOne($objects, OtherDataObject::class);
+        $relationshipSaver = $this->objectMapper->getRelationshipManager();
+        $relationshipSaver->save($objects, 'otherDataObject');
 
         $this->assertGreaterThan(0, $otherObject->getId());
         $this->assertGreaterThan(0, $otherObject2->getId());
@@ -552,8 +552,8 @@ abstract class BaseIntegrationTest extends TestCase
         $objects[] = $object->setMyColumn('Save one-to-one 1');
 
         $this->repository->saveAll($objects);
-        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
-        $relationshipSaver->saveOne($objects, OtherDataObject::class);
+        $relationshipSaver = $this->objectMapper->getRelationshipManager();
+        $relationshipSaver->save($objects, 'otherDataObject');
 
         $fromDb = $this->repository->find($object->getId(), false);
         $this->assertInstanceOf(ExtendedDataObject::class, $fromDb);

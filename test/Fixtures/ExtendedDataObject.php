@@ -16,6 +16,8 @@ class ExtendedDataObject extends BaseDataObject
 
     #[OneToOne]
     protected ?ExtendedDataObject $objectProperty = null;
+
+    #[OneToOne]
     protected ?OtherDataObject $otherDataObject = null;
 
     /** @var OtherDataObject[] */

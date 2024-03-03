@@ -3,6 +3,7 @@
 namespace Corma\Relationship;
 
 use Corma\Exception\InvalidAttributeException;
+use http\Exception\InvalidArgumentException;
 
 /**
  * Reads the RelationshipType type attribute and passes it to the proper handler.
@@ -23,18 +24,36 @@ final class RelationshipManager
         }
     }
 
-    public function getHandler(object|string $objectOrClass, string $property): ?RelationshipHandler
+    public function save(array $objects, string $property): void
     {
-        $relationshipType = $this->readAttribute($objectOrClass, $property);
-        if ($relationshipType) {
-            $relationshipClass = $relationshipType::class;
-            $handler = $this->handlers[$relationshipClass] ?? null;
-            if (!$handler) {
-                throw new InvalidAttributeException('Missing handler for '.$relationshipClass);
-            }
-            return $handler;
+        if (empty($objects)) {
+            return;
         }
-        return null;
+
+        $relationshipType = $this->readAttribute(reset($objects), $property);
+        $this->getHandler($relationshipType)->save($objects, $relationshipType);
+    }
+
+    public function load(array $objects, string $property): array
+    {
+        if (empty($objects)) {
+            return [];
+        }
+
+        $relationshipType = $this->readAttribute(reset($objects), $property);
+        return $this->getHandler($relationshipType)->load($objects, $relationshipType);
+    }
+
+    public function getHandler(RelationshipType $relationshipType): RelationshipHandler
+    {
+
+        $relationshipClass = $relationshipType::class;
+        $handler = $this->handlers[$relationshipClass] ?? null;
+        if (!$handler) {
+            throw new InvalidAttributeException('Missing handler for '.$relationshipClass);
+        }
+        return $handler;
+
     }
 
     public function readAttribute(object|string $objectOrClass, string $property): ?RelationshipType

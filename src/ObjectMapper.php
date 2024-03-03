@@ -4,6 +4,8 @@ namespace Corma;
 use Corma\DataObject\ObjectManager;
 use Corma\DataObject\ObjectManagerFactory;
 use Corma\QueryHelper\QueryModifier\SoftDelete;
+use Corma\Relationship\OneToOneHandler;
+use Corma\Relationship\RelationshipManager;
 use Corma\Relationship\RelationshipSaver;
 use Corma\Repository\ObjectRepositoryFactory;
 use Corma\Repository\ObjectRepositoryFactoryInterface;
@@ -26,6 +28,8 @@ class ObjectMapper
 {
     private ?RelationshipLoader $relationshipLoader = null;
     private ?RelationshipSaver $relationshipSaver = null;
+
+    private ?RelationshipManager $relationshipManager = null;
 
     /**
      * Creates a ObjectMapper instance using the default QueryHelper and ObjectRepositoryFactory
@@ -342,6 +346,22 @@ class ObjectMapper
             return $this->relationshipSaver;
         }
         return $this->relationshipSaver = new RelationshipSaver($this);
+    }
+
+    public function load(array $objects, string $property): array
+    {
+        $relationshipManager = $this->getRelationshipManager();
+        return $relationshipManager->load($objects, $property);
+    }
+
+    public function getRelationshipManager(): RelationshipManager
+    {
+        if (!$this->relationshipManager) {
+            $this->relationshipManager = new RelationshipManager([
+                new OneToOneHandler($this)
+            ]);
+        }
+        return $this->relationshipManager;
     }
 
     public function unitOfWork(): UnitOfWork
