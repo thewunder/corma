@@ -12,8 +12,8 @@ use Corma\Exception\InvalidAttributeException;
  */
 abstract class RelationshipType
 {
-    public string $className;
-    public string $property;
+    protected string $className;
+    protected string $property;
     public function __construct(string $className)
     {
         if (!class_exists($className)) {
@@ -28,5 +28,15 @@ abstract class RelationshipType
     public function setReflectionData(\ReflectionProperty $property): void
     {
         $this->property = $property->getName();
+    }
+
+    public function getClassName(): string
+    {
+        return $this->className;
+    }
+
+    public function getProperty(): string
+    {
+        return $this->property;
     }
 }

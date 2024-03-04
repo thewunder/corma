@@ -25,9 +25,9 @@ final class OneToOneHandler implements RelationshipHandler
         }
 
         $idToForeignId = [];
-        $className = $relationship->className;
-        $foreignIdColumn = $relationship->foreignIdColumn;
-        $foreignIdColumn ??= $this->inflector->idColumnFromProperty($relationship->property);
+        $className = $relationship->getClassName();
+        $foreignIdColumn = $relationship->getForeignIdColumn();
+        $foreignIdColumn ??= $this->inflector->idColumnFromProperty($relationship->getProperty());
 
         $om = $this->objectMapper->getObjectManager($objects);
         $fom = $this->objectMapper->getObjectManager($className);
@@ -76,7 +76,7 @@ final class OneToOneHandler implements RelationshipHandler
         return $foreignObjectsById;
     }
 
-    public function save(array $objects, RelationshipType $relationship): void
+    public function save(array $objects, RelationshipType|OneToOne $relationship): void
     {
         if (empty($objects)) {
             return;
@@ -84,10 +84,10 @@ final class OneToOneHandler implements RelationshipHandler
 
         $om = $this->objectMapper->getObjectManager($objects);
 
-        $foreignIdColumn = $relationship->foreignIdColumn;
+        $foreignIdColumn = $relationship->getForeignIdColumn();
 
-        $foreignIdColumn ??= $this->inflector->idColumnFromProperty($relationship->property);
-        $getter ??= $this->inflector->getterFromColumn($relationship->property);
+        $foreignIdColumn ??= $this->inflector->idColumnFromProperty($relationship->getProperty());
+        $getter ??= $this->inflector->getterFromColumn($relationship->getProperty());
 
         /** @var object[] $foreignObjectsByObjectId */
         $foreignObjectsByObjectId = [];

@@ -8,10 +8,10 @@ use Corma\Exception\InvalidAttributeException;
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class OneToOne extends RelationshipType
 {
-    private const AUTO = 'auto';
+    protected const AUTO = 'auto';
 
     public function __construct(string $className = self::AUTO,
-        public readonly ?string $foreignIdColumn = null
+        private readonly ?string $foreignIdColumn = null
     )
     {
         if ($className !== self::AUTO) {
@@ -35,5 +35,10 @@ final class OneToOne extends RelationshipType
         }
 
         parent::setReflectionData($property);
+    }
+
+    public function getForeignIdColumn(): ?string
+    {
+        return $this->foreignIdColumn;
     }
 }
