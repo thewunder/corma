@@ -354,6 +354,24 @@ abstract class BaseIntegrationTest extends TestCase
 
     public function testLoadOne(): void
     {
+        $objects = $this->setupLoadOne();
+
+        $return = $this->objectMapper->load($objects, 'otherDataObject');
+
+        $this->assertLoadOne($objects, $return);
+    }
+
+    public function testLoadOneLegacy()
+    {
+        $objects = $this->setupLoadOne();
+
+        $return = $this->objectMapper->loadOne($objects, OtherDataObject::class);
+
+        $this->assertLoadOne($objects, $return);
+    }
+
+    private function setupLoadOne(): array
+    {
         $otherObject = new OtherDataObject();
         $otherObject->setName('Other object one-to-many');
         $this->objectMapper->save($otherObject);
@@ -361,8 +379,14 @@ abstract class BaseIntegrationTest extends TestCase
         $object = new ExtendedDataObject();
         $object->setMyColumn('one-to-many')->setOtherDataObjectId($otherObject->getId());
         $this->objectMapper->save($object);
+        return [$object];
+    }
 
-        $return = $this->objectMapper->load([$object], 'otherDataObject');
+
+    private function assertLoadOne(array $objects, array $return): void
+    {
+        $object = $objects[0];
+        $otherObject = $object->getOtherDataObject();
 
         $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
@@ -371,6 +395,24 @@ abstract class BaseIntegrationTest extends TestCase
     }
 
     public function testLoadOneWithoutId(): void
+    {
+        $objects = $this->setupLoadOneWithoutId();
+
+        $return = $this->objectMapper->load($objects, 'otherDataObject');
+
+        $this->assertLoadOneWithoutId($objects, $return);
+    }
+
+    public function testLoadOneWithoutIdLegacy(): void
+    {
+        $objects = $this->setupLoadOneWithoutId();
+
+        $return = $this->objectMapper->loadOne($objects, OtherDataObject::class);
+
+        $this->assertLoadOneWithoutId($objects, $return);
+    }
+
+    private function setupLoadOneWithoutId(): array
     {
         $otherObject = new OtherDataObject();
         $otherObject->setName('Other object one-to-many');
@@ -383,8 +425,14 @@ abstract class BaseIntegrationTest extends TestCase
         $object->setOtherDataObjectId($otherObject->getId());
         $object2 = new ExtendedDataObject();
         $object2->setOtherDataObjectId($otherObject2->getId());
+        return [$object, $object2];
+    }
 
-        $return = $this->objectMapper->load([$object, $object2], 'otherDataObject');
+    private function assertLoadOneWithoutId(array $objects, array $return): void
+    {
+        [$object, $object2] = $objects;
+        $otherObject = $object->getOtherDataObject();
+        $otherObject2 = $object2->getOtherDataObject();
 
         $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
         $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
@@ -397,19 +445,42 @@ abstract class BaseIntegrationTest extends TestCase
 
     public function testLoadOneWithNull(): void
     {
+        $objects = $this->setupLoadOneWithNull();
+
+        $return = $this->objectMapper->load($objects, 'otherDataObject');
+
+        $this->assertLoadOneWithNull($objects, $return);
+    }
+
+    public function testLoadOneWithNullLegacy(): void
+    {
+        $objects = $this->setupLoadOneWithNull();
+
+        $return = $this->objectMapper->loadOne($objects, OtherDataObject::class);
+
+        $this->assertLoadOneWithNull($objects, $return);
+    }
+
+    private function setupLoadOneWithNull(): array
+    {
         $otherObject = new OtherDataObject();
-        $otherObject->setName('Other object one-to-many');
+        $otherObject->setName('Other object one-to-one');
         $this->objectMapper->save($otherObject);
 
         $object = new ExtendedDataObject();
         $object->setOtherDataObjectId($otherObject->getId());
         $object2 = new ExtendedDataObject();
         $this->objectMapper->saveAll([$object, $object2]);
+        return [$object, $object2];
+    }
 
-        $return = $this->objectMapper->load([$object, $object2], 'otherDataObject');
+    private function assertLoadOneWithNull(array $objects, array $return): void
+    {
+        [$object, $object2] = $objects;
+        $otherObject = $object->getOtherDataObject();
 
-        $this->assertInstanceOf(OtherDataObject::class, $object->getOtherDataObject());
-        $this->assertEquals('Other object one-to-many', $object->getOtherDataObject()->getName());
+        $this->assertInstanceOf(OtherDataObject::class, $otherObject);
+        $this->assertEquals('Other object one-to-one', $otherObject->getName());
         $this->assertNull($object2->getOtherDataObject());
         $this->assertCount(1, $return);
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
@@ -417,33 +488,24 @@ abstract class BaseIntegrationTest extends TestCase
 
     public function testLoadMany(): void
     {
-        $object = new ExtendedDataObject();
-        $object->setMyColumn('many-to-one');
-        $this->repository->save($object);
-
-        $otherObjects = [];
-        $softDeleted = new OtherDataObject();
-        $otherObjects[] = $softDeleted->setName('Other object (soft deleted)')->setExtendedDataObjectId($object->getId());
-        $otherObject = new OtherDataObject();
-        $otherObjects[] = $otherObject->setName('Other object many-to-one 1')->setExtendedDataObjectId($object->getId());
-        $otherObject = new OtherDataObject();
-        $otherObjects[] = $otherObject->setName('Other object many-to-one 2')->setExtendedDataObjectId($object->getId());
-        $this->objectMapper->saveAll($otherObjects);
-
-        $this->objectMapper->delete($softDeleted);
+        $object = $this->setupLoadMany();
 
         /** @var OtherDataObject[] $return */
         $return = $this->objectMapper->load([$object], 'otherDataObjects');
-        $this->assertCount(2, $return);
-        $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
-
-        $loadedOtherObjects = $object->getOtherDataObjects();
-        $this->assertCount(2, $loadedOtherObjects);
-        $this->assertEquals($otherObject->getId(), $loadedOtherObjects[1]->getId());
-        $this->assertEquals($otherObject->getName(), $loadedOtherObjects[1]->getName());
+        $this->assertLoadMany($object, $return);
     }
 
     public function testLoadManyWithCustomSetter(): void
+    {
+        $object = $this->setupLoadMany();
+
+        /** @var OtherDataObject[] $return */
+        $return = $this->objectMapper->loadMany([$object], OtherDataObject::class, null, 'setCustom');
+
+        $this->assertLoadMany($object, $return);
+    }
+
+    private function setupLoadMany(): ExtendedDataObject
     {
         $object = new ExtendedDataObject();
         $object->setMyColumn('many-to-one');
@@ -459,16 +521,19 @@ abstract class BaseIntegrationTest extends TestCase
         $this->objectMapper->saveAll($otherObjects);
 
         $this->objectMapper->delete($softDeleted);
+        return $object;
+    }
 
-        /** @var OtherDataObject[] $return */
-        $return = $this->objectMapper->loadMany([$object], OtherDataObject::class, null, 'setCustom');
+    private function assertLoadMany(ExtendedDataObject $object, array $return): void
+    {
         $this->assertCount(2, $return);
-        $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
 
-        $loadedOtherObjects = $object->getCustom();
+        $loadedOtherObjects = $object->getOtherDataObjects();
         $this->assertCount(2, $loadedOtherObjects);
-        $this->assertEquals($otherObject->getId(), $loadedOtherObjects[1]->getId());
-        $this->assertEquals($otherObject->getName(), $loadedOtherObjects[1]->getName());
+        foreach ($loadedOtherObjects as $otherObject) {
+            $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
+            $this->assertEquals($otherObject->getId(), $return[$otherObject->getId()]->getId());
+        }
     }
 
     public function testLoadManyWithoutObjects(): void
@@ -488,6 +553,24 @@ abstract class BaseIntegrationTest extends TestCase
 
     public function testLoadManyToMany(): void
     {
+        $object = $this->setupLoadManyToMany();
+
+        $return = $this->objectMapper->load([$object], 'manyToManyOtherDataObjects');
+
+        $this->assertManyToMany($object, $return);
+    }
+
+    public function testLoadManyToManyLegacy(): void
+    {
+        $object = $this->setupLoadManyToMany();
+
+        $return = $this->objectMapper->loadManyToMany([$object], OtherDataObject::class, 'extended_other_rel', setter: 'setManyToManyOtherDataObjects');
+
+        $this->assertManyToMany($object, $return);
+    }
+
+    private function setupLoadManyToMany(): ExtendedDataObject
+    {
         $object = new ExtendedDataObject();
         $object->setMyColumn('many-to-many');
         $this->repository->save($object);
@@ -500,18 +583,24 @@ abstract class BaseIntegrationTest extends TestCase
         $this->objectMapper->saveAll($otherObjects);
 
         $this->objectMapper->getQueryHelper()->massInsert('extended_other_rel', [
-            ['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=>$otherObject->getId()],
-            ['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=>$otherObject2->getId()]
+            ['extendedDataObjectId' => $object->getId(), 'otherDataObjectId' => $otherObject->getId()],
+            ['extendedDataObjectId' => $object->getId(), 'otherDataObjectId' => $otherObject2->getId()]
         ]);
+        return $object;
+    }
 
-        $return = $this->objectMapper->load([$object], 'manyToManyOtherDataObjects');
+    private function assertManyToMany(ExtendedDataObject $object, array $return): void
+    {
         $this->assertCount(2, $return);
-        $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
 
         $loadedOtherObjects = $object->getOtherDataObjects();
         $this->assertCount(2, $loadedOtherObjects);
-        $this->assertEquals($otherObject2->getId(), $loadedOtherObjects[1]->getId());
-        $this->assertEquals($otherObject2->getName(), $loadedOtherObjects[1]->getName());
+        foreach ($loadedOtherObjects as $otherObject) {
+            $returnedObject = $return[$otherObject->getId()] ?? null;
+            $this->assertInstanceOf(OtherDataObject::class, $returnedObject);
+            $this->assertEquals($otherObject->getId(), $returnedObject->getId());
+            $this->assertEquals($otherObject->getName(), $returnedObject->getName());
+        }
     }
 
     public function testSaveOne(): void

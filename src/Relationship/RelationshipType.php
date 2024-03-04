@@ -3,6 +3,7 @@
 namespace Corma\Relationship;
 
 
+use Corma\Exception\BadMethodCallException;
 use Corma\Exception\InvalidAttributeException;
 
 /**
@@ -13,7 +14,7 @@ use Corma\Exception\InvalidAttributeException;
 abstract class RelationshipType
 {
     protected string $className;
-    protected string $property;
+    protected ?string $property = null;
     public function __construct(string $className)
     {
         if (!class_exists($className)) {
@@ -38,5 +39,13 @@ abstract class RelationshipType
     public function getProperty(): string
     {
         return $this->property;
+    }
+
+    public function setProperty(string $property): void
+    {
+        if ($this->property !== null) {
+            throw new BadMethodCallException('Override of property is not supported');
+        }
+        $this->property = $property;
     }
 }
