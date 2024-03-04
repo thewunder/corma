@@ -504,7 +504,7 @@ abstract class BaseIntegrationTest extends TestCase
             ['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=>$otherObject2->getId()]
         ]);
 
-        $return = $this->objectMapper->loadManyToMany([$object], OtherDataObject::class, 'extended_other_rel');
+        $return = $this->objectMapper->load([$object], 'manyToManyOtherDataObjects');
         $this->assertCount(2, $return);
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
 
@@ -709,8 +709,8 @@ abstract class BaseIntegrationTest extends TestCase
         $objects = [];
         $object = new ExtendedDataObject();
         $object2 = new ExtendedDataObject();
-        $objects[] = $object->setMyColumn('Save many-to-many 1')->setOtherDataObjects([$otherObject, $otherObject2]);
-        $objects[] = $object2->setMyColumn('Save many-to-many 2')->setOtherDataObjects([$otherObject3, $otherObject4]);
+        $objects[] = $object->setMyColumn('Save many-to-many 1')->setShallowOtherDataObjects([$otherObject, $otherObject2]);
+        $objects[] = $object2->setMyColumn('Save many-to-many 2')->setShallowOtherDataObjects([$otherObject3, $otherObject4]);
 
         $this->repository->saveAll($objects);
 
@@ -722,8 +722,8 @@ abstract class BaseIntegrationTest extends TestCase
             ['extendedDataObjectId'=>$object2->getId(), 'otherDataObjectId'=> $otherObjectToDelete2->getId()],
         ]);
 
-        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
-        $relationshipSaver->saveManyToManyLinks($objects, OtherDataObject::class, 'extended_other_rel');
+        $relationshipSaver = $this->objectMapper->getRelationshipManager();
+        $relationshipSaver->save($objects, 'shallowOtherDataObjects');
 
         $objectLinks = $queryHelper->buildSelectQuery('extended_other_rel', self::$connection->quoteIdentifier('otherDataObjectId'), ['extendedDataObjectId'=>$object->getId()])
             ->executeQuery()->fetchFirstColumn();
@@ -761,8 +761,8 @@ abstract class BaseIntegrationTest extends TestCase
         $objects = [];
         $object = new ExtendedDataObject();
         $object2 = new ExtendedDataObject();
-        $objects[] = $object->setMyColumn('Save many-to-many 1')->setOtherDataObjects([$otherObject, $otherObject2]);
-        $objects[] = $object2->setMyColumn('Save many-to-many 2')->setOtherDataObjects([$otherObject3, $otherObject4]);
+        $objects[] = $object->setMyColumn('Save many-to-many 1')->setManyToManyOtherDataObjects([$otherObject, $otherObject2]);
+        $objects[] = $object2->setMyColumn('Save many-to-many 2')->setManyToManyOtherDataObjects([$otherObject3, $otherObject4]);
 
         $this->repository->saveAll($objects);
 
@@ -774,8 +774,8 @@ abstract class BaseIntegrationTest extends TestCase
             ['extendedDataObjectId'=>$object2->getId(), 'otherDataObjectId'=> $otherObjectToDelete2->getId()],
         ]);
 
-        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
-        $relationshipSaver->saveManyToMany($objects, OtherDataObject::class, 'extended_other_rel');
+        $relationshipSaver = $this->objectMapper->getRelationshipManager();
+        $relationshipSaver->save($objects, 'manyToManyOtherDataObjects');
 
         $this->assertGreaterThan(0, $otherObject->getId());
         $this->assertGreaterThan(0, $otherObject2->getId());

@@ -4,6 +4,8 @@ namespace Corma;
 use Corma\DataObject\ObjectManager;
 use Corma\DataObject\ObjectManagerFactory;
 use Corma\QueryHelper\QueryModifier\SoftDelete;
+use Corma\Relationship\ManyToMany;
+use Corma\Relationship\ManyToManyHandler;
 use Corma\Relationship\OneToManyHandler;
 use Corma\Relationship\OneToOneHandler;
 use Corma\Relationship\RelationshipManager;
@@ -360,7 +362,8 @@ class ObjectMapper
         if (!$this->relationshipManager) {
             $this->relationshipManager = new RelationshipManager([
                 new OneToOneHandler($this),
-                new OneToManyHandler($this)
+                new OneToManyHandler($this),
+                new ManyToManyHandler($this),
             ]);
         }
         return $this->relationshipManager;

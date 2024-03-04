@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Test\Fixtures;
 
+use Corma\Relationship\ManyToMany;
 use Corma\Relationship\OneToMany;
 use Corma\Relationship\OneToOne;
 
@@ -24,6 +25,12 @@ class ExtendedDataObject extends BaseDataObject
     /** @var OtherDataObject[] */
     #[OneToMany(OtherDataObject::class)]
     protected ?array $otherDataObjects = null;
+
+    #[ManyToMany(OtherDataObject::class, 'extended_other_rel')]
+    protected ?array $manyToManyOtherDataObjects = null;
+
+    #[ManyToMany(OtherDataObject::class, 'extended_other_rel', shallow: true)]
+    protected ?array $shallowOtherDataObjects = null;
 
     /** @var OtherDataObject[] */
     protected ?array $custom = null;
@@ -126,5 +133,39 @@ class ExtendedDataObject extends BaseDataObject
     public function setCustom(array $custom): void
     {
         $this->custom = $custom;
+    }
+
+    /**
+     * @return OtherDataObject[]|null
+     */
+    public function getManyToManyOtherDataObjects(): ?array
+    {
+        return $this->manyToManyOtherDataObjects;
+    }
+
+    /**
+     * @param OtherDataObject[] $otherDataObjects
+     */
+    public function setManyToManyOtherDataObjects(array $otherDataObjects): static
+    {
+        $this->manyToManyOtherDataObjects = $otherDataObjects;
+        return $this;
+    }
+
+    /**
+     * @return OtherDataObject[]|null
+     */
+    public function getShallowOtherDataObjects(): ?array
+    {
+        return $this->shallowOtherDataObjects;
+    }
+
+    /**
+     * @param OtherDataObject[] $otherDataObjects
+     */
+    public function setShallowOtherDataObjects(array $otherDataObjects): static
+    {
+        $this->shallowOtherDataObjects = $otherDataObjects;
+        return $this;
     }
 }

@@ -5,6 +5,9 @@ namespace Corma\Relationship;
 
 use Corma\Exception\InvalidAttributeException;
 
+/**
+ * A one-to-one relationship (or the one side of a one-to-many)
+ */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class OneToOne extends RelationshipType
 {
