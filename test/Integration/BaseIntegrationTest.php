@@ -433,7 +433,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->objectMapper->delete($softDeleted);
 
         /** @var OtherDataObject[] $return */
-        $return = $this->objectMapper->loadMany([$object], OtherDataObject::class);
+        $return = $this->objectMapper->load([$object], 'otherDataObjects');
         $this->assertCount(2, $return);
         $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);
 
@@ -478,7 +478,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->repository->save($object);
 
         /** @var OtherDataObject[] $return */
-        $return = $this->objectMapper->loadMany([$object], OtherDataObject::class);
+        $return = $this->objectMapper->load([$object], 'otherDataObjects');
         $this->assertCount(0, $return);
 
         $loadedOtherObjects = $object->getOtherDataObjects();
@@ -588,8 +588,8 @@ abstract class BaseIntegrationTest extends TestCase
         $otherObjectToDelete2->setExtendedDataObjectId($object2->getId());
         $this->objectMapper->saveAll([$otherObjectToDelete, $otherObjectToDelete2]);
 
-        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
-        $relationshipSaver->saveMany($objects, OtherDataObject::class);
+        $relationshipSaver = $this->objectMapper->getRelationshipManager();
+        $relationshipSaver->save($objects, 'otherDataObjects');
 
         $this->assertGreaterThan(0, $otherObject->getId());
         $this->assertGreaterThan(0, $otherObject2->getId());
@@ -629,8 +629,8 @@ abstract class BaseIntegrationTest extends TestCase
 
         $this->repository->saveAll($objects);
 
-        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
-        $relationshipSaver->saveMany($objects, OtherDataObject::class);
+        $relationshipSaver = $this->objectMapper->getRelationshipManager();
+        $relationshipSaver->save($objects, 'otherDataObjects');
 
         $this->assertEquals($object->getId(), $otherObjectToMove->getExtendedDataObjectId());
         $others1 = $object->getOtherDataObjects();
@@ -640,7 +640,7 @@ abstract class BaseIntegrationTest extends TestCase
         $others2[] = $otherObjectToMove;
         $object2->setOtherDataObjects($others2);
 
-        $relationshipSaver->saveMany($objects, OtherDataObject::class);
+        $relationshipSaver->save($objects, 'otherDataObjects');
 
         $otherObjectToMove = $this->objectMapper->find(OtherDataObject::class, $otherObjectToMove->getId(), false);
         $this->assertEquals($object2->getId(), $otherObjectToMove->getExtendedDataObjectId());
@@ -651,7 +651,7 @@ abstract class BaseIntegrationTest extends TestCase
         unset($others2[2]);
         $object2->setOtherDataObjects($others2);
 
-        $relationshipSaver->saveMany($objects, OtherDataObject::class);
+        $relationshipSaver->save($objects, 'otherDataObjects');
 
         $otherObjectToMove = $this->objectMapper->find(OtherDataObject::class, $otherObjectToMove->getId(), false);
         $this->assertEquals($object->getId(), $otherObjectToMove->getExtendedDataObjectId());
@@ -671,8 +671,8 @@ abstract class BaseIntegrationTest extends TestCase
 
         $this->repository->saveAll($objects);
 
-        $relationshipSaver = $this->objectMapper->getRelationshipSaver();
-        $relationshipSaver->saveMany($objects, OtherDataObject::class);
+        $relationshipSaver = $this->objectMapper->getRelationshipManager();
+        $relationshipSaver->save($objects, 'otherDataObjects');
 
         $this->assertGreaterThan(0, $otherObject->getId());
         $this->assertGreaterThan(0, $otherObject2->getId());
@@ -684,7 +684,7 @@ abstract class BaseIntegrationTest extends TestCase
         $otherObjects = $object->getOtherDataObjects();
         array_splice($otherObjects, 1, 0, [$newOtherObject]);
         $object->setOtherDataObjects($otherObjects);
-        $relationshipSaver->saveMany([$object], OtherDataObject::class);
+        $relationshipSaver->save([$object], 'otherDataObjects');
         $this->assertGreaterThan(0, $newOtherObject->getId());
     }
 

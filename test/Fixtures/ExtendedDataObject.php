@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Test\Fixtures;
 
+use Corma\Relationship\OneToMany;
 use Corma\Relationship\OneToOne;
 
 /**
@@ -21,7 +22,8 @@ class ExtendedDataObject extends BaseDataObject
     protected ?OtherDataObject $otherDataObject = null;
 
     /** @var OtherDataObject[] */
-    protected ?array $otherDataObjects= null;
+    #[OneToMany(OtherDataObject::class)]
+    protected ?array $otherDataObjects = null;
 
     /** @var OtherDataObject[] */
     protected ?array $custom = null;

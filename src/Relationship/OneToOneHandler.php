@@ -3,16 +3,9 @@
 namespace Corma\Relationship;
 
 use Corma\Exception\MethodNotImplementedException;
-use Corma\ObjectMapper;
-use Corma\Util\Inflector;
 
-final class OneToOneHandler implements RelationshipHandler
+final class OneToOneHandler extends BaseRelationshipHandler
 {
-    private readonly Inflector $inflector;
-    public function __construct(private readonly ObjectMapper $objectMapper)
-    {
-        $this->inflector = $this->objectMapper->getInflector();
-    }
     public static function getRelationshipClass(): string
     {
         return OneToOne::class;
