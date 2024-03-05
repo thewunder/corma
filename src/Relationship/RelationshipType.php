@@ -15,6 +15,10 @@ abstract class RelationshipType
 {
     protected string $className;
     protected ?string $property = null;
+
+    /**
+     * @param string $className The class of the object this property relates to
+     */
     public function __construct(string $className)
     {
         if (!class_exists($className)) {

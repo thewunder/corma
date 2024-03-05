@@ -8,17 +8,17 @@ namespace Corma\Relationship;
 interface RelationshipHandler
 {
     /**
-     * @return string Must be a class that implements RelationshipType
+     * @return string Must be a class that extends RelationshipType
      */
     public static function getRelationshipClass(): string;
 
     /**
-     * @param object[] $objects
+     * @param object[] $objects Objects to load a relationship on
      */
     public function load(array $objects, RelationshipType $relationship): array;
 
     /**
-     * @param object[] $objects
+     * @param object[] $objects Objects to load a relationship on
      */
     public function save(array $objects, RelationshipType $relationship): void;
 }

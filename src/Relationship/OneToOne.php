@@ -6,14 +6,18 @@ namespace Corma\Relationship;
 use Corma\Exception\InvalidAttributeException;
 
 /**
- * A one-to-one relationship (or the one side of a one-to-many)
+ * A one-to-one relationship (or the one side of a one-to-many), where an id on this table references a foreign table.
+ *
+ * Must be set on a property with a class type hint, or the class must be provided.
  */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class OneToOne extends RelationshipType
 {
     protected const AUTO = 'auto';
 
-    public function __construct(string $className = self::AUTO,
+    public function __construct(
+        string $className = self::AUTO,
+        /** @var string|null $foreignIdColumn Property on this object that relates to the foreign tables id */
         private readonly ?string $foreignIdColumn = null
     )
     {
@@ -32,7 +36,7 @@ final class OneToOne extends RelationshipType
             }
             $className = $property->getType()->getName();
             if (!class_exists($className)) {
-                throw new InvalidAttributeException('Only valid classes can be used to automatically know the relationship type');
+                throw new InvalidAttributeException('Only valid classes can be used to automatically infer the relationship type');
             }
             $this->className = $className;
         }

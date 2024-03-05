@@ -2,6 +2,14 @@
 
 namespace Corma\Relationship;
 
+use Corma\Exception\InvalidAttributeException;
+
+/**
+ * A relationship where two tables are linked together by a third link table
+ * that contains the id of this table and a foreign table id.
+ *
+ * Must be set on an array property.
+ */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
 final class ManyToMany extends RelationshipType
 {
@@ -38,5 +46,13 @@ final class ManyToMany extends RelationshipType
     public function isShallow(): bool
     {
         return $this->shallow;
+    }
+
+    public function setReflectionData(\ReflectionProperty $property): void
+    {
+        if ($property->getType()->getName() !== 'array') {
+            throw new InvalidAttributeException('Only array properties can be used for a one-to-many relationship');
+        }
+        parent::setReflectionData($property);
     }
 }
