@@ -3,15 +3,13 @@
 namespace Corma\Relationship;
 
 use Corma\Exception\InvalidAttributeException;
-use http\Exception\InvalidArgumentException;
 
 /**
  * Reads the RelationshipType type attribute and passes it to the proper handler.
  */
 final class RelationshipManager
 {
-
-    /** @var RelationshipHandler[] */
+    /** @var RelationshipHandler[] $handlers Keyed by RelationshipType */
     private array $handlers = [];
 
     /**
@@ -20,8 +18,16 @@ final class RelationshipManager
     public function __construct(array $handlers)
     {
         foreach ($handlers as $handler) {
-            $this->handlers[$handler::getRelationshipClass()] = $handler;
+            $this->addHandler($handler);
         }
+    }
+
+    /**
+     * Adds or replaces a relationship handler
+     */
+    public function addHandler(RelationshipHandler $handler): void
+    {
+        $this->handlers[$handler::getRelationshipClass()] = $handler;
     }
 
     public function save(array $objects, string $property): void
