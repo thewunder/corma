@@ -14,10 +14,12 @@ use Corma\Util\Inflector;
 class RelationshipSaver
 {
     private readonly Inflector $inflector;
+    private readonly RelationshipManager $relationshipManager;
 
     public function __construct(private readonly ObjectMapper $objectMapper)
     {
         $this->inflector = $objectMapper->getInflector();
+        $this->relationshipManager = $this->objectMapper->getRelationshipManager();
     }
 
     /**
@@ -32,67 +34,13 @@ class RelationshipSaver
      */
     public function saveOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $getter = null): void
     {
-        if (empty($objects)) {
-            return;
-        }
-
-        $om = $this->objectMapper->getObjectManager($objects);
         $foreignIdColumn ??= $this->inflector->idColumnFromClass($className);
-        $getter ??= 'get' . $this->inflector->methodNameFromColumn($foreignIdColumn);
+        $property = $this->inferProperty($getter, $foreignIdColumn);
 
-        /** @var object[] $foreignObjectsByObjectId */
-        $foreignObjectsByObjectId = [];
-        foreach ($objects as $object) {
-            if (!method_exists($object, $getter)) {
-                $shortClass = $this->inflector->getShortClass($object);
-                throw new MethodNotImplementedException("$getter must be defined on {$shortClass} to save relationship");
-            }
-            
-            $objectIdSetter = 'set' . $this->inflector->idColumnFromClass($object::class);
-            $foreignObject = $object->{$getter}();
-            if ($foreignObject) {
-                $id = $om->getId($object);
-                $foreignObjectsByObjectId[$id] = $foreignObject;
-                if (method_exists($foreignObject, $objectIdSetter)) { // for true one-to-one relationships
-                    $foreignObject->{$objectIdSetter}($id);
-                }
-            }
-        }
+        $attribute = new OneToOne($className, $foreignIdColumn);
+        $attribute->setProperty($property);
 
-        if (empty($foreignObjectsByObjectId)) {
-            return;
-        }
-
-        $this->objectMapper->saveAll($foreignObjectsByObjectId);
-        
-        $idSetter = 'set' . ucfirst($foreignIdColumn);
-        $idGetter = 'get' . ucfirst($foreignIdColumn);
-        $objectsToUpdate = [];
-
-        $fom = $this->objectMapper->getObjectManager(reset($foreignObjectsByObjectId));
-
-        foreach ($objects as $object) {
-            if (!method_exists($object, $idSetter)) {
-                $shortClass = $this->inflector->getShortClass($object);
-                throw new MethodNotImplementedException("$idSetter must be defined on {$shortClass} to save relationship");
-            }
-            if (!method_exists($object, $idGetter)) {
-                $shortClass = $this->inflector->getShortClass($object);
-                throw new MethodNotImplementedException("$idGetter must be defined on {$shortClass} to save relationship");
-            }
-
-            $id = $om->getId($object);
-            
-            if (isset($foreignObjectsByObjectId[$id])) {
-                $foreignObject = $foreignObjectsByObjectId[$id];
-                if ($object->{$idGetter}() != $fom->getId($foreignObject)) {
-                    $object->{$idSetter}($fom->getId($foreignObject));
-                    $objectsToUpdate[] = $object;
-                }
-            }
-        }
-
-        $this->objectMapper->saveAll($objectsToUpdate, null);
+        $this->relationshipManager->getHandler($attribute)->save($objects, $attribute);
     }
 
     /**
@@ -111,84 +59,13 @@ class RelationshipSaver
      */
     public function saveMany(array $objects, string $className, ?string $foreignObjectGetter = null, ?string $foreignColumn = null, bool $deleteMissing = true): void
     {
-        if (empty($objects)) {
-            return;
-        }
+        $foreignIdColumn ??= $this->inflector->idColumnFromClass($className);
+        $property = $this->inferProperty($foreignObjectGetter, $foreignIdColumn);
 
-        $om = $this->objectMapper->getObjectManager($objects);
-        $fom = $this->objectMapper->getObjectManager($className);
+        $attribute = new OneToMany($className, $foreignColumn, $deleteMissing);
+        $attribute->setProperty($property);
 
-        if (!$foreignObjectGetter) {
-            $foreignObjectGetter = 'get' . $this->inflector->methodNameFromClass($className, true);
-        }
-
-        if (!$foreignColumn) {
-            $foreignColumn = $this->inflector->idColumnFromClass(reset($objects)::class);
-        }
-        $objectIdSetter = 'set' . ucfirst($foreignColumn);
-
-        if ($deleteMissing) {
-            $existingForeignIdsByObjectId = $this->getExistingForeignIds($objects, $className, $foreignColumn);
-        }
-
-        $foreignObjectsToSave = [];
-        $foreignIdsToDelete = [];
-        foreach ($objects as $i => $object) {
-
-            if (!method_exists($object, $foreignObjectGetter)) {
-                $shortClass = $this->inflector->getShortClass($object);
-                throw new MethodNotImplementedException("$foreignObjectGetter must be defined on {$shortClass} to save relationship");
-            }
-
-            $existingForeignIds = [];
-            $id = $om->getId($object);
-            if ($deleteMissing) {
-                if (isset($existingForeignIdsByObjectId[$id])) {
-                    $existingForeignIds = $existingForeignIdsByObjectId[$id];
-                }
-            }
-
-            /** @var object[] $foreignObjects */
-            $foreignObjects = $object->{$foreignObjectGetter}();
-            if (!empty($foreignObjects)) {
-                if (!is_array($foreignObjects)) {
-                    $shortClass = $this->inflector->getShortClass($object);
-                    throw new MethodNotImplementedException("$foreignObjectGetter on {$shortClass} must return an array to save relationship");
-                }
-
-                foreach ($foreignObjects as $j => $foreignObject) {
-                    if (!method_exists($foreignObject, $objectIdSetter)) {
-                        $foreignShortClass = $this->inflector->getShortClass($foreignObject);
-                        throw new MethodNotImplementedException("$objectIdSetter must be defined on {$foreignShortClass} to save relationship");
-                    }
-
-                    $foreignObject->{$objectIdSetter}($id);
-                    $foreignId = $fom->getId($foreignObject);
-
-                    if ($foreignId) {
-                        $foreignObjectsToSave[$foreignId] = $foreignObject;
-                        unset($existingForeignIds[$foreignId], $foreignIdsToDelete[$foreignId]);
-                    } else {
-                        $foreignObjectsToSave["new_$i-$j"] = $foreignObject;
-                    }
-                }
-            }
-
-            $foreignIdsToDelete += $existingForeignIds;
-        }
-
-        $foreignIdsToDelete = array_diff_key($foreignIdsToDelete, $foreignObjectsToSave);
-
-        $this->objectMapper->unitOfWork()->executeTransaction(
-            function () use ($foreignObjectsToSave, $deleteMissing, $className, $foreignIdsToDelete) {
-                $this->objectMapper->saveAll($foreignObjectsToSave);
-
-                if ($deleteMissing && !empty($foreignIdsToDelete)) {
-                    $foreignObjectsToDelete = $this->objectMapper->findByIds($className, array_keys($foreignIdsToDelete));
-                    $this->objectMapper->deleteAll($foreignObjectsToDelete);
-                }
-            }
-        );
+        $this->relationshipManager->getHandler($attribute)->save($objects, $attribute);
     }
 
     /**
@@ -214,53 +91,14 @@ class RelationshipSaver
         ?string $foreignIdColumn = null
     ): void
     {
-    
-        if (empty($objects)) {
-            return;
-        }
+        $foreignIdColumn ??= $this->inflector->idColumnFromClass($className);
 
-        if (!$foreignObjectGetter) {
-            $foreignObjectGetter = 'get' . $this->inflector->methodNameFromClass($className, true);
-        }
+        $property = $this->inferProperty($foreignObjectGetter, $foreignIdColumn);
 
-        if (!$idColumn) {
-            $idColumn = $this->inflector->idColumnFromClass(reset($objects)::class);
-        }
+        $attribute = new ManyToMany($className, $linkTable, $idColumn, $foreignIdColumn, true);
+        $attribute->setProperty($property);
 
-        if (!$foreignIdColumn) {
-            $foreignIdColumn = $this->inflector->idColumnFromClass($className);
-        }
-
-        $om = $this->objectMapper->getObjectManager($objects);
-        $fom = $this->objectMapper->getObjectManager($className);
-
-        $linkData = [];
-        foreach ($objects as $object) {
-            if (!method_exists($object, $foreignObjectGetter)) {
-                $shortClass = $this->inflector->getShortClass($object);
-                throw new MethodNotImplementedException("$foreignObjectGetter must be defined on {$shortClass} to save relationship");
-            }
-
-            /** @var object[] $foreignObjects */
-            $foreignObjects = $object->{$foreignObjectGetter}();
-            if (!empty($foreignObjects)) {
-                if (!is_array($foreignObjects)) {
-                    $shortClass = $this->inflector->getShortClass($object);
-                    throw new MethodNotImplementedException("$foreignObjectGetter on {$shortClass} must return an array to save relationship");
-                }
-
-                $id = $om->getId($object);
-                foreach ($foreignObjects as $foreignObject) {
-                    $linkData[] = [$idColumn => $id, $foreignIdColumn =>$fom->getId($foreignObject)];
-                }
-            }
-        }
-
-        $this->objectMapper->unitOfWork()->executeTransaction(function () use ($linkTable, $idColumn, $objects, $linkData, $om) {
-            $queryHelper = $this->objectMapper->getQueryHelper();
-            $queryHelper->buildDeleteQuery($linkTable, [$idColumn=>$om->getIds($objects)])->executeStatement();
-            $queryHelper->massInsert($linkTable, $linkData);
-        });
+        $this->relationshipManager->getHandler($attribute)->save($objects, $attribute);
     }
 
     /**
@@ -286,73 +124,23 @@ class RelationshipSaver
         ?string $foreignIdColumn = null
     ): void
     {
-    
-        if (empty($objects)) {
-            return;
-        }
+        $foreignIdColumn ??= $this->inflector->idColumnFromClass($className);
 
-        if (!$foreignObjectGetter) {
-            $foreignObjectGetter = 'get' . $this->inflector->methodNameFromClass($className, true);
-        }
+        $property = $this->inferProperty($foreignObjectGetter, $foreignIdColumn);
 
-        $foreignObjectsToSave = [];
-        foreach ($objects as $object) {
-            if (!method_exists($object, $foreignObjectGetter)) {
-                $shortClass = $this->inflector->getShortClass($object);
-                throw new MethodNotImplementedException("$foreignObjectGetter must be defined on {$shortClass} to save relationship");
-            }
+        $attribute = new ManyToMany($className, $linkTable, $idColumn, $foreignIdColumn);
+        $attribute->setProperty($property);
 
-            /** @var object[] $foreignObjects */
-            $foreignObjects = $object->{$foreignObjectGetter}();
-            if (!empty($foreignObjects)) {
-                if (!is_array($foreignObjects)) {
-                    $shortClass = $this->inflector->getShortClass($object);
-                    throw new MethodNotImplementedException("$foreignObjectGetter on {$shortClass} must return an array to save relationship");
-                }
-
-                foreach ($foreignObjects as $foreignObject) {
-                    $foreignObjectsToSave[] = $foreignObject;
-                }
-            }
-        }
-
-        $this->objectMapper->unitOfWork()->executeTransaction(
-            function () use ($foreignObjectsToSave, $objects, $className, $linkTable, $foreignObjectGetter, $idColumn, $foreignIdColumn) {
-                $this->objectMapper->saveAll($foreignObjectsToSave);
-                $this->saveManyToManyLinks($objects, $className, $linkTable, $foreignObjectGetter, $idColumn, $foreignIdColumn);
-            }
-        );
+        $this->relationshipManager->getHandler($attribute)->save($objects, $attribute);
     }
 
-    /**
-     * Retrieve foreign ids for a one-to-many relationship
-     *
-     * @param object[] $objects
-     * @return array objectId => map of foreign ids
-     */
-    protected function getExistingForeignIds(array $objects, string $className, string $foreignColumn): array
+    private function inferProperty(?string $getter, string $foreignIdColumn): string
     {
-        $om = $this->objectMapper->getObjectManager($objects);
-        $objectIds = $om->getIds($objects);
-        $queryHelper = $this->objectMapper->getQueryHelper();
-
-        $fom = $this->objectMapper->getObjectManager($className);
-        $foreignTable = $fom->getTable();
-        $idColumn = $fom->getIdColumn();
-
-        $connection = $queryHelper->getConnection();
-        $qb = $queryHelper->buildSelectQuery($foreignTable, [$connection->quoteIdentifier($idColumn), $connection->quoteIdentifier($foreignColumn)], [$foreignColumn => $objectIds]);
-        $existingForeignObjectIds = $qb->executeQuery()->fetchAllNumeric();
-
-        $existingForeignObjectsIdsByObjectId = [];
-        foreach ($existingForeignObjectIds as $row) {
-            [$foreignId, $objectId] = $row;
-            if (!isset($existingForeignObjectsIdsByObjectId[$objectId])) {
-                $existingForeignObjectsIdsByObjectId[$objectId] = [$foreignId=>true];
-            } else {
-                $existingForeignObjectsIdsByObjectId[$objectId][$foreignId] = true;
-            }
+        if ($getter) {
+            $property = lcfirst(str_replace('get', '', $getter));
+        } else {
+            $property = str_replace(['Id', '_id'], '', $foreignIdColumn);
         }
-        return $existingForeignObjectsIdsByObjectId;
+        return $property;
     }
 }
