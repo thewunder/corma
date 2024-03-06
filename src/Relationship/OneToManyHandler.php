@@ -12,7 +12,7 @@ final class OneToManyHandler extends BaseRelationshipHandler
         return OneToMany::class;
     }
 
-    public function load(array $objects, RelationshipType|OneToMany $relationship): array
+    public function load(array $objects, Relationship $relationship): array
     {
         if (empty($objects)) {
             return [];
@@ -64,7 +64,7 @@ final class OneToManyHandler extends BaseRelationshipHandler
         return $flattenedForeignObjects;
     }
 
-    public function save(array $objects, RelationshipType|OneToMany $relationship): void
+    public function save(array $objects, Relationship $relationship): void
     {
         if (empty($objects)) {
             return;

@@ -92,7 +92,9 @@ class PostgresIntegrationTest extends BaseIntegrationTest
           "isDeleted" BOOLEAN NOT NULL DEFAULT FALSE,
           "myColumn" VARCHAR(255) NOT NULL,
           "myNullableColumn" INT NULL DEFAULT NULL,
-          "otherDataObjectId" INT NULL
+          "otherDataObjectId" INT NULL,
+          "polymorphicClass" VARCHAR(255) NULL,
+          "polymorphicId" INT NULL DEFAULT NULL
         )');
 
         self::$connection->executeQuery('CREATE TABLE cormatest.other_data_objects (

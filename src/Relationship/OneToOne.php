@@ -11,7 +11,7 @@ use Corma\Exception\InvalidAttributeException;
  * Must be set on a property with a class type hint, or the class must be provided.
  */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class OneToOne extends RelationshipType
+final class OneToOne extends BaseRelationship
 {
     protected const AUTO = 'auto';
 

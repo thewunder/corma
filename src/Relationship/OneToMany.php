@@ -10,7 +10,7 @@ use Corma\Exception\InvalidAttributeException;
  * Must be set on an array property.
  */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class OneToMany extends RelationshipType
+final class OneToMany extends BaseRelationship
 {
     public function __construct(
         string $className,

@@ -11,7 +11,7 @@ use Corma\Exception\InvalidAttributeException;
  * Must be set on an array property.
  */
 #[\Attribute(\Attribute::TARGET_PROPERTY)]
-final class ManyToMany extends RelationshipType
+final class ManyToMany extends BaseRelationship
 {
     public function __construct(
         string $className,

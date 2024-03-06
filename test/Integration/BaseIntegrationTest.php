@@ -603,6 +603,28 @@ abstract class BaseIntegrationTest extends TestCase
         }
     }
 
+    public function testLoadPolymorphic()
+    {
+        $polymorphicExtended = new ExtendedDataObject();
+        $this->objectMapper->save($polymorphicExtended);
+        $polymorphicOther = new OtherDataObject();
+        $this->objectMapper->save($polymorphicOther);
+
+        $withExtended = new ExtendedDataObject();
+        $withExtended->setPolymorphicId($polymorphicExtended->getId());
+        $withExtended->setPolymorphicClass('ExtendedDataObject');
+        $withOther = new ExtendedDataObject();
+        $withOther->setPolymorphicId($polymorphicOther->getId());
+        $withOther->setPolymorphicClass('OtherDataObject');
+        $withNull = new ExtendedDataObject();
+
+        $objects = [$withExtended, $withOther, $withNull];
+        $this->objectMapper->saveAll($objects);
+        $this->objectMapper->load($objects, 'polymorphic');
+
+        $this->assertPolymorphic($objects);
+    }
+
     public function testSaveOne(): void
     {
         $objects = $this->setupSaveOne();
@@ -978,6 +1000,21 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertManyToManyLinks($objects, $otherObjectsToDelete, false);
     }
 
+    public function testSavePolymorphic()
+    {
+        $withExtended = new ExtendedDataObject();
+        $withExtended->setPolymorphic(new ExtendedDataObject());
+        $withOther = new ExtendedDataObject();
+        $withOther->setPolymorphic(new OtherDataObject());
+        $withNull = new ExtendedDataObject();
+
+        $objects = [$withExtended, $withOther, $withNull];
+        $this->objectMapper->saveAll($objects);
+        $this->objectMapper->getRelationshipManager()->save($objects, 'polymorphic');
+
+        $this->assertPolymorphic($objects);
+    }
+
     public function testLoadAndSaveAllRelationships()
     {
         $object = new ExtendedDataObject();
@@ -1054,5 +1091,23 @@ abstract class BaseIntegrationTest extends TestCase
         $results = $pager->getResults($keys[$i-2]);
         $this->assertNotEmpty($results);
         $this->assertLessThanOrEqual(5, count($objects));
+    }
+
+    /**
+     * @param ExtendedDataObject[] $objects
+     */
+    private function assertPolymorphic(array $objects): void
+    {
+        foreach ($objects as $i => $object) {
+            $polymorphic = $object->getPolymorphic();
+            if ($i < 2) {
+                $this->assertNotNull($polymorphic->getId());
+                $this->assertEquals($polymorphic->getId(), $object->getPolymorphicId());
+                $this->assertStringContainsString($object->getPolymorphicClass(), $polymorphic::class);
+            } else {
+                $this->assertNull($object->getPolymorphicId());
+                $this->assertNull($object->getPolymorphicClass());
+            }
+        }
     }
 }

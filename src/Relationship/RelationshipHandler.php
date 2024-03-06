@@ -15,10 +15,10 @@ interface RelationshipHandler
     /**
      * @param object[] $objects Objects to load a relationship on
      */
-    public function load(array $objects, RelationshipType $relationship): array;
+    public function load(array $objects, Relationship $relationship): array;
 
     /**
      * @param object[] $objects Objects to load a relationship on
      */
-    public function save(array $objects, RelationshipType $relationship): void;
+    public function save(array $objects, Relationship $relationship): void;
 }

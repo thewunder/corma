@@ -80,10 +80,10 @@ final class RelationshipManager
         }
     }
 
-    public function getHandler(RelationshipType $relationshipType): RelationshipHandler
+    public function getHandler(Relationship $relationship): RelationshipHandler
     {
 
-        $relationshipClass = $relationshipType::class;
+        $relationshipClass = $relationship::class;
         $handler = $this->handlers[$relationshipClass] ?? null;
         if (!$handler) {
             throw new InvalidAttributeException('Missing handler for '.$relationshipClass);
@@ -92,24 +92,24 @@ final class RelationshipManager
 
     }
 
-    public function readAttribute(object|string $objectOrClass, string $property): RelationshipType
+    public function readAttribute(object|string $objectOrClass, string $property): Relationship
     {
         $property = new \ReflectionProperty($objectOrClass, $property);
-        $attributes = $property->getAttributes(RelationshipType::class, \ReflectionAttribute::IS_INSTANCEOF);
+        $attributes = $property->getAttributes(Relationship::class, \ReflectionAttribute::IS_INSTANCEOF);
         $relationship = $this->getRelationship($property, $attributes);
         return $relationship;
     }
 
     /**
      * @param object|string $objectOrClass
-     * @return RelationshipType[]
+     * @return Relationship[]
      */
     public function readAllRelationships(object|string $objectOrClass): array
     {
         $class = new \ReflectionClass($objectOrClass);
         $relationships = [];
         foreach ($class->getProperties() as $property) {
-            $attributes = $property->getAttributes(RelationshipType::class, \ReflectionAttribute::IS_INSTANCEOF);
+            $attributes = $property->getAttributes(Relationship::class, \ReflectionAttribute::IS_INSTANCEOF);
             if (!empty($attributes)) {
                 $relationships[] = $this->getRelationship($property, $attributes);
             }
@@ -120,9 +120,9 @@ final class RelationshipManager
     /**
      * @param \ReflectionProperty $property
      * @param \ReflectionAttribute[] $attributes
-     * @return RelationshipType
+     * @return Relationship
      */
-    private function getRelationship(\ReflectionProperty $property, array $attributes): RelationshipType
+    private function getRelationship(\ReflectionProperty $property, array $attributes): Relationship
     {
         $attributeCount = count($attributes);
 
@@ -133,7 +133,7 @@ final class RelationshipManager
             throw new InvalidAttributeException('Only one relation type attribute can be applied to a property');
         }
 
-        /** @var RelationshipType $relationship */
+        /** @var Relationship $relationship */
         $relationship = $attributes[0]->newInstance();
         $relationship->setReflectionData($property);
         return $relationship;

@@ -4,6 +4,7 @@ namespace Corma\Test\Fixtures;
 use Corma\Relationship\ManyToMany;
 use Corma\Relationship\OneToMany;
 use Corma\Relationship\OneToOne;
+use Corma\Relationship\Polymorphic;
 
 /**
  * A Fixture
@@ -29,6 +30,12 @@ class ExtendedDataObject extends BaseDataObject
 
     #[ManyToMany(OtherDataObject::class, 'extended_other_rel', shallow: true)]
     protected ?array $shallowOtherDataObjects = null;
+
+    protected ?int $polymorphicId = null;
+    protected ?string $polymorphicClass = null;
+
+    #[Polymorphic]
+    protected ?object $polymorphic = null;
 
     /** @var OtherDataObject[] */
     protected ?array $custom = null;
@@ -165,5 +172,35 @@ class ExtendedDataObject extends BaseDataObject
     {
         $this->shallowOtherDataObjects = $otherDataObjects;
         return $this;
+    }
+
+    public function getPolymorphicId(): ?int
+    {
+        return $this->polymorphicId;
+    }
+
+    public function setPolymorphicId(?int $polymorphicId): void
+    {
+        $this->polymorphicId = $polymorphicId;
+    }
+
+    public function getPolymorphicClass(): ?string
+    {
+        return $this->polymorphicClass;
+    }
+
+    public function setPolymorphicClass(?string $polymorphicClass): void
+    {
+        $this->polymorphicClass = $polymorphicClass;
+    }
+
+    public function getPolymorphic(): ?object
+    {
+        return $this->polymorphic;
+    }
+
+    public function setPolymorphic(?object $polymorphic): void
+    {
+        $this->polymorphic = $polymorphic;
     }
 }

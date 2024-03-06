@@ -4,10 +4,10 @@ namespace Corma;
 use Corma\DataObject\ObjectManager;
 use Corma\DataObject\ObjectManagerFactory;
 use Corma\QueryHelper\QueryModifier\SoftDelete;
-use Corma\Relationship\ManyToMany;
 use Corma\Relationship\ManyToManyHandler;
 use Corma\Relationship\OneToManyHandler;
 use Corma\Relationship\OneToOneHandler;
+use Corma\Relationship\PolymorphicHandler;
 use Corma\Relationship\RelationshipManager;
 use Corma\Relationship\RelationshipSaver;
 use Corma\Repository\ObjectRepositoryFactory;
@@ -363,6 +363,11 @@ class ObjectMapper
         return $this->relationshipSaver = new RelationshipSaver($this);
     }
 
+    /**
+     * @param object[] $objects
+     * @param string $property
+     * @return object[]
+     */
     public function load(array $objects, string $property): array
     {
         $relationshipManager = $this->getRelationshipManager();
@@ -376,6 +381,7 @@ class ObjectMapper
                 new OneToOneHandler($this),
                 new OneToManyHandler($this),
                 new ManyToManyHandler($this),
+                new PolymorphicHandler($this)
             ]);
         }
         return $this->relationshipManager;

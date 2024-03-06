@@ -6,12 +6,7 @@ namespace Corma\Relationship;
 use Corma\Exception\BadMethodCallException;
 use Corma\Exception\InvalidAttributeException;
 
-/**
- * Represents a type of relationship that can be placed on a property
- *
- * Inheritors must have the #[Attribute(Attribute::TARGET_PROPERTY)] attribute
- */
-abstract class RelationshipType
+abstract class BaseRelationship implements Relationship
 {
     protected string $className;
     protected ?string $property = null;
@@ -27,9 +22,6 @@ abstract class RelationshipType
         $this->className = $className;
     }
 
-    /**
-     * Allows the relationship to set data from the property / class it was set on.
-     */
     public function setReflectionData(\ReflectionProperty $property): void
     {
         $this->property = $property->getName();
