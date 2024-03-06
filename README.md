@@ -43,8 +43,13 @@ For PHP versions < 8.0 use Corma version ~3.0
 Basic Usage
 -----------
 Create a DataObject
+
 ```php
 namespace YourNamespace\Dataobjects;
+
+use Corma\Relationship\ManyToMany;
+use Corma\Relationship\OneToMany;
+use Corma\Relationship\OneToOne;
 
 class YourDataObject {
     protected $id;
@@ -52,6 +57,16 @@ class YourDataObject {
     //If the property name == column name on the table your_data_objects it will be saved
     protected $myColumn;
 
+    protected ?int $otherObjectId = null;
+    
+    #[OneToOne]
+    protected ?OtherObject $otherObject = null;
+    
+    #[OneToMany(AnotherObject::class)]
+    protected ?array $anotherObjects = null;
+    
+    #[ManyToMany(DifferentObject::class, 'your_data_object_different_link_table')]
+    protected ?array $differentObjects = null;
     //Getters and setters..
 }
 ```
@@ -79,7 +94,7 @@ $orm->save($object);
 //Call more setters on $object...
 $objects = [$object];
 $newObject = $orm->create(YourDataObject::class);
-//call setters on $newObject..
+//call setters on $newObject...
 $objects[] = $newObject;
 
 $orm->saveAll($objects);
@@ -91,9 +106,9 @@ $existingObject = $orm->find(YourDataObject::class, 5);
 $existingObjects = $orm->findBy(YourDataObject::class, ['myColumn >='=>42, 'otherColumn'=>1], ['sortColumn'=>'ASC']);
 
 //load relationships
-$orm->loadOne($existingObjects, OtherObject::class, 'otherObjectId');
-$orm->loadMany($existingObjects, AnotherObject::class, 'yourObjectId');
-$orm->loadManyToMany($existingObjects, DifferentObject::class, 'link_table');
+$orm->load($existingObjects, 'otherObject');
+$orm->load($existingObjects, 'anotherObjects');
+$orm->load($existingObjects, 'differentObjects');
 
 //delete those
 $orm->deleteAll($existingObjects);
