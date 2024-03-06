@@ -48,7 +48,7 @@ final class ManyToManyHandler extends BaseRelationshipHandler
         }
         unset($foreignObjects);
 
-        $setter ??= 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn, true);
+        $setter ??= 'set' . $this->inflector->methodNameFromColumn($relationship->getProperty(), true);
         foreach ($objects as $object) {
             if (method_exists($object, $setter)) {
                 $foreignObjects = [];

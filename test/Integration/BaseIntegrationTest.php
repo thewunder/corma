@@ -593,7 +593,7 @@ abstract class BaseIntegrationTest extends TestCase
     {
         $this->assertCount(2, $return);
 
-        $loadedOtherObjects = $object->getOtherDataObjects();
+        $loadedOtherObjects = $object->getManyToManyOtherDataObjects();
         $this->assertCount(2, $loadedOtherObjects);
         foreach ($loadedOtherObjects as $otherObject) {
             $returnedObject = $return[$otherObject->getId()] ?? null;
@@ -976,6 +976,33 @@ abstract class BaseIntegrationTest extends TestCase
         $relationshipSaver->saveManyToMany($objects, OtherDataObject::class, 'extended_other_rel', 'getManyToManyOtherDataObjects');
 
         $this->assertManyToManyLinks($objects, $otherObjectsToDelete, false);
+    }
+
+    public function testLoadAndSaveAllRelationships()
+    {
+        $object = new ExtendedDataObject();
+        $this->objectMapper->save($object);
+        $object->setOtherDataObject(new OtherDataObject());
+        $object->setOtherDataObjects([new OtherDataObject(), new OtherDataObject()]);
+        $manyToManyObjects = [new OtherDataObject(), new OtherDataObject(), new OtherDataObject()];
+        $object->setManyToManyOtherDataObjects($manyToManyObjects);
+        $object->setShallowOtherDataObjects($manyToManyObjects);
+        $this->objectMapper->getRelationshipManager()->saveAll([$object]);
+        $this->assertGreaterThan(0, $object->getOtherDataObject()->getId());
+        foreach ($object->getOtherDataObjects() as $otherDataObject) {
+            $this->assertGreaterThan(0, $otherDataObject->getId());
+            $this->assertEquals($object->getId(), $otherDataObject->getExtendedDataObjectId());
+        }
+        foreach ($object->getManyToManyOtherDataObjects() as $otherDataObject) {
+            $this->assertGreaterThan(0, $otherDataObject->getId());
+        }
+
+        /** @var ExtendedDataObject $fromDb */
+        $fromDb = $this->objectMapper->find(ExtendedDataObject::class, $object->getId(), false);
+        $this->objectMapper->getRelationshipManager()->loadAll([$fromDb]);
+        $this->assertNotNull($fromDb->getOtherDataObject());
+        $this->assertCount(2, $fromDb->getOtherDataObjects());
+        $this->assertCount(3, $fromDb->getManyToManyOtherDataObjects());
     }
 
     public function testOffsetPagedQuery(): void

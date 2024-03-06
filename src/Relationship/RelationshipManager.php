@@ -50,6 +50,36 @@ final class RelationshipManager
         return $this->getHandler($relationshipType)->load($objects, $relationshipType);
     }
 
+    /**
+     * @param object[] $objects
+     */
+    public function saveAll(array $objects): void
+    {
+        if (empty($objects)) {
+            return;
+        }
+
+        $relationships = $this->readAllRelationships(reset($objects));
+        foreach ($relationships as $relationship) {
+            $this->getHandler($relationship)->save($objects, $relationship);
+        }
+    }
+
+    /**
+     * @param object[] $objects
+     */
+    public function loadAll(array $objects): void
+    {
+        if (empty($objects)) {
+            return;
+        }
+
+        $relationships = $this->readAllRelationships(reset($objects));
+        foreach ($relationships as $relationship) {
+            $this->getHandler($relationship)->load($objects, $relationship);
+        }
+    }
+
     public function getHandler(RelationshipType $relationshipType): RelationshipHandler
     {
 
@@ -62,20 +92,50 @@ final class RelationshipManager
 
     }
 
-    public function readAttribute(object|string $objectOrClass, string $property): ?RelationshipType
+    public function readAttribute(object|string $objectOrClass, string $property): RelationshipType
     {
         $property = new \ReflectionProperty($objectOrClass, $property);
         $attributes = $property->getAttributes(RelationshipType::class, \ReflectionAttribute::IS_INSTANCEOF);
+        $relationship = $this->getRelationship($property, $attributes);
+        return $relationship;
+    }
+
+    /**
+     * @param object|string $objectOrClass
+     * @return RelationshipType[]
+     */
+    public function readAllRelationships(object|string $objectOrClass): array
+    {
+        $class = new \ReflectionClass($objectOrClass);
+        $relationships = [];
+        foreach ($class->getProperties() as $property) {
+            $attributes = $property->getAttributes(RelationshipType::class, \ReflectionAttribute::IS_INSTANCEOF);
+            if (!empty($attributes)) {
+                $relationships[] = $this->getRelationship($property, $attributes);
+            }
+        }
+        return $relationships;
+    }
+
+    /**
+     * @param \ReflectionProperty $property
+     * @param \ReflectionAttribute[] $attributes
+     * @return RelationshipType
+     */
+    private function getRelationship(\ReflectionProperty $property, array $attributes): RelationshipType
+    {
         $attributeCount = count($attributes);
+
+        if ($attributeCount == 0) {
+            throw new InvalidAttributeException('No relationship attribute found on ' . $property);
+        }
         if ($attributeCount > 1) {
             throw new InvalidAttributeException('Only one relation type attribute can be applied to a property');
         }
-        if ($attributeCount > 0) {
-            /** @var RelationshipType $relationship */
-            $relationship = $attributes[0]->newInstance();
-            $relationship->setReflectionData($property);
-            return $relationship;
-        }
-        return null;
+
+        /** @var RelationshipType $relationship */
+        $relationship = $attributes[0]->newInstance();
+        $relationship->setReflectionData($property);
+        return $relationship;
     }
 }

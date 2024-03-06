@@ -7,6 +7,7 @@ use Corma\Relationship\OneToOne;
 use Corma\Relationship\OneToOneHandler;
 use Corma\Relationship\RelationshipManager;
 use Corma\Test\Fixtures\ExtendedDataObject;
+use Corma\Test\Fixtures\OtherDataObject;
 use PHPUnit\Framework\TestCase;
 
 class RelationshipManagerTest extends TestCase
@@ -21,13 +22,19 @@ class RelationshipManagerTest extends TestCase
     }
     public function testReadAttribute()
     {
-        $attribute = $this->reader->readAttribute(ExtendedDataObject::class, 'objectProperty');
+        $attribute = $this->reader->readAttribute(ExtendedDataObject::class, 'otherDataObject');
         $this->assertInstanceOf(OneToOne::class, $attribute);
+    }
+
+    public function testReadAllRelationships()
+    {
+        $relationships = $this->reader->readAllRelationships(ExtendedDataObject::class);
+        $this->assertCount(4, $relationships);
     }
 
     public function testGetHandler()
     {
-        $handler = $this->reader->getHandler(ExtendedDataObject::class, 'objectProperty');
+        $handler = $this->reader->getHandler(new OneToOne(OtherDataObject::class));
         $this->assertInstanceOf(OneToOneHandler::class, $handler);
     }
 }

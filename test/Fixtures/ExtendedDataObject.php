@@ -15,8 +15,6 @@ class ExtendedDataObject extends BaseDataObject
     protected ?int $otherDataObjectId = null;
 
     protected ?array $arrayProperty = null;
-
-    #[OneToOne]
     protected ?ExtendedDataObject $objectProperty = null;
 
     #[OneToOne]
