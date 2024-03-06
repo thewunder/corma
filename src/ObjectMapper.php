@@ -194,6 +194,8 @@ class ObjectMapper
      * @param string|null $foreignIdColumn Column / property on this object that relates to the foreign table's id (defaults to if the class = ForeignObject foreignObjectId)
      * @param string|null $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
+     *
+     * @deprecated Use load() instead
      */
     public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $setter = null): array
     {
@@ -218,6 +220,8 @@ class ObjectMapper
      * @param string|null $foreignColumn Column / property on foreign object that relates to this object id
      * @param string|null $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
+     *
+     * @deprecated Use load() instead
      */
     public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array
     {
@@ -244,6 +248,8 @@ class ObjectMapper
      * @param string|null $foreignIdColumn Column on link table = the id on the foreign object table
      * @param string|null $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
+     *
+     * @deprecated Use load() instead
      */
     public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null, ?string $setter = null): array
     {
@@ -335,6 +341,9 @@ class ObjectMapper
         return $this->inflector;
     }
 
+    /**
+     * @deprecated Use RelationshipManager instead
+     */
     public function getRelationshipLoader(): RelationshipLoader
     {
         if ($this->relationshipLoader) {
@@ -343,6 +352,9 @@ class ObjectMapper
         return $this->relationshipLoader = new RelationshipLoader($this);
     }
 
+    /**
+     * @deprecated Use RelationshipManager instead
+     */
     public function getRelationshipSaver(): RelationshipSaver
     {
         if ($this->relationshipSaver) {

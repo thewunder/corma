@@ -7,6 +7,8 @@ use Corma\Util\Inflector;
 
 /**
  * Loads foreign relationships
+ *
+ * @deprecated Use RelationshipManager instead
  */
 class RelationshipLoader
 {

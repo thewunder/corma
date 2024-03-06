@@ -10,6 +10,8 @@ use Corma\Util\Inflector;
  *
  * The supplied objects must be saved prior to calling these methods.
  * The repository is responsible for wrapping these method calls in a transaction.
+ *
+ * @deprecated Use RelationshipManager instead
  */
 class RelationshipSaver
 {
