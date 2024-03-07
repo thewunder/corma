@@ -20,19 +20,19 @@ class RelationshipManagerTest extends TestCase
             new OneToOneHandler($orm)
         ]);
     }
-    public function testReadAttribute()
+    public function testReadAttribute(): void
     {
         $attribute = $this->reader->readAttribute(ExtendedDataObject::class, 'otherDataObject');
         $this->assertInstanceOf(OneToOne::class, $attribute);
     }
 
-    public function testReadAllRelationships()
+    public function testReadAllRelationships(): void
     {
         $relationships = $this->reader->readAllRelationships(ExtendedDataObject::class);
         $this->assertCount(4, $relationships);
     }
 
-    public function testGetHandler()
+    public function testGetHandler(): void
     {
         $handler = $this->reader->getHandler(new OneToOne(OtherDataObject::class));
         $this->assertInstanceOf(OneToOneHandler::class, $handler);

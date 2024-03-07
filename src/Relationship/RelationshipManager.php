@@ -118,7 +118,6 @@ final class RelationshipManager
     }
 
     /**
-     * @param \ReflectionProperty $property
      * @param \ReflectionAttribute[] $attributes
      * @return Relationship
      */

@@ -361,7 +361,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertLoadOne($objects, $return);
     }
 
-    public function testLoadOneLegacy()
+    public function testLoadOneLegacy(): void
     {
         $objects = $this->setupLoadOne();
 
@@ -603,7 +603,7 @@ abstract class BaseIntegrationTest extends TestCase
         }
     }
 
-    public function testLoadPolymorphic()
+    public function testLoadPolymorphic(): void
     {
         $polymorphicExtended = new ExtendedDataObject();
         $this->objectMapper->save($polymorphicExtended);
@@ -1000,7 +1000,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertManyToManyLinks($objects, $otherObjectsToDelete, false);
     }
 
-    public function testSavePolymorphic()
+    public function testSavePolymorphic(): void
     {
         $withExtended = new ExtendedDataObject();
         $withExtended->setPolymorphic(new ExtendedDataObject());
@@ -1015,7 +1015,7 @@ abstract class BaseIntegrationTest extends TestCase
         $this->assertPolymorphic($objects);
     }
 
-    public function testLoadAndSaveAllRelationships()
+    public function testLoadAndSaveAllRelationships(): void
     {
         $object = new ExtendedDataObject();
         $this->objectMapper->save($object);
