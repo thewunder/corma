@@ -182,83 +182,19 @@ class ObjectMapper
     }
 
     /**
-     * Loads a foreign relationship where a property on the supplied objects references an id for another object.
-     * Can be used to load a one-to-one relationship or the "one" side of a one-to-many relationship.
+     * Load a relationship on the provided objects.
      *
-     * This works on objects of mixed type, although they must have exactly the same $foreignIdColumn, or use the default.
-     *
-     * $foreignIdColumn defaults to foreignObjectId if the $className is Namespace\\ForeignObject
-     *
-     * @param object[] $objects
-     * @param string $className Class name of foreign object to load
-     * @param string|null $foreignIdColumn Column / property on this object that relates to the foreign table's id (defaults to if the class = ForeignObject foreignObjectId)
-     * @param string|null $setter Name of setter method on objects
-     * @return object[] Loaded objects keyed by id
-     *
-     * @deprecated Use load() instead
+     * @param object[] $objects Objects to load a relationship on, can be of mixed class provided they all have a relationship on the same property
+     * @param string $property The name of a property to load a relationship on
+     * @return object[] The loaded objects keyed by id
      */
-    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $setter = null): array
+    public function load(array $objects, string $property): array
     {
+        $relationshipManager = $this->getRelationshipManager();
         $objectsByClass = $this->groupByClass($objects);
-
-        $loader = $this->getRelationshipLoader();
         $loadedObjects = [];
         foreach ($objectsByClass as $classObjects) {
-            $loadedObjects += $loader->loadOne($classObjects, $className, $foreignIdColumn, $setter);
-        }
-        return $loadedObjects;
-    }
-
-    /**
-     * Loads a foreign relationship where a column on the foreign object references the id for the supplied objects.
-     * Used to load the "many" side of a one-to-many relationship.
-     *
-     * This works on objects of mixed type, although they must have exactly the same $foreignColumn, or use the default.
-     *
-     * @param object[] $objects
-     * @param string $className Class name of foreign objects to load
-     * @param string|null $foreignColumn Column / property on foreign object that relates to this object id
-     * @param string|null $setter Name of setter method on objects
-     * @return object[] Loaded objects keyed by id
-     *
-     * @deprecated Use load() instead
-     */
-    public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array
-    {
-        $objectsByClass = $this->groupByClass($objects);
-
-        $loader = $this->getRelationshipLoader();
-        $loadedObjects = [];
-        foreach ($objectsByClass as $classObjects) {
-            $loadedObjects += $loader->loadMany($classObjects, $className, $foreignColumn, $setter);
-        }
-        return $loadedObjects;
-    }
-
-    /**
-     * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects.
-     *
-     * This works theoretically on objects of mixed type, although they must have the same link table, which makes this in reality only usable
-     * by for objects of the same class.
-     *
-     * @param object[] $objects
-     * @param string $className Class name of foreign objects to load
-     * @param string $linkTable Table that links two objects together
-     * @param string|null $idColumn Column on link table = the id on this object
-     * @param string|null $foreignIdColumn Column on link table = the id on the foreign object table
-     * @param string|null $setter Name of setter method on objects
-     * @return object[] Loaded objects keyed by id
-     *
-     * @deprecated Use load() instead
-     */
-    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null, ?string $setter = null): array
-    {
-        $objectsByClass = $this->groupByClass($objects);
-
-        $loader = $this->getRelationshipLoader();
-        $loadedObjects = [];
-        foreach ($objectsByClass as $classObjects) {
-            $loadedObjects += $loader->loadManyToMany($classObjects, $className, $linkTable, $idColumn, $foreignIdColumn, $setter);
+            $loadedObjects += $relationshipManager->load($classObjects, $property);
         }
         return $loadedObjects;
     }
@@ -341,46 +277,6 @@ class ObjectMapper
         return $this->inflector;
     }
 
-    /**
-     * @deprecated Use RelationshipManager instead
-     */
-    public function getRelationshipLoader(): RelationshipLoader
-    {
-        if ($this->relationshipLoader) {
-            return $this->relationshipLoader;
-        }
-        return $this->relationshipLoader = new RelationshipLoader($this);
-    }
-
-    /**
-     * @deprecated Use RelationshipManager instead
-     */
-    public function getRelationshipSaver(): RelationshipSaver
-    {
-        if ($this->relationshipSaver) {
-            return $this->relationshipSaver;
-        }
-        return $this->relationshipSaver = new RelationshipSaver($this);
-    }
-
-    /**
-     * Load a relationship on the provided objects.
-     *
-     * @param object[] $objects Objects to load a relationship on, can be of mixed class provided they all have a relationship on the same property
-     * @param string $property The name of a property to load a relationship on
-     * @return object[] The loaded objects keyed by id
-     */
-    public function load(array $objects, string $property): array
-    {
-        $relationshipManager = $this->getRelationshipManager();
-        $objectsByClass = $this->groupByClass($objects);
-        $loadedObjects = [];
-        foreach ($objectsByClass as $classObjects) {
-            $loadedObjects += $relationshipManager->load($classObjects, $property);
-        }
-        return $loadedObjects;
-    }
-
     public function getRelationshipManager(): RelationshipManager
     {
         if (!$this->relationshipManager) {
@@ -420,6 +316,110 @@ class ObjectMapper
         }
         $class = is_string($objectOrClass) ? $objectOrClass : $objectOrClass::class;
         return $this->getRepository($class)->getObjectManager();
+    }
+
+    /**
+     * Loads a foreign relationship where a property on the supplied objects references an id for another object.
+     * Can be used to load a one-to-one relationship or the "one" side of a one-to-many relationship.
+     *
+     * This works on objects of mixed type, although they must have exactly the same $foreignIdColumn, or use the default.
+     *
+     * $foreignIdColumn defaults to foreignObjectId if the $className is Namespace\\ForeignObject
+     *
+     * @param object[] $objects
+     * @param string $className Class name of foreign object to load
+     * @param string|null $foreignIdColumn Column / property on this object that relates to the foreign table's id (defaults to if the class = ForeignObject foreignObjectId)
+     * @param string|null $setter Name of setter method on objects
+     * @return object[] Loaded objects keyed by id
+     *
+     * @deprecated Use load() instead
+     */
+    public function loadOne(array $objects, string $className, ?string $foreignIdColumn = null, ?string $setter = null): array
+    {
+        $objectsByClass = $this->groupByClass($objects);
+
+        $loader = $this->getRelationshipLoader();
+        $loadedObjects = [];
+        foreach ($objectsByClass as $classObjects) {
+            $loadedObjects += $loader->loadOne($classObjects, $className, $foreignIdColumn, $setter);
+        }
+        return $loadedObjects;
+    }
+
+    /**
+     * Loads a foreign relationship where a column on the foreign object references the id for the supplied objects.
+     * Used to load the "many" side of a one-to-many relationship.
+     *
+     * This works on objects of mixed type, although they must have exactly the same $foreignColumn, or use the default.
+     *
+     * @param object[] $objects
+     * @param string $className Class name of foreign objects to load
+     * @param string|null $foreignColumn Column / property on foreign object that relates to this object id
+     * @param string|null $setter Name of setter method on objects
+     * @return object[] Loaded objects keyed by id
+     *
+     * @deprecated Use load() instead
+     */
+    public function loadMany(array $objects, string $className, ?string $foreignColumn = null, ?string $setter = null): array
+    {
+        $objectsByClass = $this->groupByClass($objects);
+
+        $loader = $this->getRelationshipLoader();
+        $loadedObjects = [];
+        foreach ($objectsByClass as $classObjects) {
+            $loadedObjects += $loader->loadMany($classObjects, $className, $foreignColumn, $setter);
+        }
+        return $loadedObjects;
+    }
+
+    /**
+     * Loads objects of the foreign class onto the supplied objects linked by a link table containing the id's of both objects.
+     *
+     * This works theoretically on objects of mixed type, although they must have the same link table, which makes this in reality only usable
+     * by for objects of the same class.
+     *
+     * @param object[] $objects
+     * @param string $className Class name of foreign objects to load
+     * @param string $linkTable Table that links two objects together
+     * @param string|null $idColumn Column on link table = the id on this object
+     * @param string|null $foreignIdColumn Column on link table = the id on the foreign object table
+     * @param string|null $setter Name of setter method on objects
+     * @return object[] Loaded objects keyed by id
+     *
+     * @deprecated Use load() instead
+     */
+    public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null, ?string $setter = null): array
+    {
+        $objectsByClass = $this->groupByClass($objects);
+
+        $loader = $this->getRelationshipLoader();
+        $loadedObjects = [];
+        foreach ($objectsByClass as $classObjects) {
+            $loadedObjects += $loader->loadManyToMany($classObjects, $className, $linkTable, $idColumn, $foreignIdColumn, $setter);
+        }
+        return $loadedObjects;
+    }
+
+    /**
+     * @deprecated Use RelationshipManager instead
+     */
+    public function getRelationshipLoader(): RelationshipLoader
+    {
+        if ($this->relationshipLoader) {
+            return $this->relationshipLoader;
+        }
+        return $this->relationshipLoader = new RelationshipLoader($this);
+    }
+
+    /**
+     * @deprecated Use RelationshipManager instead
+     */
+    public function getRelationshipSaver(): RelationshipSaver
+    {
+        if ($this->relationshipSaver) {
+            return $this->relationshipSaver;
+        }
+        return $this->relationshipSaver = new RelationshipSaver($this);
     }
 
     /**
