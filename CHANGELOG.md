@@ -1,3 +1,18 @@
+Version 4.2.0
+=============
+
+New Features
+-----------
+- Add new way of loading relationships where relationships are defined via property attributes.
+- Add support for loading and saving polymorphic relationships where a class and id column can load an object of any class in a namespace.
+- Allow all specified relationships on a class to be loaded and saved with a single method call.
+- Provides a framework where custom relationship types can be added or behavior for built-in types modified.
+
+Updates
+-------
+- Existing loadOne, loadMany, loadManyToMany as well as the RelationshipSaver and RelationshipLoader classes have been deprecated.
+- All exceptions throws extend from a common CormaException class
+
 Version 4.1.0
 =============
 
