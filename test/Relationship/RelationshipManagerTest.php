@@ -29,7 +29,7 @@ class RelationshipManagerTest extends TestCase
     public function testReadAllRelationships(): void
     {
         $relationships = $this->reader->readAllRelationships(ExtendedDataObject::class);
-        $this->assertCount(4, $relationships);
+        $this->assertCount(5, $relationships);
     }
 
     public function testGetHandler(): void
