@@ -2,6 +2,6 @@
 
 namespace Corma\Exception;
 
-class CormaException extends \RuntimeException
+abstract class CormaException extends \Exception
 {
 }

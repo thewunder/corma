@@ -3,9 +3,9 @@
 namespace Corma\Exception;
 
 /**
- * Thrown when a operation requires a primary key, but none is defined on the table
+ * Thrown when an operation requires a primary key, but none is defined on the table
  */
-class MissingPrimaryKeyException extends \RuntimeException
+final class MissingPrimaryKeyException extends CormaException
 {
 
 }
