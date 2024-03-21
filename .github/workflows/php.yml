@@ -22,8 +22,8 @@ jobs:
       MYSQL_USER: root
       MYSQL_PASS: root
       PGSQL_HOST: localhost
-      PGSQL_USER: postgres
-      PGSQL_PASS: postgres
+      PGSQL_USER: cormatest
+      PGSQL_PASS: cormatest
       PGSQL_PORT: 5432
 
     steps:
@@ -36,7 +36,10 @@ jobs:
       - name: Start PostgreSQL
         run: |
           sudo systemctl start postgresql
-
+          pg_isready
+      - name: Create test postgres user
+        run: |
+          sudo -u postgres psql --command="CREATE USER $PGSQL_USER PASSWORD '$PGSQL_PASS'" --command="\du"
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
 
