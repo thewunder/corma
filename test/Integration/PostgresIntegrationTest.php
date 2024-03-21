@@ -14,7 +14,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception;
 use Dotenv\Dotenv;
 
-class PostgresIntegrationTest extends BaseIntegrationTest
+class PostgresIntegrationTest extends BaseIntegrationCase
 {
     public function testIsDuplicateException(): void
     {

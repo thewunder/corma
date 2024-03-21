@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-abstract class BaseIntegrationTest extends TestCase
+abstract class BaseIntegrationCase extends TestCase
 {
     protected ObjectRepositoryInterface $repository;
     protected EventDispatcher $dispatcher;

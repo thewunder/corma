@@ -14,7 +14,7 @@ use Doctrine\DBAL\Exception;
 use Dotenv\Dotenv;
 use Psr\Container\ContainerInterface;
 
-class MysqlIntegrationTest extends BaseIntegrationTest
+class MysqlIntegrationTest extends BaseIntegrationCase
 {
     public function testIsDuplicateException(): void
     {
