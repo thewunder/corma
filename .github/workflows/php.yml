@@ -20,9 +20,10 @@ jobs:
     env:
       MYSQL_HOST: localhost
       MYSQL_USER: root
-      MYSQL_PASSWORD: root
+      MYSQL_PASS: root
       PGSQL_HOST: localhost
       PGSQL_USER: postgres
+      PGSQL_PORT: 5433
 
     steps:
       - uses: actions/checkout@v3
