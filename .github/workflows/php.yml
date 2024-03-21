@@ -23,7 +23,7 @@ jobs:
       MYSQL_PASS: root
       PGSQL_HOST: localhost
       PGSQL_USER: postgres
-      PGSQL_PORT: 5433
+      PGSQL_PORT: 5432
 
     steps:
       - uses: actions/checkout@v3
