@@ -27,7 +27,7 @@ use Psr\SimpleCache\CacheInterface;
 /**
  * Main entry point for the ORM
  */
-final class ObjectMapper
+class ObjectMapper
 {
     private ?RelationshipLoader $relationshipLoader = null;
     private ?RelationshipSaver $relationshipSaver = null;
