@@ -37,9 +37,10 @@ jobs:
         run: |
           sudo systemctl start postgresql
           pg_isready
+
       - name: Create test postgres user
         run: |
-          sudo -u postgres psql --command="CREATE USER $PGSQL_USER PASSWORD '$PGSQL_PASS'" --command="\du"
+          sudo -u postgres psql --command="CREATE USER $PGSQL_USER PASSWORD '$PGSQL_PASS'" --command="GRANT CREATE ON DATABASE postgres TO $PGSQL_USER"
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
 
