@@ -18,8 +18,10 @@ jobs:
         php: [ 8.1, 8.2, 8.3 ]
 
     env:
+      MYSQL_HOST: localhost
       MYSQL_USER: root
       MYSQL_PASSWORD: root
+      PGSQL_HOST: localhost
       PGSQL_USER: postgres
 
     steps:
