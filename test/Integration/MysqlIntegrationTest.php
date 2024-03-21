@@ -85,8 +85,8 @@ class MysqlIntegrationTest extends BaseIntegrationTest
           myColumn VARCHAR(255) NOT NULL,
           myNullableColumn INT(11) UNSIGNED NULL DEFAULT NULL,
           otherDataObjectId INT (11) UNSIGNED NULL,
-          polymorphicId INT(11) UNSIGNED NULL,
-          polymorphicClass VARCHAR(255) NOT NULL
+          polymorphicId INT(11) UNSIGNED NULL DEFAULT NULL,
+          polymorphicClass VARCHAR(255) NULL DEFAULT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1');
 
         self::$connection->executeQuery('CREATE TABLE other_data_objects (
