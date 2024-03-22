@@ -3,7 +3,6 @@ Corma
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.txt)
-[![Coverage Status](https://coveralls.io/repos/github/thewunder/corma/badge.svg?branch=master)](https://coveralls.io/github/thewunder/corma?branch=master)
 
 Corma is a high-performance, convention-based ORM based on Doctrine DBAL.
 
