@@ -50,7 +50,7 @@ final class OneToOneHandler extends BaseRelationshipHandler
         }
         unset($foreignObjects);
 
-        $setter ??= 'set' . $this->inflector->methodNameFromColumn($foreignIdColumn);
+        $setter ??= 'set' . $this->inflector->methodNameFromColumn($relationship->getProperty());
         foreach ($objects as $i => $object) {
             if (method_exists($object, $setter)) {
                 $id = $om->getId($object);
