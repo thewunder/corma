@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddVoidReturnTypeWhereNoReturnRector;
 
 return RectorConfig::configure()
@@ -11,7 +12,7 @@ return RectorConfig::configure()
         __DIR__ . '/test',
     ])->withPhpSets()
     ->withSets([
-        Rector\PHPUnit\Set\PHPUnitSetList::PHPUNIT_100
+        PHPUnitSetList::PHPUNIT_100
     ])
     ->withRules([
         AddVoidReturnTypeWhereNoReturnRector::class,
