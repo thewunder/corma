@@ -64,7 +64,8 @@ class RelationshipSaver
         $foreignIdColumn ??= $this->inflector->idColumnFromClass($className);
         $property = $this->inferProperty($foreignObjectGetter, $foreignIdColumn);
 
-        $attribute = new OneToMany($className, $foreignColumn, $deleteMissing);
+
+        $attribute = new OneToMany($className, $foreignColumn, $deleteMissing, $foreignObjectGetter);
         $attribute->setProperty($property);
 
         $this->relationshipManager->getHandler($attribute)->save($objects, $attribute);

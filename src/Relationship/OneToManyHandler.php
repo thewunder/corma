@@ -12,7 +12,7 @@ final class OneToManyHandler extends BaseRelationshipHandler
         return OneToMany::class;
     }
 
-    public function load(array $objects, Relationship $relationship): array
+    public function load(array $objects, OneToMany|Relationship $relationship): array
     {
         if (empty($objects)) {
             return [];
@@ -28,7 +28,8 @@ final class OneToManyHandler extends BaseRelationshipHandler
 
         $foreignObjects = $this->objectMapper->findBy($className, [$foreignColumn => $ids]);
         $foreignObjectsById = [];
-        $getter = 'get' . ucfirst($foreignColumn);
+        $getter = $relationship->getForeignObjectGetter();
+        $getter ??= 'get' . ucfirst($foreignColumn);
         foreach ($foreignObjects as $foreignObject) {
             if (method_exists($foreignObject, $getter)) {
                 $id = $foreignObject->$getter();
@@ -64,7 +65,7 @@ final class OneToManyHandler extends BaseRelationshipHandler
         return $flattenedForeignObjects;
     }
 
-    public function save(array $objects, Relationship $relationship): void
+    public function save(array $objects, OneToMany|Relationship $relationship): void
     {
         if (empty($objects)) {
             return;
@@ -75,7 +76,8 @@ final class OneToManyHandler extends BaseRelationshipHandler
         $property = $relationship->getProperty();
         $fom = $this->objectMapper->getObjectManager($className);
 
-        $foreignObjectGetter = 'get' . $this->inflector->methodNameFromColumn($property, true);
+        $foreignObjectGetter = $relationship->getForeignObjectGetter();
+        $foreignObjectGetter ??= 'get' . $this->inflector->methodNameFromColumn($property, true);
 
 
         $foreignColumn = $relationship->getForeignColumn();

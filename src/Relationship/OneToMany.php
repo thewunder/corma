@@ -17,7 +17,10 @@ final class OneToMany extends BaseRelationship
         /** @var ?string $foreignColumn Property on foreign object that relates to this object id */
         private readonly ?string $foreignColumn = null,
         /** @var bool $deleteMissing Set to false in order to leave objects alone when they are removed from the array. */
-        private readonly bool $deleteMissing = true)
+        private readonly bool $deleteMissing = true,
+        /** @var string|null $foreignObjectGetter Only used in backwards compatibility */
+        private readonly ?string $foreignObjectGetter = null,
+    )
     {
         parent::__construct($className);
     }
@@ -30,6 +33,11 @@ final class OneToMany extends BaseRelationship
     public function deleteMissing(): bool
     {
         return $this->deleteMissing;
+    }
+
+    public function getForeignObjectGetter(): ?string
+    {
+        return $this->foreignObjectGetter;
     }
 
     public function setReflectionData(\ReflectionProperty $property): void
