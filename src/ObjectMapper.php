@@ -185,16 +185,18 @@ class ObjectMapper
      * Load a relationship on the provided objects.
      *
      * @param object[] $objects Objects to load a relationship on, can be of mixed class provided they all have a relationship on the same property
-     * @param string $property The name of a property to load a relationship on
+     * @param string[] $properties The name of one or more properties to load a relationship on
      * @return object[] The loaded objects keyed by id
      */
-    public function load(array $objects, string $property): array
+    public function load(array $objects, string ...$properties): array
     {
         $relationshipManager = $this->getRelationshipManager();
         $objectsByClass = $this->groupByClass($objects);
         $loadedObjects = [];
         foreach ($objectsByClass as $classObjects) {
-            $loadedObjects += $relationshipManager->load($classObjects, $property);
+            foreach ($properties as $property) {
+                $loadedObjects += $relationshipManager->load($classObjects, $property);
+            }
         }
         return $loadedObjects;
     }
