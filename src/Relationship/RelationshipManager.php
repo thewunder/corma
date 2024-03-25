@@ -30,24 +30,30 @@ final class RelationshipManager
         $this->handlers[$handler::getRelationshipClass()] = $handler;
     }
 
-    public function save(array $objects, string $property): void
+    public function save(array $objects, string ...$properties): void
     {
         if (empty($objects)) {
             return;
         }
 
-        $relationshipType = $this->readAttribute(reset($objects), $property);
-        $this->getHandler($relationshipType)->save($objects, $relationshipType);
+        foreach ($properties as $property) {
+            $relationshipType = $this->readAttribute(reset($objects), $property);
+            $this->getHandler($relationshipType)->save($objects, $relationshipType);
+        }
     }
 
-    public function load(array $objects, string $property): array
+    public function load(array $objects, string ...$properties): array
     {
         if (empty($objects)) {
             return [];
         }
 
-        $relationshipType = $this->readAttribute(reset($objects), $property);
-        return $this->getHandler($relationshipType)->load($objects, $relationshipType);
+        $loadedObjects = [];
+        foreach ($properties as $property) {
+            $relationshipType = $this->readAttribute(reset($objects), $property);
+            $loadedObjects += $this->getHandler($relationshipType)->load($objects, $relationshipType);
+        }
+        return $loadedObjects;
     }
 
     /**

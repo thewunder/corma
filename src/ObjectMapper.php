@@ -194,9 +194,7 @@ class ObjectMapper
         $objectsByClass = $this->groupByClass($objects);
         $loadedObjects = [];
         foreach ($objectsByClass as $classObjects) {
-            foreach ($properties as $property) {
-                $loadedObjects += $relationshipManager->load($classObjects, $property);
-            }
+            $loadedObjects += $relationshipManager->load($classObjects, ...$properties);
         }
         return $loadedObjects;
     }
