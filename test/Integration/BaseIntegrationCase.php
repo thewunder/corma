@@ -500,9 +500,9 @@ abstract class BaseIntegrationCase extends TestCase
         $object = $this->setupLoadMany();
 
         /** @var OtherDataObject[] $return */
-        $return = $this->objectMapper->loadMany([$object], OtherDataObject::class, null, 'setCustom');
+        $return = $this->objectMapper->loadMany([$object], OtherDataObject::class, null, 'setCustoms');
 
-        $this->assertLoadMany($object, $return);
+        $this->assertLoadMany($object, $return, 'getCustoms');
     }
 
     private function setupLoadMany(): ExtendedDataObject
@@ -524,11 +524,11 @@ abstract class BaseIntegrationCase extends TestCase
         return $object;
     }
 
-    private function assertLoadMany(ExtendedDataObject $object, array $return): void
+    private function assertLoadMany(ExtendedDataObject $object, array $return, string $getter = 'getOtherDataObjects'): void
     {
         $this->assertCount(2, $return);
 
-        $loadedOtherObjects = $object->getOtherDataObjects();
+        $loadedOtherObjects = $object->$getter();
         $this->assertCount(2, $loadedOtherObjects);
         foreach ($loadedOtherObjects as $otherObject) {
             $this->assertInstanceOf(OtherDataObject::class, $return[$otherObject->getId()]);

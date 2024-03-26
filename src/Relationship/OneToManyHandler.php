@@ -40,7 +40,7 @@ final class OneToManyHandler extends BaseRelationshipHandler
             }
         }
 
-        $setter ??= 'set' . $this->inflector->methodNameFromClass($className, true);
+        $setter ??= 'set' . $this->inflector->methodNameFromColumn($relationship->getProperty(), true);
         foreach ($objects as $object) {
             if (method_exists($object, $setter)) {
                 $id = $om->getId($object);
