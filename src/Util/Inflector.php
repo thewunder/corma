@@ -87,4 +87,9 @@ class Inflector extends DoctrineInflector
     {
         return lcfirst(substr($className, strrpos($className, '\\') + 1)) . $suffix;
     }
+
+    public function idColumnFromProperty(string $propertyName, ?string $suffix = 'Id'): string
+    {
+        return $propertyName . $suffix;
+    }
 }
