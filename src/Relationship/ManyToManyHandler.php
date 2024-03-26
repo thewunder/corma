@@ -11,7 +11,7 @@ final class ManyToManyHandler extends BaseRelationshipHandler
         return ManyToMany::class;
     }
 
-    public function load(array $objects, Relationship $relationship): array
+    public function load(array $objects, ManyToMany|Relationship $relationship): array
     {
         if (empty($objects)) {
             return [];
@@ -71,7 +71,7 @@ final class ManyToManyHandler extends BaseRelationshipHandler
         return $foreignObjectsById;
     }
 
-    public function save(array $objects, Relationship $relationship): void
+    public function save(array $objects, ManyToMany|Relationship $relationship): void
     {
         if (empty($objects)) {
             return;

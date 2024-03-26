@@ -11,7 +11,7 @@ final class OneToOneHandler extends BaseRelationshipHandler
         return OneToOne::class;
     }
 
-    public function load(array $objects, Relationship $relationship): array
+    public function load(array $objects, OneToOne|Relationship $relationship): array
     {
         if (empty($objects)) {
             return [];
@@ -69,7 +69,7 @@ final class OneToOneHandler extends BaseRelationshipHandler
         return $foreignObjectsById;
     }
 
-    public function save(array $objects, Relationship $relationship): void
+    public function save(array $objects, OneToOne|Relationship $relationship): void
     {
         if (empty($objects)) {
             return;
