@@ -24,13 +24,13 @@ final class OneToOne extends BaseRelationship
         if ($className !== self::AUTO) {
             parent::__construct($className);
         } else {
-            $this->className = $className;
+            $this->foreignClass = $className;
         }
     }
 
     public function setReflectionData(\ReflectionProperty $property): void
     {
-        if ($this->className === self::AUTO) {
+        if ($this->foreignClass === self::AUTO) {
             if (!$property->hasType()) {
                 throw new InvalidAttributeException('To automatically infer the relationship class, it must have a type hint');
             }
@@ -38,7 +38,7 @@ final class OneToOne extends BaseRelationship
             if (!class_exists($className)) {
                 throw new InvalidAttributeException('Only valid classes can be used to automatically infer the relationship type');
             }
-            $this->className = $className;
+            $this->foreignClass = $className;
         }
 
         parent::setReflectionData($property);

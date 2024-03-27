@@ -18,7 +18,7 @@ final class ManyToManyHandler extends BaseRelationshipHandler
         }
 
         $om = $this->objectMapper->getObjectManager($objects);
-        $className = $relationship->getClassName();
+        $className = $relationship->getForeignClass();
         $fom = $this->objectMapper->getObjectManager($className);
 
         $idColumn = $relationship->getIdColumn();
@@ -128,7 +128,7 @@ final class ManyToManyHandler extends BaseRelationshipHandler
         $idColumn = $relationship->getIdColumn();
         $idColumn ??= $this->inflector->idColumnFromClass(reset($objects)::class);
 
-        $className = $relationship->getClassName();
+        $className = $relationship->getForeignClass();
         $foreignIdColumn = $relationship->getForeignIdColumn();
         $foreignIdColumn ??= $this->inflector->idColumnFromClass($className);
 

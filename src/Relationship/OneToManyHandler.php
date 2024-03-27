@@ -19,7 +19,7 @@ final class OneToManyHandler extends BaseRelationshipHandler
         }
 
         $om = $this->objectMapper->getObjectManager($objects);
-        $className = $relationship->getClassName();
+        $className = $relationship->getForeignClass();
         $fom = $this->objectMapper->getObjectManager($className);
         $ids = $om->getIds($objects);
 
@@ -72,7 +72,7 @@ final class OneToManyHandler extends BaseRelationshipHandler
         }
 
         $om = $this->objectMapper->getObjectManager($objects);
-        $className = $relationship->getClassName();
+        $className = $relationship->getForeignClass();
         $property = $relationship->getProperty();
         $fom = $this->objectMapper->getObjectManager($className);
 

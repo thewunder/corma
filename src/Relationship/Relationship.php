@@ -16,9 +16,14 @@ interface Relationship
     public function setReflectionData(\ReflectionProperty $property): void;
 
     /**
+     * @return string The full class name of the object this relationship is defined on
+     */
+    public function getClass(): string;
+
+    /**
      * @return string The full class name of the foreign object
      */
-    public function getClassName(): string;
+    public function getForeignClass(): string;
 
     /**
      * @return string The name of the property on this object that the relationship will be loaded on

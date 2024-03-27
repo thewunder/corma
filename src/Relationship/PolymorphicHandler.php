@@ -33,7 +33,7 @@ final class PolymorphicHandler extends BaseRelationshipHandler
         }
 
         $foreignObjectsByClass = [];
-        $namespace = $relationship->getClassName();
+        $namespace = $relationship->getForeignClass();
 
         foreach ($byClass as $objectClass => $loadByIds) {
             $fullClass = $namespace . '\\' . $objectClass;

@@ -8,8 +8,9 @@ use Corma\Exception\InvalidAttributeException;
 
 abstract class BaseRelationship implements Relationship
 {
-    protected string $className;
+    protected string $foreignClass;
     protected ?string $property = null;
+    protected ?string $class = null;
 
     /**
      * @param string $className The class of the object this property relates to
@@ -19,17 +20,18 @@ abstract class BaseRelationship implements Relationship
         if (!class_exists($className)) {
             throw new InvalidAttributeException('Invalid class name');
         }
-        $this->className = $className;
+        $this->foreignClass = $className;
     }
 
     public function setReflectionData(\ReflectionProperty $property): void
     {
         $this->property = $property->getName();
+        $this->class = $property->getDeclaringClass()->getName();
     }
 
-    public function getClassName(): string
+    public function getForeignClass(): string
     {
-        return $this->className;
+        return $this->foreignClass;
     }
 
     public function getProperty(): string

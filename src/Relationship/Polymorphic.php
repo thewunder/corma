@@ -29,7 +29,7 @@ final class Polymorphic implements Relationship
     /**
      * @return string The namespace of all classes loaded / saved by this relationship
      */
-    public function getClassName(): string
+    public function getForeignClass(): string
     {
         return $this->namespace;
     }
