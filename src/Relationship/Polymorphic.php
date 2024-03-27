@@ -12,6 +12,7 @@ use Corma\Exception\BadMethodCallException;
 final class Polymorphic implements Relationship
 {
     private ?string $property = null;
+    private ?string  $class = null;
 
     public function __construct(
         /** @var ?string $namespace The base namespace of all classes stored in this property */
@@ -23,7 +24,14 @@ final class Polymorphic implements Relationship
     public function setReflectionData(\ReflectionProperty $property): void
     {
         $this->property = $property->getName();
-        $this->namespace = $property->getDeclaringClass()->getNamespaceName();
+        $class = $property->getDeclaringClass();
+        $this->class = $class->getName();
+        $this->namespace = $class->getNamespaceName();
+    }
+
+    public function getClass(): string
+    {
+        return $this->class;
     }
 
     /**

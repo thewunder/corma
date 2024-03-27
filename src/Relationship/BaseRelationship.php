@@ -29,6 +29,11 @@ abstract class BaseRelationship implements Relationship
         $this->class = $property->getDeclaringClass()->getName();
     }
 
+    public function getClass(): string
+    {
+        return $this->class;
+    }
+
     public function getForeignClass(): string
     {
         return $this->foreignClass;
