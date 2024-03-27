@@ -26,6 +26,16 @@ class ExtendedDataObjectRepository extends ObjectRepository
         return $this->fetchAll($qb);
     }
 
+    /**
+     * @return ExtendedDataObject[]
+     */
+    public function findByOtherColumnOneToMany(string $otherName): array
+    {
+        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['odo.name'=>$otherName]);
+        $this->join($qb,'otherDataObjects');
+        return $this->fetchAll($qb);
+    }
+
     public function findAllPaged(): PagedQuery
     {
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName());

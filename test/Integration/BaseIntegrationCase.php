@@ -1055,6 +1055,19 @@ abstract class BaseIntegrationCase extends TestCase
         $this->assertNotEmpty($fromDb);
     }
 
+    public function testFindByOneToManyJoin()
+    {
+        $object = new ExtendedDataObject();
+        $this->objectMapper->save($object);
+        $object->setOtherDataObjects([(new OtherDataObject())->setName('Bob')]);
+        $this->objectMapper->getRelationshipManager()->save([$object], 'otherDataObjects');
+
+        /** @var ExtendedDataObjectRepository $repo */
+        $repo = $this->objectMapper->getRepository(ExtendedDataObject::class);
+        $fromDb = $repo->findByOtherColumnOneToMany('Bob');
+        $this->assertNotEmpty($fromDb);
+    }
+
     public function testOffsetPagedQuery(): void
     {
         /** @var ExtendedDataObjectRepository $repo */
