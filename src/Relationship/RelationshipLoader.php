@@ -62,6 +62,7 @@ class RelationshipLoader
 
         $attribute = new OneToMany($className, $foreignColumn);
         $attribute->setProperty($property);
+        $attribute->setClass(reset($objects)::class);
 
         return $this->relationshipManager->getHandler($attribute)->load($objects, $attribute);
     }
@@ -86,6 +87,7 @@ class RelationshipLoader
 
         $attribute = new ManyToMany($className, $linkTable, $idColumn, $foreignIdColumn);
         $attribute->setProperty($property);
+        $attribute->setClass(reset($objects)::class);
 
         return $this->relationshipManager->getHandler($attribute)->load($objects, $attribute);
     }

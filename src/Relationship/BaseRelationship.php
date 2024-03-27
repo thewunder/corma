@@ -34,6 +34,14 @@ abstract class BaseRelationship implements Relationship
         return $this->class;
     }
 
+    public function setClass(string $class): void
+    {
+        if ($this->class !== null) {
+            throw new BadMethodCallException('Override of class is not supported');
+        }
+        $this->class = $class;
+    }
+
     public function getForeignClass(): string
     {
         return $this->foreignClass;

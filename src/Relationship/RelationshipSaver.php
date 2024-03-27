@@ -67,6 +67,7 @@ class RelationshipSaver
 
         $attribute = new OneToMany($className, $foreignColumn, $deleteMissing, $foreignObjectGetter);
         $attribute->setProperty($property);
+        $attribute->setClass(reset($objects)::class);
 
         $this->relationshipManager->getHandler($attribute)->save($objects, $attribute);
     }
@@ -100,6 +101,7 @@ class RelationshipSaver
 
         $attribute = new ManyToMany($className, $linkTable, $idColumn, $foreignIdColumn, true);
         $attribute->setProperty($property);
+        $attribute->setClass(reset($objects)::class);
 
         $this->relationshipManager->getHandler($attribute)->save($objects, $attribute);
     }
@@ -133,6 +135,7 @@ class RelationshipSaver
 
         $attribute = new ManyToMany($className, $linkTable, $idColumn, $foreignIdColumn);
         $attribute->setProperty($property);
+        $attribute->setClass(reset($objects)::class);
 
         $this->relationshipManager->getHandler($attribute)->save($objects, $attribute);
     }

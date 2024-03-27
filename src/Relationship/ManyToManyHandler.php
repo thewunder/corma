@@ -22,10 +22,8 @@ final class ManyToManyHandler extends BaseRelationshipHandler
         $className = $relationship->getForeignClass();
         $fom = $this->objectMapper->getObjectManager($className);
 
-        $idColumn = $relationship->getIdColumn();
-        $idColumn ??= $this->inflector->idColumnFromClass(reset($objects)::class);
-        $foreignIdColumn = $relationship->getForeignIdColumn();
-        $foreignIdColumn ??= $this->inflector->idColumnFromClass($className);
+        $idColumn = $this->idColumn($relationship);
+        $foreignIdColumn = $this->foreignIdColumn($relationship);
 
         $ids = $om->getIds($objects);
         $queryHelper = $this->objectMapper->getQueryHelper();
@@ -126,14 +124,11 @@ final class ManyToManyHandler extends BaseRelationshipHandler
     {
         $foreignObjectGetter = 'get' . $this->inflector->methodNameFromColumn($relationship->getProperty(), true);
 
-        $idColumn = $relationship->getIdColumn();
-        $idColumn ??= $this->inflector->idColumnFromClass(reset($objects)::class);
-
-        $className = $relationship->getForeignClass();
-        $foreignIdColumn = $relationship->getForeignIdColumn();
-        $foreignIdColumn ??= $this->inflector->idColumnFromClass($className);
+        $idColumn = $this->idColumn($relationship);
+        $foreignIdColumn = $this->foreignIdColumn($relationship);
 
         $om = $this->objectMapper->getObjectManager($objects);
+        $className = $relationship->getForeignClass();
         $fom = $this->objectMapper->getObjectManager($className);
         $linkTable = $relationship->getLinkTable();
 
@@ -166,8 +161,35 @@ final class ManyToManyHandler extends BaseRelationshipHandler
         });
     }
 
-    public function join(QueryBuilder $qb, string $fromAlias, Relationship $relationship, JoinType $type = JoinType::INNER): string
+    public function join(QueryBuilder $qb, string $fromAlias, ManyToMany|Relationship $relationship, JoinType $type = JoinType::INNER): string
     {
-        return 'todo';
+        $om = $this->objectMapper->getObjectManager($relationship->getClass());
+        $foreignOM = $this->objectMapper->getObjectManager($relationship->getForeignClass());
+        $conn = $qb->getConnection();
+        $foreignTable = $conn->quoteIdentifier($foreignOM->getTable());
+        $idColumn = $conn->quoteIdentifier($om->getIdColumn());
+        $linkIdColumn = $conn->quoteIdentifier($this->idColumn($relationship));
+        $linkForeignIdColumn = $conn->quoteIdentifier($this->foreignIdColumn($relationship));
+        $foreignIdColumn = $foreignOM->getIdColumn();
+        $alias = $this->inflector->aliasFromProperty($relationship->getProperty());
+        $linkAlias = $alias . '_link';
+        $functionName = $type->value . 'Join';
+        $qb->$functionName($fromAlias, $relationship->getLinkTable(), $linkAlias, "$fromAlias.$idColumn = $linkAlias.$linkIdColumn");
+        $qb->$functionName($linkAlias, $foreignTable, $alias, "$linkAlias.$linkForeignIdColumn = $alias.$foreignIdColumn");
+        return $alias;
+    }
+
+    private function foreignIdColumn(ManyToMany $relationship): string
+    {
+        $foreignIdColumn = $relationship->getForeignIdColumn();
+        $foreignIdColumn ??= $this->inflector->idColumnFromClass($relationship->getForeignClass());
+        return $foreignIdColumn;
+    }
+
+    public function idColumn(ManyToMany $relationship): string
+    {
+        $idColumn = $relationship->getIdColumn();
+        $idColumn ??= $this->inflector->idColumnFromClass($relationship->getClass());
+        return $idColumn;
     }
 }
