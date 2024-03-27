@@ -3,6 +3,7 @@
 namespace Corma\Relationship;
 
 use Corma\Exception\MethodNotImplementedException;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 final class ManyToManyHandler extends BaseRelationshipHandler
 {
@@ -163,5 +164,10 @@ final class ManyToManyHandler extends BaseRelationshipHandler
             $queryHelper->buildDeleteQuery($linkTable, [$idColumn=>$om->getIds($objects)])->executeStatement();
             $queryHelper->massInsert($linkTable, $linkData);
         });
+    }
+
+    public function join(QueryBuilder $qb, string $fromAlias, Relationship $relationship, JoinType $type = JoinType::INNER): string
+    {
+        return 'todo';
     }
 }

@@ -3,10 +3,10 @@
 namespace Corma\Relationship;
 
 use Corma\Exception\MethodNotImplementedException;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 final class OneToManyHandler extends BaseRelationshipHandler
 {
-
     public static function getRelationshipClass(): string
     {
         return OneToMany::class;
@@ -179,5 +179,10 @@ final class OneToManyHandler extends BaseRelationshipHandler
             }
         }
         return $existingForeignObjectsIdsByObjectId;
+    }
+
+    public function join(QueryBuilder $qb, string $fromAlias, Relationship $relationship, JoinType $type = JoinType::INNER): string
+    {
+        return 'todo';
     }
 }

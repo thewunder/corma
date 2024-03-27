@@ -3,6 +3,7 @@
 namespace Corma\Relationship;
 
 use Corma\Exception\MethodNotImplementedException;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 final class PolymorphicHandler extends BaseRelationshipHandler
 {
@@ -92,5 +93,10 @@ final class PolymorphicHandler extends BaseRelationshipHandler
             $object->{$idSetter}($foreignId);
             $object->{$classSetter}((new \ReflectionClass($foreignObject))->getShortName());
         }
+    }
+
+    public function join(QueryBuilder $qb, string $fromAlias, Relationship $relationship, JoinType $type = JoinType::INNER): string
+    {
+        return 'todo';
     }
 }
