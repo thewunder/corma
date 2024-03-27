@@ -2,6 +2,7 @@
 namespace Corma\Test\Fixtures\Repository;
 
 use Corma\Repository\ObjectRepository;
+use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Util\PagedQuery;
 
 class ExtendedDataObjectRepository extends ObjectRepository
@@ -13,6 +14,16 @@ class ExtendedDataObjectRepository extends ObjectRepository
     {
         $this->db->insert($this->getTableName(), ['id'=>999, $this->db->quoteIdentifier('myColumn')=>'value', $this->db->quoteIdentifier('isDeleted')=>0]);
         $this->db->insert($this->getTableName(), ['id'=>999, $this->db->quoteIdentifier('myColumn')=>'value', $this->db->quoteIdentifier('isDeleted')=>0]);
+    }
+
+    /**
+     * @return ExtendedDataObject[]
+     */
+    public function findByOtherColumn(string $otherName): array
+    {
+        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['odo.name'=>$otherName]);
+        $this->join($qb,'otherDataObject');
+        return $this->fetchAll($qb);
     }
 
     public function findAllPaged(): PagedQuery

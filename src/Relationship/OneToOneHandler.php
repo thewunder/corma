@@ -19,9 +19,8 @@ final class OneToOneHandler extends BaseRelationshipHandler
         }
 
         $idToForeignId = [];
-        $className = $relationship->getClassName();
-        $foreignIdColumn = $relationship->getForeignIdColumn();
-        $foreignIdColumn ??= $this->inflector->idColumnFromProperty($relationship->getProperty());
+        $className = $relationship->getForeignClass();
+        $foreignIdColumn = $this->getForeignIdColumn($relationship);
 
         $om = $this->objectMapper->getObjectManager($objects);
         $fom = $this->objectMapper->getObjectManager($className);
@@ -78,9 +77,7 @@ final class OneToOneHandler extends BaseRelationshipHandler
 
         $om = $this->objectMapper->getObjectManager($objects);
 
-        $foreignIdColumn = $relationship->getForeignIdColumn();
-
-        $foreignIdColumn ??= $this->inflector->idColumnFromProperty($relationship->getProperty());
+        $foreignIdColumn = $this->getForeignIdColumn($relationship);
         $getter ??= $this->inflector->getterFromColumn($relationship->getProperty());
 
         /** @var object[] $foreignObjectsByObjectId */
@@ -138,8 +135,23 @@ final class OneToOneHandler extends BaseRelationshipHandler
         $this->objectMapper->saveAll($objectsToUpdate, null);
     }
 
-    public function join(QueryBuilder $qb, string $fromAlias, Relationship $relationship, JoinType $type = JoinType::INNER): string
+    public function join(QueryBuilder $qb, string $fromAlias, OneToOne|Relationship $relationship, JoinType $type = JoinType::INNER): string
     {
-        return 'todo';
+        $foreignOM = $this->objectMapper->getObjectManager($relationship->getForeignClass());
+        $conn = $qb->getConnection();
+        $foreignTable = $conn->quoteIdentifier($foreignOM->getTable());
+        $idColumn = $conn->quoteIdentifier($foreignOM->getIdColumn());
+        $foreignIdColumn = $conn->quoteIdentifier($this->getForeignIdColumn($relationship));
+        $alias = $this->inflector->aliasFromProperty($relationship->getProperty());
+        $functionName = $type->value . 'Join';
+        $qb->$functionName($fromAlias, $foreignTable, $alias, "$fromAlias.$foreignIdColumn = $alias.$idColumn");
+        return $alias;
+    }
+
+    private function getForeignIdColumn(OneToOne $relationship): string
+    {
+        $foreignIdColumn = $relationship->getForeignIdColumn();
+        $foreignIdColumn ??= $this->inflector->idColumnFromProperty($relationship->getProperty());
+        return $foreignIdColumn;
     }
 }

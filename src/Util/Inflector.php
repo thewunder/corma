@@ -92,4 +92,13 @@ class Inflector extends DoctrineInflector
     {
         return $propertyName . $suffix;
     }
+
+    public function aliasFromProperty(string $propertyName): string
+    {
+        if (empty($propertyName)) {
+            return '';
+        }
+        $capitals = preg_replace('/[^A-Z]/u', '', $propertyName);
+        return $propertyName[0] . mb_strtolower($capitals);
+    }
 }
