@@ -3,6 +3,7 @@
 namespace Corma\Relationship;
 
 use Corma\Exception\InvalidAttributeException;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 /**
  * Reads the RelationshipType type attribute and passes it to the proper handler.
@@ -84,6 +85,17 @@ final class RelationshipManager
         foreach ($relationships as $relationship) {
             $this->getHandler($relationship)->load($objects, $relationship);
         }
+    }
+
+    /**
+     * Join to a relationship defined via property attributes.
+     * @return string
+     */
+    public function join(QueryBuilder $qb, string $class, string $property, string $alias = 'main', JoinType $type = JoinType::INNER): string
+    {
+        $relationship = $this->readAttribute($class, $property);
+        $handler = $this->getHandler($relationship);
+        return $handler->join($qb, $alias, $relationship, $type);
     }
 
     public function getHandler(Relationship $relationship): RelationshipHandler

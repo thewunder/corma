@@ -7,6 +7,8 @@ use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidArgumentException;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\QueryHelperInterface;
+use Corma\Relationship\JoinType;
+use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Util\OffsetPagedQuery;
 use Corma\Util\PagedQuery;
 use Corma\Util\SeekPagedQuery;
@@ -500,6 +502,19 @@ class ObjectRepository implements ObjectRepositoryInterface
         } else {
             return null;
         }
+    }
+
+    /**
+     * Join to a relationship defined via property attributes.
+     * Defaults to joining from the object handled for this repository.
+     * @return string The alias of the table joined to
+     */
+    protected function join(QueryBuilder $qb, string $property, ?string $fromClass = null, string $fromAlias = 'main', JoinType $type = JoinType::INNER): string
+    {
+        if (!$fromClass) {
+            $fromClass = $this->getClassName();
+        }
+        return $this->objectMapper->getRelationshipManager()->join($qb, $fromClass, $property, $fromAlias, $type);
     }
 
     /**
