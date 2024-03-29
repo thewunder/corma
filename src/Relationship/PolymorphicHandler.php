@@ -75,6 +75,7 @@ final class PolymorphicHandler extends BaseRelationshipHandler
 
             $foreignObject = $object->{$getter}();
             if ($foreignObject) {
+                $id ??= spl_object_hash($object);
                 $foreignObjects[$id] = $foreignObject;
                 $objectsById[$id] = $object;
             }
