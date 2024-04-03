@@ -26,7 +26,9 @@ final class Polymorphic implements Relationship
         $this->property = $property->getName();
         $class = $property->getDeclaringClass();
         $this->class = $class->getName();
-        $this->namespace = $class->getNamespaceName();
+        if (!$this->namespace) {
+            $this->namespace = $class->getNamespaceName();
+        }
     }
 
     public function getClass(): string

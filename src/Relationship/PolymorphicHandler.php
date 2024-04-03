@@ -2,6 +2,7 @@
 
 namespace Corma\Relationship;
 
+use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\MethodNotImplementedException;
 use Doctrine\DBAL\Query\QueryBuilder;
 
@@ -14,10 +15,12 @@ final class PolymorphicHandler extends BaseRelationshipHandler
 
     public function load(array $objects, Relationship $relationship): array
     {
-        $getterBase = $this->inflector->getterFromColumn($relationship->getProperty());
-        $classGetter = $getterBase . 'Class';
-        $idGetter = $getterBase . 'Id';
-        $setter = $this->inflector->setterFromColumn($relationship->getProperty());
+        $property = $relationship->getProperty();
+        $idColumn = $this->inflector->idColumnFromProperty($property);
+        $idGetter = $this->inflector->getterFromColumn($idColumn);
+        $classColumn = $this->classColumnFromProperty($property);
+        $classGetter = $this->inflector->getterFromColumn($classColumn);
+        $setter = $this->inflector->setterFromColumn($property);
         $byClass = [];
         $byId = [];
         foreach ($objects as $object) {
@@ -61,8 +64,8 @@ final class PolymorphicHandler extends BaseRelationshipHandler
     {
         $property = $relationship->getProperty();
         $getter = $this->inflector->getterFromColumn($property);
-        $idSetter = $this->inflector->setterFromColumn($property) . 'Id';
-        $classSetter = $this->inflector->setterFromColumn($property) . 'Class';
+        $idSetter = $this->inflector->setterFromColumn($this->inflector->idColumnFromProperty($property));
+        $classSetter = $this->inflector->setterFromColumn($this->classColumnFromProperty($property));
         $foreignObjects = [];
         $objectsById = [];
         $om = $this->objectMapper->getObjectManager($objects);
@@ -96,8 +99,32 @@ final class PolymorphicHandler extends BaseRelationshipHandler
         }
     }
 
-    public function join(QueryBuilder $qb, string $fromAlias, Relationship $relationship, JoinType $type = JoinType::INNER): string
+    public function join(QueryBuilder $qb, string $fromAlias, Polymorphic|Relationship $relationship, JoinType $type = JoinType::INNER, mixed $additional = null): string
     {
-        return 'todo';
+        $foreignClass = $additional;
+        if (empty($foreignClass) || !class_exists($foreignClass)) {
+            throw new InvalidArgumentException('Must provide the class name of the class to join to');
+        }
+
+        $db = $qb->getConnection();
+
+        $fom = $this->objectMapper->getObjectManager($foreignClass);
+        $class = (new \ReflectionClass($foreignClass))->getShortName();
+        $foreignTable = $fom->getTable();
+        $property = $relationship->getProperty();
+        $aliasPrefix = $this->inflector->aliasFromProperty($property);
+        $alias = $aliasPrefix . '_' . $this->inflector->aliasFromProperty(lcfirst($class));
+        $idColumn = $db->quoteIdentifier($this->inflector->idColumnFromProperty($property));
+        $classColumn = $db->quoteIdentifier($this->classColumnFromProperty($property));
+        $foreignIdColumn = $db->quoteIdentifier($fom->getIdColumn());
+        $functionName = $type->value . 'Join';
+        $on = "$fromAlias.$idColumn = $alias.$foreignIdColumn AND $fromAlias.$classColumn = '$class'";
+        $qb->$functionName($fromAlias, $foreignTable, $alias, $on);
+        return $alias;
+    }
+
+    private function classColumnFromProperty(string $property): string
+    {
+        return $property . 'Class';
     }
 }

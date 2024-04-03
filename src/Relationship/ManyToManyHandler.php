@@ -161,7 +161,7 @@ final class ManyToManyHandler extends BaseRelationshipHandler
         });
     }
 
-    public function join(QueryBuilder $qb, string $fromAlias, ManyToMany|Relationship $relationship, JoinType $type = JoinType::INNER): string
+    public function join(QueryBuilder $qb, string $fromAlias, ManyToMany|Relationship $relationship, JoinType $type = JoinType::INNER, mixed $additional = null): string
     {
         $om = $this->objectMapper->getObjectManager($relationship->getClass());
         $foreignOM = $this->objectMapper->getObjectManager($relationship->getForeignClass());

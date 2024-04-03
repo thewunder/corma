@@ -1081,6 +1081,22 @@ abstract class BaseIntegrationCase extends TestCase
         $this->assertNotEmpty($fromDb);
     }
 
+    public function testFindByPolymorphicJoin()
+    {
+        $object = new ExtendedDataObject();
+        $object->setPolymorphic((new OtherDataObject())->setName('Poly'));
+        $object2 = new ExtendedDataObject();
+        $object2->setPolymorphic((new ExtendedDataObject())->setMyColumn('Morphic'));
+        $this->objectMapper->getRelationshipManager()->save([$object, $object2], 'polymorphic');
+        $this->objectMapper->saveAll([$object, $object2]);
+
+        /** @var ExtendedDataObjectRepository $repo */
+        $repo = $this->objectMapper->getRepository(ExtendedDataObject::class);
+        $fromDb = $repo->findByOtherColumnPolymorphic('Poly');
+        $this->assertCount(1, $fromDb);
+        $this->assertEquals($object->getId(), $fromDb[0]->getId());
+    }
+
     public function testOffsetPagedQuery(): void
     {
         /** @var ExtendedDataObjectRepository $repo */

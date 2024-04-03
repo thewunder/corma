@@ -91,11 +91,11 @@ final class RelationshipManager
      * Join to a relationship defined via property attributes.
      * @return string
      */
-    public function join(QueryBuilder $qb, string $class, string $property, string $alias = 'main', JoinType $type = JoinType::INNER): string
+    public function join(QueryBuilder $qb, string $class, string $property, string $alias = 'main', JoinType $type = JoinType::INNER, mixed $additional = null): string
     {
         $relationship = $this->readAttribute($class, $property);
         $handler = $this->getHandler($relationship);
-        return $handler->join($qb, $alias, $relationship, $type);
+        return $handler->join($qb, $alias, $relationship, $type, $additional);
     }
 
     public function getHandler(Relationship $relationship): RelationshipHandler

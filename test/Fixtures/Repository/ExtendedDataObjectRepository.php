@@ -3,6 +3,7 @@ namespace Corma\Test\Fixtures\Repository;
 
 use Corma\Repository\ObjectRepository;
 use Corma\Test\Fixtures\ExtendedDataObject;
+use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Util\PagedQuery;
 
 class ExtendedDataObjectRepository extends ObjectRepository
@@ -43,6 +44,16 @@ class ExtendedDataObjectRepository extends ObjectRepository
     {
         $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['mtmodo.name'=>$otherName]);
         $this->join($qb,'manyToManyOtherDataObjects');
+        return $this->fetchAll($qb);
+    }
+
+    /**
+     * @return ExtendedDataObject[]
+     */
+    public function findByOtherColumnPolymorphic(string $otherName): array
+    {
+        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', ['p_odo.name'=>$otherName]);
+        $this->join($qb,'polymorphic', additional: OtherDataObject::class);
         return $this->fetchAll($qb);
     }
 

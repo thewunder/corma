@@ -509,12 +509,12 @@ class ObjectRepository implements ObjectRepositoryInterface
      * Defaults to joining from the object handled for this repository.
      * @return string The alias of the table joined to
      */
-    protected function join(QueryBuilder $qb, string $property, ?string $fromClass = null, string $fromAlias = 'main', JoinType $type = JoinType::INNER): string
+    protected function join(QueryBuilder $qb, string $property, ?string $fromClass = null, string $fromAlias = 'main', JoinType $type = JoinType::INNER, mixed $additional = null): string
     {
         if (!$fromClass) {
             $fromClass = $this->getClassName();
         }
-        return $this->objectMapper->getRelationshipManager()->join($qb, $fromClass, $property, $fromAlias, $type);
+        return $this->objectMapper->getRelationshipManager()->join($qb, $fromClass, $property, $fromAlias, $type, $additional);
     }
 
     /**

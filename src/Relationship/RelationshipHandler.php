@@ -26,7 +26,8 @@ interface RelationshipHandler
 
     /**
      * Add a join to the relationship to the specified to the provided query builder
+     * @param mixed $additional Additional parameters required to join the relationship
      * @return string The alias of the table joined to
      */
-    public function join(QueryBuilder $qb, string $fromAlias, Relationship $relationship, JoinType $type = JoinType::INNER): string;
+    public function join(QueryBuilder $qb, string $fromAlias, Relationship $relationship, JoinType $type = JoinType::INNER, mixed $additional = null): string;
 }

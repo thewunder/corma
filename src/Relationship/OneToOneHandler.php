@@ -135,7 +135,7 @@ final class OneToOneHandler extends BaseRelationshipHandler
         $this->objectMapper->saveAll($objectsToUpdate, null);
     }
 
-    public function join(QueryBuilder $qb, string $fromAlias, OneToOne|Relationship $relationship, JoinType $type = JoinType::INNER): string
+    public function join(QueryBuilder $qb, string $fromAlias, OneToOne|Relationship $relationship, JoinType $type = JoinType::INNER, mixed $additional = null): string
     {
         $foreignOM = $this->objectMapper->getObjectManager($relationship->getForeignClass());
         $conn = $qb->getConnection();

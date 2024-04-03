@@ -179,7 +179,7 @@ final class OneToManyHandler extends BaseRelationshipHandler
         return $existingForeignObjectsIdsByObjectId;
     }
 
-    public function join(QueryBuilder $qb, string $fromAlias, OneToMany|Relationship $relationship, JoinType $type = JoinType::INNER): string
+    public function join(QueryBuilder $qb, string $fromAlias, OneToMany|Relationship $relationship, JoinType $type = JoinType::INNER, mixed $additional = null): string
     {
         $om = $this->objectMapper->getObjectManager($relationship->getClass());
         $conn = $qb->getConnection();
