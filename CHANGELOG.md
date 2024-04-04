@@ -6,6 +6,7 @@ New Features
 - Add new way of loading relationships where relationships are defined via property attributes.
 - Add support for loading and saving polymorphic relationships where a class and id column can load an object of any class in a namespace.
 - Allow all specified relationships on a class to be loaded and saved with a single method call.
+- Add helper to repositories to join to the table on a relationship
 - Provides a framework where custom relationship types can be added or behavior for built-in types modified.
 
 Updates
