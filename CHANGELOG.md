@@ -1,4 +1,4 @@
-Version 4.2.0
+Version 5.0
 =============
 
 New Features
@@ -13,6 +13,11 @@ Updates
 -------
 - Existing loadOne, loadMany, loadManyToMany as well as the RelationshipSaver and RelationshipLoader classes have been deprecated.
 - All exceptions throws extend from a common CormaException class
+
+Breaking Changes
+----------------
+
+* Legacy relationship load / save methods require that the property names and getter / setter names are consistent with the property name. They are not 100% backward compatible, and may require some renaming. 
 
 Version 4.1.0
 =============
