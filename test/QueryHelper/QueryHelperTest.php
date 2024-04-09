@@ -6,7 +6,9 @@ use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\QueryHelper\QueryModifier\SoftDelete;
 use Corma\Util\LimitedArrayCache;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
@@ -25,7 +27,8 @@ class QueryHelperTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->connection->expects($this->any())->method('quoteIdentifier')->will($this->returnCallback(fn($column) => "`$column`"));
+        $this->connection->expects($this->any())->method('quoteIdentifier')->willReturnCallback(fn($column) => "`$column`");
+        $this->connection->expects($this->any())->method('getExpressionBuilder')->willReturn(new ExpressionBuilder($this->connection));
 
         $this->queryHelper = new QueryHelper($this->connection, new LimitedArrayCache());
     }
@@ -123,7 +126,7 @@ class QueryHelperTest extends TestCase
         $where = (string) $qb->getQueryPart('where');
         $this->assertEquals('`inColumn` IN(:inColumn)', $where);
         $this->assertEquals([1,2,3], $qb->getParameter('inColumn'));
-        $this->assertEquals(Connection::PARAM_STR_ARRAY, $qb->getParameterType('inColumn'));
+        $this->assertEquals( ArrayParameterType::STRING, $qb->getParameterType('inColumn'));
     }
 
     public function testNotInQuery(): void
@@ -136,7 +139,7 @@ class QueryHelperTest extends TestCase
         $where = (string) $qb->getQueryPart('where');
         $this->assertEquals('`inColumn` NOT IN(:inColumn)', $where);
         $this->assertEquals([1,2,3], $qb->getParameter('inColumn'));
-        $this->assertEquals(Connection::PARAM_STR_ARRAY, $qb->getParameterType('inColumn'));
+        $this->assertEquals( ArrayParameterType::STRING, $qb->getParameterType('inColumn'));
     }
 
     public function testBetweenQuery(): void
@@ -183,6 +186,30 @@ class QueryHelperTest extends TestCase
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['column >'=>5, 'column <'=>10]);
         $where = (string) $qb->getQueryPart('where');
         $this->assertEquals('(`column` > :column) AND (`column` < :column2)', $where);
+        $this->assertEquals(5, $qb->getParameter('column'));
+        $this->assertEquals(10, $qb->getParameter('column2'));
+    }
+
+    public function testOr(): void
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', [['column >'=>5, 'column <'=>10], 'otherColumn' => 'pizza']);
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('((`column` > :column) OR (`column` < :column2)) AND (`otherColumn = :otherColumn)', $where);
+        $this->assertEquals(5, $qb->getParameter('column'));
+        $this->assertEquals(10, $qb->getParameter('column2'));
+    }
+
+    public function testNestedOr(): void
+    {
+        $this->connection->expects($this->once())->method('createQueryBuilder')
+            ->willReturn(new QueryBuilder($this->connection));
+
+        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', [[['column >'=>5], ['column <'=>10, 'otherColumn' => 'pizza']]]);
+        $where = (string) $qb->getQueryPart('where');
+        $this->assertEquals('((`column` > :column) OR ((`column` < :column2) AND (`otherColumn = :otherColumn))', $where);
         $this->assertEquals(5, $qb->getParameter('column'));
         $this->assertEquals(10, $qb->getParameter('column2'));
     }

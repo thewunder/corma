@@ -3,6 +3,7 @@ namespace Corma\QueryHelper;
 
 use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\MissingPrimaryKeyException;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
@@ -321,7 +322,7 @@ class QueryHelper implements QueryHelperInterface
             } else {
                 $clause = "$columnName IN(:$paramName)";
             }
-            $qb->setParameter($paramName, $value, Connection::PARAM_STR_ARRAY);
+            $qb->setParameter($paramName, $value,  ArrayParameterType::STRING);
             return $clause;
         } elseif ($value === null) {
             if ($operator == '<>' || $operator == '!=') {
