@@ -375,8 +375,8 @@ class QueryHelper implements QueryHelperInterface
     {
         $schema = $this->getDbColumns($table);
         try {
-            $primaryKeys = $schema->getPrimaryKey();
-            return reset($primaryKeys)->getName();
+            $primaryKeys = $schema->getPrimaryKey()->getColumns();
+            return reset($primaryKeys);
         } catch (Exception) {
             return null;
         }

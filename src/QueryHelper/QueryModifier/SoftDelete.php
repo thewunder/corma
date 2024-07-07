@@ -60,12 +60,9 @@ class SoftDelete extends QueryModifier
 
     protected function hasId(Table $table, array $where): bool
     {
-        if (!$table->hasPrimaryKey()) {
-            return false;
-        }
-
-        foreach ($table->getPrimaryKeyColumns() as $column) {
-            $columnName = $column->getName();
+        $primaryKey = $table->getPrimaryKey();
+        if ($primaryKey) {
+            $columnName = $primaryKey->getColumns()[0];
             if(isset($where[$columnName]) || isset($where[QueryHelperInterface::TABLE_ALIAS. '.' .$columnName])) {
                 return true;
             }

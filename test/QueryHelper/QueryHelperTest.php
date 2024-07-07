@@ -43,10 +43,12 @@ class QueryHelperTest extends TestCase
 
         $this->assertEquals(QueryType::SELECT, $qb->getType());
 
-        $from = $qb->getFrom();
-        $this->assertEquals([['table'=>'`test_table`', 'alias'=>'main']], $from);
+        $from = $qb->getFrom()[0];
+        $this->assertEquals('`test_table`', $from->table);
+        $this->assertEquals('main', $from->alias);
 
-        $where = (string) $qb->getWhere();
+
+        $where = $qb->getWhere();
         $this->assertEquals('`main.column` = :column', $where);
         $this->assertEquals('value', $qb->getParameter('column'));
 
@@ -200,8 +202,7 @@ class QueryHelperTest extends TestCase
 
         $this->assertEquals(QueryType::UPDATE, $qb->getType());
 
-        $from = $qb->getFrom();
-        $this->assertEquals(['table'=>'`test_table`', 'alias'=>'main'], $from);
+        $this->assertEquals('`test_table`', $qb->getTable());
 
         $where = (string) $qb->getWhere();
         $this->assertEquals('(`column` = :column) AND (`inColumn` IN(:inColumn))', $where);
@@ -262,8 +263,7 @@ class QueryHelperTest extends TestCase
 
         $this->assertEquals(QueryType::DELETE, $qb->getType());
 
-        $from = $qb->getFrom();
-        $this->assertEquals(['table'=>'`test_table`', 'alias'=>null], $from);
+        $this->assertEquals('`test_table`', $qb->getTable());
 
         $where = (string) $qb->getWhere();
         $this->assertEquals('(`column` = :column) AND (`inColumn` IN(:inColumn))', $where);
