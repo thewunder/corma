@@ -77,8 +77,9 @@ class ObjectMapper
      */
     protected static function createQueryHelper(Connection $db, CacheInterface $cache): QueryHelperInterface
     {
-        $database = $db->getDatabasePlatform()->getReservedKeywordsList()->getName();
+        $database = $db->getDatabasePlatform()::class;
         $database = preg_replace('/[^A-Za-z]/', '', $database); //strip version
+        $database = str_replace('Platform', '', $database);
         $className = "Corma\\QueryHelper\\{$database}QueryHelper";
         if (class_exists($className)) {
             return new $className($db, $cache);

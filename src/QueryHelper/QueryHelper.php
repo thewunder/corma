@@ -1,6 +1,7 @@
 <?php
 namespace Corma\QueryHelper;
 
+use Corma\DBAL\Query\QueryType;
 use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\MissingPrimaryKeyException;
 use Corma\DBAL\ArrayParameterType;
@@ -200,7 +201,7 @@ class QueryHelper implements QueryHelperInterface
 
         try {
             $effected = $this->massInsert($table, $rowsToInsert);
-            $lastInsertId = $this->getLastInsertId($table, $primaryKey) - (count($rowsToInsert) - 1);
+            $lastInsertId = $this->getLastInsertId() - (count($rowsToInsert) - 1);
 
             foreach ($rowsToUpdate as $row) {
                 $id = $row[$primaryKey];
@@ -240,30 +241,30 @@ class QueryHelper implements QueryHelperInterface
      */
     public function getCount(QueryBuilder $qb, string $idColumn = 'id'): int
     {
-        if ($qb->getType() != QueryBuilder::SELECT) {
+        if ($qb->getType() != QueryType::SELECT) {
             throw new \InvalidArgumentException('Query builder must be a select query');
         }
 
-        $select = $qb->getQueryPart('select');
+        $select = $qb->getSelect();
 
-        if ($qb->getQueryPart('groupBy')) {
+        if ($qb->getGroupBy()) {
             $qb->select('1 AS group_by_row');
             $count = $this->db->executeQuery("SELECT COUNT(*) FROM ({$qb->getSQL()}) AS group_by_count",
                 $qb->getParameters(), $qb->getParameterTypes())->fetchOne();
         } else {
-            $orderBy = $qb->getQueryPart('orderBy');
+            $orderBy = $qb->getOrderBy();
 
             $count = (int) $qb->select("COUNT(main.$idColumn)")
-                ->resetQueryPart('orderBy')
+                ->resetOrderBy()
                 ->executeQuery()->fetchOne();
 
             foreach($orderBy as $orderByPart) {
-                [$column, $dir] = explode(' ', (string) $orderByPart);
+                [$column, $dir] = explode(' ', $orderByPart);
                 $qb->addOrderBy($column, $dir);
             }
         }
 
-        $qb->select($select);
+        $qb->select(...$select);
 
         return $count;
     }
@@ -338,24 +339,6 @@ class QueryHelper implements QueryHelperInterface
     }
 
     /**
-     * @param array $from The from part of the query builder
-     * @return bool
-     */
-    protected function acceptsNull(array $from, string $whereClause): bool
-    {
-        foreach ($from as $tableInfo) {
-            $table = str_replace($this->db->getDatabasePlatform()->getIdentifierQuoteCharacter(), '', (string) $tableInfo['table']);
-            $columns = $this->getDbColumns($table);
-            $column = $this->getColumnName($whereClause, false);
-            if (!$columns->hasColumn($column)) {
-                continue;
-            }
-            return !$columns->getColumn($column)->getNotnull();
-        }
-        return false;
-    }
-
-    /**
      * Returns table metadata for the provided table
      *
      * @param string $table
@@ -368,7 +351,7 @@ class QueryHelper implements QueryHelperInterface
             return $this->cache->get($key);
         } else {
             $schemaManager = $this->db->createSchemaManager();
-            $tableObj = $schemaManager->listTableDetails($table);
+            $tableObj = $schemaManager->introspectTable($table);
             if (empty($tableObj->getColumns())) {
                 $database = $this->db->getDatabase();
                 throw new InvalidArgumentException("The table $database.$table does not exist");
@@ -378,20 +361,9 @@ class QueryHelper implements QueryHelperInterface
         }
     }
 
-    /**
-     * @param string $table
-     * @param string $column
-     * @return string|null
-     * @throws Exception
-     */
-    public function getLastInsertId(string $table, string $column): ?string
+    public function getLastInsertId(): string|int|null
     {
-        $sequence = null;
-        $platform = $this->db->getDatabasePlatform();
-        if ($platform->usesSequenceEmulatedIdentityColumns()) {
-            $sequence = $platform->getIdentitySequenceName($table, $column);
-        }
-        return $this->db->lastInsertId($sequence);
+        return $this->db->lastInsertId();
     }
 
     /**
@@ -403,7 +375,7 @@ class QueryHelper implements QueryHelperInterface
     {
         $schema = $this->getDbColumns($table);
         try {
-            $primaryKeys = $schema->getPrimaryKeyColumns();
+            $primaryKeys = $schema->getPrimaryKey();
             return reset($primaryKeys)->getName();
         } catch (Exception) {
             return null;

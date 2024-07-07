@@ -26,7 +26,7 @@ class SeekPagedQuery extends PagedQuery
 
     public function __construct(QueryBuilder $qb, QueryHelperInterface $queryHelper, ObjectManager $objectManager, $pageSize = self::DEFAULT_PAGE_SIZE)
     {
-        if ($qb->getQueryPart('groupBy')) {
+        if ($qb->getGroupBy()) {
             throw new InvalidArgumentException('Seek paged queries do not support group by');
         }
 
@@ -113,14 +113,13 @@ class SeekPagedQuery extends PagedQuery
             return $this->sortColumns;
         }
 
-        $orderBy = $this->qb->getQueryPart('orderBy');
+        $orderBy = $this->qb->getOrderBy();
 
         $columns = [];
-        $connection = $this->queryHelper->getConnection();
-        $quoteChar = $connection->getDatabasePlatform()->getIdentifierQuoteCharacter();
         foreach ($orderBy as $orderByPart) {
-            [$column, $dir]= explode(' ', (string) $orderByPart);
-            $column = str_replace($quoteChar, '', $column);
+            [$column, $dir]= explode(' ', $orderByPart);
+            //unquote
+            $column = str_replace(['`','"', "'"], '', $column);
             $columns[$column] = $dir;
         }
 
@@ -164,11 +163,16 @@ class SeekPagedQuery extends PagedQuery
             }
         }
 
-        $qb->andWhere($qb->expr()->or(
-            new CompositeExpression(CompositeExpression::TYPE_AND, $tieBreakerInequalities),
-            new CompositeExpression(CompositeExpression::TYPE_AND, $tieBreakerEqualities)
-        )
-        );
+        if (!empty($tieBreakerInequalities)) {
+            $andWhere = $qb->expr()->or(
+                new CompositeExpression(CompositeExpression::TYPE_AND, ...$tieBreakerInequalities),
+                new CompositeExpression(CompositeExpression::TYPE_AND, ...$tieBreakerEqualities)
+            );
+        } else {
+            $andWhere = new CompositeExpression(CompositeExpression::TYPE_AND, ...$tieBreakerEqualities);
+        }
+
+        $qb->andWhere($andWhere);
     }
 
     private function decodeLastResultData($lastResult): array

@@ -34,7 +34,8 @@ class SeekPagedQueryTest extends TestCase
             ->getMock();
 
         $this->qb->method('getConnection')->willReturn($connection);
-        $this->qb->method('getQueryPart')->willReturn([]);
+        $this->qb->method('getGroupBy')->willReturn([]);
+        $this->qb->method('getOrderBy')->willReturn([]);
         $this->qb->method('expr')->willReturn(new ExpressionBuilder($connection));
 
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)

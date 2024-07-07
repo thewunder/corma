@@ -56,7 +56,7 @@ class PostgreSQLQueryHelper extends QueryHelper
         $params = $this->getParams($normalizedRows);
 
         $effected = $this->db->executeStatement($query, $params);
-        $lastInsertId = $this->getLastInsertId($table, $primaryKey) - ($effected - $updates - 1);
+        $lastInsertId = $this->getLastInsertId() - ($effected - $updates - 1);
 
         return $effected;
     }

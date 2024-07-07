@@ -1,6 +1,7 @@
 <?php
 namespace Corma\Test\QueryHelper;
 
+use Corma\DBAL\Query\QueryType;
 use Corma\Exception\InvalidArgumentException;
 use Corma\QueryHelper\QueryHelper;
 use Corma\QueryHelper\QueryHelperInterface;
@@ -28,7 +29,7 @@ class QueryHelperTest extends TestCase
             ->getMock();
 
         $this->connection->expects($this->any())->method('quoteIdentifier')->willReturnCallback(fn($column) => "`$column`");
-        $this->connection->expects($this->any())->method('getExpressionBuilder')->willReturn(new ExpressionBuilder($this->connection));
+        $this->connection->expects($this->any())->method('createExpressionBuilder')->willReturn(new ExpressionBuilder($this->connection));
 
         $this->queryHelper = new QueryHelper($this->connection, new LimitedArrayCache());
     }
@@ -40,16 +41,16 @@ class QueryHelperTest extends TestCase
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['main.column'=>'value'], ['column'=>'ASC']);
 
-        $this->assertEquals(QueryBuilder::SELECT, $qb->getType());
+        $this->assertEquals(QueryType::SELECT, $qb->getType());
 
-        $from = $qb->getQueryPart('from');
+        $from = $qb->getFrom();
         $this->assertEquals([['table'=>'`test_table`', 'alias'=>'main']], $from);
 
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('`main.column` = :column', $where);
         $this->assertEquals('value', $qb->getParameter('column'));
 
-        $orderBy = $qb->getQueryPart('orderBy');
+        $orderBy = $qb->getOrderBy();
         $this->assertEquals(['`column` ASC'], $orderBy);
     }
 
@@ -60,7 +61,7 @@ class QueryHelperTest extends TestCase
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['notEqualColumn !='=>1, 'notEqualColumn2 <>'=>2]);
 
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('(`notEqualColumn` != :notEqualColumn) AND (`notEqualColumn2` <> :notEqualColumn2)', $where);
         $this->assertEquals(1, $qb->getParameter('notEqualColumn'));
         $this->assertEquals(2, $qb->getParameter('notEqualColumn2'));
@@ -73,7 +74,7 @@ class QueryHelperTest extends TestCase
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['lessThanColumn <'=>1, 'lessThanEqColumn <='=>2]);
 
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('(`lessThanColumn` < :lessThanColumn) AND (`lessThanEqColumn` <= :lessThanEqColumn)', $where);
         $this->assertEquals(1, $qb->getParameter('lessThanColumn'));
         $this->assertEquals(2, $qb->getParameter('lessThanEqColumn'));
@@ -86,7 +87,7 @@ class QueryHelperTest extends TestCase
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['greaterThanColumn >'=>1, 'greaterThanEqColumn >='=>2]);
 
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('(`greaterThanColumn` > :greaterThanColumn) AND (`greaterThanEqColumn` >= :greaterThanEqColumn)', $where);
         $this->assertEquals(1, $qb->getParameter('greaterThanColumn'));
         $this->assertEquals(2, $qb->getParameter('greaterThanEqColumn'));
@@ -99,7 +100,7 @@ class QueryHelperTest extends TestCase
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['likeColumn LIKE'=>'%whatever%']);
 
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('`likeColumn` LIKE :likeColumn', $where);
         $this->assertEquals('%whatever%', $qb->getParameter('likeColumn'));
     }
@@ -111,7 +112,7 @@ class QueryHelperTest extends TestCase
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['likeColumn NOT LIKE'=>'%whatever%']);
 
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('`likeColumn` NOT LIKE :likeColumn', $where);
         $this->assertEquals('%whatever%', $qb->getParameter('likeColumn'));
     }
@@ -123,7 +124,7 @@ class QueryHelperTest extends TestCase
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['inColumn'=>[1,2,3]]);
 
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('`inColumn` IN(:inColumn)', $where);
         $this->assertEquals([1,2,3], $qb->getParameter('inColumn'));
         $this->assertEquals( ArrayParameterType::STRING, $qb->getParameterType('inColumn'));
@@ -136,7 +137,7 @@ class QueryHelperTest extends TestCase
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['inColumn !='=>[1,2,3]]);
 
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('`inColumn` NOT IN(:inColumn)', $where);
         $this->assertEquals([1,2,3], $qb->getParameter('inColumn'));
         $this->assertEquals( ArrayParameterType::STRING, $qb->getParameterType('inColumn'));
@@ -148,7 +149,7 @@ class QueryHelperTest extends TestCase
             ->willReturn(new QueryBuilder($this->connection));
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['column BETWEEN'=>[5, 10]]);
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('`column` BETWEEN :columnGreaterThan AND :columnLessThan', $where);
         $this->assertEquals(5, $qb->getParameter('columnGreaterThan'));
         $this->assertEquals(10, $qb->getParameter('columnLessThan'));
@@ -160,7 +161,7 @@ class QueryHelperTest extends TestCase
             ->willReturn(new QueryBuilder($this->connection));
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['column NOT BETWEEN'=>[5, 10]]);
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('`column` NOT BETWEEN :columnGreaterThan AND :columnLessThan', $where);
         $this->assertEquals(5, $qb->getParameter('columnGreaterThan'));
         $this->assertEquals(10, $qb->getParameter('columnLessThan'));
@@ -184,7 +185,7 @@ class QueryHelperTest extends TestCase
             ->willReturn(new QueryBuilder($this->connection));
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', ['column >'=>5, 'column <'=>10]);
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('(`column` > :column) AND (`column` < :column2)', $where);
         $this->assertEquals(5, $qb->getParameter('column'));
         $this->assertEquals(10, $qb->getParameter('column2'));
@@ -196,7 +197,7 @@ class QueryHelperTest extends TestCase
             ->willReturn(new QueryBuilder($this->connection));
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', [['column >'=>5, 'column <'=>10], 'otherColumn' => 'pizza']);
-        $where = (string) $qb->getQueryPart('where');
+        $where = $qb->getWhere();
         $this->assertEquals('((`column` > :column) OR (`column` < :column2)) AND (`otherColumn = :otherColumn)', $where);
         $this->assertEquals(5, $qb->getParameter('column'));
         $this->assertEquals(10, $qb->getParameter('column2'));
@@ -208,7 +209,7 @@ class QueryHelperTest extends TestCase
             ->willReturn(new QueryBuilder($this->connection));
 
         $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', [[['column >'=>5], ['column <'=>10, 'otherColumn' => 'pizza']]]);
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('((`column` > :column) OR ((`column` < :column2) AND (`otherColumn = :otherColumn))', $where);
         $this->assertEquals(5, $qb->getParameter('column'));
         $this->assertEquals(10, $qb->getParameter('column2'));
@@ -221,15 +222,15 @@ class QueryHelperTest extends TestCase
 
         $qb = $this->queryHelper->buildUpdateQuery('test_table', ['columnToSet'=>'new_value'], ['column'=>'value', 'inColumn'=>[1,2,3]]);
 
-        $this->assertEquals(QueryBuilder::UPDATE, $qb->getType());
+        $this->assertEquals(QueryType::UPDATE, $qb->getType());
 
-        $from = $qb->getQueryPart('from');
+        $from = $qb->getFrom();
         $this->assertEquals(['table'=>'`test_table`', 'alias'=>'main'], $from);
 
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('(`column` = :column) AND (`inColumn` IN(:inColumn))', $where);
 
-        $set = $qb->getQueryPart('set');
+        $set = $qb->getSet();
         $this->assertEquals(['`columnToSet` = :columnToSet'], $set);
     }
 
@@ -283,12 +284,12 @@ class QueryHelperTest extends TestCase
 
         $qb = $this->queryHelper->buildDeleteQuery('test_table', ['column'=>'value', 'inColumn'=>[1,2,3]]);
 
-        $this->assertEquals(QueryBuilder::DELETE, $qb->getType());
+        $this->assertEquals(QueryType::DELETE, $qb->getType());
 
-        $from = $qb->getQueryPart('from');
+        $from = $qb->getFrom();
         $this->assertEquals(['table'=>'`test_table`', 'alias'=>null], $from);
 
-        $where = (string) $qb->getQueryPart('where');
+        $where = (string) $qb->getWhere();
         $this->assertEquals('(`column` = :column) AND (`inColumn` IN(:inColumn))', $where);
     }
 
@@ -318,6 +319,8 @@ class QueryHelperTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $qb->method('getType')->willReturn(QueryType::SELECT);
+
         $mockResult = $this->getMockBuilder(Result::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -328,10 +331,10 @@ class QueryHelperTest extends TestCase
         $qb->expects($matcher)->method('select')->willReturnCallback(fn() => match ($matcher->numberOfInvocations()) {
             1 => ['COUNT(main.id)'],
             2 => [null],
-        })->will($this->returnSelf());
+        })->willReturnSelf();
         $qb->expects($this->once())->method('executeQuery')->willReturn($mockResult);
-        $qb->method('getQueryPart')->willReturnOnConsecutiveCalls(null, null,[]);
-        $qb->expects($this->once())->method('resetQueryPart')->will($this->returnSelf());
+        //$qb->method('getQueryPart')->willReturnOnConsecutiveCalls(null, null,[]);
+        $qb->expects($this->once())->method('resetOrderBy')->willReturnSelf();
 
         $count = $this->queryHelper->getCount($qb);
         $this->assertEquals(9, $count);
@@ -343,6 +346,8 @@ class QueryHelperTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $qb->method('getType')->willReturn(QueryType::SELECT);
+
         $mockResult = $this->getMockBuilder(Result::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -352,7 +357,7 @@ class QueryHelperTest extends TestCase
             1 => ['1 AS group_by_row'],
             2 => [null],
         })->willReturnSelf();
-        $qb->method('getQueryPart')->willReturnOnConsecutiveCalls(null, ['groupByColumn']);
+        $qb->method('getGroupBy')->willReturn(['groupByColumn']);
         $qb->expects($this->once())->method('getParameters')->willReturn([]);
         $qb->expects($this->once())->method('getParameterTypes')->willReturn([]);
 
@@ -373,7 +378,7 @@ class QueryHelperTest extends TestCase
         $table = new Table($tableName);
         $table->addColumn('test', 'string');
 
-        $mockSchemaManager->expects($this->once())->method('listTableDetails')
+        $mockSchemaManager->expects($this->once())->method('introspectTable')
             ->with($tableName)->willReturn($table);
 
         $this->connection->expects($this->once())->method('createSchemaManager')
@@ -415,7 +420,7 @@ class QueryHelperTest extends TestCase
         $tableName = 'test_table';
         $table = new Table($tableName);
 
-        $mockSchemaManager->expects($this->once())->method('listTableDetails')
+        $mockSchemaManager->expects($this->once())->method('introspectTable')
             ->with($tableName)->willReturn($table);
 
         $this->connection->expects($this->once())->method('createSchemaManager')
