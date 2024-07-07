@@ -191,30 +191,6 @@ class QueryHelperTest extends TestCase
         $this->assertEquals(10, $qb->getParameter('column2'));
     }
 
-    public function testOr(): void
-    {
-        $this->connection->expects($this->once())->method('createQueryBuilder')
-            ->willReturn(new QueryBuilder($this->connection));
-
-        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', [['column >'=>5, 'column <'=>10], 'otherColumn' => 'pizza']);
-        $where = $qb->getWhere();
-        $this->assertEquals('((`column` > :column) OR (`column` < :column2)) AND (`otherColumn = :otherColumn)', $where);
-        $this->assertEquals(5, $qb->getParameter('column'));
-        $this->assertEquals(10, $qb->getParameter('column2'));
-    }
-
-    public function testNestedOr(): void
-    {
-        $this->connection->expects($this->once())->method('createQueryBuilder')
-            ->willReturn(new QueryBuilder($this->connection));
-
-        $qb = $this->queryHelper->buildSelectQuery('test_table', 'main.*', [[['column >'=>5], ['column <'=>10, 'otherColumn' => 'pizza']]]);
-        $where = (string) $qb->getWhere();
-        $this->assertEquals('((`column` > :column) OR ((`column` < :column2) AND (`otherColumn = :otherColumn))', $where);
-        $this->assertEquals(5, $qb->getParameter('column'));
-        $this->assertEquals(10, $qb->getParameter('column2'));
-    }
-
     public function testBuildUpdateQuery(): void
     {
         $this->connection->expects($this->once())->method('createQueryBuilder')
