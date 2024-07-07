@@ -1,10 +1,10 @@
 <?php
 namespace Corma\QueryHelper;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Schema\Table;
+use Corma\DBAL\Connection;
+use Corma\DBAL\Exception;
+use Corma\DBAL\Query\QueryBuilder;
+use Corma\DBAL\Schema\Table;
 
 /**
  * Builds sql queries and performs other related tasks.

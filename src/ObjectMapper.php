@@ -19,7 +19,7 @@ use Corma\Repository\ObjectRepositoryInterface;
 use Corma\Util\Inflector;
 use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
-use Doctrine\DBAL\Connection;
+use Corma\DBAL\Connection;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\SimpleCache\CacheInterface;

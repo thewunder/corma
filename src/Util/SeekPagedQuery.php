@@ -5,8 +5,8 @@ namespace Corma\Util;
 use Corma\DataObject\ObjectManager;
 use Corma\Exception\InvalidArgumentException;
 use Corma\QueryHelper\QueryHelperInterface;
-use Doctrine\DBAL\Query\Expression\CompositeExpression;
-use Doctrine\DBAL\Query\QueryBuilder;
+use Corma\DBAL\Query\Expression\CompositeExpression;
+use Corma\DBAL\Query\QueryBuilder;
 
 /**
  * Uses the more consistent and efficient seek / cursor pagination method that uses data from the last result to move between pages.

@@ -5,9 +5,9 @@ use Corma\DataObject\ObjectManager;
 use Corma\Exception\InvalidArgumentException;
 use Corma\Util\OffsetPagedQuery;
 use Corma\QueryHelper\QueryHelper;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Result;
-use Doctrine\DBAL\Statement;
+use Corma\DBAL\Query\QueryBuilder;
+use Corma\DBAL\Result;
+use Corma\DBAL\Statement;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

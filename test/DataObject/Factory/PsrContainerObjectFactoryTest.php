@@ -5,7 +5,7 @@ use Corma\DataObject\Factory\PsrContainerObjectFactory;
 use Corma\DataObject\Hydrator\ObjectHydratorInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\ObjectWithDependencies;
-use Doctrine\DBAL\Result;
+use Corma\DBAL\Result;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;

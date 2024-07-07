@@ -9,7 +9,7 @@ use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Util\OffsetPagedQuery;
 use Corma\Util\SeekPagedQuery;
-use Doctrine\DBAL\Connection;
+use Corma\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

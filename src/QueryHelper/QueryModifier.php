@@ -2,7 +2,7 @@
 
 namespace Corma\QueryHelper;
 
-use Doctrine\DBAL\Query\QueryBuilder;
+use Corma\DBAL\Query\QueryBuilder;
 
 /**
  * Query modifiers allow you to modify queries before they are executed.

@@ -4,9 +4,9 @@ namespace Corma\QueryHelper\QueryModifier;
 
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\QueryHelper\QueryModifier;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Schema\Table;
+use Corma\DBAL\Connection;
+use Corma\DBAL\Query\QueryBuilder;
+use Corma\DBAL\Schema\Table;
 
 /**
  * Enables soft deletes for any database table containing the specified column.

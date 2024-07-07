@@ -6,7 +6,7 @@ use Corma\ObjectMapper;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\Repository\ReadOnlyRepository;
 use Corma\Util\LimitedArrayCache;
-use Doctrine\DBAL\Connection;
+use Corma\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

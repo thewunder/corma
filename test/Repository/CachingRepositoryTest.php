@@ -8,9 +8,9 @@ use Corma\QueryHelper\QueryHelper;
 use Corma\Test\Fixtures\Caching;
 use Corma\Test\Fixtures\Repository\CachingRepository;
 use Corma\Util\LimitedArrayCache;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Schema\Table;
+use Corma\DBAL\Connection;
+use Corma\DBAL\Query\QueryBuilder;
+use Corma\DBAL\Schema\Table;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

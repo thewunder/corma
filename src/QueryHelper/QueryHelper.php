@@ -3,12 +3,12 @@ namespace Corma\QueryHelper;
 
 use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\MissingPrimaryKeyException;
-use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Schema\Table;
+use Corma\DBAL\ArrayParameterType;
+use Corma\DBAL\Connection;
+use Corma\DBAL\ConnectionException;
+use Corma\DBAL\Exception;
+use Corma\DBAL\Query\QueryBuilder;
+use Corma\DBAL\Schema\Table;
 use Psr\SimpleCache\CacheInterface;
 
 class QueryHelper implements QueryHelperInterface

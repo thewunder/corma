@@ -9,7 +9,7 @@ use Corma\Util\PagedQuery;
 class ExtendedDataObjectRepository extends ObjectRepository
 {
     /**
-     * @throws \Doctrine\DBAL\Exception
+     * @throws \Corma\DBAL\Exception
      */
     public function causeUniqueConstraintViolation(): void
     {

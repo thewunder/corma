@@ -4,7 +4,7 @@ namespace Corma\Relationship;
 
 use Corma\Exception\InvalidArgumentException;
 use Corma\Exception\MethodNotImplementedException;
-use Doctrine\DBAL\Query\QueryBuilder;
+use Corma\DBAL\Query\QueryBuilder;
 
 final class PolymorphicHandler extends BaseRelationshipHandler
 {
