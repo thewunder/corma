@@ -5,8 +5,8 @@ namespace Corma\DataObject\Factory;
 
 
 use Corma\DataObject\Hydrator\ObjectHydratorInterface;
-use Doctrine\DBAL\Result;
-use Doctrine\DBAL\FetchMode;
+use Corma\DBAL\Result;
+use Corma\DBAL\FetchMode;
 use Psr\Container\ContainerInterface;
 
 /**

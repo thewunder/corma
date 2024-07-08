@@ -2,7 +2,7 @@
 
 namespace Corma\Relationship;
 
-use Doctrine\DBAL\Query\QueryBuilder;
+use Corma\DBAL\Query\QueryBuilder;
 
 /**
  * Represents a class that handles the saving and loading of a particular type of relationship

@@ -2,6 +2,7 @@
 namespace Corma\Test\Integration;
 
 use Corma\DataObject\ObjectManagerFactory;
+use Corma\DBAL\ConnectionException;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\MySQLQueryHelper;
 use Corma\Test\Fixtures\ExtendedDataObject;
@@ -9,8 +10,8 @@ use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
 use Corma\Util\Inflector;
 use Corma\Util\LimitedArrayCache;
-use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Exception;
+use Corma\DBAL\DriverManager;
+use Corma\DBAL\Exception;
 use Dotenv\Dotenv;
 use Psr\Container\ContainerInterface;
 
@@ -28,7 +29,7 @@ class MysqlIntegrationTest extends BaseIntegrationCase
         $objectMapper->method('getObjectManagerFactory')->willReturn($objectManagerFactory);
         $this->repository = new ExtendedDataObjectRepository(self::$connection, $objectMapper, $cache, $this->dispatcher);
 
-        $this->assertFalse($mySQLQueryHelper->isDuplicateException(new Exception()));
+        $this->assertFalse($mySQLQueryHelper->isDuplicateException(new ConnectionException()));
 
         try {
             $this->repository->causeUniqueConstraintViolation();

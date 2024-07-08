@@ -4,7 +4,7 @@ namespace Corma\Util;
 use Corma\DataObject\ObjectManager;
 use Corma\Exception\InvalidArgumentException;
 use Corma\QueryHelper\QueryHelperInterface;
-use Doctrine\DBAL\Query\QueryBuilder;
+use Corma\DBAL\Query\QueryBuilder;
 
 /**
  * Class representing a paged query

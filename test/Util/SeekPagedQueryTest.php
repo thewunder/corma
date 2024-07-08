@@ -6,11 +6,11 @@ use Corma\Exception\InvalidArgumentException;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\QueryHelper\QueryHelper;
 use Corma\Util\SeekPagedQuery;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Platforms\MySQLPlatform;
-use Doctrine\DBAL\Query\Expression\ExpressionBuilder;
-use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\DBAL\Result;
+use Corma\DBAL\Connection;
+use Corma\DBAL\Platforms\MySQLPlatform;
+use Corma\DBAL\Query\Expression\ExpressionBuilder;
+use Corma\DBAL\Query\QueryBuilder;
+use Corma\DBAL\Result;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -34,7 +34,8 @@ class SeekPagedQueryTest extends TestCase
             ->getMock();
 
         $this->qb->method('getConnection')->willReturn($connection);
-        $this->qb->method('getQueryPart')->willReturn([]);
+        $this->qb->method('getGroupBy')->willReturn([]);
+        $this->qb->method('getOrderBy')->willReturn([]);
         $this->qb->method('expr')->willReturn(new ExpressionBuilder($connection));
 
         $this->queryHelper = $this->getMockBuilder(QueryHelper::class)

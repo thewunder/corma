@@ -19,7 +19,7 @@ use Corma\Repository\ObjectRepositoryInterface;
 use Corma\Util\Inflector;
 use Corma\Util\LimitedArrayCache;
 use Corma\Util\UnitOfWork;
-use Doctrine\DBAL\Connection;
+use Corma\DBAL\Connection;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -77,7 +77,8 @@ class ObjectMapper
      */
     protected static function createQueryHelper(Connection $db, CacheInterface $cache): QueryHelperInterface
     {
-        $database = $db->getDatabasePlatform()->getReservedKeywordsList()->getName();
+        $database = $db->getDatabasePlatform()::class;
+        $database = str_replace(['Corma\\DBAL\\Platforms\\', 'Platform'], '', $database);
         $database = preg_replace('/[^A-Za-z]/', '', $database); //strip version
         $className = "Corma\\QueryHelper\\{$database}QueryHelper";
         if (class_exists($className)) {

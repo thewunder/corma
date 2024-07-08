@@ -77,7 +77,7 @@ class RelationshipLoader
      * @param string|null $foreignIdColumn Column on link table = the id on the foreign object table
      * @param string|null $setter Name of setter method on objects
      * @return object[] Loaded objects keyed by id
-     * @throws \Doctrine\DBAL\Exception
+     * @throws \Corma\DBAL\Exception
      */
     public function loadManyToMany(array $objects, string $className, string $linkTable, ?string $idColumn = null, ?string $foreignIdColumn = null, ?string $setter = null): array
     {

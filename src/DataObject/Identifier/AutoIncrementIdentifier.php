@@ -18,7 +18,7 @@ class AutoIncrementIdentifier extends BaseIdentifier
     public function setNewId(object $object): object
     {
         $table = $this->convention->getTable($object);
-        return $this->setId($object, $this->queryHelper->getLastInsertId($table, $this->getIdColumn($object)));
+        return $this->setId($object, $this->queryHelper->getLastInsertId());
     }
 
     public function isNew($object): bool

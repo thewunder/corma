@@ -12,9 +12,9 @@ use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Util\OffsetPagedQuery;
 use Corma\Util\PagedQuery;
 use Corma\Util\SeekPagedQuery;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Query\QueryBuilder;
+use Corma\DBAL\Connection;
+use Corma\DBAL\Exception;
+use Corma\DBAL\Query\QueryBuilder;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\SimpleCache\CacheInterface;
 
