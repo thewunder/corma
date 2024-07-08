@@ -40,7 +40,12 @@ jobs:
 
       - name: Create test postgres user
         run: |
-          sudo -u postgres psql --command="CREATE USER $PGSQL_USER PASSWORD '$PGSQL_PASS'" --command="GRANT CREATE ON DATABASE postgres TO $PGSQL_USER"
+          sudo -u postgres psql --command="CREATE USER $PGSQL_USER PASSWORD '$PGSQL_PASS'" --command="GRANT CREATE ON DATABASE cormatest TO $PGSQL_USER"
+
+      - name: Create test database
+        run: |
+          sudo -u postgres createdb cormatest
+
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
 
