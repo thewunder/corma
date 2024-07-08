@@ -29,13 +29,13 @@ Install via Composer
 
 Via the command line:
 
-    composer.phar require thewunder/corma ~4.2
+    composer.phar require thewunder/corma ^5.0
 
 Or add the following to the require section your composer.json:
 
-    "thewunder/corma": "~4.2"
+    "thewunder/corma": "^5.0"
 
-For PHP versions < 8.0 use Corma version ~3.0 
+For PHP versions < 8.1 use Corma version ~3.0 
 
 Basic Usage
 -----------
