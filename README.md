@@ -10,7 +10,7 @@ Corma is great because:
 
 * No complex and difficult to verify annotations or configuration files
 * Promotes consistent code organization
-* Loads and saves one-to-one, one-to-many, and many-to-many relationships with a method call
+* Loads and saves one-to-one, one-to-many, many-to-many, and polymorphic relationships
 * Can save multiple objects in a single query (using an upsert)
 * Makes it easy to cache and avoid database queries
 * Supports soft deletes
