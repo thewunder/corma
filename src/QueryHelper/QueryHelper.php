@@ -46,7 +46,8 @@ class QueryHelper implements QueryHelperInterface
      */
     public function buildSelectQuery(string $table, array|string $columns = 'main.*', array $where = [], array $orderBy = []): QueryBuilder
     {
-        $qb = $this->db->createQueryBuilder()->select($columns)->from($this->db->quoteIdentifier($table), self::TABLE_ALIAS);
+        $columns = is_array($columns) ? $columns : [$columns];
+        $qb = $this->db->createQueryBuilder()->select(...$columns)->from($this->db->quoteIdentifier($table), self::TABLE_ALIAS);
 
         $this->processWhereQuery($qb, $where);
 
@@ -374,12 +375,8 @@ class QueryHelper implements QueryHelperInterface
     protected function getPrimaryKey(string $table): ?string
     {
         $schema = $this->getDbColumns($table);
-        try {
-            $primaryKeys = $schema->getPrimaryKey()->getColumns();
-            return reset($primaryKeys);
-        } catch (Exception) {
-            return null;
-        }
+        $primaryKeys = $schema->getPrimaryKey()?->getColumns();
+        return $primaryKeys ? $primaryKeys[0] : null;
     }
 
     /**
