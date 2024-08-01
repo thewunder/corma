@@ -58,6 +58,9 @@ class RelationshipLoader
     {
         $foreignIdColumn ??= $this->inflector->idColumnFromClass(reset($objects)::class);
 
+        if (!$setter) {
+            $setter = 'set' . $this->inflector->methodNameFromClass($className, true);
+        }
         $property = $this->inferProperty($setter, $foreignIdColumn);
 
         $attribute = new OneToMany($className, $foreignColumn);
