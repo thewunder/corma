@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Corma\Test\Repository;
+namespace Corma\Test\Unit\Repository;
 
 use Corma\Exception\ClassNotFoundException;
 use Corma\ObjectMapper;

@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Test\DataObject\Hydrator;
+namespace Corma\Test\Unit\DataObject\Hydrator;
 
 use Corma\DataObject\Hydrator\ClosureHydrator;
 use Corma\Test\Fixtures\ExtendedDataObject;

@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Test;
+namespace Corma\Test\Unit;
 
 use Corma\DataObject\ObjectManagerFactory;
 use Corma\ObjectMapper;

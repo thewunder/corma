@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Test\DataObject\Identifier;
+namespace Corma\Test\Unit\DataObject\Identifier;
 
 use Corma\DataObject\Identifier\CustomizableAutoIncrementIdentifier;
 use Corma\DataObject\TableConvention\DefaultTableConvention;

@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Test\Util;
+namespace Corma\Test\Unit\Util;
 
 use Corma\DataObject\ObjectManager;
 use Corma\Exception\InvalidArgumentException;

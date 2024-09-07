@@ -1,6 +1,6 @@
 <?php
 
-namespace Corma\Test\Relationship;
+namespace Corma\Test\Unit\Relationship;
 
 use Corma\ObjectMapper;
 use Corma\Relationship\OneToOne;

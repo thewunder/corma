@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Test\Repository;
+namespace Corma\Test\Unit\Repository;
 
 use Corma\DataObject\ObjectManager;
 use Corma\DataObject\ObjectManagerFactory;

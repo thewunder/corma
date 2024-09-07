@@ -1,6 +1,6 @@
 <?php
 
-namespace Corma\Test\DataObject;
+namespace Corma\Test\Unit\DataObject;
 
 use Corma\DataObject\Factory\PsrContainerObjectFactory;
 use Corma\DataObject\Hydrator\ClosureHydrator;

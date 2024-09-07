@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Test\DataObject\Factory;
+namespace Corma\Test\Unit\DataObject\Factory;
 
 use Corma\DataObject\Factory\PsrContainerObjectFactory;
 use Corma\DataObject\Hydrator\ObjectHydratorInterface;

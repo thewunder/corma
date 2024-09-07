@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Test\QueryHelper;
+namespace Corma\Test\Unit\QueryHelper;
 
 use Corma\DBAL\Query\QueryType;
 use Corma\Exception\InvalidArgumentException;

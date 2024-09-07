@@ -1,5 +1,5 @@
 <?php
-namespace Corma\Test\Util;
+namespace Corma\Test\Unit\Util;
 
 use Corma\ObjectMapper;
 use Corma\QueryHelper\QueryHelper;
