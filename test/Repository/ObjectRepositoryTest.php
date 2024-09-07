@@ -150,7 +150,16 @@ class ObjectRepositoryTest extends TestCase
         $this->getRepository()->save($object);
     }
 
-    public function testSaveWithRelationships(): void
+    public function testSaveWithRelationshipNames(): void
+    {
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
+        $this->connection->expects($this->once())->method('beginTransaction');
+        $this->objectMapper->expects($this->once())->method('getRelationshipManager');
+        $repository = $this->getRepository();
+        $repository->save(new ExtendedDataObject(), 'otherDataObject', 'polymorphic');
+    }
+
+    public function testSaveWithRelationshipsClosure(): void
     {
         $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
         $this->connection->expects($this->once())->method('beginTransaction');
@@ -191,7 +200,23 @@ class ObjectRepositoryTest extends TestCase
         $this->assertEquals(0, $inserts);
     }
 
-    public function testSaveAllWithRelationships(): void
+    public function testSaveAllWithRelationshipNames(): void
+    {
+        $objects = [];
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('testValue');
+        $object = new ExtendedDataObject();
+        $objects[] = $object->setMyColumn('testValue 2');
+
+        $this->objectMapper->expects($this->once())->method('getRelationshipManager');
+
+        $this->connection->expects($this->once())->method('beginTransaction');
+        $this->queryHelper->expects($this->any())->method('getDbColumns')->willReturn($this->getTable());
+        $repo = $this->getRepository();
+        $repo->saveAll($objects, 'otherDataObject', 'polymorphic');
+    }
+
+    public function testSaveAllWithRelationshipsClosure(): void
     {
         $objects = [];
         $object = new ExtendedDataObject();

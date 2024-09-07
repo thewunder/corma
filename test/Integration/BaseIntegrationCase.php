@@ -334,6 +334,46 @@ abstract class BaseIntegrationCase extends TestCase
         $this->assertEquals('Save All 2', $fromDb->getMyColumn());
     }
 
+    public function testSaveAllWithRelationshipNames()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('Save All');
+        $this->repository->save($object);
+        $object->setMyColumn('Save All Updated');
+
+        $objects = [$object];
+        $object2 = new ExtendedDataObject();
+        $otherDataObject = (new OtherDataObject())->setName('Saved with 2');
+        $object2->setOtherDataObject($otherDataObject);
+        $objects[] = $object2->setMyColumn('Save All 2');
+
+        $inserts = $this->repository->saveAll($objects, 'otherDataObject');
+
+        $this->assertEquals(2, $inserts);
+        $this->assertGreaterThan(0, $otherDataObject);
+    }
+
+    public function testSaveAllWithRelationshipClosure()
+    {
+        $object = new ExtendedDataObject();
+        $object->setMyColumn('Save All');
+        $this->repository->save($object);
+        $object->setMyColumn('Save All Updated');
+
+        $objects = [$object];
+        $object2 = new ExtendedDataObject();
+        $objects[] = $object2->setMyColumn('Save All 2');
+
+        $called = false;
+        $closure = function () use(&$called) {$called = true;};
+
+        $inserts = $this->repository->saveAll($objects, $closure);
+
+        $this->assertEquals(2, $inserts);
+        $this->assertTrue($called);
+    }
+
+
     public function testDeleteAll(): void
     {
         $objects = [];
@@ -864,6 +904,42 @@ abstract class BaseIntegrationCase extends TestCase
         $object->setOtherDataObjects($otherObjects);
         $relationshipSaver->save([$object], 'otherDataObjects');
         $this->assertGreaterThan(0, $newOtherObject->getId());
+    }
+
+    public function testSaveWithRelationshipNames()
+    {
+        $object = new ExtendedDataObject();
+
+        $otherObject = new OtherDataObject();
+        $otherObject->setName('Other object one-to-many');
+        $otherObject2 = new OtherDataObject();
+        $otherObject2->setName('Other object one-to-one');
+        $object->setOtherDataObjects([$otherObject])->setOtherDataObject($otherObject2);
+        $this->objectMapper->save($object, 'otherDataObjects');
+
+        // only the otherDataObjects should be saved
+        $this->assertGreaterThan(0, $object->getId());
+        $this->assertGreaterThan(0, $otherObject->getId());
+        $this->assertNull($otherObject2->getId());
+    }
+
+    public function testSaveWithRelationshipClosure()
+    {
+        $object = new ExtendedDataObject();
+        $itRan = false;
+        $closure = function() use (&$itRan) {$itRan = true;};
+        $this->objectMapper->save($object, $closure);
+
+        $this->assertGreaterThan(0, $object->getId());
+        $this->assertTrue($itRan);
+    }
+
+    public function testSaveWithRelationshipNull()
+    {
+        $object = new ExtendedDataObject();
+        $this->objectMapper->save($object, null);
+
+        $this->assertGreaterThan(0, $object->getId());
     }
 
     public function testSaveManyToManyLinks(): void

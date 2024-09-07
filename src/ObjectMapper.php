@@ -204,19 +204,14 @@ class ObjectMapper
      * Persists a single object to the database
      *
      * @param object $object The object to save
-     * @param \Closure|null $saveRelationships If the repository provides a saveRelationships closure then omitting
-     * will use the default specified by the repository. Explicitly passing null will not save any relationships even
-     * if the repository returns a closure from saveRelationships.
+     * @param string|\Closure|null ...$saveRelationships Array of relationship names to save with the object. If the repository provides a saveRelationships closure or array of relationships, then omitting
+     *  will use the default specified by the repository. Explicitly passing null will not save any relationships, while passing a closure will call your closure instead of the default.
      * @return object
      */
-    public function save(object $object, ?\Closure $saveRelationships = null): object
+    public function save(object $object, string|\Closure|null ...$saveRelationships): object
     {
         $repository = $this->getRepository($object::class);
-        if (func_num_args() == 2) {
-            return $repository->save($object, $saveRelationships);
-        } else {
-            return $repository->save($object);
-        }
+        return $repository->save($object, ...$saveRelationships);
     }
 
     /**
@@ -225,22 +220,17 @@ class ObjectMapper
      * This method works on objects of mixed type.
      *
      * @param object[] $objects The objects to save
-     * @param \Closure|null $saveRelationships If the repository provides a saveRelationships closure then omitting
-     * will use the default specified by the repository. Explicitly passing null will not save any relationships even
-     * if the repository returns a closure from saveRelationships.
-     */
-    public function saveAll(array $objects, ?\Closure $saveRelationships = null): void
+     * @param string|\Closure|null ...$saveRelationships Array of relationship names to save with the object. If the repository provides a saveRelationships closure or array of relationships, then omitting
+     * will use the default specified by the repository. Explicitly passing null will not save any relationships, while passing a closure will call your closure instead of the default.
+     **/
+    public function saveAll(array $objects, string|\Closure|null ...$saveRelationships): void
     {
         $objectsByClass = $this->groupByClass($objects);
 
         foreach ($objectsByClass as $class => $classObjects) {
             $repository = $this->getRepository($class);
 
-            if (func_num_args() == 2) {
-                $repository->saveAll($classObjects, $saveRelationships);
-            } else {
-                $repository->saveAll($classObjects);
-            }
+            $repository->saveAll($classObjects, ...$saveRelationships);
         }
     }
 

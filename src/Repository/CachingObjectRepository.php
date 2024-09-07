@@ -64,24 +64,16 @@ abstract class CachingObjectRepository extends ObjectRepository
         return array_merge($objects, $fromDb);
     }
 
-    public function save(object $object, ?Closure $saveRelationships = null): object
+    public function save(object $object, string|\Closure|null ...$saveRelationships): object
     {
-        if (func_num_args() == 2) {
-            $object = parent::save($object, $saveRelationships);
-        } else {
-            $object = parent::save($object);
-        }
+        parent::save($object, ...$saveRelationships);
         $this->storeInCache($object);
         return $object;
     }
 
-    public function saveAll(array $objects, ?Closure $saveRelationships = null): int
+    public function saveAll(array $objects, string|\Closure|null ...$saveRelationships): int
     {
-        if (func_num_args() == 2) {
-            $result = parent::saveAll($objects, $saveRelationships);
-        } else {
-            $result = parent::saveAll($objects);
-        }
+        $result = parent::saveAll($objects, ...$saveRelationships);
         $this->storeMultipleInCache($objects);
         return $result;
     }

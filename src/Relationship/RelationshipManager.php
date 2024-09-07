@@ -8,7 +8,7 @@ use Corma\DBAL\Query\QueryBuilder;
 /**
  * Reads the RelationshipType type attribute and passes it to the proper handler.
  */
-final class RelationshipManager
+class RelationshipManager
 {
     /** @var RelationshipHandler[] $handlers Keyed by RelationshipType */
     private array $handlers = [];

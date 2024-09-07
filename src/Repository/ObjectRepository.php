@@ -164,11 +164,14 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
     }
 
-    public function save(object $object, ?\Closure $saveRelationships = null): object
+    public function save(object $object, string|\Closure|null ...$saveRelationships): object
     {
         $this->checkArgument($object);
 
-        $saveRelationships = func_num_args() === 1 ? $this->saveRelationships() : $saveRelationships;
+        $saveRelationships = !empty($saveRelationships) ? $saveRelationships : $this->saveRelationships();
+        if ($saveRelationships && count($saveRelationships) == 1 && !is_string($saveRelationships[0]) ) {
+            $saveRelationships = $saveRelationships[0];
+        }
 
         $doSave = function () use ($object, $saveRelationships) {
             $this->dispatchEvents('beforeSave', $object);
@@ -189,7 +192,7 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $object;
     }
 
-    public function saveAll(array $objects, ?\Closure $saveRelationships = null): int
+    public function saveAll(array $objects, string|\Closure|null ...$saveRelationships): int
     {
         if (empty($objects)) {
             return 0;
@@ -215,7 +218,11 @@ class ObjectRepository implements ObjectRepositoryInterface
             }
         }
 
-        $saveRelationships ??= $this->saveRelationships();
+        $saveRelationships = !empty($saveRelationships) ? $saveRelationships : $this->saveRelationships();
+        if ($saveRelationships && count($saveRelationships) == 1 && !is_string($saveRelationships[0]) ) {
+            $saveRelationships = $saveRelationships[0];
+        }
+
         $doUpsert = function () use ($uniqueObjects, $om, $saveRelationships, $inserts) {
             $columns = $this->queryHelper->getDbColumns($this->getTableName());
             $rows = [];
@@ -238,9 +245,12 @@ class ObjectRepository implements ObjectRepositoryInterface
                 }
             }
 
-            if ($saveRelationships) {
+            if (is_array($saveRelationships) && !empty($saveRelationships)) {
+                $this->objectMapper->getRelationshipManager()->save($uniqueObjects, ...$saveRelationships);
+            } else if ($saveRelationships instanceof \Closure) {
                 $saveRelationships($uniqueObjects);
             }
+
             return $rowCount;
         };
 
@@ -346,10 +356,10 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      * Inserts this DataObject into the database
      *
-     * @param \Closure|null $saveRelationships
+     * @param array|\Closure|null $saveRelationships
      * @return object The newly persisted object with id set
      */
-    protected function insert(object $object, ?\Closure $saveRelationships): object
+    protected function insert(object $object, array|\Closure|null $saveRelationships): object
     {
         $this->dispatchEvents('beforeInsert', $object);
 
@@ -357,7 +367,10 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->queryHelper->massInsert($this->getTableName(), [$data]);
 
         $this->getObjectManager()->setNewId($object);
-        if ($saveRelationships) {
+
+        if (is_array($saveRelationships) && !empty($saveRelationships)) {
+            $this->objectMapper->getRelationshipManager()->save([$object], ...$saveRelationships);
+        } else if ($saveRelationships instanceof \Closure) {
             $saveRelationships([$object]);
         }
 
@@ -368,16 +381,19 @@ class ObjectRepository implements ObjectRepositoryInterface
     /**
      *  Update this DataObject's table row
      *
-     * @param \Closure|null $saveRelationships
+     * @param array|\Closure|null $saveRelationships
      */
-    protected function update(object $object, ?\Closure $saveRelationships)
+    protected function update(object $object, array|\Closure|null $saveRelationships)
     {
         $this->dispatchEvents('beforeUpdate', $object);
 
         $om = $this->getObjectManager();
         $data = $this->buildQueryParams($object);
         $this->queryHelper->massUpdate($this->getTableName(), $data, [$om->getIdColumn() =>$om->getId($object)]);
-        if ($saveRelationships) {
+
+        if (is_array($saveRelationships) && !empty($saveRelationships)) {
+            $this->objectMapper->getRelationshipManager()->save([$object], ...$saveRelationships);
+        } else if ($saveRelationships instanceof \Closure) {
             $saveRelationships([$object]);
         }
 
@@ -385,12 +401,12 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
-     * Override this method to return a closure that takes an array of objects and saves child relationships using the
+     * Override this method to return an array of relationship names to save or a closure that takes an array of objects and saves child relationships using the
      * RelationshipSaver
      *
-     * @return \Closure|null
+     * @return array|\Closure|null
      */
-    protected function saveRelationships(): ?\Closure
+    protected function saveRelationships(): array|\Closure|null
     {
         return null;
     }
