@@ -3,6 +3,7 @@ namespace Corma;
 
 use Corma\DataObject\ObjectManager;
 use Corma\DataObject\ObjectManagerFactory;
+use Corma\Exception\InvalidAttributeException;
 use Corma\QueryHelper\QueryModifier\SoftDelete;
 use Corma\Relationship\ManyToManyHandler;
 use Corma\Relationship\OneToManyHandler;
@@ -183,11 +184,12 @@ class ObjectMapper
     }
 
     /**
-     * Load a relationship on the provided objects.
+     * Load one or more relationship on the provided objects.
      *
-     * @param object[] $objects Objects to load a relationship on, can be of mixed class provided they all have a relationship on the same property
-     * @param string[] $properties The name of one or more properties to load a relationship on
-     * @return object[] The loaded objects keyed by id
+     * @param object[] $objects Objects to load a relationship on, can be of mixed class provided they all have a relationship on the same property.
+     * @param string ...$properties Property names with relationships to be loaded, if '*' is passed, will save all relationships.
+     * @return object[]|object[][] The loaded objects keyed by id, or if multiple relationships were loaded, then by property name and id.
+     * @throws InvalidAttributeException If the property does not exist or does not have a relationship attribute.
      */
     public function load(array $objects, string ...$properties): array
     {

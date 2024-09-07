@@ -121,7 +121,7 @@ class ExtendedDataObject extends BaseDataObject
      */
     public function getOtherDataObjects(): array
     {
-        return $this->otherDataObjects;
+        return $this->otherDataObjects ?? [];
     }
 
     /**
