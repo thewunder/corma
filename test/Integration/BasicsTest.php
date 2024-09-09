@@ -3,8 +3,10 @@
 namespace Corma\Test\Integration;
 
 use Corma\DBAL\Exception;
+use Corma\Exception\MissingPrimaryKeyException;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
+use Corma\Test\Integration\Platform\PostgresTestPlatform;
 use PHPUnit\Framework\Attributes\Depends;
 
 final class BasicsTest extends BaseIntegrationCase
@@ -309,6 +311,10 @@ final class BasicsTest extends BaseIntegrationCase
 
     public function testUpsertWithoutPrimaryKey(): void
     {
+        if (self::$platform::class == PostgresTestPlatform::class) {
+            $this->expectException(MissingPrimaryKeyException::class);
+        }
+
         $object = new ExtendedDataObject();
         $object->setMyColumn('Upsert EDO');
         $this->objectMapper->save($object);
@@ -320,7 +326,9 @@ final class BasicsTest extends BaseIntegrationCase
         $return = $this->objectMapper->getQueryHelper()
             ->massUpsert('extended_other_rel', [['extendedDataObjectId'=>$object->getId(), 'otherDataObjectId'=>$otherObject->getId()]]);
 
-        $this->assertEquals(1, $return);
+        if (self::$platform::class != PostgresTestPlatform::class) {
+            $this->assertEquals(1, $return);
+        }
     }
 
     public function testIsDuplicateException(): void
