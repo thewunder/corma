@@ -99,6 +99,9 @@ final class PolymorphicHandler extends BaseRelationshipHandler
         }
     }
 
+    /**
+     * @param string $additional The full class name of the object to join to.
+     */
     public function join(QueryBuilder $qb, string $fromAlias, Polymorphic|Relationship $relationship, JoinType $type = JoinType::INNER, mixed $additional = null): string
     {
         $foreignClass = $additional;

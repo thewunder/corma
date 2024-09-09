@@ -5,9 +5,11 @@ use Corma\DataObject\DataObjectEvent;
 use Corma\DataObject\ObjectManager;
 use Corma\Exception\ClassNotFoundException;
 use Corma\Exception\InvalidArgumentException;
+use Corma\Exception\InvalidAttributeException;
 use Corma\ObjectMapper;
 use Corma\QueryHelper\QueryHelperInterface;
 use Corma\Relationship\JoinType;
+use Corma\Relationship\PolymorphicHandler;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Util\OffsetPagedQuery;
 use Corma\Util\PagedQuery;
@@ -521,9 +523,21 @@ class ObjectRepository implements ObjectRepositoryInterface
     }
 
     /**
-     * Join to a relationship defined via property attributes.
-     * Defaults to joining from the object handled for this repository.
-     * @return string The alias of the table joined to
+     * Joins to a relationship defined via property attributes.
+     *
+     * @param QueryBuilder $qb Query Builder to add join to
+     * @param string $property Property name with relationship attribute
+     * @param string|null $fromClass Full class name of the object with the relationship being joined to (defaults to the class this repository handles)
+     * @param string $fromAlias Alias of table being joined from
+     * @param JoinType $type Type of join (inner, left, or right)
+     * @param mixed|null $additional Additional information required by the relationship type to make the join as determined by the RelationshipHandler class
+     *
+     * @return string The alias of the table joined to (compose of the first letter of each word in the property name)
+     *
+     * @throws ClassNotFoundException|InvalidAttributeException
+     *
+     * @see PolymorphicHandler::join()
+     * @see Inflector::aliasFromProperty()
      */
     protected function join(QueryBuilder $qb, string $property, ?string $fromClass = null, string $fromAlias = 'main', JoinType $type = JoinType::INNER, mixed $additional = null): string
     {

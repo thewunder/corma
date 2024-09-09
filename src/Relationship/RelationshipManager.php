@@ -127,19 +127,27 @@ class RelationshipManager
     }
 
     /**
-     * Join to a relationship defined via property attributes.
-     * @return string
+     * Joins to a relationship defined via property attributes.
+     *
+     * @param QueryBuilder $qb Query Builder to add join to
+     * @param string $property Property name with relationship attribute
+     * @param string $fromClass Full class name of the object with the relationship being joined to
+     * @param string $fromAlias Alias of table being joined from
+     * @param JoinType $type Type of join (inner, left, or right)
+     * @param mixed|null $additional Additional information required by the relationship type to make the join as determined by the RelationshipHandler class
+     *
+     * @return string The alias of the table joined to (composed of the first letter of each word in the property name)
+     * @throws InvalidAttributeException
      */
-    public function join(QueryBuilder $qb, string $class, string $property, string $alias = 'main', JoinType $type = JoinType::INNER, mixed $additional = null): string
+    public function join(QueryBuilder $qb, string $fromClass, string $property, string $fromAlias = 'main', JoinType $type = JoinType::INNER, mixed $additional = null): string
     {
-        $relationship = $this->readAttribute($class, $property);
+        $relationship = $this->readAttribute($fromClass, $property);
         $handler = $this->getHandler($relationship);
-        return $handler->join($qb, $alias, $relationship, $type, $additional);
+        return $handler->join($qb, $fromAlias, $relationship, $type, $additional);
     }
 
     public function getHandler(Relationship $relationship): RelationshipHandler
     {
-
         $relationshipClass = $relationship::class;
         $handler = $this->handlers[$relationshipClass] ?? null;
         if (!$handler) {

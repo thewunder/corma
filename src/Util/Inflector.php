@@ -93,6 +93,14 @@ class Inflector extends DoctrineInflector
         return $propertyName . $suffix;
     }
 
+    /**
+     * Converts a camel case property name to an abbreviation using the first letter of each word.
+     *
+     * Ex. camelCaseProperty becomes ccp
+     *
+     * @param string $propertyName
+     * @return string Database alias
+     */
     public function aliasFromProperty(string $propertyName): string
     {
         if (empty($propertyName)) {

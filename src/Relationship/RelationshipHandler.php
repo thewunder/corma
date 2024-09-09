@@ -25,9 +25,12 @@ interface RelationshipHandler
     public function save(array $objects, Relationship $relationship): void;
 
     /**
-     * Add a join to the relationship to the specified to the provided query builder
-     * @param mixed $additional Additional parameters required to join the relationship
-     * @return string The alias of the table joined to
+     * @param QueryBuilder $qb Query Builder to add join to
+     * @param string $fromAlias Alias of table being joined from
+     * @param Relationship $relationship Relationship to join to
+     * @param JoinType $type Type of join (inner, left, or right)
+     * @param mixed|null $additional Additional information required by the relationship type to make the join as determined by the RelationshipHandler class
+     * @return string The alias of the table joined to (composed of the first letter of each word in the property name)
      */
     public function join(QueryBuilder $qb, string $fromAlias, Relationship $relationship, JoinType $type = JoinType::INNER, mixed $additional = null): string;
 }
