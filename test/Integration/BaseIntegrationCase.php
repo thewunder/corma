@@ -7,9 +7,11 @@ use Corma\Repository\ObjectRepositoryInterface;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
 use Corma\Test\Fixtures\Repository\ExtendedDataObjectRepository;
+use Corma\Test\Integration\Platform\DatabaseTestPlatform;
 use Corma\Util\OffsetPagedQuery;
 use Corma\Util\SeekPagedQuery;
 use Corma\DBAL\Connection;
+use Dotenv\Dotenv;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -24,14 +26,14 @@ abstract class BaseIntegrationCase extends TestCase
     protected ObjectIdentifierInterface $identifier;
     protected ContainerInterface|MockObject $container;
 
-    protected static Connection $connection;
+    protected static DatabaseTestPlatform $platform;
 
     public function setUp(): void
     {
         $this->dispatcher = new EventDispatcher();
         $this->container = $this->getMockBuilder(ContainerInterface::class)->getMock();
         $this->container->method('get')->willReturnCallback(fn(string $className) => new $className());
-        $this->objectMapper = ObjectMapper::withDefaults(self::$connection, $this->container);
+        $this->objectMapper = ObjectMapper::withDefaults(self::$platform->getConnection(), $this->container);
         $this->identifier = $this->objectMapper->getObjectManagerFactory()->getIdentifier();
         $this->repository = $this->objectMapper->getRepository(ExtendedDataObject::class);
     }
@@ -39,21 +41,34 @@ abstract class BaseIntegrationCase extends TestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        static::createDatabase();
+        self::$platform = static::getTestPlatform();
+        self::$platform->createDatabase();
+    }
+
+    private static function getTestPlatform(): DatabaseTestPlatform
+    {
+        $dbPlatform = getenv('DB_PLATFORM');
+        if (empty($dbPlatform) && file_exists(__DIR__.'/../../.env')) {
+            $dotenv = new Dotenv(__DIR__.'/../../');
+            $dotenv->load();
+            $dbPlatform = getenv('DB_PLATFORM');
+        }
+
+        if (empty($dbPlatform)) {
+            throw new \RuntimeException('DB_PLATFORM environment variable is not defined.');
+        }
+
+        $className = "Corma\\Test\\Integration\\Platform\\{$dbPlatform}TestPlatform";
+        if(!class_exists($className)) {
+            throw new \RuntimeException("Platform class not found: $className");
+        }
+        return $className::getInstance();
     }
 
     public static function tearDownAfterClass(): void
     {
         parent::tearDownAfterClass();
-        static::deleteDatabase();
-    }
-
-    protected static function createDatabase()
-    {
-    }
-
-    protected static function deleteDatabase()
-    {
+        self::$platform->dropDatabase();
     }
 
     abstract public function testIsDuplicateException();
@@ -1081,7 +1096,7 @@ abstract class BaseIntegrationCase extends TestCase
     {
         $queryHelper = $this->objectMapper->getQueryHelper();
         foreach ($objects as $object) {
-            $objectLinks = $queryHelper->buildSelectQuery('extended_other_rel', self::$connection->quoteIdentifier('otherDataObjectId'), ['extendedDataObjectId' => $object->getId()])
+            $objectLinks = $queryHelper->buildSelectQuery('extended_other_rel', self::$platform->getConnection()->quoteIdentifier('otherDataObjectId'), ['extendedDataObjectId' => $object->getId()])
                 ->executeQuery()->fetchFirstColumn();
 
             $this->assertCount(2, $objectLinks);
