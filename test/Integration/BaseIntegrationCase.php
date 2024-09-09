@@ -48,10 +48,12 @@ abstract class BaseIntegrationCase extends TestCase
     private static function getTestPlatform(): DatabaseTestPlatform
     {
         $dbPlatform = getenv('DB_PLATFORM');
-        if (empty($dbPlatform) && file_exists(__DIR__.'/../../.env')) {
+        if (file_exists(__DIR__.'/../../.env')) {
             $dotenv = new Dotenv(__DIR__.'/../../');
             $dotenv->load();
-            $dbPlatform = getenv('DB_PLATFORM');
+            if (empty($dbPlatform)) {
+                $dbPlatform = getenv('DB_PLATFORM');
+            }
         }
 
         if (empty($dbPlatform)) {
