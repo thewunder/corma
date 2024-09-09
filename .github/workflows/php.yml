@@ -60,5 +60,11 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Run test suite
-        run: composer run-script test
+      - name: Run unit tests
+        run: composer run-script test:unit
+
+      - name: Run mysql tests
+        run: composer run-script test:mysql
+
+      - name: Run postgres tests
+        run: composer run-script test:postgres
