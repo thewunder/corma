@@ -21,7 +21,7 @@ final class RelationshipSaveTest extends BaseIntegrationCase
         $inserts = $this->repository->saveAll($objects, 'otherDataObject');
 
         $this->assertEquals(2, $inserts);
-        $this->assertGreaterThan(0, $otherDataObject);
+        $this->assertGreaterThan(0, $otherDataObject->getId());
     }
 
     public function testSaveAllWithRelationshipStar()
@@ -40,8 +40,8 @@ final class RelationshipSaveTest extends BaseIntegrationCase
         $inserts = $this->repository->saveAll($objects, '*');
 
         $this->assertEquals(2, $inserts);
-        $this->assertGreaterThan(0, $otherDataObject);
-        $this->assertGreaterThan(0, $otherDataObject2);
+        $this->assertGreaterThan(0, $otherDataObject->getId());
+        $this->assertGreaterThan(0, $otherDataObject2->getId());
     }
 
     public function testSaveAllWithRelationshipClosure()
