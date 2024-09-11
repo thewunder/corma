@@ -2,8 +2,6 @@
 namespace Corma\QueryHelper;
 
 
-use Corma\DBAL\Exception\DriverException;
-
 class MySQLQueryHelper extends QueryHelper
 {
     /**

@@ -34,7 +34,10 @@
     "rector/rector": "^1.0"
   },
   "scripts": {
-    "test": "vendor/bin/phpunit"
+    "test": "vendor/bin/phpunit",
+    "test:unit": "vendor/bin/phpunit --testsuite Unit",
+    "test:mysql": ["@putenv DB_PLATFORM=Mysql", "vendor/bin/phpunit --testsuite Integration"],
+    "test:postgres": ["@putenv DB_PLATFORM=Postgres", "vendor/bin/phpunit --testsuite Integration"]
   },
   "suggest": {
     "robmorgan/phinx": "*"
