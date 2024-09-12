@@ -44,6 +44,8 @@ class ObjectRepository implements ObjectRepositoryInterface
         $this->queryHelper = $objectMapper->getQueryHelper();
     }
 
+
+
     public function create(array $data = []): object
     {
         return $this->getObjectManager()->create($data);
@@ -170,10 +172,7 @@ class ObjectRepository implements ObjectRepositoryInterface
     {
         $this->checkArgument($object);
 
-        $saveRelationships = !empty($saveRelationships) ? $saveRelationships : $this->saveRelationships();
-        if ($saveRelationships && count($saveRelationships) == 1 && !is_string($saveRelationships[0]) ) {
-            $saveRelationships = $saveRelationships[0];
-        }
+        $saveRelationships = $this->prepareRelationshipSave($saveRelationships);
 
         $doSave = function () use ($object, $saveRelationships) {
             $this->dispatchEvents('beforeSave', $object);
@@ -220,10 +219,7 @@ class ObjectRepository implements ObjectRepositoryInterface
             }
         }
 
-        $saveRelationships = !empty($saveRelationships) ? $saveRelationships : $this->saveRelationships();
-        if ($saveRelationships && count($saveRelationships) == 1 && !is_string($saveRelationships[0]) ) {
-            $saveRelationships = $saveRelationships[0];
-        }
+        $saveRelationships = $this->prepareRelationshipSave($saveRelationships);
 
         $doUpsert = function () use ($uniqueObjects, $om, $saveRelationships, $inserts) {
             $columns = $this->queryHelper->getDbColumns($this->getTableName());
@@ -272,6 +268,18 @@ class ObjectRepository implements ObjectRepositoryInterface
         }
 
         return $rows ?? 0;
+    }
+
+    /**
+     * Defaults save relationship and extracts closure for backward compatibility
+     */
+    private function prepareRelationshipSave(string|\Closure|array $saveRelationships): array|\Closure|null
+    {
+        $saveRelationships = !empty($saveRelationships) ? $saveRelationships : $this->saveRelationships();
+        if (is_array($saveRelationships) && count($saveRelationships) == 1 && !is_string($saveRelationships[0])) {
+            $saveRelationships = $saveRelationships[0];
+        }
+        return $saveRelationships;
     }
 
     /**
