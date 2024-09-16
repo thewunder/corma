@@ -1,9 +1,9 @@
 <?php
 namespace Corma\Util;
 
+use Corma\Util\Inflector\Rules;
 use Doctrine\Inflector\CachedWordInflector;
 use Doctrine\Inflector\Inflector as DoctrineInflector;
-use Doctrine\Inflector\Rules\English\Rules;
 use Doctrine\Inflector\RulesetInflector;
 
 /**
@@ -86,5 +86,27 @@ class Inflector extends DoctrineInflector
     public function idColumnFromClass(string $className, ?string $suffix = 'Id'): string
     {
         return lcfirst(substr($className, strrpos($className, '\\') + 1)) . $suffix;
+    }
+
+    public function idColumnFromProperty(string $propertyName, ?string $suffix = 'Id'): string
+    {
+        return $propertyName . $suffix;
+    }
+
+    /**
+     * Converts a camel case property name to an abbreviation using the first letter of each word.
+     *
+     * Ex. camelCaseProperty becomes ccp
+     *
+     * @param string $propertyName
+     * @return string Database alias
+     */
+    public function aliasFromProperty(string $propertyName): string
+    {
+        if (empty($propertyName)) {
+            return '';
+        }
+        $capitals = preg_replace('/[^A-Z]/u', '', $propertyName);
+        return $propertyName[0] . mb_strtolower($capitals);
     }
 }

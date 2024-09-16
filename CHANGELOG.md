@@ -1,3 +1,27 @@
+Version 5.0
+=============
+
+New Features
+-----------
+- Add new way of loading relationships where relationships are defined via property attributes.
+- Add support for loading and saving polymorphic relationships where a class and id column can load an object of any class in a namespace.
+- Allow all specified relationships on a class to be loaded and saved with a single method call.
+- Add helper to repositories to join other tables that have a relationship defined on the current class.
+- Provides a framework where custom relationship types can be added or behavior for built-in types modified.
+
+Updates
+-------
+- Existing loadOne, loadMany, loadManyToMany as well as the RelationshipSaver and RelationshipLoader classes have been deprecated.
+- All exceptions throws extend from a common CormaException class
+- Updated to a fork of Doctrine DBAL 4.0 corma-dbal with the ability to introspect into QueryBuilders 
+
+Breaking Changes
+----------------
+
+* Legacy relationship load / save methods require that the property names and getter / setter names are consistent with the property name. They are not 100% backward compatible, and may require some renaming.
+* Many DBAL methods removed or changed, see [Doctrine Upgrade Guide](https://github.com/doctrine/dbal/blob/4.0.x/UPGRADE.md)
+* Namespace of the DBAL classes changes from Doctrine\DBAL to Corma\DBAL this should be fixable with a simple search + replace.
+
 Version 4.1.0
 =============
 

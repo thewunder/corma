@@ -3,7 +3,7 @@ namespace Corma\Test\Fixtures\Repository;
 
 use Corma\ObjectMapper;
 use Corma\Repository\ObjectRepository;
-use Doctrine\DBAL\Connection;
+use Corma\DBAL\Connection;
 use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

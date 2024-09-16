@@ -14,7 +14,8 @@ class MySQLQueryHelper extends QueryHelper
      */
     public function massUpsert(string $table, array $rows, &$lastInsertId = null): int
     {
-        if (empty($rows)) {
+        $rowCount = count($rows);
+        if ($rowCount == 0) {
             return 0;
         }
 
@@ -45,7 +46,9 @@ class MySQLQueryHelper extends QueryHelper
         $params = $this->getParams($normalizedRows);
 
         $effected = $this->db->executeStatement($query, $params);
-        $lastInsertId = $this->db->lastInsertId();
+        if ($primaryKey && $updates < $rowCount) {
+            $lastInsertId = $this->db->lastInsertId();
+        }
 
         return $effected - $updates; //compensate for mysql returning 2 for each row updated
     }

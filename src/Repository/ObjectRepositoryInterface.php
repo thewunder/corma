@@ -86,25 +86,23 @@ interface ObjectRepositoryInterface
      * Persists the object to the database
      *
      * @param object $object The object to save
-     * @param \Closure|null $saveRelationships If the repository provides a saveRelationships closure then omitting
-     * will use the default specified by the repository. Explicitly passing null will not save any relationships even
-     * if the repository returns a closure from saveRelationships.
+     * @param string|\Closure|null ...$saveRelationships Array of relationship names to save with the object. If the repository provides a saveRelationships closure or array of relationships, then omitting
+     * will use the default specified by the repository. Explicitly passing null will not save any relationships.
      *
      * @return object The saved object
      */
-    public function save(object $object, ?\Closure $saveRelationships = null): object;
+    public function save(object $object, string|\Closure|null ...$saveRelationships): object;
 
     /**
      * Persists all supplied objects into the database
      *
      * @param object[] $objects The objects to save
-     * @param \Closure|null $saveRelationships If the repository provides a saveRelationships closure then omitting
-     * will use the default specified by the repository. Explicitly passing null will not save any relationships even
-     * if the repository returns a closure from saveRelationships.
+     * @param string|\Closure|null ...$saveRelationships Array of relationship names to save with the object. If the repository provides a saveRelationships closure or array of relationships, then omitting
+     *  will use the default specified by the repository. Explicitly passing null will not save any relationships.
      *
      * @return int The number of effected rows
      */
-    public function saveAll(array $objects, ?\Closure $saveRelationships = null): int;
+    public function saveAll(array $objects, string|\Closure|null ...$saveRelationships): int;
 
     /**
      * Removes the object from the database

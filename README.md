@@ -3,9 +3,6 @@ Corma
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.txt)
-[![Build Status](https://api.travis-ci.org/thewunder/corma.svg?branch=master)](https://travis-ci.org/thewunder/corma)
-[![Coverage Status](https://coveralls.io/repos/github/thewunder/corma/badge.svg?branch=master)](https://coveralls.io/github/thewunder/corma?branch=master)
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/3ab739ee-d54a-457d-9eec-43261102dfe4/mini.png)](https://insight.sensiolabs.com/projects/3ab739ee-d54a-457d-9eec-43261102dfe4)
 
 Corma is a high-performance, convention-based ORM based on Doctrine DBAL.
 
@@ -13,7 +10,7 @@ Corma is great because:
 
 * No complex and difficult to verify annotations or configuration files
 * Promotes consistent code organization
-* Loads and saves one-to-one, one-to-many, and many-to-many relationships with a method call
+* Loads and saves one-to-one, one-to-many, many-to-many, and polymorphic relationships
 * Can save multiple objects in a single query (using an upsert)
 * Makes it easy to cache and avoid database queries
 * Supports soft deletes
@@ -32,19 +29,24 @@ Install via Composer
 
 Via the command line:
 
-    composer.phar require thewunder/corma ~4.0
+    composer.phar require thewunder/corma ^5.0
 
 Or add the following to the require section your composer.json:
 
-    "thewunder/corma": "~4.0"
+    "thewunder/corma": "^5.0"
 
-For PHP versions < 8.0 use Corma version ~3.0 
+For PHP versions < 8.1 use Corma version ~3.0 
 
 Basic Usage
 -----------
 Create a DataObject
+
 ```php
 namespace YourNamespace\Dataobjects;
+
+use Corma\Relationship\ManyToMany;
+use Corma\Relationship\OneToMany;
+use Corma\Relationship\OneToOne;
 
 class YourDataObject {
     protected $id;
@@ -52,6 +54,16 @@ class YourDataObject {
     //If the property name == column name on the table your_data_objects it will be saved
     protected $myColumn;
 
+    protected ?int $otherObjectId = null;
+    
+    #[OneToOne]
+    protected ?OtherObject $otherObject = null;
+    
+    #[OneToMany(AnotherObject::class)]
+    protected ?array $anotherObjects = null;
+    
+    #[ManyToMany(DifferentObject::class, 'your_data_object_different_link_table')]
+    protected ?array $differentObjects = null;
     //Getters and setters..
 }
 ```
@@ -79,7 +91,7 @@ $orm->save($object);
 //Call more setters on $object...
 $objects = [$object];
 $newObject = $orm->create(YourDataObject::class);
-//call setters on $newObject..
+//call setters on $newObject...
 $objects[] = $newObject;
 
 $orm->saveAll($objects);
@@ -91,9 +103,9 @@ $existingObject = $orm->find(YourDataObject::class, 5);
 $existingObjects = $orm->findBy(YourDataObject::class, ['myColumn >='=>42, 'otherColumn'=>1], ['sortColumn'=>'ASC']);
 
 //load relationships
-$orm->loadOne($existingObjects, OtherObject::class, 'otherObjectId');
-$orm->loadMany($existingObjects, AnotherObject::class, 'yourObjectId');
-$orm->loadManyToMany($existingObjects, DifferentObject::class, 'link_table');
+$orm->load($existingObjects, 'otherObject');
+$orm->load($existingObjects, 'anotherObjects');
+$orm->load($existingObjects, 'differentObjects');
 
 //delete those
 $orm->deleteAll($existingObjects);
@@ -112,5 +124,4 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 [ico-version]: https://img.shields.io/packagist/v/thewunder/corma.svg?style=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
-
 [link-packagist]: https://packagist.org/packages/thewunder/corma

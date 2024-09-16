@@ -44,16 +44,16 @@ abstract class AggressiveCachingObjectRepository extends ObjectRepository
         return $objects;
     }
 
-    public function save(object $object, ?Closure $saveRelationships = null): object
+    public function save(object $object, string|Closure|null ...$saveRelationships): object
     {
-        parent::save($object);
+        parent::save($object, ...$saveRelationships);
         $this->cache->delete($this->getCacheKey());
         return $object;
     }
 
-    public function saveAll(array $objects, ?Closure $saveRelationships = null): int
+    public function saveAll(array $objects, string|Closure|null ...$saveRelationships): int
     {
-        $result = parent::saveAll($objects);
+        $result = parent::saveAll($objects, ...$saveRelationships);
         $this->cache->delete($this->getCacheKey());
         return $result;
     }

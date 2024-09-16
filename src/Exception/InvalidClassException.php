@@ -4,7 +4,7 @@ namespace Corma\Exception;
 /**
  * Thrown when a class does not implement a required interface
  */
-class InvalidClassException extends \LogicException
+final class InvalidClassException extends CormaException
 {
 
 }

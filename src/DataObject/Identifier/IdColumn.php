@@ -2,7 +2,7 @@
 
 namespace Corma\DataObject\Identifier;
 
-#[\Attribute]
+#[\Attribute(\Attribute::TARGET_CLASS)]
 class IdColumn
 {
     public function __construct(private readonly string $column)

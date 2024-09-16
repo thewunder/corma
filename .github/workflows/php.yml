@@ -1,0 +1,70 @@
+name: PHP Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [ 8.1, 8.2, 8.3 ]
+
+    env:
+      MYSQL_HOST: localhost
+      MYSQL_USER: root
+      MYSQL_PASS: root
+      PGSQL_HOST: localhost
+      PGSQL_USER: cormatest
+      PGSQL_PASS: cormatest
+      PGSQL_PORT: 5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start MySQL
+        run: |
+          sudo systemctl start mysql
+
+      - name: Start PostgreSQL
+        run: |
+          sudo systemctl start postgresql
+          pg_isready
+
+      - name: Create test database
+        run: sudo -u postgres createdb $PGSQL_USER
+
+      - name: Create test postgres user
+        run: |
+          sudo -u postgres psql --command="CREATE USER $PGSQL_USER PASSWORD '$PGSQL_PASS'" --command="GRANT CREATE ON DATABASE $PGSQL_USER TO $PGSQL_USER"
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run unit tests
+        run: composer run-script test:unit
+
+      - name: Run mysql tests
+        run: composer run-script test:mysql
+
+      - name: Run postgres tests
+        run: composer run-script test:postgres

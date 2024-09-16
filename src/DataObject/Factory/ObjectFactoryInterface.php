@@ -1,7 +1,7 @@
 <?php
 namespace Corma\DataObject\Factory;
 
-use Doctrine\DBAL\Result;
+use Corma\DBAL\Result;
 
 /**
  * Manages the construction of objects

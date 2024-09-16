@@ -12,12 +12,12 @@ use Corma\Exception\BadMethodCallException;
  */
 abstract class ReadOnlyObjectRepository extends AggressiveCachingObjectRepository
 {
-    public function save(object $object, ?\Closure $saveRelationships = null): object
+    public function save(object $object, string|\Closure|null ...$saveRelationships): object
     {
         throw new BadMethodCallException('Cannot save in a read only repository');
     }
 
-    public function saveAll(array $objects, ?\Closure $saveRelationships = null): int
+    public function saveAll(array $objects, string|\Closure|null ...$saveRelationships): int
     {
         throw new BadMethodCallException('Cannot save in a read only repository');
     }
