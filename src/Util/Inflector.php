@@ -1,9 +1,9 @@
 <?php
 namespace Corma\Util;
 
+use Corma\Util\Inflector\Rules;
 use Doctrine\Inflector\CachedWordInflector;
 use Doctrine\Inflector\Inflector as DoctrineInflector;
-use Doctrine\Inflector\Rules\English\Rules;
 use Doctrine\Inflector\RulesetInflector;
 
 /**
