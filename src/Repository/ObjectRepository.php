@@ -125,6 +125,12 @@ class ObjectRepository implements ObjectRepositoryInterface
         return $this->fetchOne($qb);
     }
 
+    public function count(array $criteria = []): int
+    {
+        $qb = $this->queryHelper->buildSelectQuery($this->getTableName(), 'main.*', $criteria);
+        return $this->queryHelper->getCount($qb, $this->objectManager->getIdColumn());
+    }
+
     public function getClassName(): string
     {
         if ($this->className) {

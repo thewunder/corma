@@ -75,6 +75,13 @@ interface ObjectRepositoryInterface
     public function findByIds(array $ids, bool $useCache = true): array;
 
     /**
+     * Count the number of rows that meet the provided criteria.
+     *
+     * @param array $criteria column => value pairs to be used to build where clause
+     */
+    public function count(array $criteria = []): int;
+
+    /**
      * Return the database table for an object
      *
      * @param object|string|null $objectOrClass If omitted will return table for the object this repository manages

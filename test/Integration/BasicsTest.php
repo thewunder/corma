@@ -43,6 +43,12 @@ final class BasicsTest extends BaseIntegrationCase
         $this->assertNull($fromDb);
     }
 
+    #[Depends('testSave')]
+    public function testCount()
+    {
+        $this->assertGreaterThan(0, $this->repository->count());
+    }
+
     /**
      * @return ExtendedDataObject
      */

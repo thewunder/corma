@@ -110,6 +110,18 @@ class ObjectMapperTest extends TestCase
         $this->getCorma($mockRepo)->findOneBy(ExtendedDataObject::class, ['asdf'=>'value'], ['asdf'=>'ASC']);
     }
 
+    public function testCount()
+    {
+        $mockRepo = $this->getMockBuilder(ExtendedDataObjectRepository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $mockRepo->expects($this->once())->method('count')->with(['asdf'=>'value'])->willReturn(42);
+
+        $count = $this->getCorma($mockRepo)->count(ExtendedDataObject::class, ['asdf'=>'value']);
+        $this->assertEquals(42, $count);
+    }
+
     public function testLoadOneToMany(): void
     {
         $objects = [];

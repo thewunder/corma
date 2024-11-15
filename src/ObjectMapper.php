@@ -183,6 +183,11 @@ class ObjectMapper
         return $this->getRepository($objectName)->findOneBy($criteria, $orderBy);
     }
 
+    public function count(string $objectName, array $criteria = []): int
+    {
+        return $this->getRepository($objectName)->count($criteria);
+    }
+
     /**
      * Load one or more relationship on the provided objects.
      *
