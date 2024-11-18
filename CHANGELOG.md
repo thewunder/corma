@@ -1,3 +1,10 @@
+Version 5.1.0
+=============
+
+New Features
+-----------
+- Adds a count method to repositories and the ObjectMapper
+
 Version 5.0
 =============
 
