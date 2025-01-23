@@ -73,10 +73,7 @@ class ObjectMapper
         return $instance;
     }
 
-    /**
-     * @return QueryHelperInterface
-     */
-    protected static function createQueryHelper(Connection $db, CacheInterface $cache): QueryHelperInterface
+    public static function createQueryHelper(Connection $db, CacheInterface $cache): QueryHelperInterface
     {
         $database = $db->getDatabasePlatform()::class;
         $database = str_replace(['Corma\\DBAL\\Platforms\\', 'Platform'], '', $database);
