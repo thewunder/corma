@@ -1,3 +1,10 @@
+Version 5.1.1
+=============
+
+Changes
+-----------
+- Make ObjectMapper::createQueryHelper method public
+
 Version 5.1.0
 =============
 
