@@ -104,4 +104,24 @@ class UnitOfWorkTest extends TestCase
         $this->objectMapper->expects($this->once())->method('deleteAll')->with($toDeleteAll);
         $unitOfWork->flush();
     }
+
+    public function testCommitEvent()
+    {
+        $dispatcher = $this->getMockBuilder(EventDispatcher::class)->getMock();
+
+        $unitOfWork = new UnitOfWork($this->objectMapper, $dispatcher);
+        $dispatcher->expects($this->once())->method('dispatch')->with($unitOfWork, 'Corma.UnitOfWork.Commit');
+        $unitOfWork->executeTransaction(fn() => 7);
+    }
+
+    public function testRollbackEvent()
+    {
+        $dispatcher = $this->getMockBuilder(EventDispatcher::class)->getMock();
+
+        $unitOfWork = new UnitOfWork($this->objectMapper, $dispatcher);
+        $this->expectException(\Exception::class);
+        $exception = new \Exception();
+        $dispatcher->expects($this->once())->method('dispatch')->with($exception, 'Corma.UnitOfWork.Rollback');
+        $unitOfWork->executeTransaction(fn() => throw $exception);
+    }
 }

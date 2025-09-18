@@ -62,7 +62,7 @@ class ObjectMapper
         $repositoryFactory = new ObjectRepositoryFactory($container);
         $objectManagerFactory = ObjectManagerFactory::withDefaults($queryHelper, $inflector, $container);
 
-        $instance = new self($queryHelper, $repositoryFactory, $objectManagerFactory, $inflector);
+        $instance = new self($queryHelper, $repositoryFactory, $objectManagerFactory, $inflector, $dispatcher);
 
         $repositoryDependencies = [$db, $instance, $cache, $dispatcher];
         if (!empty($dependencies)) {
@@ -89,8 +89,13 @@ class ObjectMapper
     /**
      * ObjectMapper constructor.
      */
-    public function __construct(private readonly QueryHelperInterface $queryHelper, private readonly ObjectRepositoryFactoryInterface $repositoryFactory,
-                                private readonly ObjectManagerFactory $objectManagerFactory, private readonly Inflector $inflector)
+    public function __construct(
+        private readonly QueryHelperInterface $queryHelper,
+        private readonly ObjectRepositoryFactoryInterface $repositoryFactory,
+        private readonly ObjectManagerFactory $objectManagerFactory,
+        private readonly Inflector $inflector,
+        private readonly ?EventDispatcherInterface $dispatcher = null
+    )
     {
     }
 
@@ -287,7 +292,7 @@ class ObjectMapper
 
     public function unitOfWork(): UnitOfWork
     {
-        return new UnitOfWork($this);
+        return new UnitOfWork($this, $this->dispatcher);
     }
 
     public function getObjectManagerFactory(): ObjectManagerFactory

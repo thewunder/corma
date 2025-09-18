@@ -2,6 +2,7 @@
 namespace Corma\Util;
 
 use Corma\ObjectMapper;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Provides a way to safely execute any number of save / delete operations within a transaction.
@@ -9,12 +10,15 @@ use Corma\ObjectMapper;
  * Can be used in two basic ways, one executeTransaction() will execute the provided callback within a transaction,
  * or secondly you can add objects to save and delete, and call flush to save all objects.
  */
-class UnitOfWork
+final class UnitOfWork
 {
     private array $objectsToSave = [];
     private array $objectsToDelete = [];
 
-    public function __construct(private readonly ObjectMapper $orm)
+    public function __construct(
+        private readonly ObjectMapper $orm,
+        private readonly ?EventDispatcherInterface $dispatcher = null
+    )
     {
     }
 
@@ -79,19 +83,21 @@ class UnitOfWork
      * @return mixed The return of the closure passed in
      * @throws \Throwable
      */
-    public function executeTransaction(\Closure $run, \Closure $exceptionHandler = null)
+    public function executeTransaction(\Closure $run, \Closure $exceptionHandler = null): mixed
     {
         $db = $this->orm->getQueryHelper()->getConnection();
         $db->beginTransaction();
         try {
             $return = $run();
             $db->commit();
+            $this->dispatcher?->dispatch($this, 'Corma.UnitOfWork.Commit');
             return $return;
         } catch (\Throwable $e) {
             if ($exceptionHandler) {
                 $exceptionHandler($e);
             } else {
                 $db->rollBack();
+                $this->dispatcher?->dispatch($e, 'Corma.UnitOfWork.Rollback');
                 throw $e;
             }
             return null;
