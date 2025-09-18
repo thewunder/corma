@@ -1,9 +1,14 @@
 <?php
 namespace Corma\Test\Unit\DataObject\Hydrator;
 
+use Corma\DataObject\Hydrator\PropertyHydrator\BackedEnumHydrator;
 use Corma\DataObject\Hydrator\ClosureHydrator;
+use Corma\DataObject\Hydrator\PropertyHydrator\DateTimeHydrator;
+use Corma\Test\Fixtures\DateTimeObject;
+use Corma\Test\Fixtures\EnumObject;
 use Corma\Test\Fixtures\ExtendedDataObject;
 use Corma\Test\Fixtures\OtherDataObject;
+use Corma\Test\Fixtures\TestEnum;
 use PHPUnit\Framework\TestCase;
 
 class ClosureHydratorTest extends TestCase
@@ -48,5 +53,42 @@ class ClosureHydratorTest extends TestCase
         $object->setMyColumn(4);
         $data = $hydrator->extract($object);
         $this->assertEmpty($data);
+    }
+
+    public function testDateTimePropertyHydrator(): void
+    {
+        $hydrator = new ClosureHydrator();
+        $hydrator->addPropertyHydrator(new DateTimeHydrator());
+        
+        // Test hydration
+        $dateTimeObject = new DateTimeObject();
+        $dateString = '2025-09-18 11:12:00';
+        $hydrator->hydrate($dateTimeObject, ['createdAt' => $dateString]);
+        
+        $this->assertInstanceOf(\DateTime::class, $dateTimeObject->getCreatedAt());
+        $this->assertEquals($dateString, $dateTimeObject->getCreatedAt()->format('Y-m-d H:i:s'));
+        
+        // Test extraction
+        $data = $hydrator->extract($dateTimeObject);
+        $this->assertEquals($dateString, $data['createdAt']);
+    }
+    
+    public function testBackedEnumPropertyHydrator(): void
+    {
+        $hydrator = new ClosureHydrator();
+        $hydrator->addPropertyHydrator(new BackedEnumHydrator());
+        
+        // Test hydration
+        $enumObject = new EnumObject();
+        $statusValue = 'active';
+        $hydrator->hydrate($enumObject, ['status' => $statusValue]);
+        
+        $this->assertInstanceOf(TestEnum::class, $enumObject->getStatus());
+        $this->assertEquals(TestEnum::ACTIVE, $enumObject->getStatus());
+        $this->assertEquals($statusValue, $enumObject->getStatus()->value);
+        
+        // Test extraction
+        $data = $hydrator->extract($enumObject);
+        $this->assertEquals($statusValue, $data['status']);
     }
 }
