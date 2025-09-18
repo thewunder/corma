@@ -23,13 +23,17 @@ class ObjectManagerFactory
     /**
      * @return ObjectManagerFactory
      */
-    public static function withDefaults(QueryHelperInterface $queryHelper, Inflector $inflector, ContainerInterface $container): self
+    public static function withDefaults(QueryHelperInterface $queryHelper, Inflector $inflector, ContainerInterface $container, array $propertyHydrators = []): self
     {
         $hydrator = new ClosureHydrator();
+        foreach ($propertyHydrators as $propertyHydrator) {
+            $hydrator->addPropertyHydrator($propertyHydrator);
+        }
+
         $factory = new PsrContainerObjectFactory($container, $hydrator);
 
         $tableConvention = new CustomizableTableConvention($inflector);
-        $identifier = new CustomizableAutoIncrementIdentifier($inflector, $queryHelper, $tableConvention);
+        $identifier = new CustomizableAutoIncrementIdentifier($inflector, $queryHelper);
 
         return new self($hydrator, $identifier, $tableConvention, $factory);
     }

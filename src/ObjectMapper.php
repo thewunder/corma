@@ -1,6 +1,8 @@
 <?php
 namespace Corma;
 
+use Corma\DataObject\Hydrator\PropertyHydrator\BackedEnumHydrator;
+use Corma\DataObject\Hydrator\PropertyHydrator\DateTimeHydrator;
 use Corma\DataObject\ObjectManager;
 use Corma\DataObject\ObjectManagerFactory;
 use Corma\Exception\InvalidAttributeException;
@@ -45,10 +47,11 @@ class ObjectMapper
      * @return self
      *
      */
-    public static function withDefaults(Connection                $db,
-                                        ContainerInterface $container,
-                                        ?CacheInterface          $cache = null,
-                                        ?EventDispatcherInterface $dispatcher = null): self
+    public static function withDefaults(
+        Connection                  $db,
+        ContainerInterface          $container,
+        ?CacheInterface             $cache = null,
+        ?EventDispatcherInterface   $dispatcher = null): self
     {
         if ($cache === null) {
             $cache = new LimitedArrayCache(10000);
@@ -60,7 +63,7 @@ class ObjectMapper
         $inflector = Inflector::build();
 
         $repositoryFactory = new ObjectRepositoryFactory($container);
-        $objectManagerFactory = ObjectManagerFactory::withDefaults($queryHelper, $inflector, $container);
+        $objectManagerFactory = ObjectManagerFactory::withDefaults($queryHelper, $inflector, $container, [new DateTimeHydrator(), new BackedEnumHydrator()]);
 
         $instance = new self($queryHelper, $repositoryFactory, $objectManagerFactory, $inflector, $dispatcher);
 
