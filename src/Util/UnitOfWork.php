@@ -15,6 +15,8 @@ final class UnitOfWork
     private array $objectsToSave = [];
     private array $objectsToDelete = [];
 
+    private int $nestingLevel = 0;
+
     public function __construct(
         private readonly ObjectMapper $orm,
         private readonly ?EventDispatcherInterface $dispatcher = null
@@ -77,7 +79,7 @@ final class UnitOfWork
     /**
      * Wraps the passed function in a transaction and try / catch.
      *
-     * If no exceptionHandler is passed the transaction will be rolled back and the exception rethrown.
+     * If no exceptionHandler is passed, the transaction will be rolled back and the exception rethrown.
      *
      * @param \Closure|null $exceptionHandler
      * @return mixed The return of the closure passed in
@@ -86,6 +88,7 @@ final class UnitOfWork
     public function executeTransaction(\Closure $run, \Closure $exceptionHandler = null): mixed
     {
         $db = $this->orm->getQueryHelper()->getConnection();
+        $this->nestingLevel = $db->getTransactionNestingLevel();
         $db->beginTransaction();
         try {
             $return = $run();
@@ -130,5 +133,14 @@ final class UnitOfWork
         }, $exceptionHandler);
         $this->objectsToSave = [];
         $this->objectsToDelete = [];
+    }
+
+    /**
+     * The transaction nesting level prior to starting the work.
+     * If it is 0, this will result in a TRANSACTION COMMIT or ROLLBACK being executed.
+     */
+    public function getNestingLevel(): int
+    {
+        return $this->nestingLevel;
     }
 }

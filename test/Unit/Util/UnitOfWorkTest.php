@@ -124,4 +124,13 @@ class UnitOfWorkTest extends TestCase
         $dispatcher->expects($this->once())->method('dispatch')->with($exception, 'Corma.UnitOfWork.Rollback');
         $unitOfWork->executeTransaction(fn() => throw $exception);
     }
+
+    public function testNestingLevel()
+    {
+        $this->connection->expects($this->once())->method('getTransactionNestingLevel')->willReturn(42);
+
+        $unitOfWork = new UnitOfWork($this->objectMapper);
+        $unitOfWork->executeTransaction(fn() => 7);
+        $this->assertEquals(42, $unitOfWork->getNestingLevel());
+    }
 }
