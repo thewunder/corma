@@ -1,3 +1,15 @@
+Version 5.2.0
+=============
+
+Changes
+-----------
+- Dispatch an event when a UnitOfWork is committed (Corma.UnitOfWork.Commit)
+- Dispatch an event when a UnitOfWork is rolled back (Corma.UnitOfWork.RollBack)
+- Expose the transaction nesting level via the UnitOfWork
+- Add PropertyHydrator classes which extend the ObjectHydrator to allow non-static property types to be directly hydrated
+- Hydrate / extract DateTime and DateTimeImmutable properties
+- Hydrate / extract BackedEnum properties
+
 Version 5.1.1
 =============
 
