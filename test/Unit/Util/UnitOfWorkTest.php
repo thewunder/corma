@@ -121,7 +121,7 @@ class UnitOfWorkTest extends TestCase
         $unitOfWork = new UnitOfWork($this->objectMapper, $dispatcher);
         $this->expectException(\Exception::class);
         $exception = new \Exception();
-        $dispatcher->expects($this->once())->method('dispatch')->with($exception, 'Corma.UnitOfWork.Rollback');
+        $dispatcher->expects($this->once())->method('dispatch')->with($unitOfWork, 'Corma.UnitOfWork.Rollback');
         $unitOfWork->executeTransaction(fn() => throw $exception);
     }
 

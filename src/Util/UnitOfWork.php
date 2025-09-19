@@ -100,7 +100,7 @@ final class UnitOfWork
                 $exceptionHandler($e);
             } else {
                 $db->rollBack();
-                $this->dispatcher?->dispatch($e, 'Corma.UnitOfWork.Rollback');
+                $this->dispatcher?->dispatch($this, 'Corma.UnitOfWork.Rollback');
                 throw $e;
             }
             return null;
